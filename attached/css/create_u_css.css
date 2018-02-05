@@ -1,0 +1,72 @@
+@charset "utf-8";
+/* CSS Document */
+
+#tbl_user_medic{
+	width:100%;	
+	pading: 10px;
+}
+/*#tbl_user_medic td:firt-child{
+	width:45%;	
+}
+#tbl_user_medic td:last-child{
+	width:45%;	
+}*/
+#td_divider_usermedic{
+	width:10%;
+}
+#bt_save_rel{
+	background:url(../image/guardar45x45.png) center no-repeat;
+	width:50px;
+	height:50px;	
+}
+#bt_del_rel{
+	background:url(../image/borrar45x45.png) center no-repeat;
+	width:50px;
+	height:50px;	
+}
+
+#td_createuser{
+	width:45%;	
+	vertical-align:top;
+}
+#tbl_createuser{
+	width:95%;
+	margin:0 auto;
+}
+#tbl_result_user{
+	width:90%;
+	margin: 0 auto;
+	text-align:center;
+}
+
+
+#td_createmedic{
+		width:45%;	
+
+	vertical-align:top;	
+}
+#tbl_createmedic{
+	width: 95%;
+	margin: 0 auto;
+}
+#medic_name{
+	width:240px;
+}
+#medic_genero{
+	width:100px;
+}
+#medic_font{
+	width:250px;
+}
+#medic_speciality{
+	width: 400px;
+	height: 67px;
+}
+#medic_direction{
+	width: 400px;
+	height: 67px;
+}
+#tbl_result_medic{
+	max-width:90%;
+	margin:0 auto;
+}

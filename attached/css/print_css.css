@@ -1,0 +1,95 @@
+@charset "utf-8";
+/* CSS Document */
+
+#tbl_notadebito, #tbl_notadebito th{
+	text-align:center;
+	font-size:12px;
+}
+#tbl_notadecredito:first-child{
+	background-color:#DDDDDD;
+}
+#tbl_client{
+	font-size:12px;
+	margin-bottom:5px;
+}
+#tbl_facturaf{
+	font-size:12px;
+}
+.table-print td{
+	font-size:12px;
+}
+#tbl_observation{
+	margin-top:5px;
+}
+#tbl_datopago{
+	padding:2px;
+}
+.no_padding{
+	padding:0;
+}
+#tbl_relation, #tbl_relation th{
+	font-size:12px;
+	text-align:center;
+}
+#tbl_datopedido td{
+	text-align: center;
+	padding: 0
+}
+#tbl_datopedido thead th{
+	text-align: center;
+	padding: 2
+}
+#tbl_titulo tbody td{
+	text-align: center;
+}
+#tbl_autorized tbody td{
+	text-align: center;
+}
+.tbl-padding-0 thead tr th{
+	padding:0px;
+}
+.tbl-padding-0 tbody tr td{
+	padding:0px;
+}
+.tbl-padding-0 tfoot tr td{
+	padding:0px;
+}
+.tbl-padding-0 caption{
+	padding:0px;
+}
+#tbl_payment, #tbl_payment th{
+	text-align: center;
+}
+#tbl_payment tr td:first-child {
+	text-align: center;
+	font-weight: bolder;
+}
+#tbl_product thead tr th{
+	text-align: center;
+}
+#tbl_facturacompra thead tr th{
+	text-align: center;
+}
+#tbl_facturacompra tbody tr td:last-child{
+	font-weight: bolder;
+}
+#tbl_facturacompra tbody tr td{
+	padding: 1px
+}
+#tbl_facturaf th{
+	text-align: center;
+}
+#tbl_compra{
+	margin-top: 5px;
+}
+#tbl_tittle{
+	text-align: center;
+	border-top: none;
+}
+tfoot{
+	page-break-after: always;
+}
+#tbl_product td{
+	height: 40px;
+	padding: 3px;
+}

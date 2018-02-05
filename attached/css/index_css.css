@@ -1,0 +1,33 @@
+@charset "utf-8";
+/* CSS Document */
+#login_container{
+    height: 100px;
+    margin: 0 auto;
+    text-align: center;
+}
+#btn_login{
+	margin-right: 80px;
+}
+#about_us{
+	padding:0;
+	text-align:center;
+	font-size: 24px;
+	font-weight: bolder;
+	margin: 0 auto;
+	float: none;
+	border-bottom: solid 3px #dc4233;
+}
+#container_quickaccess{
+	text-align:center;
+	padding:30px 0px;
+	margin-top: 100px;
+}
+#container_div_expand_login{
+	text-align:center;
+}
+#container_expand_login{
+	text-align:center;
+	font-size:30px;
+	color:#7892CF;
+	cursor:pointer;
+}

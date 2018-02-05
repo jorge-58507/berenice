@@ -1,0 +1,199 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+
+.button_add_short{
+	width:25px;
+}
+
+#td_izq{
+	width:46%;
+}
+
+#td_divider_med_history{
+	width:80px;
+}
+
+#td_der{
+	width:46%;
+}
+
+#tbl_inf_izquierda{
+	width:50%;
+}
+
+#td_ci{
+	width:130px;
+}
+
+#pac_ci{
+	width:75px;	
+}
+
+#bt_buscar_ci{
+	background:url(../image/lupa_buscar.png) center no-repeat;	
+}
+#bt_save_ef{
+	background:url(../image/flecha_roja.png) center no-repeat;
+	width:55px;
+	height:75px;
+}
+#fecha_actual{
+	width:70px;
+}
+
+#td_nya{
+	width:270px;
+}
+
+#pac_nya{
+	width:250px;	
+}
+
+#td_edad{
+	width:50px;
+}
+
+#pac_edad{
+	width:20px;
+}
+#td_h{
+	width:140px;
+}
+
+#pac_h{
+	width:110px;
+}
+
+#inf_ea_genero{
+	width:132px;
+}
+
+#inf_m_mc{
+	width:200px;	
+	
+}
+#sel_mc{
+	width:132px;
+}
+#inf_mc{
+	width:315px;
+	height:80px;	
+}
+#sel_ea{
+	width:132px;
+}
+#inf_ea{
+	width:315px;
+	height:80px;
+}
+#sel_antecedente{
+	width:132px;	
+}
+#inf_antecedente{
+	width:315px;
+	height:80px;	
+}
+#inf_ef{
+	width:447px;
+	height:204px;
+}
+#inf_ef_fc{
+	width:30px;
+}
+#inf_ef_fr{
+	width:20px;
+}
+#inf_ef_tas{
+	width:25px;
+}
+#inf_ef_tad{
+	width:25px;
+}
+#inf_ef_temp{
+	width:20px;
+}
+#inf_ef_gc{
+	width:30px;
+}
+#inf_ef_condicion{
+	width:60px;
+}
+#inf_ef_hidratacion{
+	width:85px;
+}
+#inf_ef_fiebre{
+	width:60px;
+}
+#inf_ef_respiracion{
+	width:80px;
+}
+#inf_ef_mucosa{
+	width:70px;
+}
+#inf_ef_pupila{
+	width:85px;
+}
+#inf_ef_piel{
+	width:235px;
+	height:60px;
+}
+#inf_ef_head{
+	width:235px;
+	height:60px;	
+}
+#sel_ef_orl{
+	width:100px;
+}
+#inf_ef_orl{
+	width:235px;
+	height:60px;
+}
+#sel_ef_neck{
+	width:100px;
+}
+#inf_ef_neck{
+	width:235px;
+	height:60px;
+}
+#sel_ef_respiratory{
+	width:115px;	
+}
+#sel_ef_cardiac{
+	width:70px;
+}
+#inf_ef_chest{
+	width:436px;
+	height:60px;	
+}
+#sel_ef_abd_inspection{
+	width:85px;	
+}
+#sel_ef_abd_auscultation{
+	width:75px;	
+}
+#sel_ef_abd_palpation{
+	width:75px;	
+}
+#inf_ef_abdomen{
+	width:436px;
+	height:60px;
+}
+#sel_ef_pelvis{
+	width:100px;
+}
+#inf_ef_pelvis{
+	width:270px;
+	height:60px;
+}
+
+#guardar_motivo{
+	width:50px;
+}
+
+.optmayuscula{
+    text-transform:capitalize;
+}
+select:first-letter {
+}

@@ -1,0 +1,31 @@
+@charset "utf-8";
+/* CSS Document */
+
+#container_btn_option{
+	text-align:center;	
+}
+
+#btn_sell{
+    height: 80px;
+    width: 150px;
+    font-size: 25px;
+}
+
+#btn_stock{
+    height: 80px;
+    font-size: 25px;
+}
+
+#btn_config{
+    height: 80px;
+    font-size: 25px;
+}
+#btn_paydesk{
+    height: 80px;
+    font-size: 25px;
+}
+
+#container_btn_option button{
+	min-width:150px;
+}
+

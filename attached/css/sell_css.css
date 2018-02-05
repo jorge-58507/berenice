@@ -1,0 +1,111 @@
+@charset "utf-8";
+/* CSS Document */
+
+#tbl_product, #tbl_product  th{
+	text-align:center;
+	cursor:pointer;
+}
+
+#tbl_product2sell{
+	cursor:default;
+	text-align:center;
+}
+#tbl_product2sell  th{
+	text-align:center;
+}
+#tbl_product2sell  td{
+	vertical-align: middle;
+}
+#tbl_product2sell  tfoot{
+	text-align:center;
+}
+#container_btn_print{
+	text-align:center;
+}
+#container_btn_sale{
+	text-align:center;
+	padding:15px;
+}
+
+
+#tbl_facturaventa{
+	cursor:default;
+	text-align:center;
+}
+#tbl_facturaventa  th{
+	text-align:center;
+}
+#tbl_facturaventa  tfoot{
+	text-align:center;
+}
+
+#btn_addclient{
+	margin-top: 24px;
+	font-size: 23px;
+	padding: 5px;
+}
+
+#stock_quantity{
+	display:none;
+}
+#container_txtfilterpaydesk{
+	padding:0 15px 15px 15px;
+}
+#container_tblfacturaventa{
+	padding: 15px 15px 0 15px;
+}
+#container_alert{
+	padding: 5px 30px;
+}
+#container_txtobservation{
+	padding: 0 30px;
+}
+#container_report{
+	padding-top:25px;
+}
+#btn_refresh_tblproduct2sale{
+	margin-top:24px;
+	padding:6px 6px;
+	width:34px;
+	height:34px;
+}
+#container_btnrefreshtblproduct2sale{
+	padding-left:3px;
+}
+
+#container_cambio{
+	margin: 120px 0;
+	padding: 20px;
+	border-radius: 5px;
+}
+#div_cambio{
+	border: solid #FFF;
+	padding: 20px;
+	border-radius: 5px;
+	color: #EFA843;
+	font-size: 46px;
+	font-weight: bold;
+	text-align: center;
+}
+#container_background{
+	height: 500px;
+	position: absolute;
+	background: radial-gradient(ellipse at center, rgba(120,146,207,0.29) 0%,rgba(120,146,207,0.29) 54%,rgba(120,146,207,0.28) 56%,rgba(120,146,207,0.01) 100%);
+}
+#container_spandiference{
+  font-size: 40px;
+  border: dashed 1px #ccc;
+	text-align: center;
+	color: #F2B968;
+}
+#i_piggy_bank{
+	color: #E38D13;
+}
+#span_ff_number{
+	font-size: 12px;
+	text-align: left;
+}
+#container_selproduct{
+	max-height: 460px;
+	overflow-y: scroll;
+}

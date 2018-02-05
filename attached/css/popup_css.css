@@ -1,0 +1,281 @@
+@charset "utf-8";
+/* CSS Document */
+
+#td_pac_info, #div_pac_info, #td_ci, #td_nya, #td_edad, #td_h, #td_genero, #div_sel_mc, #div_date_hora, #div_date_fecha, #td_date_button, #td_cita, #date_fecha, #date_hora, #date_meridian, #div_date_mc, #date_mc, #div_sel_lab, #sel_lab, #div_sel_lab_perfil, #sel_lab_perfil, #div_pac, #div_sel_ecomplementary, #div_ordenes_value, #sel_ecomplementary, #ordenes_value, #div_ordenes_title, #div_ordenes_content, #div_ordenes_type,#ordenes_title, #ordenes_content, #ordenes_type{
+	padding:0 5px;
+}
+#pac_genero, #sel_mc, #div_pac_ci, #div_pac_nya, #div_pac_h, #div_pac_edad, #div_pac_genero, #div_ttl_clean, #td_patient, #container_value{
+	padding:0 0;
+}
+#txt_existingamount{
+	border: 0;
+	width: 50px;
+}
+#container_button{
+	padding-top:20px;
+	text-align:center;
+}
+
+
+/* --------------------################   ADD PROVIDER    ------------------- */
+#txt_direction{
+	height:80px;
+}
+
+
+
+
+/*---------------------################ newbankaccount       -----------------*/
+
+#container_newbankaccount{
+	padding-top: 15px;
+}
+#container_newbankaccount > div{
+	padding-top: 5px;
+}
+
+#container_btncollect{
+	text-align:center;
+}
+#tbl_bill th, #tbl_bill td{
+	text-align:center;
+	cursor:pointer;
+	-moz-user-select: none;
+}
+#container_adminpassword{
+	float:none;
+	margin:0 auto;
+	text-align:center;
+	margin-top:100px;
+}
+#tbl_editdatoventa, #tbl_editdatoventa th {
+	text-align:center;
+	font-size:14px;
+}
+#container_tblpayment{
+	padding:0 15px;
+}
+#tbl_payment th,#tbl_payment td{
+	text-align:center;
+}
+#tbl_debit, #tbl_debit th{
+	text-align:center;
+}
+#container_tblfacturaventa{
+	padding:15px 15px 0 15px;
+}
+#tbl_facturaventa{
+	text-align:center;
+}
+#tbl_facturaventa th{
+	text-align: center;
+	vertical-align: middle;
+}
+#clear_date_final, #clear_date_initial{
+	font-size:9px;
+}
+#container_txtfilternewcollect, #container_txtdate{
+	padding:0 5px 0 0;
+}
+
+#div_alert{
+	padding:5px;
+	margin:0 15px;
+}
+#alert{
+	padding:5px 0 0 0;
+}
+.radio{
+	margin:0;
+}
+#container_active{
+	color: #F00;
+}
+#tbl_cashmovement, #tbl_cashmovement th{
+	text-align:center;
+	margin-top:5px;
+	cursor:pointer;
+}
+#span_ruc{
+	padding:6px 5px;
+}
+#tbl_facturaf, #tbl_facturaf th{
+	text-align:center;
+	cursor:pointer;
+}
+#container_tblfacturaf{
+	padding:5px 15px;
+}
+#container_tbldatoventa{
+	padding:5px 15px;
+}
+#tbl_datoventa, #tbl_datoventa th{
+	text-align:center;
+	cursor:pointer;
+}
+#container_credit{
+	padding: 5px 15px;
+}
+#container_cuenta{
+	padding:0;
+}
+#container_payment{
+	padding:0;
+}
+#container_datoventa{
+	padding:0;
+}
+#container_btncollect{
+	padding-top:15px;
+}
+th{
+	text-transform:uppercase;
+}
+#container_btnfilter{
+	padding-top:25px;
+}
+#container_tblreport{
+	padding:20px 15px 0 15px;
+}
+#tbl_report, #tbl_report th{
+	text-align:center;
+	cursor:pointer;
+}
+#tbl_facturaf, #tbl_facturaf th{
+	text-align:center;
+	cursor:pointer;
+}
+#container_facturaf{
+	padding:0;
+}
+.fa_print{
+	font-size:16px;
+}
+#tbl_creditnote, #tbl_creditnote th{
+	text-align:center;
+	cursor:pointer;
+}
+#container_nc{
+	padding:0;
+}
+#container_tblcreditnote{
+	padding:0px 15px;
+}
+#container_tblcreditnote th, #container_tblcreditnote:last-child{
+	text-align: center;
+}
+#container_tblpayment{
+	padding:0px 15px;
+}
+#tbl_notadebito, #tbl_notadebito th{
+	text-align:center;
+	cursor:pointer;
+}
+#span_purchase, #span_sold, #span_relation {
+	text-align:center;
+}
+#container_spiner{
+	padding:45px 0 35px 0;
+	text-align:center;
+	font-size:25px;
+}
+#cog_1{
+	color: #7892CF;
+}
+#cog_2{
+	position: absolute;
+	margin-left: -55px;
+	margin-top: 35px;
+	color: #F84C4C;
+}
+#container_alertdate{
+	padding:5px 30px 0 30px;
+}
+#alert_date{
+	margin:0;
+	text-align:center;
+}
+#container_relation{
+	padding: 5px 15px 0 15px;
+}
+#container_rotation{
+	padding: 10px 15px 0 15px;
+}
+#container_date{
+	padding: 5px 15px 0 15px;
+}
+#container_product{
+	padding: 5px 15px 0 15px;
+}
+#container_product > div{
+	padding-top:5px;
+}
+#container_title{
+	text-align:center;
+}
+#container_tbltax{
+	padding: 15px 15px;
+}
+#tbl_tax{
+	text-align: center;
+}
+#container_tbltaxes{
+	padding:15px;
+}
+#tbl_taxes{
+	text-align: center;
+}
+#tbl_datopedido, #tbl_datopedido th{
+	text-align: center;
+	cursor: pointer;
+}
+#tbl_datopedido > tbody > tr > td{
+	vertical-align: middle;
+}
+#container_spanpsugerido{
+	padding-left:0px;
+}
+#span_p_sugerido{
+	border-color: #F84C4C;
+}
+#container_tblcashregister{
+	padding-top: 5px;
+}
+#container_btnpluscashregister{
+	padding-top: 5px;
+	text-align: center;
+}
+.tbl_primary_hovered{
+	background-color: #d2e8fb;
+}
+
+#container_upd_product > div{
+	padding: 5px 0;
+}
+#container_upd_product > div > div{
+	padding: 0 5px;
+}
+#container_activo > label{
+	margin-left: 17px;
+}
+#container_alarm > label{
+	margin-left: 17px;
+}
+#tbl_purchase_price th{
+	text-align: center;
+}
+#tbl_historical_price th{
+	text-align: center;
+}
+#container_tbl_historical_price{
+	height: 222px;
+	overflow-y: auto;
+}
+#container_tbl_purchase_price{
+	height: 222px;
+	overflow-y: auto;
+}
+#container_tblfacturaf{
+	height: 210px;
+	overflow: scroll;
+}
