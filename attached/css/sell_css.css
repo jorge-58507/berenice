@@ -109,3 +109,10 @@
 	max-height: 460px;
 	overflow-y: scroll;
 }
+#div_title{
+	margin: 2px auto;
+	float: none;
+	text-align: center;
+	border: solid 2px #ccc;
+	border-radius: 25px;
+}

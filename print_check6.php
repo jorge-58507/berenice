@@ -40,7 +40,7 @@ $fecha_dia = $dias[$d_number];
 $fecha = date('d-m-Y',strtotime($fecha_actual));
 ?>
 <table cellpadding="0" cellspacing="0" border="0" style="height:585px; width:1263px; font-size:12pt;">
-<tr style="height:11px">
+<tr style="height:6px">
 <td width="10%"><img src="attached\image\scan.jpg" width='1263px' style="position: absolute; z-index: -2; margin-top: -2px; display: none;"></img></td>
 <td width="10%"></td>
 <td width="10%"></td>
@@ -62,7 +62,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 	<td valign="top" colspan="10" style="vertical-align:bottom;">
 		<div style="width:191px; float:left;"> &nbsp;</div>
 		<div style="width:692px; float:left; letter-spacing: 6px;">**<?php echo substr($rs_cheque['TX_proveedor_nombre'],0,41); ?>**</div>
-		<div style="width:272px; float:left; padding-top:10px; letter-spacing: 6px; text-align:right;"><?php echo number_format($rs_cheque['TX_cheque_monto'],2); ?></div>
+		<div style="width:272px; float:left; padding-top:10px; letter-spacing: 6px; text-align:right;"><?php echo $rs_cheque['TX_cheque_monto']; ?></div>
   </td>
 </tr>
 <tr style="height:25px" align="center">

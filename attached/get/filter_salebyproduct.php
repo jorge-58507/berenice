@@ -11,7 +11,7 @@ if($limit == ""){	$line_limit="";	}else{	$line_limit= " LIMIT ".$limit;	}
 if (!empty($date_i) && !empty($date_f)) {
 	$line_date = " AND TX_facturaf_fecha >=	'$date_i' AND TX_facturaf_fecha <= '$date_f'";
 }
-echo $txt_facturaf="SELECT bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,
+$txt_facturaf="SELECT bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,
 bh_facturaf.TX_facturaf_fecha, bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_numero, bh_cliente.TX_cliente_nombre, bh_user.TX_user_seudonimo
 FROM ((((bh_datoventa
 INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
@@ -19,7 +19,7 @@ INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturave
 INNER JOIN bh_cliente ON bh_cliente.AI_cliente_id = bh_facturaf.facturaf_AI_cliente_id)
 INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaf.facturaf_AI_user_id)
 WHERE bh_datoventa.datoventa_AI_producto_id = '$product_id'".$line_date."
-ORDER BY TX_facturaf_fecha DESC".$line_limit;
+ORDER BY TX_facturaf_fecha DESC, TX_facturaf_numero ASC".$line_limit;
 
 $qry_facturaf=$link->query($txt_facturaf);
 
@@ -46,6 +46,13 @@ $qry_facturaf=$link->query($txt_facturaf);
         <td><?php echo number_format($precio_impuesto,2); ?></td>
         </tr>
         <?php } ?>
+				<tr class="bg-info">
+					<td></td>
+					<td></td>
+					<td></td>
+					<td><strong>TOTAL: </strong><br /><?php echo $total_cantidad; ?></td>
+					<td></td>
+				</tr>
 			<?php }else{ ?>
         <tr>
             <td>&nbsp;</td>

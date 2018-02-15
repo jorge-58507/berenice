@@ -125,7 +125,7 @@ $(window).on('beforeunload',function(){
 		 .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD " + textStatus);	});
 	})
 
-	$('#txt_product').validCampoFranz('.0123456789 abcdefghijklmnopqrstuvwxyz');
+	$('#txt_product').validCampoFranz('.0123456789 abcdefghijklmnopqrstuvwxyz-/');
 	$('#txt_provider').validCampoFranz('.0123456789 abcdefghijklmnopqrstuvwxyz');
 	$('#txt_quantity').validCampoFranz('.0123456789');
 	$('#txt_price').validCampoFranz('.0123456789');

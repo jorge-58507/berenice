@@ -4,10 +4,9 @@ $link=conexion();
 ?>
 <?php
 require 'attached/php/req_login_paydesk.php';
-//echo $_SESSION['admin'];
 ?>
 <?php
-$qry_cliente=mysql_query("SELECT bh_cliente.AI_cliente_id, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, SUM(bh_facturaf.TX_facturaf_deficit) AS suma, bh_facturaf.TX_facturaf_deficit FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) GROUP BY AI_cliente_id ORDER BY TX_cliente_nombre ASC LIMIT 10");
+$qry_cliente=mysql_query("SELECT bh_cliente.AI_cliente_id, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, SUM(bh_facturaf.TX_facturaf_deficit) AS suma, bh_facturaf.TX_facturaf_deficit, bh_cliente.TX_cliente_direccion FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) GROUP BY AI_cliente_id ORDER BY TX_cliente_nombre ASC LIMIT 10");
 $rs_cliente=mysql_fetch_assoc($qry_cliente);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -123,7 +122,7 @@ switch ($_COOKIE['coo_tuser']){
 <form action="login.php" method="post" name="form_login"  id="form_login">
 <div id="container_txtfilterfacturaf" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
     <label for="txt_filterclient">Buscar</label>
-    <input type="text" id="txt_filterclient" class="form-control" />
+    <input type="text" id="txt_filterclient" class="form-control" autofocus />
 </div>
 <div id="container_rlimit"  class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
     <label for="r_limit">Mostrar:</label><br />
@@ -161,7 +160,7 @@ switch ($_COOKIE['coo_tuser']){
 	if($nr_cliente=mysql_num_rows($qry_cliente) > 0){
 	do{ ?>
     	<tr>
-            <td><?php echo $rs_cliente['TX_cliente_nombre']; ?></td>
+            <td><?php echo $rs_cliente['TX_cliente_nombre']; ?><br /><font style="font-size:10px; font-weight:bolder;"><?php echo substr($rs_cliente['TX_cliente_direccion'],0,70); ?></font></td>
             <td><?php echo $rs_cliente['TX_cliente_cif']; ?></td>
             <td><?php echo number_format($rs_cliente['suma'],2); ?></td>
             <td><?php echo $rs_cliente['TX_cliente_telefono']; ?></td>

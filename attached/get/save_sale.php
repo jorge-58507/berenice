@@ -30,7 +30,10 @@ function sumarfacturaventa($numero){
 	return checkfacturaventa($numero+1);
 }
 
-$number=checkfacturaventa('1');
+$qry_facturaventa_numero=$link->query("SELECT AI_facturaventa_id, TX_facturaventa_numero FROM bh_facturaventa ORDER BY AI_facturaventa_id DESC LIMIT 1")or die($link->error);
+$rs_facturaventa_numero=$qry_facturaventa_numero->fetch_array();
+$number = $rs_facturaventa_numero['TX_facturaventa_numero'];
+$number=checkfacturaventa($number);
 
 $qry_chkexento = $link->query("SELECT AI_cliente_id FROM bh_cliente WHERE AI_cliente_id = '$client_id' AND TX_cliente_exento = '1'")or die($link->error);
 $nr_chkexento = $qry_chkexento->num_rows;

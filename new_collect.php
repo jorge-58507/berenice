@@ -242,7 +242,9 @@ $("#5").on("click", function(){
            plus_payment($("#5").prop("id"), '<?php echo $str_factid; ?>');
          })
 				 .fail(function( jqXHR, textStatus, errorThrown ) {		});
-			}
+			}else{
+        popup = window.open("popup_loginadmin.php?z=start_admin.php", "popup_loginadmin", 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=no,width=425,height=420');
+      }
 	})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {
 		 if ( console && console.log ) {	 console.log( "La solicitud a fallado: " +  textStatus); }

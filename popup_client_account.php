@@ -1,26 +1,22 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 require 'attached/php/req_login_paydesk.php';
-?>
-<?php
+
 $client_id = $_GET['a'];
 $txt_client="SELECT bh_cliente.AI_cliente_id, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, SUM(bh_facturaf.TX_facturaf_deficit) AS deficit, SUM(bh_facturaf.TX_facturaf_subtotalni) AS subtotal_ni, SUM(bh_facturaf.TX_facturaf_subtotalci) AS subtotal_ci, SUM(bh_facturaf.TX_facturaf_total) AS total, SUM(bh_facturaf.TX_facturaf_impuesto) AS impuesto FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id)
 WHERE bh_facturaf.facturaf_AI_cliente_id = '$client_id'";
-$qry_client=mysql_query($txt_client);
-$rs_client=mysql_fetch_assoc($qry_client);
-
-
+$qry_client=$link->query($txt_client);
+$rs_client=$qry_client->fetch_array();
 
 $txt_facturaf="SELECT
 bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_deficit
 FROM bh_facturaf
 WHERE bh_facturaf.facturaf_AI_cliente_id = '$client_id' ORDER BY TX_facturaf_fecha DESC";
-$qry_facturaf=mysql_query($txt_facturaf);
-$rs_facturaf=mysql_fetch_assoc($qry_facturaf);
-$nr_facturaf=mysql_num_rows($qry_facturaf);
+$qry_facturaf=$link->query($txt_facturaf);
+$rs_facturaf=$qry_facturaf->fetch_array();
+$nr_facturaf=$qry_facturaf->num_rows;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -115,7 +111,7 @@ $(document).ready(function() {
 			?></td>
             <td><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></td>
         </tr>
-        <?php }while($rs_facturaf=mysql_fetch_assoc($qry_facturaf));?>
+			<?php }while($rs_facturaf=$qry_facturaf->fetch_array());?>
         <?php }else{?>
         <tr>
         	<td></td>

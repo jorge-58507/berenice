@@ -60,7 +60,7 @@ $("#btn_cancel").click(function(){
 });
 
 $('#txt_cantidad,#txt_precio').validCampoFranz('.0123456789');
-$('#txt_descuento,#txt_impuesto').validCampoFranz('1234567890');
+$('#txt_descuento,#txt_impuesto').validCampoFranz('.1234567890');
 });
 function set_txtproducto(field){
 	$("#txt_producto").val(field.text);

@@ -60,7 +60,7 @@ $('#btn_cancel').click(function(){
 })
 
 $('#txt_monto').validCampoFranz('0123456789.');
-$('#txt_motivo').validCampoFranz('0123456789 abcdefghijklmnopqrstuvwxyz');
+$('#txt_motivo').validCampoFranz('0123456789 abcdefghijklmnopqrstuvwxyz-/*+,.()');
 
 $('#txt_monto').on("blur",function(){
 	this.value = val_intw2dec(this.value);

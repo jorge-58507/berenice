@@ -4,8 +4,8 @@ $link=conexion();
 
 require 'attached/php/req_login_paydesk.php';
 
- $debito_id=$_SESSION['debito_id'];
- // $debito_id='15';
+$debito_id=$_SESSION['debito_id'];
+// $debito_id='6';
 
 $qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
@@ -14,7 +14,8 @@ while($rs_opcion = $qry_opcion->fetch_array()){
 }
 $qry_user=$link->query("SELECT TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'")or die($link->error);
 $rs_user=$qry_user->fetch_array();
-
+?>
+<?php
 $txt_facturaf="SELECT bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_ticket,
 bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono, bh_facturaf.AI_facturaf_id
 FROM (((bh_facturaf
@@ -65,11 +66,9 @@ $total_total=$total_efectivo+$total_tarjeta_debito+$total_tarjeta_credito+$total
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Recibo: <?php echo $rs_facturaf['TX_cliente_nombre']?></title>
-<link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css">
-<link href="attached/css/print_css.css" rel="stylesheet" type="text/css">
-
 </head>
-<body style="font-family:Arial" onLoad="window.print()">
+<body style="font-family:Arial" >
+<!-- onLoad="window.print()" -->
 <?php
 $fecha_actual=date('Y-m-d');
 $dias = array('Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','Sabado');
@@ -78,10 +77,6 @@ $fecha_dia = $dias[$d_number];
 
 if ($qry_facturaf->num_rows < 8) {
 ?>
-<div style="text-align:center" class="container-fluid no_print">
-	<button type="button"onclick="window.document.location.href='print_debito_v.php?a=<?php echo $debito_id; ?>'" name="button" class="btn btn-lg btn-default">Impresion con Historial</button>
-</div>
-
 <table align="center" cellpadding="0" cellspacing="0" border="0" style="height: 760px;width: 1001px;transform: rotate(90deg);
 margin-top: 105px;margin-left: -130px;">
 <tr>
@@ -159,7 +154,10 @@ margin-top: 105px;margin-left: -130px;">
         <tbody>
 <?php 	$raw_facturaf=array();
 				do{
-					$raw_facturaf[]=$rs_facturaf;?>
+					$raw_facturaf[]=$rs_facturaf;
+					// $raw_facturaf[$rs_facturaf['AI_facturaf_id']] = $rs_facturaf['AI_facturaf_id'];
+					// $raw_facturaf[]['ff_numero'] = $rs_facturaf['TX_facturaf_numero'];
+?>
         <tr>
         	<td><?php echo $rs_facturaf['TX_facturaf_numero']; ?></td>
         	<td><?php $prefecha=strtotime($rs_facturaf['TX_facturaf_fecha']); echo date('d-m-Y',$prefecha); ?></td>
@@ -167,6 +165,7 @@ margin-top: 105px;margin-left: -130px;">
         	<td><?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></td>
         </tr>
 			<?php }while($rs_facturaf=$qry_facturaf->fetch_array());
+			// echo json_encode($raw_facturaf);
 			?>
         </tbody>
 	</table>
@@ -184,6 +183,7 @@ margin-top: 105px;margin-left: -130px;">
 			$raw_nd[$i]=$rs_nd_afected['rel_AI_notadebito_id'];
 			$i++;
 		}
+		// echo "".$key.": ".$value['ff_id']."<br />";
 
 		$raw_ff_nd[$value['AI_facturaf_id']]['nd_id']=$raw_nd;
 		$raw_ff_nd[$value['AI_facturaf_id']]['ff_numero']=$value['TX_facturaf_numero'];
@@ -192,6 +192,7 @@ margin-top: 105px;margin-left: -130px;">
 		FROM (bh_datodebito
 			INNER JOIN bh_notadebito ON bh_notadebito.AI_notadebito_id = bh_datodebito.datodebito_AI_notadebito_id)
 			WHERE bh_notadebito.AI_notadebito_id = ? AND bh_datodebito.datodebito_AI_metododepago_id = '7'")or die($link->error);
+	// echo json_encode($raw_ff_nd);
 
 ?>
 	<table align="center" border="1" cellpadding="0" cellspacing="0" style="width:100%; font-size:12px; text-align:center;">
@@ -226,31 +227,15 @@ foreach ($raw_ff_nd as $key => $ff_id) {
 ?>
 		</tbody>
 	</table>
-  <p>
-		<?php
-			if($total_efectivo > 0){
-				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
-			}
-			if($total_cheque > 0){
-				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);
-			}
-			if($total_tarjeta_credito > 0){
-				echo "<strong>TDC: B/ </strong>".number_format($total_tarjeta_credito,2);
-			}
-			if($total_tarjeta_debito > 0){
-				echo "<strong>TDD: B/ </strong>".number_format($total_tarjeta_debito,2);
-			}
-			if($total_nota_credito > 0){
-				echo "<strong>Nota de C.: B/ </strong>".number_format($total_nota_credito,2);
-			}
-		 ?>
-	 </p>
+		<p>
+    <strong>Efectivo:</strong> B/ <?php echo number_format($total_efectivo,2); ?>&nbsp;
+		<strong>Cheque:</strong> B/ <?php echo number_format($total_cheque,2); ?>&nbsp;
+		<strong>Tarjeta D&eacute;bito:</strong> B/ <?php echo number_format($total_tarjeta_debito,2); ?>&nbsp;
+		<strong>Tarjeta Cr&eacute;dito:</strong> B/ <?php echo number_format($total_tarjeta_credito,2); ?>&nbsp;
+		<strong>Nota de Cr&eacute;dito:</strong> B/ <?php echo number_format($total_nota_credito,2); ?>&nbsp;
+    </p>
     <strong>Total:</strong> B/ <?php echo number_format($total_total,2); ?><br />
-<?php
-			if($cambio > 0){
-				echo "<strong>Cambio: B/ </strong>".number_format($cambio,2);
-			}
-?>
+    <strong>Cambio:</strong> B/ <?php echo $cambio; ?><br />
 
     </td>
 </tr>
@@ -337,104 +322,41 @@ foreach ($raw_ff_nd as $key => $ff_id) {
     	<thead>
         <tr>
         	<th style="width:25%"><strong>Nº Factura</strong></th>
-          <th style="width:25%"><strong>Fecha</strong></th>
-          <th style="width:25%"><strong>Total: </strong></th>
-          <th style="width:25%"><strong>Saldo: </strong></th>
-      	</tr>
-      </thead>
-      <tbody>
-        <?php
-
-        do{  ?>
+            <th style="width:25%"><strong>Fecha</strong></th>
+            <th style="width:25%"><strong>Total: </strong></th>
+            <th style="width:25%"><strong>Saldo: </strong></th>
+    	</tr>
+        </thead>
+        <tbody>
+        <?php do{  ?>
         <tr>
-        	<td><?php echo $rs_facturaf_d['TX_facturaf_numero']; ?></td>
-        	<td><?php	$prefecha=strtotime($rs_facturaf_d['TX_facturaf_fecha']);	echo date('d-m-Y',$prefecha); ?></td>
-        	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_total'],2); ?></td>
-        	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_deficit'],2); ?></td>
+        	<td>
+            <?php echo $rs_facturaf['TX_facturaf_numero']; ?>
+            </td>
+        	<td>
+            <?php
+			$prefecha=strtotime($rs_facturaf['TX_facturaf_fecha']);
+			echo date('d-m-Y',$prefecha); ?>
+            </td>
+        	<td>
+            <?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_total'],2); ?>
+            </td>
+        	<td>
+            <?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_deficit'],2); ?>
+            </td>
         </tr>
-      <?php }while($rs_facturaf_d=$qry_facturaf_d->fetch_array()); ?>
-      </tbody>
-  	</table>
-  <?php
-  	$qry_nd_afected=$link->prepare("SELECT rel_AI_notadebito_id from rel_facturaf_notadebito WHERE rel_AI_facturaf_id = ?")or die($link->error);
-  	$raw_ff_nd=array();
-  	$it=0;
-  	foreach ($raw_facturaf as $key => $value) {
-  		$qry_nd_afected->bind_param("i",$value['AI_facturaf_id']);
-  		$qry_nd_afected->execute();
-  		$result = $qry_nd_afected->get_result();
-  		$raw_nd=array();
-  		$i=0;
-  		while ($rs_nd_afected=$result->fetch_array()) {
-  			$raw_nd[$i]=$rs_nd_afected['rel_AI_notadebito_id'];
-  			$i++;
-  		}
-  		$raw_ff_nd[$value['AI_facturaf_id']]['nd_id']=$raw_nd;
-  		$raw_ff_nd[$value['AI_facturaf_id']]['ff_numero']=$value['TX_facturaf_numero'];
-  	}
-  	$qry_datodebito = $link->prepare("SELECT datodebito_AI_metododepago_id, TX_notadebito_numero, TX_notadebito_fecha, TX_datodebito_monto
-  		FROM (bh_datodebito
-  			INNER JOIN bh_notadebito ON bh_notadebito.AI_notadebito_id = bh_datodebito.datodebito_AI_notadebito_id)
-  			WHERE bh_notadebito.AI_notadebito_id = ? AND bh_datodebito.datodebito_AI_metododepago_id = '7'")or die($link->error);
-
-  ?>
-  	<table align="center" border="1" cellpadding="0" cellspacing="0" style="width:100%; font-size:12px; text-align:center;">
-  		<caption>Notas de Credito Aplicadas</caption>
-  		<thead>
-  			<tr>
-  				<th style="width:30%">Fact. Afectada</th>
-  				<th style="width:30%">N&deg; Nota Cred.</th>
-  				<th style="width:20%">Fecha</th>
-  				<th style="width:20%">Monto</th>
-  			</tr>
-  		</thead>
-  		<tbody>
-  <?php
-  foreach ($raw_ff_nd as $key => $ff_id) {
-  	foreach ($ff_id['nd_id'] as $index => $nd_id) {
-  		$qry_datodebito->bind_param("i", $nd_id); $qry_datodebito->execute(); $result=$qry_datodebito->get_result();
-  		while ($rs_datodebito=$result->fetch_array()) {
-  			if ($rs_datodebito['datodebito_AI_metododepago_id'] === 7) {
-  ?>
-  			<tr>
-  				<td><?php echo $ff_id['ff_numero']; ?></td>
-  				<td><?php echo $rs_datodebito['TX_notadebito_numero']; ?></td>
-  				<td><?php echo $rs_datodebito['TX_notadebito_fecha']; ?></td>
-  				<td><?php echo $rs_datodebito['TX_datodebito_monto']; ?></td>
-  			</tr>
-  <?php
-  			}
-  		}
-  	}
-  }
-  ?>
-  		</tbody>
-  	</table>
-  <p>
-		<?php
-			if($total_efectivo > 0){
-				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
-			}
-			if($total_cheque > 0){
-				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);
-			}
-			if($total_tarjeta_credito > 0){
-				echo "<strong>TDC: B/ </strong>".number_format($total_tarjeta_credito,2);
-			}
-			if($total_tarjeta_debito > 0){
-				echo "<strong>TDD: B/ </strong>".number_format($total_tarjeta_debito,2);
-			}
-			if($total_nota_credito > 0){
-				echo "<strong>Nota de C.: B/ </strong>".number_format($total_nota_credito,2);
-			}
-		 ?>
-	 </p>
+        <?php }while($rs_facturaf=$qry_facturaf->fetch_array()); ?>
+        </tbody>
+	</table>
+	<p>
+    <strong>Efectivo:</strong> B/ <?php echo number_format($total_efectivo+$cambio,2); ?>&nbsp;
+		<strong>Cheque:</strong> B/ <?php echo number_format($total_cheque,2); ?>&nbsp;
+		<strong>Tarjeta D&eacute;bito:</strong> B/ <?php echo number_format($total_tarjeta_debito,2); ?>&nbsp;
+		<strong>Tarjeta Cr&eacute;dito:</strong> B/ <?php echo number_format($total_tarjeta_credito,2); ?>&nbsp;
+    </p>
     <strong>Total:</strong> B/ <?php echo number_format($total_total,2); ?><br />
-<?php
-			if($cambio > 0){
-				echo "<strong>Cambio: B/ </strong>".number_format($cambio,2);
-			}
-?>
+    <strong>Cambio:</strong> B/ <?php echo $cambio; ?><br />
+
     </td>
 </tr>
 <tr style="height:88px">
@@ -460,9 +382,7 @@ foreach ($raw_ff_nd as $key => $ff_id) {
 }else{
 //  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@       FORMAT VERTICA @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 ?>
-<div style="text_align:center" class="container-fluid no_print">
-	<button type="button"onclick="window.document.href='print_debito_v.php?a=<?php echo $debito_id; ?>'" name="button" class="btn btn-lg btn-primary">Impresion con Historial</button>
-</div>
+
 <table cellpadding="0" cellspacing="0" border="0" style="height:975px; width:720px; font-size:12px; margin:0 auto">
 <tr style="height:6px">
 <td width="10%"></td>
@@ -605,34 +525,17 @@ foreach ($raw_ff_nd as $key => $ff_id) {
 <?php 		}while($rs_facturaf=$qry_facturaf->fetch_array()); ?>
     </tbody>
 		</table>
-    <p>
-<?php
-  			if($total_efectivo > 0){
-  				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
-  			}
-  			if($total_cheque > 0){
-  				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);
-  			}
-  			if($total_tarjeta_credito > 0){
-  				echo "<strong>TDC: B/ </strong>".number_format($total_tarjeta_credito,2);
-  			}
-  			if($total_tarjeta_debito > 0){
-  				echo "<strong>TDD: B/ </strong>".number_format($total_tarjeta_debito,2);
-  			}
-  			if($total_nota_credito > 0){
-  				echo "<strong>Nota de C.: B/ </strong>".number_format($total_nota_credito,2);
-  			}
-?>
-  	 </p>
-      <strong>Total:</strong> B/ <?php echo number_format($total_total,2); ?><br />
-<?php
-  			if($cambio > 0){
-  				echo "<strong>Cambio: B/ </strong>".number_format($cambio,2);
-  			}
-?>
+		<p>
+		<strong>Efectivo:</strong> B/ <?php echo number_format($total_efectivo+$cambio,2); ?>&nbsp;
+		<strong>Cheque:</strong> B/ <?php echo number_format($total_cheque,2); ?>&nbsp;
+		<strong>Tarjeta D&eacute;bito:</strong> B/ <?php echo number_format($total_tarjeta_debito,2); ?>&nbsp;
+		<strong>Tarjeta Cr&eacute;dito:</strong> B/ <?php echo number_format($total_tarjeta_credito,2); ?>&nbsp;
+		</p>
+		<strong>Total:</strong> B/ <?php echo number_format($total_total,2); ?><br />
+		<strong>Cambio:</strong> B/ <?php echo $cambio; ?><br />
 <?php
 }
-unset($_SESSION['debito_id']);
+// unset($_SESSION['debito_id']);
 ?>
 </body>
 </html>

@@ -91,8 +91,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
     </td>
 </tr>
 <tr style="height:21px" align="center">
-	<td valign="top" colspan="10">
-    </td>
+	<td valign="top" colspan="10"><h4>RECIBO POR NOTA DE CREDITO</h4></td>
 </tr>
 <tr style="height:184px">
 	<td valign="top" colspan="10">

@@ -33,6 +33,7 @@ $client_name=$rs_client[0];
 <script type="text/javascript" src="attached/js/bootstrap.js"></script>
 <script type="text/javascript" src="attached/js/general_funct.js"></script>
 <script type="text/javascript" src="attached/js/ajax_funct.js"></script>
+<script type="text/javascript" src="attached/js/admin_funct.js"></script>
 <script type="text/javascript" src="attached/js/validCampoFranz.js"></script>
 <script type="text/javascript">
 
@@ -268,6 +269,18 @@ function convert_saldo2cash(client_id){
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 
 }
+function open_newdebit(client_id){
+	$.ajax({	data: "",	type: "GET",	dataType: "JSON",	url: "attached/get/get_session_admin.php", })
+	 .done(function( data, textStatus, jqXHR ) {
+		 if(data[0][0] != ""){
+			 document.location.href = 'popup_newdebit.php?a='+client_id;
+		 }else{
+			 open_popup('popup_loginadmin.php?z=start_admin.php','_popup','425','420');
+		 }
+		})
+	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+}
+
 </script>
 
 </head>
@@ -364,7 +377,7 @@ $date_f=date('d-m-Y');
 $date_i=date('Y-m-d',strtotime($date_i));
 $date_f=date('Y-m-d',strtotime($date_f));
 
-	$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_ticket, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_user.TX_user_seudonimo
+	$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_ticket, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_user.TX_user_seudonimo, bh_facturaf.facturaf_AI_cliente_id
 	FROM bh_facturaf INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaf.facturaf_AI_user_id
 	WHERE facturaf_AI_cliente_id = '$client_id' AND TX_facturaf_fecha >= '$date_i' AND TX_facturaf_fecha <= '$date_f' ORDER BY AI_facturaf_id DESC";
 	$qry_facturaf=mysql_query($txt_facturaf) or die(mysql_error());
@@ -374,12 +387,11 @@ $date_f=date('Y-m-d',strtotime($date_f));
     <thead class="bg-primary">
     <tr>
     	<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">FECHA</th>
-        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">HORA</th>
+      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">HORA</th>
     	<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">FACTURA N&deg;</th>
-    	<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">TICKET</th>
-        <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">TOTAL</th>
-        <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">D&Eacute;FICIT</th>
-        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"> </th>
+      <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">TOTAL</th>
+      <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">DEUDA</th>
+      <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3"> </th>
     </tr>
     </thead>
     <tbody>
@@ -391,11 +403,22 @@ $date_f=date('Y-m-d',strtotime($date_f));
     	<td><?php echo $rs_facturaf[1]; ?></td>
     	<td><?php echo $rs_facturaf[2]; ?></td>
     	<td><?php echo $rs_facturaf[3]; ?></td>
-    	<td><?php echo $rs_facturaf[4]; ?></td>
-        <td><?php echo number_format($rs_facturaf[5],2); ?></td>
-        <td><?php echo number_format($rs_facturaf[6],2); ?></td>
-        <td><button type="button" id="btn_print_ff" name="<?php echo "print_client_facturaf.php?a=".$rs_facturaf[0]; ?>" class="btn btn-info btn-xs" onclick="print_html(this.name);">
-        <strong><i class="fa fa-print fa_print" aria-hidden="true"></i></strong></button></td>
+      <td><?php echo number_format($rs_facturaf[5],2); ?></td>
+      <td><?php echo number_format($rs_facturaf[6],2); ?></td>
+      <td>
+				<button type="button" id="btn_print_ff" name="<?php echo "print_client_facturaf.php?a=".$rs_facturaf[0]; ?>" class="btn btn-info btn-xs" onclick="print_html(this.name);">
+        <strong><i class="fa fa-print fa_print" aria-hidden="true"></i></strong></button>
+<?php 	if($rs_facturaf['TX_facturaf_deficit'] != '0'){ ?>
+				&nbsp;&nbsp;
+						<button type="button" id="btn_opennewdebit" name="<?php echo $rs_facturaf['facturaf_AI_cliente_id']; ?>" class="btn btn-success btn-xs" onclick="open_newdebit(this.name);"><strong><i class="fa fa-money fa_print" aria-hidden="true"></i></strong></button>
+<?php		}	?>
+				&nbsp;&nbsp;
+				<button type="button" id="btn_makenc" name="<?php echo $rs_facturaf['AI_facturaf_id']; ?>" class="btn btn-warning btn-xs" onclick="popup_make_nc(this.name);">N.C.</button>
+
+
+
+			</td>
+
     </tr>
     <?php $total+=$rs_facturaf[5]; $deficit+=$rs_facturaf[6];
 		}
@@ -409,7 +432,7 @@ $date_f=date('Y-m-d',strtotime($date_f));
     <?php } ?>
     </tbody>
     <tfoot class="bg-primary">
-    <tr><td></td><td></td><td></td><td></td>
+    <tr><td></td><td></td><td></td>
     	<td><?php echo number_format($total,2); ?></td>
         <td><?php echo number_format($deficit,2); ?></td>
         <td></td>

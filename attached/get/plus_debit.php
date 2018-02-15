@@ -151,7 +151,7 @@ foreach ($raw_ffid as $key => $value) {
 	$new_deficit = $value['deficit'] - $value['pago'];
 	$new_deficit = round($new_deficit,2);
 	$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit = '$new_deficit' WHERE AI_facturaf_id = '$key'");
-	$link->query("INSERT INTO rel_facturaf_notadebito (rel_AI_facturaf_id, rel_AI_notadebito_id) VALUES ('$key','$debito_id')");
+	$link->query("INSERT INTO rel_facturaf_notadebito (rel_AI_facturaf_id, rel_AI_notadebito_id, TX_rel_facturafnotadebito_importe) VALUES ('$key','$debito_id','{$value['pago']}')");
 	$total_notadebito += $value['pago'];
 }
 // @@@@@@@@@@@@@@@@@@@@@ ARREGLO DE PAGOS

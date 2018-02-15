@@ -16,7 +16,6 @@ $nr_facturaf = $qry_facturaf->num_rows;
 if($nr_facturaf < 1){
 	$jscript = "<script type='text/javascript'>self.close();</script>";
 	echo $jscript;
-/*	echo "<meta http-equiv='Refresh' content='1;url=index.php'>"; */
 }else{
 	$rs_facturaf=$qry_facturaf->fetch_array();
 }

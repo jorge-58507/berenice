@@ -5,19 +5,6 @@ date_default_timezone_set('America/Panama');
 
 require 'attached/php/req_login_sale.php';
 
-session_destroy();
-
-$qry_product=mysql_query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 10");
-$rs_product=mysql_fetch_assoc($qry_product);
-
-$qry_client=mysql_query("SELECT * FROM bh_cliente ORDER BY TX_cliente_nombre ASC");
-$rs_client=mysql_fetch_assoc($qry_client);
-
-$rs = mysql_query("SELECT MAX(AI_facturaventa_id) AS id FROM bh_facturaventa");
-if ($row = mysql_fetch_row($rs)) {
-	$last_id = trim($row[0]);
-	$next_id = $last_id+'1';
-}
 
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_user.TX_user_seudonimo
 FROM ((bh_facturaventa
@@ -89,7 +76,7 @@ $("#btn_exit").click(function(){
 
 
 $("#btn_newsale").click(function(){
-	window.location="new_sale.php?a="+<?php echo $next_id; ?>;
+	window.location="new_sale.php";
 })
 
 $("#btn_inspectsale").click(function(){

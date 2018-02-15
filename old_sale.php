@@ -117,7 +117,11 @@ $("#btn_stock").click(function(){
 $("#btn_addclient").click(function(){
 	var name = $("#txt_filterclient").val();
 	if($("#txt_filterclient").prop('alt') != ""){
-		open_popup('popup_updclient.php?a='+$("#txt_filterclient").prop('alt'),'popup_updclient','425','420')
+		if($("#txt_filterclient").prop('alt') === "1"){
+			open_popup('popup_addclient.php?a='+name,'popup_addclient','425','420')
+		}else{
+			open_popup('popup_updclient.php?a='+$("#txt_filterclient").prop('alt'),'popup_updclient','425','420')
+		}
 	}else{
 		open_popup('popup_addclient.php?a='+name,'popup_addclient','425','420')
 	}
@@ -241,7 +245,7 @@ switch ($_COOKIE['coo_tuser']){
 
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="sale.php" method="post" name="form_sell"  id="form_sell">
-
+<div class="container-fluid" > <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 bg_red" id="div_title"><h2>Modificar Cotizaci&oacute;n</h2></div></div>
 <div id="container_complementary" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtdate" class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
     	<label for="txt_date">Fecha:</label>

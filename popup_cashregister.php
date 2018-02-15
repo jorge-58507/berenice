@@ -273,10 +273,10 @@ $cantidad_ff = $i;
 	</tr>
 </thead>
 <tbody>
-	<tr> <td colspan="3"> <strong>Caja Menuda</strong> (B/ <?php echo number_format($ttl_entrada-$ttl_salida-$devolucion,2); ?>) </td> </tr>
+	<tr> <td colspan="3"> <strong>Caja Menuda</strong> (B/ <?php echo number_format($ttl_entrada-$ttl_salida,2); ?>) </td> </tr>
 	<tr>
 		<td><?php echo "Entradas: ".number_format($ttl_entrada,2); ?> </td>
-		<td><?php echo "Salidas: ".number_format($ttl_salida,2); ?></td>
+		<td><?php echo "Salidas: ".number_format($ttl_salida-$devolucion,2); ?></td>
 		<td><?php echo "Devoluciones: ".number_format($devolucion,2); ?></td>
  </tr>
 	<tr> <td colspan="3"> <strong>Efectivo:</strong> (B/ <?php echo number_format($raw_pago[1]+$raw_debito[1],2); ?>) </td> </tr>

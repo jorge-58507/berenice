@@ -46,4 +46,7 @@ foreach ($raw_nuevaventa as $key => $value) {
 	$qry_ins_datoventa->execute();
 }
 
+$bh_del="DELETE FROM bh_nuevaventa WHERE nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}'";
+$link->query($bh_del) or die($link->error);
+
 ?>

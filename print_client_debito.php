@@ -1,11 +1,9 @@
 <?php
 require 'bh_con.php';
 $link=conexion();
-?>
-<?php
+
 require 'attached/php/req_login_paydesk.php';
-?>
-<?php
+
 $debito_id=$_GET['a'];
 
 $qry_opcion=mysql_query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion");
@@ -15,14 +13,13 @@ while($rs_opcion=mysql_fetch_array($qry_opcion)){
 }
 $qry_user=mysql_query("SELECT TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'");
 $rs_user=mysql_fetch_array($qry_user);
-?>
-<?php
-$txt_facturaf="SELECT bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_ticket, 
-bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono 
-FROM (((bh_facturaf 
+
+$txt_facturaf="SELECT bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_ticket,
+bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono
+FROM (((bh_facturaf
 INNER JOIN rel_facturaf_notadebito ON bh_facturaf.AI_facturaf_id = rel_facturaf_notadebito.rel_AI_facturaf_id)
 INNER JOIN bh_notadebito ON rel_facturaf_notadebito.rel_AI_notadebito_id = bh_notadebito.AI_notadebito_id)
-INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) 
+INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id)
 WHERE bh_notadebito.AI_notadebito_id = '$debito_id'";
 
 $qry_facturaf = mysql_query($txt_facturaf);
@@ -31,71 +28,56 @@ $rs_facturaf = mysql_fetch_array($qry_facturaf);
 $qry_facturaf_d = mysql_query($txt_facturaf);
 $rs_facturaf_d = mysql_fetch_array($qry_facturaf_d);
 
-
-//$raw_facturaf_id=explode(",",$facturaf_id);
-//$length=count($raw_facturaf_id);
-//$line_ffid="";
-//for($i=0;$i<$length;$i++){
-//	if($i == $length-1){
-//		$line_ffid.=" bh_facturaf.AI_facturaf_id = '{$raw_facturaf_id[$i]}'";
-//	}else{
-//		$line_ffid.=" bh_facturaf.AI_facturaf_id = '{$raw_facturaf_id[$i]}' OR";
-//	}
-//}
-//$txt_facturaf .= $line_ffid;
-
-//$qry_facturaf = mysql_query($txt_facturaf);
-//$rs_facturaf = mysql_fetch_array($qry_facturaf);
-//
-//$qry_facturaf_d = mysql_query($txt_facturaf);
-//$rs_facturaf_d = mysql_fetch_array($qry_facturaf_d);
-
-//$txt_notadebito="SELECT bh_notadebito.AI_notadebito_id
-//FROM ((bh_facturaf 
-//INNER JOIN rel_facturaf_notadebito ON bh_facturaf.AI_facturaf_id = rel_facturaf_notadebito.rel_AI_facturaf_id)
-//INNER JOIN bh_notadebito ON rel_facturaf_notadebito.rel_AI_notadebito_id = bh_notadebito.AI_notadebito_id)
-//WHERE bh_notadebito.AI_notadebito_id = $debito_id;";
-//
-//$qry_notadebito_id=mysql_query($txt_notadebito);
-//$rs_notadebito=mysql_fetch_array($qry_notadebito_id);
-//$notadebito_id=$rs_notadebito[0];
-
-$txt_datodebito="SELECT bh_notadebito.TX_notadebito_cambio, bh_datodebito.TX_datodebito_monto, bh_datodebito.datodebito_AI_metododepago_id, bh_metododepago.TX_metododepago_value 
-FROM ((bh_notadebito 
+$txt_datodebito="SELECT bh_notadebito.TX_notadebito_cambio, bh_datodebito.TX_datodebito_monto, bh_datodebito.datodebito_AI_metododepago_id, bh_metododepago.TX_metododepago_value
+FROM ((bh_notadebito
 INNER JOIN bh_datodebito ON bh_notadebito.AI_notadebito_id = bh_datodebito.datodebito_AI_notadebito_id)
 INNER JOIN bh_metododepago ON bh_datodebito.datodebito_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
 WHERE bh_datodebito.datodebito_AI_notadebito_id = '$debito_id'";
 $qry_datodebito=mysql_query($txt_datodebito);
 $total_efectivo=0;
-$total_tarjeta=0;
 $total_cheque=0;
+$total_tarjeta_credito=0;
+$total_tarjeta_debito=0;
+$total_nota_credito=0;
 while($rs_datodebito=mysql_fetch_assoc($qry_datodebito)){
 	if($rs_datodebito['datodebito_AI_metododepago_id'] == '1'){
 		$total_efectivo+=$rs_datodebito['TX_datodebito_monto'];
 	}
 	if($rs_datodebito['datodebito_AI_metododepago_id'] == '2'){
-		$total_tarjeta+=$rs_datodebito['TX_datodebito_monto'];
+		$total_cheque+=$rs_datodebito['TX_datodebito_monto'];
 	}
 	if($rs_datodebito['datodebito_AI_metododepago_id'] == '3'){
-		$total_cheque+=$rs_datodebito['TX_datodebito_monto'];
+		$total_tarjeta_credito+=$rs_datodebito['TX_datodebito_monto'];
+	}
+	if($rs_datodebito['datodebito_AI_metododepago_id'] == '4'){
+		$total_tarjeta_debito+=$rs_datodebito['TX_datodebito_monto'];
+	}
+	if($rs_datodebito['datodebito_AI_metododepago_id'] == '7'){
+		$total_nota_credito+=$rs_datodebito['TX_datodebito_monto'];
 	}
 	$cambio=$rs_datodebito['TX_notadebito_cambio'];
 }
 if(empty($cambio)){ $cambio=0; }
-$total_total=$total_efectivo+$total_tarjeta+$total_cheque+$cambio;
+$total_total=$total_efectivo+$total_tarjeta_debito+$total_tarjeta_credito+$total_nota_credito+$total_cheque+$cambio;
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Recibo: <?php echo $rs_facturaf['TX_cliente_nombre']?></title>
+<link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css">
+<link href="attached/css/print_css.css" rel="stylesheet" type="text/css">
 </head>
 <body style="font-family:Arial" onLoad="window.print()">
 
-<?php 
+<div style="text-align:center" class="container-fluid no_print">
+	<button type="button" onclick="window.document.location.href='print_debito_v.php?a=<?php echo $debito_id; ?>'" name="button" class="btn btn-lg btn-default">Impresion con Historial</button>
+</div>
+
+<?php
 $fecha_actual=date('Y-m-d');
 $dias = array('Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','Sabado');
 $d_number=date('w',strtotime($fecha_actual));
-$fecha_dia = $dias[$d_number]; 
+$fecha_dia = $dias[$d_number];
 ?>
 <table align="center" cellpadding="0" cellspacing="0" border="0" style="height: 760px;width: 1001px;transform: rotate(90deg);
 margin-top: 105px;margin-left: -130px;">
@@ -118,7 +100,7 @@ margin-top: 105px;margin-left: -130px;">
 <tr style="height:123px" align="right">
 	<td colspan="2" style="text-align:left">
     </td>
-    
+
    	<td valign="top" colspan="6" style="text-align:center">
 <img width="200px" height="65px" src="attached/image/logo_factura.png">
 <br />
@@ -130,7 +112,7 @@ margin-top: 105px;margin-left: -130px;">
     </td>
 
     <td valign="top" colspan="2" class="optmayuscula">
-    <?php 
+    <?php
 		$time=strtotime($fecha_actual);
 		$date=date('d-m-Y',$time);
 	?>
@@ -174,32 +156,39 @@ margin-top: 105px;margin-left: -130px;">
         <tbody>
         <?php do{  ?>
         <tr>
-        	<td>
-            <?php echo $rs_facturaf['TX_facturaf_ticket']; ?>
-            </td>
-        	<td>
-            <?php 
-			$prefecha=strtotime($rs_facturaf['TX_facturaf_fecha']);
-			echo date('d-m-Y',$prefecha); ?>
-            </td>
-        	<td>
-            <?php echo "$ ".number_format($rs_facturaf['TX_facturaf_total'],2); ?>
-            </td>
-        	<td>
-            <?php echo "$ ".number_format($rs_facturaf['TX_facturaf_deficit'],2); ?>
-            </td>
+        	<td><?php echo $rs_facturaf['TX_facturaf_numero']; ?></td>
+        	<td><?php $prefecha=strtotime($rs_facturaf['TX_facturaf_fecha']); echo date('d-m-Y',$prefecha); ?></td>
+        	<td><?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_total'],2); ?></td>
+        	<td><?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></td>
         </tr>
         <?php }while($rs_facturaf=mysql_fetch_assoc($qry_facturaf)); ?>
         </tbody>
 	</table>
 	<p>
-    <strong>Efectivo:</strong> B/ <?php echo number_format($total_efectivo+$cambio,2); ?>&nbsp;
-    <strong>Tarjeta:</strong> B/ <?php echo number_format($total_tarjeta,2); ?>&nbsp;
-    <strong>Cheque:</strong> B/ <?php echo number_format($total_cheque,2); ?>&nbsp;
-    </p>
+<?php
+			if($total_efectivo > 0){
+				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
+			}
+			if($total_cheque > 0){
+				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);
+			}
+			if($total_tarjeta_credito > 0){
+				echo "<strong>TDC: B/ </strong>".number_format($total_tarjeta_credito,2);
+			}
+			if($total_tarjeta_debito > 0){
+				echo "<strong>TDD: B/ </strong>".number_format($total_tarjeta_debito,2);
+			}
+			if($total_nota_credito > 0){
+				echo "<strong>Nota de C.: B/ </strong>".number_format($total_nota_credito,2);
+			}
+?>
+	 </p>
     <strong>Total:</strong> B/ <?php echo number_format($total_total,2); ?><br />
-    <strong>Cambio:</strong> B/ <?php echo $cambio; ?><br />
-
+<?php
+			if($cambio > 0){
+				echo "<strong>Cambio: B/ </strong>".number_format($cambio,2);
+			}
+?>
     </td>
 </tr>
 <tr style="height:88px">
@@ -207,7 +196,7 @@ margin-top: 105px;margin-left: -130px;">
 	<td valign="bottom" colspan="4" style="text-align:center">
     <strong>_____________________________</strong><br />
     <font style="font-size:12px"><strong>
-    <?php 
+    <?php
 	echo $rs_user[0];
 	?>
     </strong></font>
@@ -237,7 +226,7 @@ margin-top: 105px;margin-left: -130px;">
 <tr style="height:123px" align="right">
 	<td colspan="2" style="text-align:left">
     </td>
-    
+
    	<td valign="top" colspan="6" style="text-align:center">
 <img width="200px" height="65px" src="attached/image/logo_factura.png">
 <br />
@@ -249,7 +238,7 @@ margin-top: 105px;margin-left: -130px;">
     </td>
 
     <td valign="top" colspan="2" class="optmayuscula">
-    <?php 
+    <?php
 		$time=strtotime($fecha_actual);
 		$date=date('d-m-Y',$time);
 	?>
@@ -301,33 +290,39 @@ margin-top: 105px;margin-left: -130px;">
         <tbody>
         <?php do{  ?>
         <tr>
-        	<td>
-            <?php echo $rs_facturaf_d['TX_facturaf_ticket']; ?>
-            </td>
-        	<td>
-            <?php 
-			$prefecha=strtotime($rs_facturaf_d['TX_facturaf_fecha']);
-			echo date('d-m-Y',$prefecha); ?>
-            </td>
-        	<td>
-            <?php echo "$ ".number_format($rs_facturaf_d['TX_facturaf_total'],2); ?>
-            </td>
-        	<td>
-            <?php echo "$ ".number_format($rs_facturaf_d['TX_facturaf_deficit'],2); ?>
-            </td>
+        	<td><?php echo $rs_facturaf_d['TX_facturaf_numero']; ?></td>
+        	<td><?php $prefecha=strtotime($rs_facturaf_d['TX_facturaf_fecha']); echo date('d-m-Y',$prefecha); ?></td>
+        	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_total'],2); ?></td>
+        	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_deficit'],2); ?></td>
         </tr>
         <?php }while($rs_facturaf_d = mysql_fetch_array($qry_facturaf_d)); ?>
         </tbody>
 	</table>
 	<p>
-    <strong>Efectivo:</strong> B/ <?php echo number_format($total_efectivo+$cambio,2); ?>&nbsp;
-    <strong>Tarjeta:</strong> B/ <?php echo number_format($total_tarjeta,2); ?>&nbsp;
-    <strong>Cheque:</strong> B/ <?php echo number_format($total_cheque,2); ?>&nbsp;
-    </p>
+<?php
+			if($total_efectivo > 0){
+				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
+			}
+			if($total_cheque > 0){
+				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);
+			}
+			if($total_tarjeta_credito > 0){
+				echo "<strong>TDC: B/ </strong>".number_format($total_tarjeta_credito,2);
+			}
+			if($total_tarjeta_debito > 0){
+				echo "<strong>TDD: B/ </strong>".number_format($total_tarjeta_debito,2);
+			}
+			if($total_nota_credito > 0){
+				echo "<strong>Nota de C.: B/ </strong>".number_format($total_nota_credito,2);
+			}
+?>
+	 </p>
     <strong>Total:</strong> B/ <?php echo number_format($total_total,2); ?><br />
-    <strong>Cambio:</strong> B/ <?php echo number_format($cambio,2); ?><br />
-   
-
+<?php
+			if($cambio > 0){
+				echo "<strong>Cambio: B/ </strong>".number_format($cambio,2);
+			}
+?>
     </td>
 </tr>
 <tr style="height:88px">
@@ -335,7 +330,7 @@ margin-top: 105px;margin-left: -130px;">
 	<td valign="bottom" colspan="4" style="text-align:center">
     <strong>_____________________________</strong><br />
     <font style="font-size:12px"><strong>
-    <?php 
+    <?php
 	echo $rs_user[0];
 	?>
     </strong></font>

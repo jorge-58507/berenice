@@ -69,7 +69,7 @@ $rs_facturaf = $qry_facturaf->fetch_array();
             <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Hora</th>
             <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Total</th>
             <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Deficit</th>
-            <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Status</th>
+            <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Vendedor</th>
             <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1"></th>
             <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1"><i id="filter_by_deficit" class="fa fa-angle-double-down" onclick="filter_adminfacturaf('deficit');"></i></th>
             <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1"></th>
@@ -96,8 +96,14 @@ $rs_facturaf = $qry_facturaf->fetch_array();
       <td><?php echo $rs_facturaf['TX_facturaf_hora']; ?></td>
       <td><?php echo number_format($rs_facturaf['TX_facturaf_total'],2); ?></td>
       <td><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></td>
-      <td><?php echo $rs_facturaf['TX_facturaf_status']; ?></td>
-      <td>
+			<td><?php
+				$qry_vendor = $link->query("SELECT bh_user.TX_user_seudonimo FROM ((bh_facturaf
+					INNER JOIN bh_facturaventa ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
+					INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
+					WHERE bh_facturaf.AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}'")or die($link->error);
+				$rs_vendor = $qry_vendor->fetch_array();
+				echo $rs_vendor['TX_user_seudonimo'];
+			?></td>      <td>
       <button type="button" id="btn_openff" name="<?php echo $rs_facturaf['AI_facturaf_id']; ?>" class="btn btn-info btn-sm" onclick="open_popup_w_scroll('popup_watchfacturaf.php?a='+this.name,'watch_facturaf','950','547');">VER</button>
       </td>
       <td>

@@ -102,6 +102,7 @@ $('#txt_discount').validCampoFranz('.0123456789');
 
 	$("#form_product2sell").keyup(function(e){
 		if(e.which == 13){
+			$('#btn_acept').focus();
 			$('#btn_acept').click();
 		}
 

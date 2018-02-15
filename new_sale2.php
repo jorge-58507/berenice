@@ -1,42 +1,59 @@
 ﻿<?php
-require 'bh_conexion.php';
+require 'bh_con.php';
 $link=conexion();
 date_default_timezone_set('America/Panama');
 require 'attached/php/req_login_sale.php';
 
 function checkfacturaventa($numero){
-	$link=conexion();
-	$qry_checkfacturaventa=$link->query("SELECT AI_facturaventa_id FROM bh_facturaventa WHERE TX_facturaventa_numero = '$numero'")or die($link->error());
-	$nr_checkfacturaventa=$qry_checkfacturaventa->num_rows;
-	$link->close();
+	$qry_checkfacturaventa=mysql_query("SELECT * FROM bh_facturaventa WHERE TX_facturaventa_numero = '$numero'");
+	$nr_checkfacturaventa=mysql_num_rows($qry_checkfacturaventa);
 	if($nr_checkfacturaventa > 0){
 		return sumarfacturaventa($numero);
 	}else{
 		return $numero;
 	}
+	mysql_close();
 }
 function sumarfacturaventa($numero){
 		return checkfacturaventa($numero+1);
 }
 
-$qry_facturaventa_numero=$link->query("SELECT AI_facturaventa_id, TX_facturaventa_numero FROM bh_facturaventa ORDER BY AI_facturaventa_id DESC LIMIT 1")or die($link->error);
-$rs_facturaventa_numero=$qry_facturaventa_numero->fetch_array();
-$number = $rs_facturaventa_numero['TX_facturaventa_numero'];
-$number=checkfacturaventa($number);
+$next_num2sale=$_GET['a'];
 
-$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_cantidad FROM bh_producto WHERE TX_producto_activo = '0' ORDER BY TX_producto_value ASC LIMIT 10");
-$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
+//mysql_query("DELETE FROM bh_nuevaventa WHERE nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}'",$link);
 
-$qry_vendor=$link->query("SELECT * FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'");
-$rs_vendor=$qry_vendor->fetch_array(MYSQLI_ASSOC);
+$qry_checknextnum2sale=mysql_query("SELECT * FROM bh_facturaventa WHERE TX_facturaventa_numero = '$next_num2sale'", $link);
+$nr_checknextnum2sale=mysql_num_rows($qry_checknextnum2sale);
 
-$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_cantidad, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id FROM bh_producto, bh_nuevaventa WHERE bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id AND bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
-$nr_nuevaventa=$qry_nuevaventa->num_rows;
+if($nr_checknextnum2sale > 0){
+	echo "<meta http-equiv='Refresh' content='1;url=index.php'>";
+}
 
-$qry_precio = $link->prepare("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0'")or die($link->error);
 
-$qry_letra = $link->prepare("SELECT bh_letra.TX_letra_value FROM (bh_letra INNER JOIN bh_producto ON bh_letra.AI_letra_id = bh_producto.producto_AI_letra_id) WHERE bh_producto.AI_producto_id = ? ")or die($link->error);
+$qry_product=mysql_query("SELECT * FROM bh_producto WHERE TX_producto_activo = '0' ORDER BY TX_producto_value ASC LIMIT 10");
+$rs_product=mysql_fetch_assoc($qry_product);
 
+$qry_client=mysql_query("SELECT * FROM bh_cliente ORDER BY TX_cliente_nombre ASC");
+$rs_client=mysql_fetch_assoc($qry_client);
+
+$rs = mysql_query("SELECT MAX(AI_facturaventa_id) AS id FROM bh_facturaventa");
+if ($row = mysql_fetch_row($rs)) {
+	$last_id = trim($row[0]);
+	$next_id = $last_id+'1';
+}
+
+$qry_lastclientid = mysql_query("SELECT MAX(AI_cliente_id) AS id FROM bh_cliente");
+if ($row = mysql_fetch_row($qry_lastclientid)) {
+	$last_clientid = trim($row[0]);
+	$next_clientid = $last_clientid+'1';
+}
+
+
+$qry_vendor=mysql_query("SELECT * FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'");
+$rs_vendor=mysql_fetch_assoc($qry_vendor);
+
+$qry_nuevaventa=mysql_query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_cantidad, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id FROM bh_producto, bh_nuevaventa WHERE bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id AND bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
+$nr_nuevaventa=mysql_num_rows($qry_nuevaventa);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -97,6 +114,7 @@ $(document).ready(function() {
 
 	$('#txt_filterproduct').focus();
 
+
 	$("#btn_sale").click(function(){
 		window.location="sale.php";
 	});
@@ -129,6 +147,7 @@ $(document).ready(function() {
 		}
 		$(this).attr("disabled", true)
 		save_sale(status);
+	//		alert("procesa guardar");
 	})
 
 	$('#btn_facturar').click(function(){
@@ -141,6 +160,7 @@ $(document).ready(function() {
 			$("#txt_filterclient").focus();
 			return false;
 		}
+		// alert("procesa facturar");
 		save_sale(status);
 	});
 
@@ -246,7 +266,7 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="sale.php" method="post" name="form_sell"  id="form_sell">
-<div class="container-fluid" > <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 bg-success" id="div_title"><h2>Nueva Cotizaci&oacute;n</h2></div></div>
+	<div class="container-fluid" > <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 bg-success" id="div_title"><h2>Nueva Cotizaci&oacute;n</h2></div></div>
 <div id="container_complementary" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtdate" class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
     	<label for="txt_date">Fecha:</label>
@@ -255,7 +275,7 @@ switch ($_COOKIE['coo_tuser']){
     </div>
 	<div id="container_txtnumero" class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
     	<label for="txt_numero">Cotización N&deg;:</label>
-        <span class="form-control bg-disabled"><?php echo $number; ?></span>
+        <span class="form-control bg-disabled"><?php echo $numero=checkfacturaventa('1300'); ?></span>
 	    <input type="hidden" class="form-control" alt="" id="txt_numero" name="txt_numero" readonly="readonly"
         value="" />
     </div>
@@ -307,7 +327,7 @@ switch ($_COOKIE['coo_tuser']){
         <tbody>
 					<?php
 					if($nr_nuevaventa > 0){
-					$rs_nuevaventa=$qry_nuevaventa->fetch_array(MYSQLI_ASSOC);
+					$rs_nuevaventa=mysql_fetch_assoc($qry_nuevaventa);
 
 					$total_itbm = 0;
 					$total_descuento = 0;
@@ -345,7 +365,7 @@ switch ($_COOKIE['coo_tuser']){
 		            </center>
 		            </td>
 							</tr>
-					<?php }while($rs_nuevaventa=$qry_nuevaventa->fetch_array(MYSQLI_ASSOC)); ?>
+					<?php }while($rs_nuevaventa=mysql_fetch_assoc($qry_nuevaventa)); ?>
 					<?php }else{ ?>
 					<?php
 					$total_itbm = 0;
@@ -401,7 +421,7 @@ switch ($_COOKIE['coo_tuser']){
 	</div>
 	<div id="container_limit" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 		<label for="txt_rlimit">Mostrar:</label><br />
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="20"  checked="checked" /> 10</label>
+		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="20" checked="checked" /> 10</label>
 		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
 		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="100" /> 100</label>
 	</div>
@@ -441,7 +461,7 @@ switch ($_COOKIE['coo_tuser']){
     </tfoot>
 <tbody>
     <?php
-	if($nr_product=$qry_product->num_rows > 0){
+	if($nr_product=mysql_num_rows($qry_product) > 0){
 	do{
 	?>
     	<tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);">
@@ -456,18 +476,16 @@ switch ($_COOKIE['coo_tuser']){
             </td>
         	<td>
             <?php
-							$qry_precio->bind_param("i", $rs_product['AI_producto_id']); $qry_precio->execute(); $result = $qry_precio->get_result();
-							$rs_precio=$result->fetch_array(MYSQLI_ASSOC);
-							echo $rs_precio['TX_precio_cuatro']; ?>
-          </td>
+			$rs_precio=mysql_fetch_array(mysql_query("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = '{$rs_product['AI_producto_id']}' AND TX_precio_inactivo = '0'"));
+			echo $rs_precio['TX_precio_cuatro']; ?>
+            </td>
         	<td>
             <?php
-							$qry_letra->bind_param("i", $rs_product['AI_producto_id']); $qry_letra->execute(); $result = $qry_letra->get_result();
-							$rs_letra=$result->fetch_array(MYSQLI_ASSOC);
-							echo $rs_letra['TX_letra_value']; ?>
-          </td>
+			$rs_letra=mysql_fetch_array(mysql_query("SELECT bh_letra.TX_letra_value FROM bh_letra, bh_producto WHERE bh_letra.AI_letra_id = '{$rs_product['producto_AI_letra_id']}'"));
+			echo $rs_letra['TX_letra_value']; ?>
+            </td>
         </tr>
-    <?php }while($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)); ?>
+    <?php }while($rs_product=mysql_fetch_assoc($qry_product)); ?>
 <?php
 }else{
 ?>
@@ -519,4 +537,4 @@ switch ($_COOKIE['coo_tuser']){
 
 </body>
 </html>
-<?php $link->close(); ?>
+<?php mysql_close(); ?>

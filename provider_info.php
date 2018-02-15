@@ -207,6 +207,13 @@ function del_account_number(account_number_id){
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
+function del_provider_cpp(cpp_id){
+	$.ajax({	data: {"a" : cpp_id },	type: "GET",	dataType: "text",	url: "attached/get/del_provider_cpp.php", })
+	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
+	 		$("#tbl_cpp tbody").html(data);
+		})
+	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+}
 
 </script>
 

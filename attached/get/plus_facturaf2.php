@@ -117,10 +117,7 @@ $total_ff=$subtotal_ni+$subtotal_ci+$impuesto;
 $total_ff=round($total_ff,2);
 /* ^#################CALCULAR TOTALES DE LOS PRODUCTOS EN LA FACTURA  ###################^ */
 /* V#################INSERCION DE  LA FACTURA  ###################V */
-$qry_facturaf_numero=$link->query("SELECT AI_facturaf_id, TX_facturaf_numero FROM bh_facturaf ORDER BY AI_facturaf_id DESC LIMIT 1")or die($link->error);
-$rs_facturaf_numero=$qry_facturaf_numero->fetch_array();
-$numero_ff = $rs_facturaf_numero['TX_facturaf_numero'];
-$numero_ff = checkfacturaf($numero_ff);
+$numero_ff = checkfacturaf(00000001);
 $last_ff = ins_facturaf($client_id,$uid,$fecha_actual,$hora_actual,$numero_ff,$subtotal_ni,$descuento_ni,$subtotal_ci,$impuesto,$descuento_ci,$total_ff);
 $_SESSION['facturaf_id']=$last_ff;
 /* ^ ################# INSERCION DE  LA FACTURA  ################### ^ */

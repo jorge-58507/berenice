@@ -10,11 +10,25 @@ function open_addclient(next_clientid){
 	open_popup('popup_addclient.php?a='+name+'&b='+next_clientid+'', 'popup_addclient','425','420');
 }
 
+function popup_make_nc(facturaf_id){
+	$.ajax({	data: "",	type: "GET",	dataType: "JSON",	url: "attached/get/get_session_admin.php", })
+	 .done(function( data, textStatus, jqXHR ) {
+		 if(data[0][0] != ""){
+			 window.opener.location.href='make_nc.php?a='+facturaf_id+'';
+			 self.close();
+		 }else{
+			 open_popup('popup_loginadmin.php?z=start_admin.php','_popup','425','420');
+		 }
+		})
+	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+}
 function make_nc(facturaf_id){
 	$.ajax({	data: "",	type: "GET",	dataType: "JSON",	url: "attached/get/get_session_admin.php", })
 	 .done(function( data, textStatus, jqXHR ) {
 		 if(data[0][0] != ""){
 			 window.location.href='make_nc.php?a='+facturaf_id+'';
+		 }else{
+			 open_popup('popup_loginadmin.php?z=start_admin.php','_popup','425','420');
 		 }
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});

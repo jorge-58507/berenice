@@ -15,10 +15,11 @@ bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_factu
 bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,
 bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.AI_producto_id, bh_producto.TX_producto_medida,
 bh_cliente.TX_cliente_nombre
-FROM ((((bh_facturaventa INNER JOIN bh_facturaf ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
+FROM ((((bh_facturaf
+INNER JOIN bh_facturaventa ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
 INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
-INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
+INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id)
 WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'", $link) or die(mysql_error());
 $rs_facturaf=mysql_fetch_assoc($qry_facturaf);
 
@@ -104,7 +105,9 @@ $("#btn_save").click(function(){
 		$("#sel_destinonc").css("border", "2px outset #F00");
 		$("#sel_destinonc").focus();
 		return false;
-	}		$("#sel_destinonc").css("border", "1px solid #ccc");
+	}
+    $("#sel_destinonc").css("border", "1px solid #ccc");
+    $("#btn_save").attr("disabled", true);
 	  $.ajax({	data: {"a" : $("#txt_motivonc").val(), "b" : $("#sel_destinonc").val(), "c" : $("#txt_debito").val() },	type: "GET",	dataType: "text",	url: "attached/get/plus_creditnote.php", })
 	   .done(function( data, textStatus, jqXHR ) {
 		 console.log("GOOD " + textStatus);
@@ -146,11 +149,11 @@ function nc_makerefund(datoventa_id, cantidad_actual){
 <body>
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
+    	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
   	<div id="logo" ></div>
    	</div>
 
-	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
+	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10 hidden-md">
     	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
         Bienvenido: <label class="bg-primary">
          <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
@@ -185,11 +188,11 @@ switch ($_COOKIE['coo_tuser']){
 <form action="login.php" method="post" name="form_login"  id="form_login">
 <div id="container_client" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_name" class="col-xs-12 col-sm-7 col-md-5 col-lg-5">
-    	<label for="span_clientenombre">Nombre</label>
-	<span id="span_clientenombre" class="form-control bg-disabled"><?php echo $rs_facturaf['TX_cliente_nombre']; ?>
-    </span>
+    <label for="span_clientenombre">Nombre</label>
+	   <span id="span_clientenombre" class="form-control bg-disabled"><?php echo $rs_facturaf['TX_cliente_nombre']; ?>
+     </span>
     </div>
-	<div id="container_numeroff" class="col-xs-12 col-sm-5 col-md-2 col-lg-2">
+	<div id="container_numeroff" class="col-xs-12 col-sm-5 col-md-3 col-lg-2">
     	<label for="span_numeroff">Numero de Factura</label>
 		<span id="span_numeroff" class="form-control bg-disabled"><?php echo $rs_facturaf['TX_facturaf_numero']; ?>
     </span>
@@ -205,11 +208,11 @@ switch ($_COOKIE['coo_tuser']){
         <label for="txt_motivonc">Motivo</label>
         <input type="text" id="txt_motivonc" class="form-control" />
     </div>
-    <div id="container_debito"  class="col-xs-2 col-sm-2 col-md-1 col-lg-1">
+    <div id="container_debito"  class="col-xs-2 col-sm-2 col-md-2 col-lg-1">
         <label for="txt_debito">Retener %</label>
         <input type="text" id="txt_debito" class="form-control" value="0" />
     </div>
-    <div id="container_destino"  class="col-xs-10 col-sm-10 col-md-5 col-lg-5">
+    <div id="container_destino"  class="col-xs-10 col-sm-10 col-md-4 col-lg-5">
         <label for="sel_destinonc">Destino</label>
         <select id="sel_destinonc" class="form-control" >
         	<option value="">Seleccione</option>

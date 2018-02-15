@@ -476,6 +476,7 @@ function del_product2addcollect(product_id,facturaventa_id,str_factid,client_id)
 }
 
 function plus_facturaf(str_factid){
+	$("#btn_process").attr("disabled", true);
 	var	client_id=$("#txt_filterclient").prop("alt");
 	$.ajax({	data: {"a" : str_factid, "b" : client_id },	type: "GET",	dataType: "text",	url: "attached/get/plus_facturaf.php", })
 	 .done(function( data, textStatus, jqXHR ) {

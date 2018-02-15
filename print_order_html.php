@@ -32,7 +32,7 @@ $qry_dato_order->execute();
 $result=$qry_dato_order->get_result();
 $rs_dato_user=$result->fetch_array();
 
-if ($result->num_rows > 8) {
+if ($result->num_rows > 0) {
 	header('Location: print_order_html_v.php?a='.$_GET['a'].'');
 }
 ?>
@@ -43,7 +43,7 @@ if ($result->num_rows > 8) {
 <link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css">
 <link href="attached/css/print_css.css" rel="stylesheet" type="text/css">
 </head>
-<body style="font-family:Arial">
+<body style="font-family:Arial" onload="window.print();">
 
 <?php
 $fecha_actual=date('Y-m-d');

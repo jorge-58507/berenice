@@ -157,7 +157,7 @@ $(document).ready(function() {
       	</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
       <label for="txt_codigo">Codigo:</label>
-      <input type="text" class="form-control input-sm" id="txt_codigo" name="txt_codigo" readonly="readonly" value="<?php echo $rs_product['TX_producto_codigo']; ?>">
+      <input type="text" class="form-control input-sm" id="txt_codigo" name="txt_codigo" value="<?php echo $rs_product['TX_producto_codigo']; ?>" tabindex="2">
       	</div>
 		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
       <label for="txt_cantidad">Cantidad:</label>
@@ -246,7 +246,7 @@ $(document).ready(function() {
     	<div id="container_precio4" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
      		<label for="txt_precio4">Standard:</label>
 			<input type="text" class="form-control input-sm" id="txt_precio4" name="txt_precio4"
-			value="<?php echo $rs_precio['TX_precio_cuatro']; ?>">
+			value="<?php echo $rs_precio['TX_precio_cuatro']; ?>" tabindex="1">
 	    </div>
     	<div id="container_precio5" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
      		<label for="txt_precio5">P. M&aacute;ximo:</label>
@@ -282,7 +282,7 @@ $(document).ready(function() {
 	    </div>
     </div>
 	<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <button type="button" name="btn_save_product" id="btn_save_product" class="btn btn-success">Guardar</button>
+    <button type="button" name="btn_save_product" id="btn_save_product" class="btn btn-success" tabindex="3">Guardar</button>
 		&nbsp;
     <button type="button" name="btn_cancel_product" id="btn_cancel_product" class="btn btn-warning">Cancelar</button>
   </div>

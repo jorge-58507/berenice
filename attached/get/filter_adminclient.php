@@ -8,13 +8,13 @@ $limit=$_GET['b'];
 
 if(!empty($limit)){
 	$line_limit=" LIMIT $limit";
-}else{	
+}else{
 	$line_limit="";
 }
 //bh_facturaf.TX_facturaf_deficit > '0' GROUP BY AI_cliente_id ORDER BY TX_cliente_nombre DESC LIMIT 10
 $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
-$txt_cliente="SELECT bh_cliente.AI_cliente_id, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, SUM(bh_facturaf.TX_facturaf_deficit) AS suma, bh_facturaf.TX_facturaf_deficit FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) WHERE ";
+$txt_cliente="SELECT bh_cliente.AI_cliente_id, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, SUM(bh_facturaf.TX_facturaf_deficit) AS suma, bh_facturaf.TX_facturaf_deficit, bh_cliente.TX_cliente_direccion FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) WHERE ";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
@@ -60,14 +60,14 @@ $rs_cliente = mysql_fetch_assoc($qry_cliente);
             <td></td>
         </tr>
     </tfoot>
-    
+
     <tbody>
-    
+
     <?php
 	if($nr_cliente=mysql_num_rows($qry_cliente) > 0){
 	do{ ?>
     	<tr>
-            <td><?php echo $rs_cliente['TX_cliente_nombre']; ?></td>
+            <td><?php echo $rs_cliente['TX_cliente_nombre']; ?><br /><font style="font-size:10px; font-weight:bolder;"><?php echo substr($rs_cliente['TX_cliente_direccion'],0,70); ?></font></td>
             <td><?php echo $rs_cliente['TX_cliente_cif']; ?></td>
             <td><?php echo number_format($rs_cliente['suma'],2); ?></td>
             <td><?php echo $rs_cliente['TX_cliente_telefono']; ?></td>
@@ -84,7 +84,7 @@ $rs_cliente = mysql_fetch_assoc($qry_cliente);
             <button type="button" id="btn_enablecredit" name="<?php echo $rs_cliente['AI_cliente_id']; ?>" class="btn btn-success btn-sm" onclick="open_popup_w_scroll('popup_client_credit.php?a='+this.name,'client_credit','1000','420');">MOVIMIENTOS</button>
             </td>
     	</tr>
-    <?php 
+    <?php
 	}while($rs_cliente=mysql_fetch_assoc($qry_cliente));
 	}else{?>
         <tr>

@@ -26,7 +26,7 @@ $date_f=$_GET['d'];
 $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
 
-$txt_facturaventa="SELECT bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_facturaventa.facturaventa_AI_cliente_id, bh_user.TX_user_seudonimo
+$txt_facturaventa="SELECT bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_facturaventa.facturaventa_AI_cliente_id, bh_user.TX_user_seudonimo, bh_cliente.TX_cliente_direccion
 FROM ((bh_facturaventa INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
 INNER JOIN bh_user ON bh_facturaventa.facturaventa_AI_user_id = bh_user.AI_user_id)
 WHERE";
@@ -102,13 +102,13 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
     <?php
 	do{
 	?>
-    <tr ondblclick="open_newcollect('<?php echo $rs_facturaventa['facturaventa_AI_cliente_id']?>','<?php echo $rs_facturaventa['facturaventa_AI_user_id']?>');"> 
+    <tr ondblclick="open_newcollect('<?php echo $rs_facturaventa['facturaventa_AI_cliente_id']?>','<?php echo $rs_facturaventa['facturaventa_AI_user_id']?>');">
         <td><?php
 		$pre_fecha = strtotime($rs_facturaventa['TX_facturaventa_fecha']);
 		echo $fecha = date('d-m-Y',$pre_fecha);
 		; ?></td>
     	<td><?php echo $rs_facturaventa['TX_user_seudonimo']; ?></td>
-        <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?></td>
+        <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?><br /><font style="font-size:10px; font-weight:bolder;"><?php echo $rs_facturaventa['TX_cliente_direccion']; ?></font></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
         <td><?php echo number_format($rs_facturaventa['TX_facturaventa_total'],2); ?></td>
         <td>

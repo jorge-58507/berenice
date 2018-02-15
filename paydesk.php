@@ -29,7 +29,7 @@ if ($row = mysql_fetch_row($rs)) {
 	$next_id = $last_id+'1';
 }
 
-$txt_facturaventa="SELECT bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_facturaventa.facturaventa_AI_cliente_id, bh_user.TX_user_seudonimo
+$txt_facturaventa="SELECT bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_facturaventa.facturaventa_AI_cliente_id, bh_user.TX_user_seudonimo, bh_cliente.TX_cliente_direccion
 FROM ((bh_facturaventa INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
 INNER JOIN bh_user ON bh_facturaventa.facturaventa_AI_user_id = bh_user.AI_user_id)
 WHERE bh_facturaventa.TX_facturaventa_status != 'INACTIVA' AND
@@ -239,7 +239,7 @@ switch ($_COOKIE['coo_tuser']){
 		echo $fecha = date('d-m-Y',$pre_fecha);
 		; ?></td>
     	<td><?php echo $rs_facturaventa['TX_user_seudonimo']; ?></td>
-        <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?></td>
+        <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?> <br/> <font style="font-size:10px; font-weight:bolder;"><?php echo $rs_facturaventa['TX_cliente_direccion']; ?></font></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
         <td><?php echo number_format($rs_facturaventa['TX_facturaventa_total'],4); ?></td>
         <td>

@@ -36,17 +36,12 @@ $fecha_actual=date('Y-m-d');
 		$bh_update="UPDATE bh_producto SET TX_producto_value='$value', TX_producto_medida='$medida', TX_producto_cantidad='$cantidad', TX_producto_minimo='$minimo', TX_producto_maximo='$maximo', TX_producto_exento='$impuesto', TX_producto_alarma='$alarm', TX_producto_activo = '$activo', TX_producto_referencia = '$reference', producto_AI_letra_id= '$letra', TX_producto_codigo = '$codigo' WHERE AI_producto_id = '$id'";
 		mysql_query($bh_update, $link) or die (mysql_error());
 
-		$qry_precio = mysql_query("SELECT AI_precio_id FROM bh_precio WHERE precio_AI_producto_id = '$id' AND TX_precio_uno = '$p1' AND TX_precio_dos = '$p2' AND TX_precio_tres = '$p3' AND TX_precio_cuatro = '$p4' AND TX_precio_cinco = '$p5' AND TX_precio_fecha = '$fecha_actual' AND TX_precio_inactivo='0' ")or die(mysql_error());
+		$qry_precio = mysql_query("SELECT AI_precio_id FROM bh_precio WHERE precio_AI_producto_id = '$id' AND TX_precio_uno = '$p1' AND TX_precio_dos = '$p2' AND TX_precio_tres = '$p3' AND TX_precio_cuatro = '$p4' AND TX_precio_cinco = '$p5'AND TX_precio_inactivo = '0' ")or die(mysql_error());
 		if($nr_precio = mysql_num_rows($qry_precio) < 1){
 			mysql_query("UPDATE bh_precio SET TX_precio_inactivo='1' WHERE precio_AI_producto_id = '$product_id'")or die(mysql_error());
 			$txt_insert_precio="INSERT INTO bh_precio (precio_AI_producto_id, TX_precio_uno, TX_precio_dos, TX_precio_tres, TX_precio_cuatro, TX_precio_cinco, TX_precio_fecha ) VALUES ('$product_id','$p1','$p2','$p3','$p4','$p5','$fecha_actual')";
 			mysql_query($txt_insert_precio)or die(mysql_error());
 		}
-
-
-		// mysql_query("UPDATE bh_precio SET TX_precio_inactivo='1' WHERE precio_AI_producto_id = '$product_id'")or die(mysql_error());
-		// $txt_insert_precio="INSERT INTO bh_precio (precio_AI_producto_id, TX_precio_uno, TX_precio_dos, TX_precio_tres, TX_precio_cuatro, TX_precio_cinco, TX_precio_fecha ) VALUES ('$product_id','$p1','$p2','$p3','$p4','$p5','$fecha_actual')";
-		// mysql_query($txt_insert_precio)or die(mysql_error());
 
 }
 

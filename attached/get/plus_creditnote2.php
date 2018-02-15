@@ -62,39 +62,6 @@ function sumarnumeronc($numero_nc){
 		$numero_nc = substr($pre_numero_nc,-8);
 		return checknumeronc($numero_nc);
 }
-function insert_notadebito($cliente_id,$user_id,$numero_nd,$motivo,$fecha,$hora,$total_nd){
-	$link = conexion();
-
-	$host_ip=ObtenerIP();
-	$host_name=gethostbyaddr($host_ip);
-	$qry_impresora = $link->query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'") or die ($link->error);
-	$rs_impresora=$qry_impresora->fetch_array();
-
-	$bh_insert_nd="INSERT INTO bh_notadebito (notadebito_AI_cliente_id, notadebito_AI_user_id, notadebito_AI_impresora_id, TX_notadebito_numero, TX_notadebito_motivo, TX_notadebito_fecha, TX_notadebito_hora, TX_notadebito_total) VALUES ('$cliente_id', '$user_id', '{$rs_impresora['AI_impresora_id']}', '$numero_nd', '$motivo', '$fecha', '$hora', '$total_nd')";
-	$link->query($bh_insert_nd) or die ($link->error);
-
-	$qry_lastid=$link->query("SELECT LAST_INSERT_ID();");
-	$rs_lastid = $qry_lastid->fetch_array();
-	return $last_id = trim($rs_lastid[0]);
-	$link->close();
-}
-function checknumerond($numero_nd){
-	$link = conexion();
-	$qry=$link->query("SELECT * FROM bh_notadebito WHERE TX_notadebito_numero = '$numero_nd'")or die($link->error);
-	$nr=$qry->num_rows;
-	$link->close();
-	if($nr > 0){
-		return sumarnumerond($numero_nd);
-	}else{
-		return $numero_nd;
-	}
-}
-function sumarnumerond($numero_nd){
-	$pre_numero_nd = "00000000".($numero_nd +1);
-		$numero_nd = substr($pre_numero_nd,-8);
-		return checknumerond($numero_nd);
-}
-$numero_nd = checknumerond('00000001');
 
 // ############################## FUNCIONES #########################
 // ################################## INSERCION NOTA DE CREDITO  #######################################
@@ -163,27 +130,13 @@ $rs_cliente = $qry_cliente->fetch_array();
 $new_saldo = $rs_cliente['TX_cliente_saldo'] + $exedente;
 
 if ($rs_facturaf['TX_facturaf_deficit'] > 0) {
-	$def_saldo = $rs_facturaf['TX_facturaf_deficit']-$new_saldo;
-	if ($def_saldo > 0) {
-		$new_deficit=$rs_facturaf['TX_facturaf_deficit']-$new_saldo;
-		$new_saldo=0;
-	}else if ($def_saldo < 0) {
-		$new_deficit=0;
-		$new_saldo=$new_saldo-$rs_facturaf['TX_facturaf_deficit'];
-	}else{
-		$new_deficit=0;
-		$new_saldo=0;
-	}
-	$total_nd = $rs_facturaf['TX_facturaf_deficit']-$new_deficit;
-	$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit =	'$new_deficit' WHERE AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}'")or die($link->error);
-	$motivo_nd = 'ABONO NC '.$numero_nc;
-	$debito_id = insert_notadebito($cliente_id,$user_id,$numero_nd,$motivo_nd,$fecha,$hora,$total_nd);
-	$link->query("INSERT INTO rel_facturaf_notadebito (rel_AI_facturaf_id, rel_AI_notadebito_id, TX_rel_facturafnotadebito_importe) VALUES ('{$rs_facturaf['AI_facturaf_id']}','$debito_id','$total_nd')");
-	$bh_insert_datodebito="INSERT INTO bh_datodebito (datodebito_AI_notadebito_id, datodebito_AI_user_id,  datodebito_AI_metododepago_id, TX_datodebito_monto, TX_datodebito_numero, TX_datodebito_fecha) VALUES ('$debito_id','$user_id','7','$total_nd','','$fecha')";
-	$link->query($bh_insert_datodebito)or die($link->error);
-
-
-
+	//actualizo aqui
+	$new_deficit = $rs_facturaf['TX_facturaf_deficit']-$new_saldo;
+	$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit =	''")
+	$new_saldo = $new_saldo-$rs_facturaf['TX_facturaf_deficit'];
+}
+if ($new_saldo <= 0) {
+	$new_saldo=0;
 }
 $link->query("UPDATE bh_cliente SET TX_cliente_saldo = '$new_saldo' WHERE AI_cliente_id = '$cliente_id'")or die($link->error);
 

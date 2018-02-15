@@ -93,3 +93,15 @@ tfoot{
 	height: 40px;
 	padding: 3px;
 }
+#tbl_billhistory th{
+	text-align: center;
+	border: solid 2px #000;
+}
+#tbl_afectedff{
+	font-size: 12px;
+}
+@media print {
+	.no_print {
+	  display: none;
+	}
+}

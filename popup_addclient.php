@@ -31,13 +31,13 @@ $(document).ready(function() {
 	$("#txt_clientname").focus();
 
 $('#btn_acept').click(function(){
+	$("#txt_clientname").val($("#txt_clientname").val().toUpperCase());
 	if ($("#txt_clientname").val() === ""){ $("#txt_clientname").focus(); return false; }
-	// if ($("#txt_direction").val() === ""){ $("#txt_direction").focus(); return false; }
 	if($("#txt_cif").val() != "" && $("#txt_cif").val().length < '7'){
 		$("#txt_cif").focus();
 		return false;
 	}
-	plus_newclient();
+	 plus_newclient();
 })
 $('#btn_cancel').click(function(){
 	self.close();
