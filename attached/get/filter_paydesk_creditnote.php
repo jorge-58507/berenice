@@ -20,7 +20,7 @@ foreach ($raw_str as $key => $value) {
 		$txt_nc .= " bh_notadecredito.TX_notadecredito_numero LIKE '%$value%' OR";
 	}
 }
-$qry_nc=$link->query($txt_nc)or die($link->error);
+$qry_nc=$link->query($txt_nc." ORDER BY TX_notadecredito_fecha DESC LIMIT 10")or die($link->error);
 ?>
 <?php
 	if($qry_nc->num_rows > 0){

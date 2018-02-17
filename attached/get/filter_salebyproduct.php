@@ -12,7 +12,7 @@ if (!empty($date_i) && !empty($date_f)) {
 	$line_date = " AND TX_facturaf_fecha >=	'$date_i' AND TX_facturaf_fecha <= '$date_f'";
 }
 $txt_facturaf="SELECT bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,
-bh_facturaf.TX_facturaf_fecha, bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_numero, bh_cliente.TX_cliente_nombre, bh_user.TX_user_seudonimo
+bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_numero, bh_cliente.TX_cliente_nombre, bh_user.TX_user_seudonimo
 FROM ((((bh_datoventa
 INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
 INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
@@ -38,7 +38,7 @@ $qry_facturaf=$link->query($txt_facturaf);
         <tr onclick="filter_productbysale('<?php echo $rs_facturaf['AI_facturaf_id']; ?>');">
         <td><?php
 		$prefecha=strtotime($rs_facturaf['TX_facturaf_fecha']);
-		echo $fecha = date('d-m-Y',$prefecha);
+		echo $fecha = date('d-m-Y',$prefecha)." - ".$rs_facturaf['TX_facturaf_hora'];
 		 ?></td>
         <td><?php echo $rs_facturaf['TX_facturaf_numero']; ?></td>
         <td><?php echo $rs_facturaf['TX_cliente_nombre']; ?></td>

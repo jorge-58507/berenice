@@ -2,7 +2,7 @@
 require 'bh_conexion.php';
 $link=conexion();
 
-require 'attached/php/req_login_admin.php';
+require 'attached/php/req_login_paydesk.php';
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -62,7 +62,7 @@ $("#txt_filter_creditnote").on("keyup", function(){
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtfiltercreditnote" class="col-xs-12 col-sm-8 col-md-5 col-lg-5">
   	<label for="txt_filter_creditnote">Buscar</label>
-		<input type="text" id="txt_filter_creditnote" value="" class="form-control">
+		<input type="text" id="txt_filter_creditnote" value="" class="form-control" autofocus>
   </div>
 	<div id="container_tblcreditnote" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:5px 15px;">
 		<table id="tbl_paydesk_creditnote" class="table table-bordered table-condensed table-striped">

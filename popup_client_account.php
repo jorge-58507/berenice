@@ -39,6 +39,10 @@ $nr_facturaf=$qry_facturaf->num_rows;
 
 $(document).ready(function() {
 
+$("#btn_print_clientaccount").on("click", function(){
+	window.open("print_client_account.php?a="+<?php echo $client_id; ?>);
+})
+
 });
 
 </script>
@@ -89,9 +93,12 @@ $(document).ready(function() {
         <span id="span_impuesto" class="form-control bg-disabled"><?php echo number_format($rs_client['impuesto'],2); ?></span>
     </div>
 
+		<div class="container-fluid al_center">
+			<button class="btn btn-info" id="btn_print_clientaccount">Imprimir Edo. Cuenta</button>
+		</div>
 
     <div id="container_tblfacturaf" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    	<table id="tbl_facturaf" class="table table-bordered table-condensed table-striped">
+			<table id="tbl_facturaf" class="table table-bordered table-condensed table-striped">
         <thead class="bg-primary">
         <tr>
         	<th>Numero</th><th>Fecha</th><th>Total</th><th>Deficit</th>
@@ -105,11 +112,9 @@ $(document).ready(function() {
         <?php do{?>
         <tr onclick="javascript: get_datoventabyfacturaf('<?php echo $rs_facturaf['AI_facturaf_id'] ?>');">
         	<td><?php echo $rs_facturaf['TX_facturaf_numero'] ?></td>
-            <td><?php echo $rs_facturaf['TX_facturaf_fecha'] ?></td>
-            <td><?php
-			echo number_format($total = $rs_facturaf['TX_facturaf_subtotalni'] + $rs_facturaf['TX_facturaf_subtotalci'] + $rs_facturaf['TX_facturaf_impuesto'],2);
-			?></td>
-            <td><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></td>
+          <td><?php echo $rs_facturaf['TX_facturaf_fecha'] ?></td>
+          <td><?php	echo number_format($total = $rs_facturaf['TX_facturaf_subtotalni'] + $rs_facturaf['TX_facturaf_subtotalci'] + $rs_facturaf['TX_facturaf_impuesto'],2);?></td>
+          <td><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></td>
         </tr>
 			<?php }while($rs_facturaf=$qry_facturaf->fetch_array());?>
         <?php }else{?>

@@ -36,11 +36,11 @@ function make_nc(facturaf_id){
 function new_return(field){
 	var cantidad = prompt("Ingrese la cantidad.");
 	retirable = field.id;
-	ans = val_intwdec(cantidad);
+	ans = val_intw2dec(cantidad);
 	if(!ans){
 		return false;
 	}
-	if(parseInt(cantidad) === 0){
+	if(parseFloat(cantidad) === 0){
 		return false;
 	}
 	if(parseFloat(cantidad) > parseFloat(retirable)){

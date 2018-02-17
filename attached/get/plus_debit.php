@@ -71,7 +71,11 @@ $impresora_id = $rs_impresora['AI_impresora_id'];
 $str_factid=$_GET['b'];
 
 $motivo = $_GET['a'];
-$numero_nd = checknumerond('00000001');
+
+$qry_lastnd=$link->query("SELECT AI_notadebito_id, TX_notadebito_numero FROM bh_notadebito ORDER BY AI_notadebito_id DESC LIMIT 1")or die($link->error);
+$rs_lastnd=$qry_lastnd->fetch_array();
+$numero_nd = $rs_lastnd['TX_notadebito_numero'];
+$numero_nd = checknumerond($numero_nd);
 $fecha = date('Y-m-d');
 $hora = date('h:i a');
 

@@ -94,7 +94,10 @@ function sumarnumerond($numero_nd){
 		$numero_nd = substr($pre_numero_nd,-8);
 		return checknumerond($numero_nd);
 }
-$numero_nd = checknumerond('00000001');
+$qry_lastnd=$link->query("SELECT AI_notadebito_id, TX_notadebito_numero FROM bh_notadebito ORDER BY AI_notadebito_id DESC LIMIT 1")or die($link->error);
+$rs_lastnd=$qry_lastnd->fetch_array();
+$numero_nd = $rs_lastnd['TX_notadebito_numero'];
+$numero_nd = checknumerond($numero_nd);
 
 // ############################## FUNCIONES #########################
 // ################################## INSERCION NOTA DE CREDITO  #######################################
@@ -107,7 +110,11 @@ $qry_facturaf=$link->query("SELECT bh_facturaf.facturaf_AI_cliente_id, bh_factur
 $rs_facturaf=$qry_facturaf->fetch_array();
 $cliente_id=$rs_facturaf['facturaf_AI_cliente_id'];
 $facturaf_id=$rs_facturaf['AI_facturaf_id'];
-$numero_nc = checknumeronc('00000001');
+
+$qry_lastnc=$link->query("SELECT AI_notadecredito_id,TX_notadecredito_numero FROM bh_notadecredito ORDER BY AI_notadecredito_id DESC LIMIT 1")or die($link->error);
+$rs_lastnc = $qry_lastnc->fetch_array();
+$numero_nc = $rs_lastnc['TX_notadecredito_numero'];
+$numero_nc = checknumeronc($numero_nc);
 $motivo = $_GET['a'];
 $fecha = date('Y-m-d');
 $hora = date('h:i a');
@@ -176,7 +183,7 @@ if ($rs_facturaf['TX_facturaf_deficit'] > 0) {
 	}
 	$total_nd = $rs_facturaf['TX_facturaf_deficit']-$new_deficit;
 	$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit =	'$new_deficit' WHERE AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}'")or die($link->error);
-	$motivo_nd = 'ABONO NC '.$numero_nc;
+	$motivo_nd = 'DEDUCCION POR NC '.$numero_nc;
 	$debito_id = insert_notadebito($cliente_id,$user_id,$numero_nd,$motivo_nd,$fecha,$hora,$total_nd);
 	$link->query("INSERT INTO rel_facturaf_notadebito (rel_AI_facturaf_id, rel_AI_notadebito_id, TX_rel_facturafnotadebito_importe) VALUES ('{$rs_facturaf['AI_facturaf_id']}','$debito_id','$total_nd')");
 	$bh_insert_datodebito="INSERT INTO bh_datodebito (datodebito_AI_notadebito_id, datodebito_AI_user_id,  datodebito_AI_metododepago_id, TX_datodebito_monto, TX_datodebito_numero, TX_datodebito_fecha) VALUES ('$debito_id','$user_id','7','$total_nd','','$fecha')";

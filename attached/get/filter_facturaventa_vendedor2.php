@@ -25,11 +25,11 @@ INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente
 INNER JOIN bh_datopago ON bh_datopago.datopago_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 INNER JOIN bh_metododepago ON bh_datopago.datopago_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
 WHERE
-bh_facturaf.TX_facturaf_fecha >= '$date_i' AND bh_facturaf.TX_facturaf_fecha <= '$date_f' AND
+bh_facturaventa.TX_facturaventa_fecha >= '$date_i' AND bh_facturaventa.TX_facturaventa_fecha <= '$date_f' AND
 bh_facturaventa.TX_facturaventa_status = 'CANCELADA' AND
 bh_facturaventa.facturaventa_AI_user_id = '$user_id'
 GROUP BY bh_datopago.AI_datopago_id".$line_order;
-$qry_facturaventa_total = mysql_query($txt_facturaventa)or die(mysql_error());
+$qry_facturaventa_total = mysql_query($txt_facturaventa);
 $total_no_credit=0;
 
 while($rs_facturaventa_total = mysql_fetch_assoc($qry_facturaventa_total)){
@@ -65,7 +65,7 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
     <?php
 		$total_total=0;
 		$total_efectivo=0; $total_tarjeta=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
-		if($nr_facturaventa=mysql_num_rows($qry_facturaventa)>0){
+		if($nr_facturaventa=mysql_num_rows($qry_facturaventa)>0){ 
 	do{
 	?>
     <tr>

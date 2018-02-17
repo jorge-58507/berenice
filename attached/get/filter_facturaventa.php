@@ -11,12 +11,12 @@ if(!empty($date_i) && !empty($date_f)){
 	$date_i = date('Y-m-d',$pre_datei);
 	$pre_datef=strtotime($date_f);
 	$date_f = date('Y-m-d',$pre_datef);
-	
-	$line_date=" bh_facturaventa.TX_facturaventa_fecha >= '$date_i' AND  bh_facturaventa.TX_facturaventa_fecha <= '$date_f' AND";
+
+	$line_date=" bh_facturaf.TX_facturaf_fecha >= '$date_i' AND  bh_facturaf.TX_facturaf_fecha <= '$date_f' AND";
 }else{
 	$line_date="";
 }
-	
+
 if(!empty($status)){
 	$line_status = " bh_facturaventa.TX_facturaventa_status = 'CANCELADA' AND";
 }else{
@@ -30,7 +30,7 @@ $text=1;
 
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status,
 bh_facturaf.TX_facturaf_numero, bh_facturaf.AI_facturaf_id
-FROM ((bh_facturaventa 
+FROM ((bh_facturaventa
 INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
 INNER JOIN bh_facturaf ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 WHERE";
@@ -69,13 +69,13 @@ $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." TX_facturaventa_nu
 }
 switch ($_COOKIE['coo_tuser']) {
 case "1":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha, TX_facturaventa_numero DESC";
+$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaf_fecha DESC, TX_facturaventa_numero DESC";
 break;
 case "2":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha, TX_facturaventa_numero  DESC";
+$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaf_fecha DESC, TX_facturaventa_numero  DESC";
 break;
 case "4":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha, TX_facturaventa_numero  DESC";
+$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaf_fecha DESC, TX_facturaventa_numero  DESC";
 break;
 default:
 $txt_facturaventa=$txt_facturaventa." AND
@@ -85,13 +85,23 @@ break;
 
 if($status != 'CANCELADA'){
 
+if(!empty($date_i) && !empty($date_f)){
+	$pre_datei=strtotime($date_i);
+	$date_i = date('Y-m-d',$pre_datei);
+	$pre_datef=strtotime($date_f);
+	$date_f = date('Y-m-d',$pre_datef);
+
+	$line_date=" bh_facturaventa.TX_facturaventa_fecha >= '$date_i' AND  bh_facturaventa.TX_facturaventa_fecha <= '$date_f' AND";
+}else{
+	$line_date="";
+}
+
 $line_status= " bh_facturaventa.TX_facturaventa_status = '{$status}' AND";
 
-$txt_facturaventa="
-SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre,
+$txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre,
  bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status
- FROM (bh_facturaventa 
- INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id) 
+ FROM (bh_facturaventa
+ INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
  WHERE ";
 
 for($it=0;$it<$size_value;$it++){
@@ -128,25 +138,25 @@ $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_facturaventa.TX
 }
 switch ($_COOKIE['coo_tuser']) {
 case "1":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha, TX_facturaventa_numero DESC";
+$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha DESC, TX_facturaventa_numero DESC";
 break;
 case "2":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha, TX_facturaventa_numero  DESC";
+$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha DESC, TX_facturaventa_numero  DESC";
 break;
 case "4":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha, TX_facturaventa_numero  DESC";
+$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha DESC, TX_facturaventa_numero  DESC";
 break;
 default:
 $txt_facturaventa=$txt_facturaventa." AND
 bh_facturaventa.facturaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY TX_facturaventa_status, TX_facturaventa_numero DESC";
 break;
 }
-//echo $txt_facturaventa; 
- 
+//echo $txt_facturaventa;
+
 }
 
-//echo $txt_facturaventa;
-$qry_facturaventa = mysql_query($txt_facturaventa);
+// echo $txt_facturaventa;
+$qry_facturaventa = mysql_query($txt_facturaventa)or die(mysql_error());
 $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
 ?>
 <table id="tbl_facturaventa" class="table table-bordered table-striped">
@@ -166,11 +176,11 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
     <?php
 	$raw_facturaf=array();
 	$total_total=0;
-	$total_efectivo=0; $total_tarjeta=0; $total_cheque=0; $total_credito=0; $total_notadc=0; 
+	$total_efectivo=0; $total_tarjeta=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
 	do{
 	?>
     <tr>
-        <td><?php 
+        <td><?php
 		$time=strtotime($rs_facturaventa['TX_facturaventa_fecha']);
 		$date=date('d-m-Y',$time);
 		echo $date; ?></td>
@@ -179,7 +189,7 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
         <td><?php echo $rs_facturaventa['TX_facturaventa_total']; ?></td>
         <td><?php if(isset($rs_facturaventa['TX_facturaf_numero'])){ echo $rs_facturaventa['TX_facturaf_numero']; } ?></td>
         <td>
-        <?php 
+        <?php
 		if(isset($rs_facturaventa['AI_facturaf_id'])){
 			$answer = array_search($rs_facturaventa['AI_facturaf_id'], $raw_facturaf);
 			if($answer >= -1){
@@ -188,10 +198,10 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
 				$print=1;
 				$raw_facturaf[]="{$rs_facturaventa['AI_facturaf_id']}";
 			}
-					
+
 			if($print==1){
-				$qry_datopago=mysql_query("SELECT TX_datopago_monto, datopago_AI_metododepago_id, bh_metododepago.TX_metododepago_value 
-				FROM ((bh_datopago 
+				$qry_datopago=mysql_query("SELECT TX_datopago_monto, datopago_AI_metododepago_id, bh_metododepago.TX_metododepago_value
+				FROM ((bh_datopago
 				INNER JOIN bh_facturaf ON bh_datopago.datopago_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 				INNER JOIN bh_metododepago ON bh_datopago.datopago_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
 				WHERE bh_facturaf.AI_facturaf_id = '{$rs_facturaventa['AI_facturaf_id']}'");
@@ -208,17 +218,17 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
 				echo "<font color='{$color}'>".$rs_datopago['TX_metododepago_value']."</font><br />";
 				$raw_monto[$i]=$rs_datopago['TX_datopago_monto'];
 				$i++;
-				} 
+				}
 			}
 		}
 		?>
         </td>
         <td>
-        <?php 
+        <?php
 		if(isset($raw_monto)){
 			if($print==1){
 				foreach($raw_monto as $monto){
-				echo $monto."<br />"; 		
+				echo $monto."<br />";
 				}
 			}
 		}
@@ -245,52 +255,45 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
             <table id="tbl_total" class="table-condensed table-bordered" style="width:100%">
 			<tr>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Efectivo:</strong> <br /><?php 
+				<strong>Efectivo:</strong> <br /><?php
 				if(isset($total_efectivo)){
 					echo number_format($total_efectivo,2);
 				};?>
                 </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Tarjeta:</strong> <br /><?php 
+				<strong>Tarjeta:</strong> <br /><?php
 				if(isset($total_efectivo)){
 					echo number_format($total_tarjeta,2);
 				}
 				?>
                 </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Cheque:</strong> <br /><?php 
+				<strong>Cheque:</strong> <br /><?php
 				if(isset($total_efectivo)){
 					echo number_format($total_cheque,2);
 				}?>
                 </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Cr&eacute;dito:</strong> <br /><?php 
+				<strong>Cr&eacute;dito:</strong> <br /><?php
 				if(isset($total_efectivo)){
 					echo number_format($total_credito,2);
 				}?>
                 </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Nota de C.:</strong> <br /><?php 
+				<strong>Nota de C.:</strong> <br /><?php
 				if(isset($total_efectivo)){
 					echo number_format($total_notadc,2);
 				}?>
                 </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Total:</strong> <br /><?php 
+				<strong>Total:</strong> <br /><?php
 				if(isset($total_efectivo)){
 					echo number_format($total_total,2);
 				}?>
                 </td>
             </tr>
-			</table>            
+			</table>
             </td>
 		</tr>
     </tfoot>
 </table>
-
-
-    
-    
-    
-    
-
