@@ -1,5 +1,5 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
 
 $value=$_GET['a'];
@@ -27,10 +27,14 @@ $txt_product=$txt_product."TX_producto_codigo LIKE '%{$arr_value[$it]}%' AND ";
 	}
 }
 
-$qry_product=mysql_query($txt_product." ORDER BY TX_producto_value ASC LIMIT 10");
-$rs_product=mysql_fetch_assoc($qry_product);
+$qry_product=$link->query($txt_product." ORDER BY TX_producto_value ASC LIMIT 10");
+$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
+$nr_product=$qry_product->num_rows;
 
-$nr_product=mysql_num_rows($qry_product);
+$qry_letra=$link->prepare("SELECT bh_letra.TX_letra_value FROM bh_letra, bh_producto WHERE bh_letra.AI_letra_id = ?")or die($link->error);
+
+$qry_precio=$link->prepare("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ?")or die($link->error);
+
 ?>
     <table id="tbl_product" class="table table-bordered table-hover table-striped">
     <caption>Lista de Productos:</caption>
@@ -79,21 +83,28 @@ $nr_product=mysql_num_rows($qry_product);
             </td>
         	<td>
             <?php
-			$qry_precio=mysql_query("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = '{$rs_product['AI_producto_id']}'")or die(mysql_error());
-			if($nr_precio=mysql_num_rows($qry_precio) > 0){
-				$rs_precio=mysql_fetch_array($qry_precio);
-				echo number_format($rs_precio['TX_precio_cuatro'],2);
+			$qry_precio->bind_param("i", $rs_product['AI_producto_id']); $qry_precio->execute(); $result=$qry_precio->get_result();
+			$rs_precio = $result->fetch_array(MYSQLI_ASSOC);
+			if($result->num_rows > 0){
+				if (!empty($rs_precio['TX_precio_cuatro'])) {
+          echo number_format($rs_precio['TX_precio_cuatro'],2);
+        }else if(empty($rs_precio['TX_precio_cuatro'])) {
+          echo number_format(0,2);
+        }else{
+          echo number_format(0,2);
+        }
 			}
 			?>
             </td>
         	<td>
             <?php
-			$rs_letra=mysql_fetch_array(mysql_query("SELECT bh_letra.TX_letra_value FROM bh_letra, bh_producto WHERE bh_letra.AI_letra_id = '{$rs_product['producto_AI_letra_id']}'"));
+			$qry_letra->bind_param("i", $rs_product['producto_AI_letra_id']); $qry_letra->execute(); $result=$qry_letra->get_result();
+			$rs_letra=$result->fetch_array(MYSQLI_ASSOC);
 			echo $rs_letra['TX_letra_value']; ?>
             </td>
         </tr>
     <?php
-	}while($rs_product=mysql_fetch_assoc($qry_product));
+	}while($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC));
 	}else{
 	?>
 	    <tr class="bg-info">

@@ -7,6 +7,12 @@ $date=date('Y-m-d',$time);
 $vendor_id=$_GET['d'];
 $number=$_GET['e'];
 
+$qry_facturaventa=$link->query("SELECT AI_facturaventa_id FROM bh_facturaventa WHERE TX_facturaventa_numero = '$number' AND facturaventa_AI_facturaf_id is NULL")or die($link->error);
+if ($qry_facturaventa->num_rows < 1) {
+	echo "denied";
+	return false;
+}
+
 $qry_ins_datoventa = $link->prepare("INSERT INTO bh_datoventa (datoventa_AI_facturaventa_id, datoventa_AI_user_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento) VALUES (?,?,?,?,?,?,?)")or die($link->error);
 
 $qry_chkexento = $link->query("SELECT AI_cliente_id FROM bh_cliente WHERE AI_cliente_id = '$client_id' AND TX_cliente_exento = '1'")or die($link->error);
@@ -34,7 +40,13 @@ while($rs_nuevaventa=$qry_nuevaventa->fetch_array()){
 }
 $total=round($total,2);
 
-$qry_facturaventa=$link->query("SELECT AI_facturaventa_id FROM bh_facturaventa WHERE TX_facturaventa_numero = '$number'")or die($link->error);
+// $qry_facturaventa=$link->query("SELECT AI_facturaventa_id FROM bh_facturaventa WHERE TX_facturaventa_numero = '$number'")or die($link->error);
+// $rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC);
+
+// $qry_facturaventa=$link->query("SELECT AI_facturaventa_id FROM bh_facturaventa WHERE TX_facturaventa_numero = '$number' AND facturaventa_AI_facturaf_id is NULL")or die($link->error);
+// if ($qry_facturaventa->num_rows < 1) {
+// 	return false;
+// }
 $rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC);
 
 $link->query("UPDATE bh_facturaventa SET TX_facturaventa_fecha='$date', facturaventa_AI_cliente_id='$client_id', TX_facturaventa_total='$total' WHERE AI_facturaventa_id = '{$rs_facturaventa['AI_facturaventa_id']}'")or die($link->error);
@@ -49,4 +61,5 @@ foreach ($raw_nuevaventa as $key => $value) {
 $bh_del="DELETE FROM bh_nuevaventa WHERE nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}'";
 $link->query($bh_del) or die($link->error);
 
+echo "acepted";
 ?>

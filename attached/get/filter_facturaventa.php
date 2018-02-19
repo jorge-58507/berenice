@@ -1,5 +1,5 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
 
 $value=$_GET['a'];
@@ -156,8 +156,15 @@ break;
 }
 
 // echo $txt_facturaventa;
-$qry_facturaventa = mysql_query($txt_facturaventa)or die(mysql_error());
-$rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
+$qry_facturaventa = $link->query($txt_facturaventa)or die($link->error);
+$rs_facturaventa = $qry_facturaventa->fetch_array(MYSQLI_ASSOC);
+
+$qry_datopago=$link->prepare("SELECT TX_datopago_monto, datopago_AI_metododepago_id, bh_metododepago.TX_metododepago_value
+FROM ((bh_datopago
+INNER JOIN bh_facturaf ON bh_datopago.datopago_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
+INNER JOIN bh_metododepago ON bh_datopago.datopago_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
+WHERE bh_facturaf.AI_facturaf_id = ?");
+
 ?>
 <table id="tbl_facturaventa" class="table table-bordered table-striped">
 	<thead class="bg-primary">
@@ -172,7 +179,7 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
         </tr>
     </thead>
     <tbody>
-    <?php if($nr_facturaventa=mysql_num_rows($qry_facturaventa)>0){ ?>
+    <?php if($qry_facturaventa->num_rows > 0){ ?>
     <?php
 	$raw_facturaf=array();
 	$total_total=0;
@@ -180,10 +187,7 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
 	do{
 	?>
     <tr>
-        <td><?php
-		$time=strtotime($rs_facturaventa['TX_facturaventa_fecha']);
-		$date=date('d-m-Y',$time);
-		echo $date; ?></td>
+        <td><?php $time=strtotime($rs_facturaventa['TX_facturaventa_fecha']); echo $date=date('d-m-Y',$time); ?></td>
         <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_total']; ?></td>
@@ -200,14 +204,11 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
 			}
 
 			if($print==1){
-				$qry_datopago=mysql_query("SELECT TX_datopago_monto, datopago_AI_metododepago_id, bh_metododepago.TX_metododepago_value
-				FROM ((bh_datopago
-				INNER JOIN bh_facturaf ON bh_datopago.datopago_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
-				INNER JOIN bh_metododepago ON bh_datopago.datopago_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
-				WHERE bh_facturaf.AI_facturaf_id = '{$rs_facturaventa['AI_facturaf_id']}'");
+				$qry_datopago->bind_param("i", $rs_facturaventa['AI_facturaf_id']); $qry_datopago->execute(); $result=$qry_datopago->get_result();
+
 				$raw_monto=array();
 				$i=0;
-				while($rs_datopago=mysql_fetch_array($qry_datopago)){
+				while($rs_datopago=$result->fetch_array(MYSQLI_ASSOC)){
 				switch($rs_datopago['datopago_AI_metododepago_id']){
 					case '1':	$color='#67b847';	$total_efectivo += $rs_datopago['TX_datopago_monto'];	break;
 					case '2':	$color='#e9ca2f';	$total_tarjeta += $rs_datopago['TX_datopago_monto'];	break;
@@ -235,8 +236,11 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
 		?>
         </td>
     </tr>
+		<tr>
+
+		</tr>
     <?php
-	}while($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa));
+	}while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC));
 	$total_total = $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta;
     ?>
     <?php }else{ ?>

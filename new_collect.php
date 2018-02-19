@@ -603,7 +603,9 @@ switch ($_COOKIE['coo_tuser']){
 				$rs_precio=mysql_fetch_array($qry_precio);
         if (!empty($rs_precio['TX_precio_cuatro'])) {
           echo number_format($rs_precio['TX_precio_cuatro'],2);
-        }else {
+        }else if(empty($rs_precio['TX_precio_cuatro'])) {
+          echo number_format(0,2);
+        }else{
           echo number_format(0,2);
         }
 			}

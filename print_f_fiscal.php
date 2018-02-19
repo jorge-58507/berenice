@@ -154,56 +154,6 @@ if (!empty($raw_datopago[4]['monto'])) {  $raw_facti['p_tdd']=round($raw_datopag
 if (!empty($raw_datopago[5]['monto'])) {  $raw_facti['p_otro']=round($raw_datopago[5]['monto'],2); }else{ $raw_facti['p_otro'] = '0.00'; }
 if (!empty($raw_datopago[7]['monto'])) {  $raw_facti['p_nc']=round($raw_datopago[7]['monto'],2); }else{ $raw_facti['p_nc'] = '0.00'; }
 
-// $raw_facti['cambio']=$rs_facturaf['TX_facturaf_cambio'];
-
-// $str_factid="";
-// foreach ($raw_facti as $key => $value) {
-//   if ($value === reset($raw_facti)) {
-//     $str_factid .= $value;
-//   }else{
-//     $str_factid .= chr(9).$value;
-//   }
-// }
-// echo $str_factid;
-//return false;
-
-// $txt_facturaf="SELECT bh_cliente.TX_cliente_nombre AS cliente_nombre, bh_cliente.TX_cliente_cif AS ruc,
-//  bh_cliente.TX_cliente_direccion AS direccion, bh_facturaf.TX_facturaf_descuento AS descuento,
-//  bh_facturaf.TX_facturaf_total AS total
-// FROM (bh_facturaf
-// INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id)
-// WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'";
-// $qry_facturaf=mysql_query($txt_facturaf);
-// $rs_facturaf=mysql_fetch_array($qry_facturaf);
-//
-// $total_efectivo=0;
-// $row_totalefectivo=mysql_fetch_array(mysql_query("SELECT TX_datopago_monto FROM bh_datopago WHERE datopago_AI_metododepago_id = '1' AND datopago_AI_facturaf_id = '$facturaf_id'"));
-// $total_efectivo = $row_totalefectivo[0];
-//
-// $total_cheque=0;
-// $row_totalcheque=mysql_fetch_array(mysql_query("SELECT TX_datopago_monto FROM bh_datopago WHERE datopago_AI_metododepago_id = '2' AND datopago_AI_facturaf_id = '$facturaf_id'"));
-// $total_cheque = $row_totalcheque[0];
-//
-// $total_tarjeta_credito=0;
-// $row_totaltarjeta_credito=mysql_fetch_array(mysql_query("SELECT TX_datopago_monto FROM bh_datopago WHERE datopago_AI_metododepago_id = '3' AND datopago_AI_facturaf_id = '$facturaf_id'"));
-// $total_tarjeta_credito = $row_totaltarjeta_credito[0];
-//
-// $total_tarjeta_debito=0;
-// $row_totaltarjeta_debito=mysql_fetch_array(mysql_query("SELECT TX_datopago_monto FROM bh_datopago WHERE datopago_AI_metododepago_id = '4' AND datopago_AI_facturaf_id = '$facturaf_id'"));
-// $total_tarjeta_debito = $row_totaltarjeta_debito[0];
-//
-// $total_credito=0;
-// $row_totalcredito=mysql_fetch_array(mysql_query("SELECT TX_datopago_monto FROM bh_datopago WHERE datopago_AI_metododepago_id = '5' AND datopago_AI_facturaf_id = '$facturaf_id'"));
-// $total_credito = $row_totalcredito[0];
-//
-// $total_notac=0;
-// $row_totalnotac=mysql_fetch_array(mysql_query("SELECT TX_datopago_monto FROM bh_datopago WHERE datopago_AI_metododepago_id = '7' AND datopago_AI_facturaf_id = '$facturaf_id'"));
-// $total_notac = $row_totalnotac[0];
-//
-// $row_cambio=mysql_fetch_array(mysql_query("SELECT TX_facturaf_cambio FROM bh_facturaf WHERE AI_facturaf_id = '$facturaf_id'"));
-// $cambio = $row_cambio[0];
-
-
 $recipiente = $rs_impresora['TX_impresora_recipiente'];
 $retorno = $rs_impresora['TX_impresora_retorno'];
 if (!file_exists($recipiente)) {
@@ -213,11 +163,6 @@ if (!file_exists($recipiente)) {
 
 <?php
 /* ###################### ENCABEZADO  ######################## */
-// $qry_pago=$link->query("SELECT TX_datopago_monto FROM bh_datopago WHERE datopago_AI_facturaf_id =  '$facturaf_id'");
-// $total_pagado=0;
-// while($row_pago=mysql_fetch_array($qry_pago)){
-// 	$total_pagado += $row_pago['TX_datopago_monto'];
-// }
 $total_pagado=$total_pagado+$cambio;
 $file = fopen($recipiente."FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).".txt", "w");
 $str_factid="";

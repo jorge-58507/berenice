@@ -74,9 +74,25 @@ function sumarfacturaf($numero_ff){
 }
 $host_ip=ObtenerIP();
 $host_name=gethostbyaddr($host_ip);
-$qry_impresora = $link->query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);
+// $host_name='noexiste';
+$qry_impresora = $link->query("SELECT AI_impresora_id, TX_impresora_retorno, TX_impresora_recipiente FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);
+$nr_impresora = $qry_impresora->num_rows;
+if ($nr_impresora < 1) {
+	echo "denied";
+	return false;
+}
+
 $rs_impresora=$qry_impresora->fetch_array();
 $impresora_id = $rs_impresora['AI_impresora_id'];
+$recipiente = $rs_impresora['TX_impresora_recipiente'];
+// $recipiente = "//noexiste/P_CAJA/";
+$retorno = $rs_impresora['TX_impresora_retorno'];
+if (!file_exists($recipiente)) {
+    if(!mkdir($recipiente, 0777, true)){
+			echo "denied";
+			return false;
+		};
+}
 /* ^########################### FUNCIONES ##################### ^ */
 $subtotal_ni=0;
 $subtotal_ci=0;
@@ -168,5 +184,5 @@ foreach ($raw_facturaventa as $key => $value) {
 	$link->query("UPDATE bh_producto SET TX_producto_cantidad = '$resta' WHERE AI_producto_id = '{$value['datoventa_AI_producto_id']}'");
 }
 
-echo "All right"
+echo "acepted"
 ?>

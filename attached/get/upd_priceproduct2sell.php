@@ -11,7 +11,9 @@ $new_price=$_GET['b'];
 		$rs_nuevaventa = $qry_nuevaventa->fetch_array();
 		$id=$rs_nuevaventa['AI_nuevaventa_id'];
 		$bh_update="UPDATE bh_nuevaventa SET TX_nuevaventa_precio='$new_price' WHERE AI_nuevaventa_id = '$id'";
-		$link->query($bh_update) or die ($link->error);
+		if ($new_price > 0.00){
+			$link->query($bh_update) or die ($link->error);
+		}
 	}
 
 	$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id FROM bh_producto, bh_nuevaventa WHERE bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id AND bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");

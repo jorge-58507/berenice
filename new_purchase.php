@@ -2,8 +2,7 @@
 require 'bh_conexion.php';
 $link=conexion();
 date_default_timezone_set('America/Panama');
-?>
-<?php
+
 $link->query("DELETE FROM bh_nuevacompra WHERE nuevacompra_AI_user_id = '{$_COOKIE['coo_iuser']}'");
 
 require 'attached/php/req_login_stock.php';
@@ -34,7 +33,7 @@ if(isset($_GET['a'])){
 }
 ?>
 <?php
-$qry_proveedor=$link->query("SELECT * FROM bh_proveedor WHERE TX_proveedor_tipo = 'DISTRIBUIDOR'")or die($link->error);
+$qry_proveedor=$link->query("SELECT * FROM bh_proveedor WHERE TX_proveedor_tipo = 'DISTRIBUIDOR' ORDER BY TX_proveedor_nombre ASC")or die($link->error);
 $rs_proveedor=$qry_proveedor->fetch_array();
 
 $qry_warehouse=$link->query("SELECT * FROM bh_almacen");

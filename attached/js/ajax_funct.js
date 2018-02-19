@@ -335,11 +335,15 @@ function save_old_sale(){
 		if (window.XMLHttpRequest){
 			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
 			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("container_txtfilterclient").innerHTML=xmlhttp.responseText;
+				if (xmlhttp.responseText === 'denied') {
+					alert("Esta cotizacion se encuentra cobrada.")
+					setTimeout("history.back(1)",250);
+				} else {
+					setTimeout("history.back(1)",250);
+				}
 			}
 		}
 		xmlhttp.open("GET","attached/get/save_old_sale.php?a="+date+"&b="+client_id+"&c="+client+"&d="+vendor_id+"&e="+number+"&f="+total+"&g="+observation,true);	xmlhttp.send();
-		setTimeout("history.back(1)",250);
 }
 
 // function save_sale2bill(){
@@ -480,7 +484,14 @@ function plus_facturaf(str_factid){
 	var	client_id=$("#txt_filterclient").prop("alt");
 	$.ajax({	data: {"a" : str_factid, "b" : client_id },	type: "GET",	dataType: "text",	url: "attached/get/plus_facturaf.php", })
 	 .done(function( data, textStatus, jqXHR ) {
-		 if (data){ setTimeout("window.location='print_f_fiscal.php'",100);	}
+		 if (data){
+			if (data === "acepted"){
+			 setTimeout("window.location='print_f_fiscal.php'",100);
+		 	}else{
+			 alert("Conexion no lograda, Existe un problema interno de red.");
+			 setTimeout("location.reload()",100);
+	 		}
+		 }
 	 })
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
