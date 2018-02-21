@@ -193,23 +193,23 @@ $rs_datoventa=mysql_fetch_assoc($qry_datoventa);
     <table  id="tbl_datoventa" class="table table-print table-bordered table-striped">
     <thead style="border:solid">
     	<tr>
-        	<th style="width:20%; text-align:center; border:solid 1px #000; border-bottom-left-radius:3px;border-top-left-radius:3px;">
-			<strong>Codigo </strong>
-            </th>
-            <th style="width:50%; text-align:center; border:solid 1px #000;">
-            <strong>Detalle</strong>
-            </th>
-            <th style="width:10%; text-align:center; border:solid 1px #000;">
-            <strong>Cant. </strong>
-            </th>
-            <th style="width:10%; text-align:center; border:solid 1px #000;">
-            <strong>Precio</strong>
-            </th>
-            <th style="width:10%; text-align:center; border:solid 1px #000; border-bottom-right-radius:3px;border-top-right-radius:3px;">
-            <strong>Total. </strong>
-            </th>
-		</tr>
-	</thead>
+      	<th style="width:20%; text-align:center; border:solid 1px #000; border-bottom-left-radius:3px;border-top-left-radius:3px;">
+					<strong>Codigo </strong>
+        </th>
+        <th style="width:50%; text-align:center; border:solid 1px #000;">
+	        <strong>Detalle</strong>
+        </th>
+        <th style="width:10%; text-align:center; border:solid 1px #000;">
+	        <strong>Cant. </strong>
+        </th>
+        <th style="width:10%; text-align:center; border:solid 1px #000;">
+	        <strong>Precio</strong>
+        </th>
+        <th style="width:10%; text-align:center; border:solid 1px #000; border-bottom-right-radius:3px;border-top-right-radius:3px;">
+	        <strong>Total. </strong>
+        </th>
+			</tr>
+		</thead>
     <tbody>
 <?php
 		$subtotal=0;

@@ -279,3 +279,7 @@ th{
 	height: 210px;
 	overflow: scroll;
 }
+#tbl_purchase_price>tbody{
+	background-color: #fff;
+	color: #000;
+}

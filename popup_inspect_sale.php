@@ -1,11 +1,9 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 require 'attached/php/req_login_sale.php';
-?>
-<?php
+
 $fecha_actual=date('Y-m-d');
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status,
 bh_facturaf.TX_facturaf_numero, bh_facturaf.AI_facturaf_id
@@ -29,8 +27,15 @@ bh_facturaventa.facturaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY TX_
 break;
 }
 
-$qry_facturaventa=mysql_query($txt_facturaventa);
-$rs_facturaventa=mysql_fetch_assoc($qry_facturaventa);
+$qry_facturaventa=$link->query($txt_facturaventa)or die($link->error);
+$rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC);
+
+$qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_value
+	FROM ((bh_producto
+		INNER JOIN bh_datoventa ON bh_producto.AI_producto_id = bh_datoventa.datoventa_AI_producto_id)
+		INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
+		WHERE bh_datoventa.datoventa_AI_facturaventa_id = ?")or die($link->error);
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -106,6 +111,11 @@ $(document).ready(function() {
 
 });
 
+function toogle_tr_datoventa(facturaventa_id){
+	console.log(facturaventa_id);
+	$('#tr_datoventa_'+facturaventa_id).toggle( "fast");
+}
+
 </script>
 
 </head>
@@ -161,18 +171,19 @@ $(document).ready(function() {
       </tr>
     </thead>
     <tbody>
-    <?php if($nr_facturaventa=mysql_num_rows($qry_facturaventa)>0){ ?>
+    <?php if($nr_facturaventa=$qry_facturaventa->num_rows > 0){ ?>
     <?php
 	$raw_facturaf=array();
 	$total_total=0;
 	$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
 	do{
 	?>
-    <tr>
+			<tr onclick="toogle_tr_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)">
         <td><?php
 		$time=strtotime($rs_facturaventa['TX_facturaventa_fecha']);
 		$date=date('d-m-Y',$time);
-		echo $date; ?></td>
+		echo $date; ?>
+				</td>
         <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_total']; ?></td>
@@ -188,14 +199,14 @@ $(document).ready(function() {
 			}
 
 		if($print==1){
-			$qry_datopago=mysql_query("SELECT TX_datopago_monto, datopago_AI_metododepago_id, bh_metododepago.TX_metododepago_value
+			$qry_datopago=$link->query("SELECT TX_datopago_monto, datopago_AI_metododepago_id, bh_metododepago.TX_metododepago_value
 			FROM ((bh_datopago
 			INNER JOIN bh_facturaf ON bh_datopago.datopago_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 			INNER JOIN bh_metododepago ON bh_datopago.datopago_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
-			WHERE bh_facturaf.AI_facturaf_id = '{$rs_facturaventa['AI_facturaf_id']}'");
+			WHERE bh_facturaf.AI_facturaf_id = '{$rs_facturaventa['AI_facturaf_id']}'")or die($link->error);
 			$raw_monto=array();
 			$i=0;
-			while($rs_datopago=mysql_fetch_array($qry_datopago)){
+			while($rs_datopago=$qry_datopago->fetch_array(MYSQLI_ASSOC)){
 			switch($rs_datopago['datopago_AI_metododepago_id']){
 				case '1':	$color='#67b847';	$total_efectivo += $rs_datopago['TX_datopago_monto'];	break;
 				case '3':	$color='#e9ca2f';	$total_tarjeta_credito += $rs_datopago['TX_datopago_monto'];	break;
@@ -221,8 +232,54 @@ $(document).ready(function() {
 		?>
         </td>
     </tr>
-    <?php
-	}while($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa));
+		<tr id="tr_datoventa_<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>" class="display_none">
+			<td colspan="7">
+				<table id="tbl_datoventa_<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>" class="table table-condensed table-bordered">
+					<thead class="bg-info">
+						<tr>
+							<th>CANT</th>
+							<th>DESCRIPCION</th>
+							<th>PRECIO</th>
+							<th>DESC</th>
+							<th>IMP</th>
+							<th>SUBTOTAL</th>
+						</tr>
+					</thead>
+					<tbody>
+		<?php
+								$qry_datoventa->bind_param("i", $rs_facturaventa['AI_facturaventa_id']); $qry_datoventa->execute(); $result=$qry_datoventa->get_result();
+								$sumatoria=0;
+									while($rs_datoventa=$result->fetch_array()){
+									$descuento = ($rs_datoventa['TX_datoventa_precio']*$rs_datoventa['TX_datoventa_descuento'])/100;
+									$precio_descuento = $rs_datoventa['TX_datoventa_precio']-$descuento;
+									$impuesto = ($precio_descuento*$rs_datoventa['TX_datoventa_impuesto'])/100;
+									$p_unitario = $precio_descuento+$impuesto;
+		?>
+						<tr>
+							<td><?php echo $rs_datoventa['TX_datoventa_cantidad']; ?></td>
+							<td><?php echo $rs_datoventa['TX_producto_value']; ?></td>
+							<td><?php echo number_format($rs_datoventa['TX_datoventa_precio'],2); ?></td>
+							<td><?php echo $rs_datoventa['TX_datoventa_descuento']."%"; ?></td>
+							<td><?php echo $rs_datoventa['TX_datoventa_impuesto']."%"; ?></td>
+							<td><?php $subtotal = $rs_datoventa['TX_datoventa_cantidad']*$p_unitario; echo number_format($subtotal,2);?></td>
+						</tr>
+		<?php
+						$sumatoria += $subtotal;
+								}
+
+						?>
+					</tbody>
+					<tfoot class="bg-info">
+						<tr>
+							<td colspan="5"></td>
+							<td><?php echo number_format($sumatoria,2); ?></td>
+						</tr>
+					</tfoot>
+				</table>
+			</td>
+		</tr>
+<?php
+	}while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC));
 	$total_total = $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta_credito+$total_tarjeta_debito;
     ?>
     <?php }else{ ?>

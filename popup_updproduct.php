@@ -1,33 +1,32 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 session_start();
-?>
-<?php
+
 $product_id=$_GET['a'];
 
-$qry_product=mysql_query("SELECT * FROM bh_producto WHERE AI_producto_id = '$product_id'");
-$rs_product=mysql_fetch_assoc($qry_product);
+$qry_product=$link->query("SELECT * FROM bh_producto WHERE AI_producto_id = '$product_id'")or die($link->error);
+$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
 
-$qry_medida=mysql_query("SELECT * FROM bh_medida", $link);
-$rs_medida=mysql_fetch_assoc($qry_medida);
+$qry_medida=$link->query("SELECT * FROM bh_medida")or die($link->error);
+$rs_medida=$qry_medida->fetch_array(MYSQLI_ASSOC);
 
-$qry_precio=mysql_query("SELECT * FROM bh_precio WHERE precio_AI_producto_id = '$product_id' AND TX_precio_inactivo = '0' ORDER BY TX_precio_fecha DESC", $link);
-$rs_precio=mysql_fetch_assoc($qry_precio);
+$qry_precio=$link->query("SELECT * FROM bh_precio WHERE precio_AI_producto_id = '$product_id' AND TX_precio_inactivo = '0' ORDER BY TX_precio_fecha DESC")or die($link->error);
+$rs_precio=$qry_precio->fetch_array(MYSQLI_ASSOC);
 
-$qry_letra=mysql_query("SELECT bh_letra.AI_letra_id, bh_letra.TX_letra_value, bh_letra.TX_letra_porcentaje FROM bh_letra");
+$qry_letra=$link->query("SELECT bh_letra.AI_letra_id, bh_letra.TX_letra_value, bh_letra.TX_letra_porcentaje FROM bh_letra")or die($link->error);
 
-$qry_datocompra=mysql_query("SELECT TX_datocompra_precio,TX_datocompra_impuesto,TX_datocompra_descuento, bh_datocompra.AI_datocompra_id FROM bh_datocompra WHERE datocompra_AI_producto_id = '$product_id' ORDER BY AI_datocompra_id DESC");
-$rs_datocompra=mysql_fetch_array($qry_datocompra);
+$qry_datocompra=$link->query("SELECT TX_datocompra_precio,TX_datocompra_impuesto,TX_datocompra_descuento, bh_datocompra.AI_datocompra_id FROM bh_datocompra WHERE datocompra_AI_producto_id = '$product_id' ORDER BY AI_datocompra_id DESC")or die($link->error);
+$rs_datocompra=$qry_datocompra->fetch_array(MYSQLI_ASSOC);
 $descuento = ($rs_datocompra['TX_datocompra_descuento']*$rs_datocompra['TX_datocompra_precio'])/100;
 $precio_descuento = $rs_datocompra['TX_datocompra_precio']-$descuento;
 $impuesto = ($rs_datocompra['TX_datocompra_impuesto']*$precio_descuento)/100;
 $last_price = $precio_descuento+$impuesto;
 
-$qry_precio_listado = mysql_query("SELECT bh_precio.AI_precio_id, bh_precio.TX_precio_fecha, bh_precio.TX_precio_uno, bh_precio.TX_precio_dos, bh_precio.TX_precio_tres, bh_precio.TX_precio_cuatro, bh_precio.TX_precio_cinco, bh_producto.AI_producto_id FROM (bh_precio INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_precio.precio_AI_producto_id) WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_precio_fecha DESC, AI_precio_id DESC")or die(mysql_error());
+$qry_precio_listado = $link->query("SELECT bh_precio.AI_precio_id, bh_precio.TX_precio_fecha, bh_precio.TX_precio_uno, bh_precio.TX_precio_dos, bh_precio.TX_precio_tres, bh_precio.TX_precio_cuatro, bh_precio.TX_precio_cinco, bh_producto.AI_producto_id FROM (bh_precio INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_precio.precio_AI_producto_id) WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_precio_fecha DESC, AI_precio_id DESC")or die($link->error);
 
-$qry_datocompra_listado = mysql_query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
-WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_facturacompra_fecha DESC")or die(mysql_error());
+$qry_datocompra_listado = $link->query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
+WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_facturacompra_fecha DESC")or die($link->error);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -208,7 +207,7 @@ $(document).ready(function() {
 <?php	}	?>
 <option value="<?php echo $rs_medida['TX_medida_value']; ?>"><?php echo $rs_medida['TX_medida_value']; ?></option>
 <?php
-		}while($rs_medida=mysql_fetch_assoc($qry_medida));
+		}while($rs_medida=$qry_medida->fetch_array(MYSQLI_ASSOC));
 ?>    </select>
       	</div>
 		<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
@@ -216,7 +215,7 @@ $(document).ready(function() {
 		<select  class="form-control input-sm" id="sel_letter" name="sel_letter">
 <?php
        	$percent = 0;
-		while($rs_letra=mysql_fetch_assoc($qry_letra)){
+		while($rs_letra=$qry_letra->fetch_array(MYSQLI_ASSOC)){
 		if($rs_letra['AI_letra_id']==$rs_product['producto_AI_letra_id']){
 		$percent = $rs_letra['TX_letra_porcentaje'];
 ?>
@@ -293,8 +292,8 @@ $(document).ready(function() {
 		<caption class="caption">Historial de Precios de Compras</caption>
 		<thead class="bg-primary">
 		<tr>
-			<th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Fecha</th>
-			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Precio</th>
+			<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Fecha</th>
+			<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Precio</th>
 			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Imp.</th>
 			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Desc.</th>
 			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Total</th>
@@ -307,7 +306,7 @@ $(document).ready(function() {
 		</tfoot>
 		<tbody>
 <?php
-		while ($rs_datocompra_listado = mysql_fetch_array($qry_datocompra_listado)) {
+		while ($rs_datocompra_listado = $qry_datocompra_listado->fetch_array(MYSQLI_ASSOC)) {
 			$descuento = ($rs_datocompra_listado['TX_datocompra_descuento']*$rs_datocompra_listado['TX_datocompra_precio'])/100;
 			$precio_descuento = $rs_datocompra_listado['TX_datocompra_precio']-$descuento;
 			$impuesto = ($rs_datocompra_listado['TX_datocompra_impuesto']*$precio_descuento)/100;
@@ -347,7 +346,7 @@ $(document).ready(function() {
 		</tfoot>
 		<tbody>
 <?php
-		while ($rs_precio_listado = mysql_fetch_array($qry_precio_listado)) {
+		while ($rs_precio_listado = $qry_precio_listado->fetch_array(MYSQLI_ASSOC)) {
 ?>
 	<tr>
 		<td><?php echo date('d-m-Y', strtotime($rs_precio_listado['TX_precio_fecha'])); ?></td>

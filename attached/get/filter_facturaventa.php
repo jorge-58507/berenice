@@ -165,7 +165,16 @@ INNER JOIN bh_facturaf ON bh_datopago.datopago_AI_facturaf_id = bh_facturaf.AI_f
 INNER JOIN bh_metododepago ON bh_datopago.datopago_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
 WHERE bh_facturaf.AI_facturaf_id = ?");
 
+$qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_value
+	FROM ((bh_producto
+		INNER JOIN bh_datoventa ON bh_producto.AI_producto_id = bh_datoventa.datoventa_AI_producto_id)
+		INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
+		WHERE bh_datoventa.datoventa_AI_facturaventa_id = ?")or die($link->error);
+
 ?>
+<script type="text/javascript">
+
+</script>
 <table id="tbl_facturaventa" class="table table-bordered table-striped">
 	<thead class="bg-primary">
     	<tr>
@@ -183,10 +192,10 @@ WHERE bh_facturaf.AI_facturaf_id = ?");
     <?php
 	$raw_facturaf=array();
 	$total_total=0;
-	$total_efectivo=0; $total_tarjeta=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
+	$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
 	do{
 	?>
-    <tr>
+    <tr onclick="toogle_tr_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)">
         <td><?php $time=strtotime($rs_facturaventa['TX_facturaventa_fecha']); echo $date=date('d-m-Y',$time); ?></td>
         <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
@@ -211,10 +220,11 @@ WHERE bh_facturaf.AI_facturaf_id = ?");
 				while($rs_datopago=$result->fetch_array(MYSQLI_ASSOC)){
 				switch($rs_datopago['datopago_AI_metododepago_id']){
 					case '1':	$color='#67b847';	$total_efectivo += $rs_datopago['TX_datopago_monto'];	break;
-					case '2':	$color='#e9ca2f';	$total_tarjeta += $rs_datopago['TX_datopago_monto'];	break;
-					case '3':	$color='#57afdb';	$total_cheque += $rs_datopago['TX_datopago_monto'];	break;
-					case '4':	$color='#b54a4a';	$total_credito += $rs_datopago['TX_datopago_monto'];	break;
-					case '5':	$color='#EFA63F';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
+					case '2':	$color='#57afdb';	$total_cheque += $rs_datopago['TX_datopago_monto'];	break;
+					case '3':	$color='#e9ca2f';	$total_tarjeta_credito += $rs_datopago['TX_datopago_monto'];	break;
+					case '4':	$color='#f04006';	$total_tarjeta_debito += $rs_datopago['TX_datopago_monto'];	break;
+					case '5':	$color='#b54a4a';	$total_credito += $rs_datopago['TX_datopago_monto'];	break;
+					case '7':	$color='#EFA63F';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
 				}
 				echo "<font color='{$color}'>".$rs_datopago['TX_metododepago_value']."</font><br />";
 				$raw_monto[$i]=$rs_datopago['TX_datopago_monto'];
@@ -236,12 +246,55 @@ WHERE bh_facturaf.AI_facturaf_id = ?");
 		?>
         </td>
     </tr>
-		<tr>
+		<tr id="tr_datoventa_<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>" class="display_none">
+			<td colspan="7">
+				<table id="tbl_datoventa_<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>" class="table table-condensed table-bordered">
+					<thead class="bg-info">
+						<tr>
+							<th>CANT</th>
+							<th>DESCRIPCION</th>
+							<th>PRECIO</th>
+							<th>DESC</th>
+							<th>IMP</th>
+							<th>SUBTOTAL</th>
+						</tr>
+					</thead>
+					<tbody>
+<?php
+								$qry_datoventa->bind_param("i", $rs_facturaventa['AI_facturaventa_id']); $qry_datoventa->execute(); $result=$qry_datoventa->get_result();
+								$sumatoria=0;
+									while($rs_datoventa=$result->fetch_array()){
+									$descuento = ($rs_datoventa['TX_datoventa_precio']*$rs_datoventa['TX_datoventa_descuento'])/100;
+									$precio_descuento = $rs_datoventa['TX_datoventa_precio']-$descuento;
+									$impuesto = ($precio_descuento*$rs_datoventa['TX_datoventa_impuesto'])/100;
+									$p_unitario = $precio_descuento+$impuesto;
+?>
+						<tr>
+							<td><?php echo $rs_datoventa['TX_datoventa_cantidad']; ?></td>
+							<td><?php echo $rs_datoventa['TX_producto_value']; ?></td>
+							<td><?php echo number_format($rs_datoventa['TX_datoventa_precio'],2); ?></td>
+							<td><?php echo $rs_datoventa['TX_datoventa_descuento']."%"; ?></td>
+							<td><?php echo $rs_datoventa['TX_datoventa_impuesto']."%"; ?></td>
+							<td><?php $subtotal = $rs_datoventa['TX_datoventa_cantidad']*$p_unitario; echo number_format($subtotal,2);?></td>
+						</tr>
+<?php
+						$sumatoria += $subtotal;
+								}
 
+						?>
+					</tbody>
+					<tfoot class="bg-info">
+						<tr>
+							<td colspan="5"></td>
+							<td><?php echo number_format($sumatoria,2); ?></td>
+						</tr>
+					</tfoot>
+				</table>
+			</td>
 		</tr>
     <?php
 	}while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC));
-	$total_total = $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta;
+	$total_total = $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta_credito+$total_tarjeta_debito;
     ?>
     <?php }else{ ?>
     <tr>
@@ -257,46 +310,53 @@ WHERE bh_facturaf.AI_facturaf_id = ?");
     	<tr>
         	<td colspan="7">
             <table id="tbl_total" class="table-condensed table-bordered" style="width:100%">
-			<tr>
+							<tr>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>Efectivo:</strong> <br /><?php
 				if(isset($total_efectivo)){
 					echo number_format($total_efectivo,2);
 				};?>
-                </td>
-            	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Tarjeta:</strong> <br /><?php
-				if(isset($total_efectivo)){
-					echo number_format($total_tarjeta,2);
-				}
-				?>
-                </td>
-            	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+              </td>
+							<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>Cheque:</strong> <br /><?php
-				if(isset($total_efectivo)){
+				if(isset($total_cheque)){
 					echo number_format($total_cheque,2);
 				}?>
-                </td>
+              </td>
+							<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+		<strong>TDC:</strong> <br /><?php
+		if(isset($total_tarjeta_credito)){
+			echo number_format($total_tarjeta_credito,2);
+		}
+		?>
+            	</td>
+							<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+			<strong>TDD:</strong> <br /><?php
+			if(isset($total_tarjeta_debito)){
+				echo number_format($total_tarjeta_debito,2);
+			}
+			?>
+             	</td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>Cr&eacute;dito:</strong> <br /><?php
-				if(isset($total_efectivo)){
+				if(isset($total_credito)){
 					echo number_format($total_credito,2);
 				}?>
-                </td>
+              </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>Nota de C.:</strong> <br /><?php
-				if(isset($total_efectivo)){
+				if(isset($total_notadc)){
 					echo number_format($total_notadc,2);
 				}?>
-                </td>
+              </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>Total:</strong> <br /><?php
-				if(isset($total_efectivo)){
+				if(isset($total_total)){
 					echo number_format($total_total,2);
 				}?>
-                </td>
+              </td>
             </tr>
-			</table>
+					</table>
             </td>
 		</tr>
     </tfoot>

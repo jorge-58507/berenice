@@ -98,6 +98,41 @@ function val_intw2dec (str) {
 		}
 	}
 }
+
+function val_intw4dec (str) {
+  var pat = new RegExp('^[0-9]+([.][0-9]{1,2})?$')
+  var ans = pat.exec(str)
+  var str_splited = str.split('.')
+  if(str_splited.length > '1') {
+		if(str_splited.length > '2') {
+			str_splited.splice(2);
+		}
+		if (str_splited[0].length === 0) {
+			str_splited[0]='0';
+		}
+		if (str_splited[1].length === 0) {
+			str_splited[1]='0000';
+    }
+		if (str_splited[1].length === 1) {
+			str_splited[1] = str_splited[1] + '000';
+    }
+		if (str_splited[1].length > 2) {
+			str_splited[1] = str_splited[1].substr(0, 4);
+    }
+		str = str_splited[0] + '.' + str_splited[1];
+		str = parseFloat(str).toFixed(4);
+		return str;
+  } else {
+		if(str != ""){
+    	str = str_splited[0] + '.0000'
+			str = parseFloat(str).toFixed(4);
+			return str;
+  	}else{
+			return str;
+		}
+	}
+}
+
 var popup;
 function open_popup(href,target,w,h){
 	if(!popup){

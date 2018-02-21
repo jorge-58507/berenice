@@ -30,7 +30,7 @@ function ins_datocompra($factura_id,$product,$cantidad,$precio,$itbm,$descuento,
 
 
 	$qry_precio = $link->query("SELECT AI_precio_id FROM bh_precio WHERE precio_AI_producto_id = '$product' AND TX_precio_cuatro = '$p4' AND TX_precio_fecha = '$fecha_actual' AND TX_precio_inactivo='0' ")or die($link->error);
-	if($nr_precio = $qry_precio->num_rows < 1){
+	if($nr_precio = $qry_precio->num_rows < 1 && $p4 > 0){
 		$link->query("UPDATE bh_precio SET TX_precio_inactivo='1' WHERE precio_AI_producto_id = '$product'")or die($link->error);
 		$txt_insert_precio="INSERT INTO bh_precio (precio_AI_producto_id, TX_precio_cuatro, TX_precio_fecha ) VALUES ('$product','$p4','$fecha_actual')";
 		$link->query($txt_insert_precio)or die($link->error);

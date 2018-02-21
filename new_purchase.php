@@ -3,7 +3,7 @@ require 'bh_conexion.php';
 $link=conexion();
 date_default_timezone_set('America/Panama');
 
-$link->query("DELETE FROM bh_nuevacompra WHERE nuevacompra_AI_user_id = '{$_COOKIE['coo_iuser']}'");
+// $link->query("DELETE FROM bh_nuevacompra WHERE nuevacompra_AI_user_id = '{$_COOKIE['coo_iuser']}'");
 
 require 'attached/php/req_login_stock.php';
 $proveedor="";
@@ -108,7 +108,19 @@ $("#btn_insert").click(function(){
 	var	provider = $("#sel_provider_purchase").val();
 	var	billnumber = $("#txt_billnumber").val();
 	var chk_product = $("#tbl_newentry tbody tr td").html();
-	if(provider ==	"" || billnumber ==	"" || chk_product ==	""){
+	if(provider ==	""){
+		$("#sel_provider_purchase").css("border","inset 2px #cc3300");
+		$("#sel_provider_purchase").focus();
+		return false;
+	}
+	if(billnumber ==	""){
+		$("#txt_billnumber").css("border","inset 2px #cc3300");
+		$("#txt_billnumber").focus();
+		return false;
+	}
+	if(chk_product ==	""){
+		$("#txt_filterproduct").css("border","inset 2px #cc3300");
+		$("#txt_filterproduct").focus();
 		return false;
 	}
 	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", })

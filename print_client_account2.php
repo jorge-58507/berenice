@@ -150,61 +150,11 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 	          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>SALDO</strong></th>
 				</tr>
 			</thead>
-	    	<tbody>
+	    <tfoot style="border:solid; background-color:#DDDDDD; text-align: left;"><tr><td colspan="5"></td></tr></tfoot>
+	    <tbody>
 	<?php
-		$sumatoria=0; $index = 1;	$pager = 0;
+		$sumatoria=0;
 		foreach ($raw_facturaf_debito as $key => $rs_facturaf_debito) {
-			$pager++;
-			if($index === 1){
-				if($pager === 11){
-					$pager = 0;
-					$index++;
-?>
-				</tbody>
-			</table>
-		</td>
-	</tr>
-	<tr style="height:720px;">
-		<td valign="top" colspan="10" style="padding-top:2px;">
-		    <table id="tbl_movement" class="table table-striped table-bordered" style="font-size:12px">
-			    <thead style="border:solid; background-color:#DDDDDD">
-			    	<tr>
-			        	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>FECHA</strong></th>
-			          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-4"><strong>DESCRIPCION</strong></th>
-			          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>NUMERO</strong></th>
-			          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>IMPORTE</strong></th>
-			          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>SALDO</strong></th>
-						</tr>
-					</thead>
-		    	<tbody>
-<?php
-				}
-			}else{
-				if($pager === 17){
-					$pager = 0;
-					$index++;
-?>
-					</tbody>
-				</table>
-			</td>
-		</tr>
-		<tr style="height:720px;">
-			<td valign="top" colspan="10" style="padding-top:2px;">
-				<table id="tbl_movement" class="table table-striped table-bordered" style="font-size:12px">
-					<thead style="border:solid; background-color:#DDDDDD">
-						<tr>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>FECHA</strong></th>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-4"><strong>DESCRIPCION</strong></th>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>NUMERO</strong></th>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>IMPORTE</strong></th>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>SALDO</strong></th>
-						</tr>
-					</thead>
-					<tbody>
-<?php
-				}
-			}
-
 		$str = $key;
 			if ($coincidencia = substr_count($str, "ff") > 0): ?>
 				<tr>
@@ -227,7 +177,6 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 
 	<?php } ?>
 		 	</tbody>
-			<tfoot style="border:solid; background-color:#DDDDDD; text-align: left;"><tr><td colspan="4"></td><td style="font-weight: bolder; padding:0;"><?php echo "SALDO: B/".number_format($sumatoria,2); ?></td></tr></tfoot>
 		</table>
   </td>
 </tr>

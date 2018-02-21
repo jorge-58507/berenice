@@ -1,30 +1,34 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 ?>
 <?php
 $product_id=$_GET['a'];
 
-$qry_warehouse=mysql_query("SELECT * FROM bh_almacen");
-$rs_warehouse=mysql_fetch_assoc($qry_warehouse);
+$qry_warehouse=$link->query("SELECT * FROM bh_almacen");
+$rs_warehouse=$qry_warehouse->fetch_array();
 
-$qry_product=mysql_query("SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_exento FROM bh_producto WHERE AI_producto_id = '$product_id' AND TX_producto_activo = '0'")or die(mysql_error());
-$rs_product=mysql_fetch_assoc($qry_product);
+$qry_product=$link->query("SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_exento FROM bh_producto WHERE AI_producto_id = '$product_id' AND TX_producto_activo = '0'")or die($link->error);
+$rs_product=$qry_product->fetch_array();
 
-$qry_product_letter = mysql_query("SELECT bh_letra.TX_letra_value, bh_letra.TX_letra_porcentaje FROM (bh_producto INNER JOIN bh_letra ON bh_letra.AI_letra_id = bh_producto.producto_AI_letra_id) WHERE AI_producto_id = '$product_id'")or die(mysql_error());
-$rs_product_letter = mysql_fetch_array($qry_product_letter);
+$qry_product_letter = $link->query("SELECT bh_letra.TX_letra_value, bh_letra.TX_letra_porcentaje FROM (bh_producto INNER JOIN bh_letra ON bh_letra.AI_letra_id = bh_producto.producto_AI_letra_id) WHERE AI_producto_id = '$product_id'")or die($link->error);
+$rs_product_letter = $qry_product_letter->fetch_array();
 $porcentaje = (!empty($rs_product_letter['TX_letra_porcentaje'])) ? $rs_product_letter['TX_letra_porcentaje'] : "0" ;
 //$porcentaje = $rs_product_letter['TX_letra_porcentaje'];
 
+$qry_datocompra_listado = $link->query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_facturacompra.TX_facturacompra_numero,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
+WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_facturacompra_fecha DESC LIMIT 3")or die($link->error);
 
 
-$qry_precio=mysql_query("SELECT bh_datocompra.TX_datocompra_precio, bh_facturacompra.TX_facturacompra_fecha
+$qry_precio=$link->query("SELECT bh_datocompra.TX_datocompra_precio, bh_facturacompra.TX_facturacompra_fecha
 FROM (bh_datocompra
 INNER JOIN bh_facturacompra ON bh_datocompra.datocompra_AI_facturacompra_id = bh_facturacompra.AI_facturacompra_id)
 WHERE bh_datocompra.datocompra_AI_producto_id = '$product_id'
-ORDER BY TX_facturacompra_fecha DESC LIMIT 1");
-$rs_precio=mysql_fetch_assoc($qry_precio);
+ORDER BY TX_facturacompra_fecha DESC, AI_facturacompra_id DESC LIMIT 1");
+$rs_precio=$qry_precio->fetch_array();
 $last_price=$rs_precio['TX_datocompra_precio'];
+
+$qry_letra=$link->query("SELECT AI_letra_id, TX_letra_value FROM bh_letra")or die($link->error);
 
 ?>
 
@@ -49,10 +53,16 @@ $last_price=$rs_precio['TX_datocompra_precio'];
 <script type="text/javascript">
 
 $(document).ready(function() {
-	window.resizeTo("555", "490");
+	window.resizeTo("555", "670");
 
+	$("#form_product2purchase").on("keyup", function(e){
+		console.log(e.which);
+		if (e.which === 13) {
+			$("#btn_acept").click();
+		}
+	})
 var last_price = '<?php echo $last_price; ?>';
-last_price = val_intw2dec(last_price);
+last_price = val_intw4dec(last_price);
 console.log(last_price);
 $("#alert").css("display","none");
 $('#btn_acept').click(function(){
@@ -62,7 +72,7 @@ $('#btn_acept').click(function(){
 	var txt_itbm = document.forms[0]['txt_itbm'].name;
 	var txt_discount = document.forms[0]['txt_discount'].name;
 	if (id == ""||isEmpty(txt_price)||isEmpty(txt_quantity)||isEmpty(txt_itbm)||isEmpty(txt_discount)){
-		alert("Faltan datos para continuar.");
+		// alert("Faltan datos para continuar.");
 		return false;
 	}
 	ans = val_intwdec($("#txt_quantity").val());
@@ -85,14 +95,6 @@ $('#txt_price').validCampoFranz('.0123456789');
 $('#txt_itbm').validCampoFranz('.0123456789');
 $('#txt_discount').validCampoFranz('.0123456789');
 
-// $("#txt_price").blur(function(){
-// 	if(this.value != last_price){
-// 		console.log("value: "+this.value+" last: "+last_price);
-// 		$("#alert").show(500);
-// 	}else{
-// 		$("#alert").hide(500);
-// 	}
-// });
 $("#txt_price").on("keyup",function(){
 var base = parseFloat($("#txt_price").val()); var impuesto = $("#txt_itbm").val();
 var descuento = $("#txt_discount").val(); var cantidad = $("#txt_quantity").val();
@@ -119,18 +121,32 @@ var letra = '<?php echo $porcentaje; ?>';
 	})
 
 });
-
-$("#txt_quantity, #txt_price, #txt_itbm, #txt_discount").on("blur",function(){
+$("#txt_p_4").on("blur", function(){
+	if ($(this).val() === "") {
+		$(this).val("0.00")
+	}else{
+		this.value = val_intw2dec(this.value);
+	}
+})
+$("#txt_quantity, #txt_itbm, #txt_discount").on("blur",function(){
 	this.value = val_intw2dec(this.value);
-	if ($(this).prop("id") === 'txt_price') {
+});
+
+$("#txt_price").on("blur",function(){
+	this.value = val_intw4dec(this.value);
 		if(this.value != last_price){
 			console.log("value: "+this.value+" last: "+last_price);
 			$("#alert").show(500);
 		}else{
 			$("#alert").hide(500);
 		}
-	}
 });
+
+$("#sel_letra").on("change", function(){
+	$.ajax({	data: {"a" : this.value, "b" : <?php echo $product_id; ?> },	type: "GET",	dataType: "text",	url: "attached/get/upd_product_letter.php", })
+	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);		})
+	 .fail(function( jqXHR, textStatus, errorThrown ) {	 console.log("BAD "+textStatus);	});
+})
 
 
 });
@@ -151,7 +167,7 @@ $("#txt_quantity, #txt_price, #txt_itbm, #txt_discount").on("blur",function(){
 </div>
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<form method="post" name="form_product2purchase">
+<form method="post" id="form_product2purchase" name="form_product2purchase">
 <div id="container_product" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 	<label for="txt_product">Producto:</label>
     <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_value'] ?>" />
@@ -161,8 +177,20 @@ $("#txt_quantity, #txt_price, #txt_itbm, #txt_discount").on("blur",function(){
     <input type="text" name="txt_measure" id="txt_measure" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_medida'] ?>" />
 </div>
 <div id="container_quantity" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-	<label for="span_letra">Letra:</label>
-		<span id="span_letra" class="form-control"><?php echo $rs_product_letter['TX_letra_value'] ?></span>
+	<label for="sel_letra">Letra:</label>
+	<select class="form-control" id="sel_letra">
+<?php while($rs_letra = $qry_letra->fetch_array()){
+	if ($rs_letra['TX_letra_value'] === $rs_product_letter['TX_letra_value']) {
+?>
+		<option value="<?php echo $rs_letra['AI_letra_id']; ?>" selected><?php echo $rs_letra['TX_letra_value']; ?></option>
+<?php
+}else{
+?>
+		<option value="<?php echo $rs_letra['AI_letra_id']; ?>"><?php echo $rs_letra['TX_letra_value']; ?></option>
+<?php
+			}
+		} ?>
+	</select>
 </div>
 <div id="container_code" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 	<label for="txt_code">C&oacute;digo:</label>
@@ -199,9 +227,41 @@ $("#txt_quantity, #txt_price, #txt_itbm, #txt_discount").on("blur",function(){
 </div>
 
 <div id="alert" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<div id="div_alert" class="alert alert-danger">
-<strong>Atenci&oacute;n!</strong> El precio cambi&oacute;.
-</div>
+	<div id="div_alert" class="alert alert-danger">
+		<strong>Atenci&oacute;n!</strong> El precio cambi&oacute;.
+		<table id="tbl_purchase_price" class="table table-bordered table-condensed">
+			<caption class="caption">Historial de Precios de Compras</caption>
+			<thead class="bg-primary">
+			<tr>
+				<th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Fecha</th>
+				<th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">N&deg; Fact</th>
+				<th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Precio</th>
+			</tr>
+			</thead>
+			<tfoot class="bg-primary">
+			<tr>
+				<td colspan="5"></td>
+			</tr>
+			</tfoot>
+			<tbody>
+		<?php
+			while ($rs_datocompra_listado = $qry_datocompra_listado->fetch_array()) {
+				$descuento = ($rs_datocompra_listado['TX_datocompra_descuento']*$rs_datocompra_listado['TX_datocompra_precio'])/100;
+				$precio_descuento = $rs_datocompra_listado['TX_datocompra_precio']-$descuento;
+				$impuesto = ($rs_datocompra_listado['TX_datocompra_impuesto']*$precio_descuento)/100;
+				$total_precio = $precio_descuento + $impuesto;
+		?>
+				<tr>
+					<td><?php echo date('d-m-Y', strtotime($rs_datocompra_listado['TX_facturacompra_fecha'])); ?></td>
+					<td><?php echo $rs_datocompra_listado['TX_facturacompra_numero']; ?></td>
+					<td>B/ <?php echo $rs_datocompra_listado['TX_datocompra_precio']; ?></td>
+				</tr>
+		<?php
+			}
+		?>
+			</tbody>
+		</table>
+	</div>
 </div>
 
 </form>

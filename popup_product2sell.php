@@ -183,7 +183,16 @@ $('#txt_discount').validCampoFranz('.0123456789');
 </div>
 <div id="container_discount" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
     <label for="txt_discount">Descuento%:</label>
-    <input type="text" name="txt_discount" id="txt_discount" class="form-control" value="<?php echo $rs_product['TX_producto_descuento'] ?>" readonly="readonly"/>
+<?php
+	if ($_COOKIE['coo_iuser'] < 3) { ?>
+		<input type="text" name="txt_discount" id="txt_discount" class="form-control" value="<?php echo $rs_product['TX_producto_descuento'] ?>"/>
+<?php
+}else {
+	?>
+	<input type="text" name="txt_discount" id="txt_discount" class="form-control" value="<?php echo $rs_product['TX_producto_descuento'] ?>" readonly="readonly"/>
+<?php
+}
+?>
 </div>
 <div id="container_button" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <button type="button" id="btn_acept" class="btn btn-success">Aceptar</button>

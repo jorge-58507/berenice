@@ -200,3 +200,9 @@ h1{
 	font-size: 16px;
 	padding: 1px 2px;
 }
+.display_none{
+	display: none;
+}
+.no_padding{
+	padding: 0;
+}
