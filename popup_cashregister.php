@@ -2,6 +2,12 @@
 require 'bh_conexion.php';
 $link=conexion();
 
+$qry_datopago=$link->prepare("SELECT bh_datopago.AI_datopago_id, bh_datopago.datopago_AI_metododepago_id, bh_datopago.TX_datopago_monto
+FROM ((bh_notadecredito
+INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id)
+INNER JOIN bh_datopago ON bh_facturaf.AI_facturaf_id = bh_datopago.datopago_AI_facturaf_id)
+WHERE bh_notadecredito.AI_notadecredito_id = ?")or die($link->error);
+
 function ObtenerIP(){
 if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
 $ip = getenv("HTTP_CLIENT_IP");
@@ -137,10 +143,11 @@ $qry_impresora=$link->query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_i
 $rs_impresoraid=$qry_impresora->fetch_array();
 
 $qry_metododepago=$link->query("SELECT AI_metododepago_id, TX_metododepago_value FROM bh_metododepago")or die($link->error);
-$raw_pago=array();	$raw_debito=array();
+$raw_pago=array();	$raw_debito=array(); $raw_nc_anulated=array();
 while ($rs_metododepago = $qry_metododepago->fetch_array()) {
 	$raw_pago[$rs_metododepago['AI_metododepago_id']] = 0;
-	$raw_debito[$rs_metododepago['AI_metododepago_id']] = 0;
+  $raw_debito[$rs_metododepago['AI_metododepago_id']] = 0;
+  $raw_nc_anulated[$rs_metododepago['AI_metododepago_id']] = 0;
 }
 $txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_datopago.TX_datopago_monto, bh_datopago.datopago_AI_metododepago_id, bh_facturaf.TX_facturaf_descuento as descuento
 FROM (bh_facturaf
@@ -178,31 +185,38 @@ $cantidad_ff = $i;
  //
  // echo "<br>DESCUENTO: ".$ttl_descuento;
 
- $txt_devolucion="SELECT bh_notadecredito.AI_notadecredito_id,  bh_notadecredito.TX_notadecredito_destino, bh_notadecredito.TX_notadecredito_monto, bh_notadecredito.TX_notadecredito_impuesto
+ $txt_devolucion="SELECT bh_notadecredito.AI_notadecredito_id,  bh_notadecredito.TX_notadecredito_destino, bh_notadecredito.TX_notadecredito_monto, bh_notadecredito.TX_notadecredito_impuesto, bh_notadecredito.TX_notadecredito_anulado
  FROM bh_notadecredito
  WHERE bh_notadecredito.notadecredito_AI_impresora_id = '{$rs_impresoraid['0']}'
  AND bh_notadecredito.notadecredito_AI_arqueo_id = '0'";
  $qry_devolucion=$link->query($txt_devolucion);
- $nc_base=0;
- $nc_impuesto=0;
- $devolucion=0;
+ $nc_base=0; $nc_impuesto=0;
+ $devolucion=0; $anulado=0;
  $raw_nc=array();
  $ite=0;
  while($rs_devolucion = $qry_devolucion->fetch_array()){
+
  	$raw_nc[$ite]=$rs_devolucion['AI_notadecredito_id'];
  	$ite++;
- 	if($rs_devolucion['TX_notadecredito_destino'] == 'EFECTIVO'){
- 		$devolucion+=($rs_devolucion['TX_notadecredito_monto']+$rs_devolucion['TX_notadecredito_impuesto']);
- 	}else {
- 		$nc_base += $rs_devolucion['TX_notadecredito_monto'];
- 		$nc_impuesto+=$rs_devolucion['TX_notadecredito_impuesto'];
- 	}
+  if ($rs_devolucion['TX_notadecredito_anulado'] != 1) {
+   	if($rs_devolucion['TX_notadecredito_destino'] == 'EFECTIVO'){
+   		$devolucion+=($rs_devolucion['TX_notadecredito_monto']+$rs_devolucion['TX_notadecredito_impuesto']);
+   	}else {
+   		$nc_base += $rs_devolucion['TX_notadecredito_monto'];
+   		$nc_impuesto+=$rs_devolucion['TX_notadecredito_impuesto'];
+   	}
+  }else{
+    $qry_datopago->bind_param("i", $rs_devolucion['AI_notadecredito_id']); $qry_datopago->execute(); $result=$qry_datopago->get_result();
+		$rs_datopago=$result->fetch_array();
+		$raw_nc_anulated[$rs_datopago['datopago_AI_metododepago_id']]=$rs_datopago['TX_datopago_monto'];
+		$anulado+=$rs_datopago['TX_datopago_monto'];
+  }
  }
  $venta_neta=0;
  foreach($raw_pago as $pago){
  	$venta_neta += $pago;
  }
- $venta_neta-=$devolucion;
+ $venta_neta=$venta_neta-$devolucion-$anulado;
  $venta_bruta=$venta_neta+$ttl_descuento;
 
  if ($cantidad_ff > 0) {
@@ -279,32 +293,37 @@ $cantidad_ff = $i;
 		<td><?php echo "Salidas: ".number_format($ttl_salida-$devolucion,2); ?></td>
 		<td><?php echo "Devoluciones: ".number_format($devolucion,2); ?></td>
  </tr>
-	<tr> <td colspan="3"> <strong>Efectivo:</strong> (B/ <?php echo number_format($raw_pago[1]+$raw_debito[1],2); ?>) </td> </tr>
+	<tr> <td colspan="3"> <strong>Efectivo:</strong> (B/ <?php echo number_format($raw_pago[1]+$raw_debito[1]-$raw_nc_anulated[1],2); ?>) </td> </tr>
 	<tr>
 		<td><?php echo "Ventas: ".number_format($raw_pago[1],2); ?></td>
-		<td><?php echo "Cobros: ".number_format($raw_debito[1],2); ?></td>
+    <td><?php echo "Cobros: ".number_format($raw_debito[1],2); ?></td>
+    <td><?php if ($raw_nc_anulated[1] > 0) { echo "Anulado: -".number_format($raw_nc_anulated[1],2); } ?></td>
 	</tr>
-	<tr> <td colspan="3"> <strong>Cheques</strong> (B/ <?php echo number_format($raw_pago[2]+$raw_debito[2],2); ?>) </td> </tr>
+	<tr> <td colspan="3"> <strong>Cheques</strong> (B/ <?php echo number_format($raw_pago[2]+$raw_debito[2]-$raw_nc_anulated[2],2); ?>) </td> </tr>
 	<tr>
 		<td><?php echo "Ventas: ".number_format($raw_pago[2],2); ?></td>
 		<td><?php echo "Cobros: ".number_format($raw_debito[2],2); ?></td>
+    <td><?php if ($raw_nc_anulated[2] > 0) { echo "Anulado: -".number_format($raw_nc_anulated[2],2); } ?></td>
 	</tr>
-	<tr> <td colspan="3"><strong>Tarjeta de Cr&eacute;dito</strong> (B/ <?php echo number_format($raw_pago[3]+$raw_debito[3],2); ?>) </td> </tr>
+	<tr> <td colspan="3"><strong>Tarjeta de Cr&eacute;dito</strong> (B/ <?php echo number_format($raw_pago[3]+$raw_debito[3]-$raw_nc_anulated[3],2); ?>) </td> </tr>
 	<tr>
 		<td><?php echo "Ventas: ".number_format($raw_pago[3],2); ?></td>
 		<td><?php echo "Cobros: ".number_format($raw_debito[3],2); ?></td>
+    <td><?php if ($raw_nc_anulated[3] > 0) { echo "Anulado: -".number_format($raw_nc_anulated[3],2); } ?></td>
 	</tr>
-	<tr> <td colspan="3"><strong>Tarjeta Clave</strong> (B/ <?php echo number_format($raw_pago[4]+$raw_debito[4],2); ?>) </td> </tr>
+	<tr> <td colspan="3"><strong>Tarjeta Clave</strong> (B/ <?php echo number_format($raw_pago[4]+$raw_debito[4]-$raw_nc_anulated[4],2); ?>) </td> </tr>
 	<tr>
 		<td><?php echo "Ventas: ".number_format($raw_pago[4],2); ?></td>
 		<td><?php echo "Cobros: ".number_format($raw_debito[4],2); ?></td>
+    <td><?php if ($raw_nc_anulated[4] > 0) { echo "Anulado: -".number_format($raw_nc_anulated[4],2); } ?></td>
 	</tr>
-	<tr> <td colspan="3"><strong>Cr&eacute;dito</strong> (B/ <?php echo number_format($raw_pago[5]+$raw_debito[5],2); ?>) </td></tr>
+	<tr> <td colspan="3"><strong>Cr&eacute;dito</strong> (B/ <?php echo number_format($raw_pago[5]+$raw_debito[5]-$raw_nc_anulated[5],2); ?>) </td></tr>
 	<tr>
 		<td><?php echo "Ventas: ".number_format($raw_pago[5],2); ?></td>
 		<td><?php echo "Cobros: ".number_format($raw_debito[5],2); ?></td>
+    <td><?php if ($raw_nc_anulated[5] > 0) { echo "Anulado: -".number_format($raw_nc_anulated[5],2); } ?></td>
 	</tr>
-	<tr> <td colspan="3"><strong>Nota de Cr&eacute;dito</strong> (B/ <?php echo number_format($raw_pago[7]+$raw_debito[7],2); ?>) </td> </tr>
+	<tr> <td colspan="3"><strong>Nota de Cr&eacute;dito</strong> (B/ <?php echo number_format($raw_pago[7]+$raw_debito[7]-$raw_nc_anulated[7],2); ?>) </td> </tr>
 	<tr>
 		<td><?php echo "Ventas: ".number_format($raw_pago[7],2); ?></td>
 		<td><?php echo "Cobros: ".number_format($raw_debito[7],2); ?></td>
@@ -314,7 +333,7 @@ $cantidad_ff = $i;
 <tr>
 	<td><strong>Venta Bruta:</strong> <?php echo $venta_bruta; ?></td>
 	<td><strong>Venta Neta:</strong> <?php echo $venta_neta; ?></td>
-	<td><strong>Venta Real:</strong> <?php echo $venta_neta+$devolucion; ?></td>
+	<td><strong>Venta Real:</strong> <?php echo $venta_neta+$devolucion+$anulado; ?></td>
 </tr>
 </tfoot>
 </table>

@@ -38,11 +38,42 @@ $("#btn_cancel").click(function(){
 $("#txt_filter_creditnote").on("keyup", function(){
 	$.ajax({	data: {"a" : this.value},	type: "GET",	dataType: "text",	url: "attached/get/filter_paydesk_creditnote.php", })
 	 .done(function( data, textStatus, jqXHR ) {
-		 console.log(data);
 		 $("#tbl_paydesk_creditnote tbody").html(data);
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
+
+$( function() {
+var dateFormat = "dd-mm-yy",
+  from = $( "#txt_datei" )
+	.datepicker({
+	  defaultDate: "+1w",
+	  changeMonth: true,
+	  numberOfMonths: 2
+	})
+	.on( "change", function() {
+	  to.datepicker( "option", "minDate", getDate( this ) );
+	}),
+  to = $( "#txt_datef" ).datepicker({
+	defaultDate: "+1w",
+	changeMonth: true,
+	numberOfMonths: 2
+  })
+  .on( "change", function() {
+	from.datepicker( "option", "maxDate", getDate( this ) );
+  });
+
+function getDate( element ) {
+  var date;
+  try {
+	date = $.datepicker.parseDate( dateFormat, element.value );
+  } catch( error ) {
+	date = null;
+  }
+
+  return date;
+}
+});
 
 });
 
@@ -63,6 +94,14 @@ $("#txt_filter_creditnote").on("keyup", function(){
 	<div id="container_txtfiltercreditnote" class="col-xs-12 col-sm-8 col-md-5 col-lg-5">
   	<label for="txt_filter_creditnote">Buscar</label>
 		<input type="text" id="txt_filter_creditnote" value="" class="form-control" autofocus>
+  </div>
+	<div id="container_txtdatei" class="col-xs-12 col-sm-6 col-md-2 col-lg-2">
+  	<label for="txt_datei">Fecha Inicial</label>
+		<input type="text" id="txt_datei" value="<?php echo date('d-m-Y',strtotime(date('Y-m-d',strtotime('-1 week')))) ?>" class="form-control" readonly>
+  </div>
+	<div id="container_txtdatef" class="col-xs-12 col-sm-6 col-md-2 col-lg-2">
+  	<label for="txt_datef">Fecha Final</label>
+		<input type="text" id="txt_datef" value="<?php echo date('d-m-Y') ?>" class="form-control" readonly>
   </div>
 	<div id="container_tblcreditnote" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:5px 15px;">
 		<table id="tbl_paydesk_creditnote" class="table table-bordered table-condensed table-striped">

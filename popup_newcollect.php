@@ -9,7 +9,7 @@ $user_id=$_GET['b'];
 $qry_facturaventa=$link->query("SELECT bh_facturaventa.AI_facturaventa_id, bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.facturaventa_AI_cliente_id, bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_cliente.TX_cliente_nombre, bh_user.TX_user_seudonimo FROM ((bh_facturaventa
 INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
 INNER JOIN bh_user ON bh_facturaventa.facturaventa_AI_user_id = bh_user.AI_user_id)
-WHERE bh_facturaventa.facturaventa_AI_user_id = '$user_id' AND bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' OR bh_facturaventa.facturaventa_AI_user_id = '$user_id' AND bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' ORDER BY TX_facturaventa_fecha, TX_facturaventa_numero DESC");
+WHERE bh_facturaventa.facturaventa_AI_user_id = '$user_id' AND bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' OR bh_facturaventa.facturaventa_AI_user_id = '$user_id' AND bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' ORDER BY TX_facturaventa_fecha DESC, AI_facturaventa_id DESC");
 $nr_facturaventa = $qry_facturaventa->num_rows;
 if($nr_facturaventa < 1){
 	$jscript = "<script type='text/javascript'>self.close();</script>";

@@ -70,7 +70,6 @@ $("#btn_nuevanc").click(function(){
 
 $("#btn_back").click(function(){
 	window.history.back(1);
-	// window.location='start_admin.php';
 });
 
 $("#txt_filterfacturaf").keyup(function(){
@@ -178,7 +177,6 @@ switch ($_COOKIE['coo_tuser']){
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="login.php" method="post" name="form_login"  id="form_login">
 <div id="container_btn_nuevanc" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<?php // <button type="button" id="btn_nuevanc" class="btn btn-warning btn-lg">Nueva Nota de Cr&eacute;dito</button>
 ?>
 </div>
 <div id="container_txtfilterfacturaf" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">

@@ -19,12 +19,14 @@ $qry_client=mysql_query($txt_client." ORDER BY TX_cliente_nombre ASC");
 $raw_cliente = array();
 $i=0;
 while($rs_cliente=mysql_fetch_assoc($qry_client)){
-	$raw_cliente[$i]['id'] = $rs_cliente['AI_cliente_id'];
-	$raw_cliente[$i]['value'] = $rs_cliente['TX_cliente_nombre']." | Dir: ".$rs_cliente['TX_cliente_direccion'];
-	$raw_cliente[$i]['telefono'] = $rs_cliente['TX_cliente_telefono'];
-	$raw_cliente[$i]['direccion'] = $rs_cliente['TX_cliente_direccion'];
-	$raw_cliente[$i]['ruc'] = $rs_cliente['TX_cliente_cif'];
-$i++;
+	if (substr_count($rs_cliente['TX_cliente_nombre'], 'NO USAR') < 1 ) {
+		$raw_cliente[$i]['id'] = $rs_cliente['AI_cliente_id'];
+		$raw_cliente[$i]['value'] = $rs_cliente['TX_cliente_nombre']." | Dir: ".$rs_cliente['TX_cliente_direccion'];
+		$raw_cliente[$i]['telefono'] = $rs_cliente['TX_cliente_telefono'];
+		$raw_cliente[$i]['direccion'] = $rs_cliente['TX_cliente_direccion'];
+		$raw_cliente[$i]['ruc'] = $rs_cliente['TX_cliente_cif'];
+		$i++;
+	}
 }
 
 echo json_encode($raw_cliente);

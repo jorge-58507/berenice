@@ -43,7 +43,7 @@ if (isset($_SESSION['arqueo_id'])) {
 }
 //$arqueo_id='6';
 
-$txt_cashregister="SELECT bh_arqueo.TX_arqueo_fecha, bh_arqueo.TX_arqueo_hora, bh_arqueo.TX_arqueo_pago, bh_arqueo.TX_arqueo_tarjeta, bh_arqueo.TX_arqueo_cheque, bh_arqueo.TX_arqueo_debito, bh_arqueo.TX_arqueo_debitarjeta, bh_arqueo.TX_arqueo_debicheque, bh_arqueo.TX_arqueo_credito, bh_arqueo.TX_arqueo_notadecredito, bh_arqueo.TX_arqueo_ventabruta, bh_arqueo.TX_arqueo_ventaneta, bh_arqueo.TX_arqueo_devolucion, bh_arqueo.TX_arqueo_totalni, bh_arqueo.TX_arqueo_totalci, bh_arqueo.TX_arqueo_totalci_nc, bh_arqueo.TX_arqueo_impuesto, bh_arqueo.TX_arqueo_impuesto_nc, bh_arqueo.TX_arqueo_descuento, bh_arqueo.TX_arqueo_cantidadff, bh_arqueo.TX_arqueo_entrada, bh_arqueo.TX_arqueo_salida,
+$txt_cashregister="SELECT bh_arqueo.TX_arqueo_fecha, bh_arqueo.TX_arqueo_hora, bh_arqueo.TX_arqueo_pago, bh_arqueo.TX_arqueo_tarjeta, bh_arqueo.TX_arqueo_cheque, bh_arqueo.TX_arqueo_debito, bh_arqueo.TX_arqueo_debitarjeta, bh_arqueo.TX_arqueo_debicheque, bh_arqueo.TX_arqueo_credito, bh_arqueo.TX_arqueo_notadecredito, bh_arqueo.TX_arqueo_ventabruta, bh_arqueo.TX_arqueo_ventaneta, bh_arqueo.TX_arqueo_devolucion, bh_arqueo.TX_arqueo_totalni, bh_arqueo.TX_arqueo_totalci, bh_arqueo.TX_arqueo_totalci_nc, bh_arqueo.TX_arqueo_impuesto, bh_arqueo.TX_arqueo_impuesto_nc, bh_arqueo.TX_arqueo_descuento, bh_arqueo.TX_arqueo_cantidadff, bh_arqueo.TX_arqueo_entrada, bh_arqueo.TX_arqueo_salida, bh_arqueo.TX_arqueo_anulado,
 bh_user.TX_user_seudonimo
 FROM (bh_arqueo
 INNER JOIN bh_user ON bh_user.AI_user_id = bh_arqueo.arqueo_AI_user_id)
@@ -52,6 +52,7 @@ $qry_cashregister = $link->query($txt_cashregister);
 $rs_cashregister = $qry_cashregister->fetch_array();
 $raw_pago = json_decode($rs_cashregister['TX_arqueo_pago'],true);
 $raw_debito = json_decode($rs_cashregister['TX_arqueo_debito'],true);
+$raw_nc_anulated = json_decode($rs_cashregister['TX_arqueo_anulado'],true);
 
 $qry_chkarqueo = $link->query("SELECT AI_arqueo_id FROM bh_arqueo WHERE TX_arqueo_fecha = '{$rs_cashregister['TX_arqueo_fecha']}'");
 $nr_chkarqueo=$qry_chkarqueo->num_rows;
@@ -141,16 +142,15 @@ margin-left: -130px'; ?>; margin-top: 105px;">
         </tr>
         <tr>
         	<td style="text-align:right;">Venta Neta:&nbsp;</td>
-            <td style="text-align:left;">&nbsp;B/
-			<?php echo number_format($rs_cashregister['TX_arqueo_ventaneta'],2); ?></td>
+          <td style="text-align:left;">&nbsp;B/ <?php echo number_format($rs_cashregister['TX_arqueo_ventaneta'],2); ?></td>
         </tr>
         <tr>
         	<td style="text-align:right;">Documentos:&nbsp;</td>
-            <td style="text-align:left;">&nbsp;<?php echo $rs_cashregister['TX_arqueo_cantidadff']; ?></td>
+          <td style="text-align:left;">&nbsp;<?php echo $rs_cashregister['TX_arqueo_cantidadff']; ?></td>
         </tr>
         <tr>
         	<td style="text-align:right;">Venta Real:&nbsp;</td>
-            <td style="text-align:left;">&nbsp;B/ <?php echo number_format($rs_cashregister['TX_arqueo_ventaneta']+$rs_cashregister['TX_arqueo_devolucion'],2); ?></td>
+            <td style="text-align:left;">&nbsp;B/ <?php echo number_format($rs_cashregister['TX_arqueo_ventaneta']+$rs_cashregister['TX_arqueo_devolucion']+array_sum(json_decode($rs_cashregister['TX_arqueo_anulado'],true)),2); ?></td>
         </tr>
         <tr>
           <td style="text-align:right;">Devoluci&oacute;n:&nbsp;</td>
@@ -185,11 +185,11 @@ margin-left: -130px'; ?>; margin-top: 105px;">
 	<td valign="top" colspan="5" class="optmayuscula" style="line-height:3;">
     <table align="center" border="1" cellpadding="0" cellspacing="0" style="width:100%; font-size:12px; text-align:center;">
     	<thead>
-      <tr>
-      	<th style="width:100%"><strong>MOVIMIENTOS</strong></th>
-    	</tr>
+	      <tr>
+	      	<th style="width:100%"><strong>MOVIMIENTOS</strong></th>
+	    	</tr>
       </thead>
-      <tbody>
+    	<tbody>
 			<tr>
 				<td><strong>Caja Menuda</strong> <br />
 					Entradas:&nbsp;B/ <?php echo number_format($rs_cashregister['TX_arqueo_entrada'],2); ?><br />
@@ -206,16 +206,19 @@ margin-left: -130px'; ?>; margin-top: 105px;">
 					<em>Total:</em>&nbsp;B/ <?php echo number_format($total= $rs_cashregister['TX_arqueo_entrada']-$rs_cashregister['TX_arqueo_salida'],4); ?>
 				</td>
 			</tr>
-				<?php foreach ($raw_metododepago as $index => $value): ?>
+<?php 	foreach ($raw_metododepago as $index => $value): 				?>
 			<tr>
 				<?php $total_en_caja ?>
 				<td><strong><?php echo $value; ?></strong> <br />
 				Ventas:&nbsp;B/ <?php echo number_format($raw_pago[$index],2); ?>&nbsp;|&nbsp;
 				Cobros:&nbsp;B/ <?php echo number_format($raw_debito[$index],2); ?><br />
-				<em>Total:</em>&nbsp;B/ <?php echo number_format($total= $raw_pago[$index]+$raw_debito[$index],4); ?>
+<?php if ($raw_nc_anulated[$index] > 0): ?>
+				Anulados:&nbsp;B/ -<?php echo number_format($raw_nc_anulated[$index],2); ?><br />
+<?php endif; ?>
+				<em>Total:</em>&nbsp;B/ <?php echo number_format($total= $raw_pago[$index]+$raw_debito[$index]-$raw_nc_anulated[$index],4); ?>
 			</td>
 			</tr>
-				<?php endforeach; ?>
+<?php 	endforeach; 				?>
         </tbody>
 	</table>
     </td>

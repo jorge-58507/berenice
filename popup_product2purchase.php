@@ -1,8 +1,7 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 $product_id=$_GET['a'];
 
 $qry_warehouse=$link->query("SELECT * FROM bh_almacen");
@@ -28,7 +27,7 @@ ORDER BY TX_facturacompra_fecha DESC, AI_facturacompra_id DESC LIMIT 1");
 $rs_precio=$qry_precio->fetch_array();
 $last_price=$rs_precio['TX_datocompra_precio'];
 
-$qry_letra=$link->query("SELECT AI_letra_id, TX_letra_value FROM bh_letra")or die($link->error);
+$qry_letra=$link->query("SELECT AI_letra_id, TX_letra_value, TX_letra_porcentaje FROM bh_letra")or die($link->error);
 
 ?>
 
@@ -63,7 +62,6 @@ $(document).ready(function() {
 	})
 var last_price = '<?php echo $last_price; ?>';
 last_price = val_intw4dec(last_price);
-console.log(last_price);
 $("#alert").css("display","none");
 $('#btn_acept').click(function(){
 	var id = $("#txt_product").attr("alt");
@@ -72,7 +70,6 @@ $('#btn_acept').click(function(){
 	var txt_itbm = document.forms[0]['txt_itbm'].name;
 	var txt_discount = document.forms[0]['txt_discount'].name;
 	if (id == ""||isEmpty(txt_price)||isEmpty(txt_quantity)||isEmpty(txt_itbm)||isEmpty(txt_discount)){
-		// alert("Faltan datos para continuar.");
 		return false;
 	}
 	ans = val_intwdec($("#txt_quantity").val());
@@ -89,19 +86,31 @@ $('#btn_cancel').click(function(){
 	self.close();
 })
 
+$("#sel_letra").on("change", function(){
+	$.ajax({	data: {"a" : this.value, "b" : <?php echo $product_id; ?> },	type: "GET",	dataType: "text",	url: "attached/get/upd_product_letter.php", })
+	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+data+" "+textStatus); suggest_price(); })
+	 .fail(function( jqXHR, textStatus, errorThrown ) {	 console.log("BAD "+textStatus);	});
+})
 
 $('#txt_quantity, #txt_p_4').validCampoFranz('.0123456789');
 $('#txt_price').validCampoFranz('.0123456789');
 $('#txt_itbm').validCampoFranz('.0123456789');
 $('#txt_discount').validCampoFranz('.0123456789');
 
+function suggest_price(){
+	var base = parseFloat($("#txt_price").val());
+	var letra = $("#sel_letra option:selected").attr("label");
+	var sugerido = ((base*letra)/100)+base;
+
+	sugerido = sugerido.toFixed(2);
+	$("#txt_p_4").val(sugerido);
+}
+
 $("#txt_price").on("keyup",function(){
 var base = parseFloat($("#txt_price").val()); var impuesto = $("#txt_itbm").val();
 var descuento = $("#txt_discount").val(); var cantidad = $("#txt_quantity").val();
-var letra = '<?php echo $porcentaje; ?>';
 
-	var sugerido = ((base*letra)/100)+base;
-	sugerido = sugerido.toFixed(2);
+	suggest_price();
 
 	var precio = cantidad*base;
 	var descuento = (precio*descuento)/100;
@@ -112,9 +121,6 @@ var letra = '<?php echo $porcentaje; ?>';
 
 	if (!isNaN(total)){
 		$("#span_total").html(total);
-	}
-	if (!isNaN(total)){
-		$("#txt_p_4").val(sugerido);
 	}
 	$("#txt_p_4").on("blur", function(){
 		this.value = val_intw2dec(this.value);
@@ -142,11 +148,6 @@ $("#txt_price").on("blur",function(){
 		}
 });
 
-$("#sel_letra").on("change", function(){
-	$.ajax({	data: {"a" : this.value, "b" : <?php echo $product_id; ?> },	type: "GET",	dataType: "text",	url: "attached/get/upd_product_letter.php", })
-	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);		})
-	 .fail(function( jqXHR, textStatus, errorThrown ) {	 console.log("BAD "+textStatus);	});
-})
 
 
 });
@@ -182,11 +183,11 @@ $("#sel_letra").on("change", function(){
 <?php while($rs_letra = $qry_letra->fetch_array()){
 	if ($rs_letra['TX_letra_value'] === $rs_product_letter['TX_letra_value']) {
 ?>
-		<option value="<?php echo $rs_letra['AI_letra_id']; ?>" selected><?php echo $rs_letra['TX_letra_value']; ?></option>
+		<option value="<?php echo $rs_letra['AI_letra_id']; ?>" label="<?php echo $rs_letra['TX_letra_porcentaje']; ?>" selected><?php echo $rs_letra['TX_letra_value']; ?></option>
 <?php
 }else{
 ?>
-		<option value="<?php echo $rs_letra['AI_letra_id']; ?>"><?php echo $rs_letra['TX_letra_value']; ?></option>
+		<option value="<?php echo $rs_letra['AI_letra_id']; ?>" label="<?php echo $rs_letra['TX_letra_porcentaje']; ?>" ><?php echo $rs_letra['TX_letra_value']; ?></option>
 <?php
 			}
 		} ?>

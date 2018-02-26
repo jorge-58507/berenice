@@ -8,12 +8,12 @@ $date=$_GET['c'];
 if(!empty($date)){
 	$pre_date=strtotime($date);
 	$date = date('Y-m-d',$pre_date);
-	
+
 	$line_date=" bh_facturaventa.TX_facturaventa_fecha = '$date' AND";
 }else{
 	$line_date="";
 }
-	
+
 if(!empty($status)){
 	$line_status = " bh_facturaventa.TX_facturaventa_status = '$status' AND";
 }else{
@@ -24,7 +24,7 @@ $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
 
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_user.TX_user_seudonimo
-FROM ((bh_facturaventa 
+FROM ((bh_facturaventa
 INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
 INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
 WHERE";
@@ -81,7 +81,7 @@ break;
 
 
 
-$txt_facturaventa=$txt_facturaventa." ORDER BY AI_facturaventa_id DESC LIMIT 10";
+$txt_facturaventa=$txt_facturaventa." ORDER BY AI_facturaventa_id DESC LIMIT 150";
 //echo $txt_facturaventa;
 $qry_facturaventa = mysql_query($txt_facturaventa);
 $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
@@ -117,7 +117,7 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
 	do{
 	?>
     <tr>
-        <td><?php 
+        <td><?php
 		$time=strtotime($rs_facturaventa['TX_facturaventa_fecha']);
 		$date=date('d-m-Y',$time);
 		echo $date; ?></td>
@@ -125,7 +125,7 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
         <td><?php echo number_format($rs_facturaventa['TX_facturaventa_total'],2); ?></td>
         <td>
-        <?php 
+        <?php
 		switch($rs_facturaventa['TX_facturaventa_status']){
 			case "ACTIVA":
 				$font='#00CC00';

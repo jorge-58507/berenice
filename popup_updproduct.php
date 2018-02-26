@@ -116,7 +116,7 @@ $(document).ready(function() {
 			setTimeout(function(){ $("#btn_save_product").click(); }, 250);
 		}
 	})
-	$('#txt_cantidad').validCampoFranz('.0123456789');
+	$('#txt_cantidad').validCampoFranz('-.0123456789');
 	$('#txt_cantminima').validCampoFranz('0123456789');
 	$('#txt_cantmaxima').validCampoFranz('0123456789');
 	$('#txt_impuesto').validCampoFranz('0123456789');

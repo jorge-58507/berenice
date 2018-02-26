@@ -1,16 +1,14 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 require 'attached/php/req_login_admin.php';
-?>
-<?php
+
 $facturaf_id=$_GET['a'];
 
-mysql_query("DELETE FROM bh_nuevadevolucion WHERE nuevadevolucion_AI_user_id = '$user_id'",$link);
+$link->query("DELETE FROM bh_nuevadevolucion WHERE nuevadevolucion_AI_user_id = '$user_id'");
 
-$qry_facturaf=mysql_query("SELECT bh_facturaventa.AI_facturaventa_id, bh_facturaventa.TX_facturaventa_fecha,
+$qry_facturaf=$link->query("SELECT bh_facturaventa.AI_facturaventa_id, bh_facturaventa.TX_facturaventa_fecha,
 bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_deficit,
 bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,
 bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.AI_producto_id, bh_producto.TX_producto_medida,
@@ -20,24 +18,35 @@ INNER JOIN bh_facturaventa ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_f
 INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
 INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
 INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id)
-WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'", $link) or die(mysql_error());
-$rs_facturaf=mysql_fetch_assoc($qry_facturaf);
+WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'") or die($link->error);
+$rs_facturaf=$qry_facturaf->fetch_array();
 
-
-$qry_nuevadevolucion=mysql_query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevadevolucion.TX_nuevadevolucion_cantidad, bh_nuevadevolucion.AI_nuevadevolucion_id, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento
+$qry_nuevadevolucion=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevadevolucion.TX_nuevadevolucion_cantidad, bh_nuevadevolucion.AI_nuevadevolucion_id, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento
 FROM ((bh_datoventa
        INNER JOIN bh_nuevadevolucion ON bh_datoventa.AI_datoventa_id = bh_nuevadevolucion.nuevadevolucion_AI_datoventa_id)
       INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
-      WHERE bh_nuevadevolucion.nuevadevolucion_AI_user_id = '$user_id'", $link);
-$rs_nuevadevolucion=mysql_fetch_array($qry_nuevadevolucion);
-?>
-<?php
-$qry_creditnote=mysql_query("SELECT bh_cliente.TX_cliente_nombre, bh_notadecredito.AI_notadecredito_id, bh_notadecredito.TX_notadecredito_monto, bh_notadecredito.TX_notadecredito_impuesto, bh_notadecredito.TX_notadecredito_exedente, bh_notadecredito.TX_notadecredito_fecha
+      WHERE bh_nuevadevolucion.nuevadevolucion_AI_user_id = '$user_id'")or die($link->error);
+$rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array();
+
+$qry_creditnote=$link->query("SELECT bh_cliente.TX_cliente_nombre, bh_notadecredito.AI_notadecredito_id, bh_notadecredito.TX_notadecredito_monto, bh_notadecredito.TX_notadecredito_impuesto, bh_notadecredito.TX_notadecredito_exedente, bh_notadecredito.TX_notadecredito_fecha
 FROM (bh_notadecredito
 INNER JOIN bh_cliente ON bh_notadecredito.notadecredito_AI_cliente_id = bh_cliente.AI_cliente_id)
-WHERE notadecredito_AI_facturaf_id = '$facturaf_id'");
-$rs_creditnote=mysql_fetch_assoc($qry_creditnote);
-$nr_creditnote=mysql_num_rows($qry_creditnote);
+WHERE notadecredito_AI_facturaf_id = '$facturaf_id'")or die($link->error);
+$rs_creditnote=$qry_creditnote->fetch_array();
+$nr_creditnote=$qry_creditnote->num_rows;
+
+$qry_datopago=$link->query("SELECT bh_datopago.AI_datopago_id, bh_metododepago.TX_metododepago_value, bh_datopago.datopago_AI_metododepago_id
+  FROM (bh_datopago INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datopago.datopago_AI_metododepago_id)
+  WHERE datopago_AI_facturaf_id = '$facturaf_id'")or die($link->error);
+$payment_method="";
+$block_btn_anulate=1;
+while ($rs_datopago=$qry_datopago->fetch_array()) {
+  $payment_method .=$rs_datopago['TX_metododepago_value'].PHP_EOL;
+  if ($rs_datopago['datopago_AI_metododepago_id'] === '7' || $rs_datopago['datopago_AI_metododepago_id'] === '4') {
+    $block_btn_anulate=0;
+  }
+}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -107,21 +116,24 @@ $("#btn_save").click(function(){
 		return false;
 	}
     $("#sel_destinonc").css("border", "1px solid #ccc");
-    $("#btn_save").attr("disabled", true);
-	  $.ajax({	data: {"a" : $("#txt_motivonc").val(), "b" : $("#sel_destinonc").val(), "c" : $("#txt_debito").val() },	type: "GET",	dataType: "text",	url: "attached/get/plus_creditnote.php", })
-	   .done(function( data, textStatus, jqXHR ) {
-		 console.log("GOOD " + textStatus);
-     //print_html('print_creditnote.php');
-		 setTimeout("window.location='print_creditnote.php'",250);
-	   })
-	   .fail(function( jqXHR, textStatus, errorThrown ) {	     console.log("BAD " + textStatus);	});
-
-//	plus_creditnote(); line 622
-// alert("procede");
+    $("#btn_save, #btn_anulate").attr("disabled", true);
+    plus_creditnote(0);
 });
 $("#btn_cancel").click(function(){
 	clean_newreturn();
 });
+
+$("#btn_anulate").on("click", function(){
+  $.ajax({	data: {"a" : '<?php echo $facturaf_id; ?>' },	type: "GET",	dataType: "text",	url: "attached/get/get_datoventabyfacturaf_nc.php", })
+   .done(function( data, textStatus, jqXHR ) { console.log("GOOD " + textStatus);
+
+   $("#txt_motivonc").val("ANULACION");
+   $("#sel_destinonc").val('EFECTIVO');
+   $("#btn_save, #btn_anulate").attr("disabled", true);
+   plus_creditnote(1);
+  })
+   .fail(function( jqXHR, textStatus, errorThrown ) {	     console.log("BAD " + textStatus);	});
+})
 
 });
 
@@ -141,6 +153,14 @@ function nc_makerefund(datoventa_id, cantidad_actual){
 		return false;
 	}
 	window.location='plus_refund.php?a='+datoventa_id+'&b='+cantidad;
+}
+function plus_creditnote(anulated_index){
+  $.ajax({	data: {"a" : $("#txt_motivonc").val(), "b" : $("#sel_destinonc").val(), "c" : $("#txt_debito").val(), "d" : anulated_index },	type: "GET",	dataType: "text",	url: "attached/get/plus_creditnote.php", })
+   .done(function( data, textStatus, jqXHR ) {
+     console.log("GOOD " + textStatus);
+     setTimeout("window.location='print_creditnote.php'",250);
+   })
+   .fail(function( jqXHR, textStatus, errorThrown ) {	     console.log("BAD " + textStatus);	});
 }
 </script>
 
@@ -221,6 +241,16 @@ switch ($_COOKIE['coo_tuser']){
         </select>
     </div>
 </div>
+<div class="container-fluid al_center">
+<?php if ($qry_datopago->num_rows < 2 && $nr_creditnote < 1 && $block_btn_anulate > 0) { ?>
+  <button type="button" name="" id="btn_anulate" class="btn btn-primary" title="<?php echo $payment_method; ?>">Anular Factura</button>
+<?php
+} else {
+?>
+  <button type="button" name="" id="" disabled  class="btn btn-primary" title="<?php echo $payment_method; ?>">Anular Factura</button>
+<?php } ?>
+
+</div>
 <div id="container_tblfacturaf" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     <table id="tbl_facturaf" class="table table-bordered table-condensed table-striped">
     <caption>Productos Facturados</caption>
@@ -260,19 +290,19 @@ switch ($_COOKIE['coo_tuser']){
 			; ?></td>
         <td><?php echo $rs_facturaf['TX_datoventa_cantidad']; ?></td>
         <td><?php
-      $qry_datodevolucion=mysql_query("SELECT bh_datodevolucion.TX_datodevolucion_cantidad, bh_datodevolucion.datodevolucion_AI_producto_id FROM ((bh_facturaf INNER JOIN bh_notadecredito ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id) INNER JOIN bh_datodevolucion ON bh_notadecredito.AI_notadecredito_id = bh_datodevolucion.datodevolucion_AI_notadecredito_id) WHERE bh_datodevolucion.datodevolucion_AI_producto_id = '{$rs_facturaf['AI_producto_id']}' AND bh_notadecredito.notadecredito_AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}' ");
-			$rs_datodevolucion=mysql_fetch_assoc($qry_datodevolucion);
+      $qry_datodevolucion=$link->query("SELECT bh_datodevolucion.TX_datodevolucion_cantidad, bh_datodevolucion.datodevolucion_AI_producto_id FROM ((bh_facturaf INNER JOIN bh_notadecredito ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id) INNER JOIN bh_datodevolucion ON bh_notadecredito.AI_notadecredito_id = bh_datodevolucion.datodevolucion_AI_notadecredito_id) WHERE bh_datodevolucion.datodevolucion_AI_producto_id = '{$rs_facturaf['AI_producto_id']}' AND bh_notadecredito.notadecredito_AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}' ")or die($link->error);
+			$rs_datodevolucion=$qry_datodevolucion->fetch_array();
 			$total_devuelto=0;
 			do{
 			$total_devuelto += $rs_datodevolucion['TX_datodevolucion_cantidad'];
-			}while($rs_datodevolucion=mysql_fetch_assoc($qry_datodevolucion));
+    }while($rs_datodevolucion=$qry_datodevolucion->fetch_array());
 			echo $retired_quantity = $rs_facturaf['TX_datoventa_cantidad']-$total_devuelto;
       ?></td>
       <td>
       <button type="button" id="<?php echo $retired_quantity ?>" name="<?php echo $rs_facturaf['AI_datoventa_id'];?>"  class="btn btn-warning btn-xs btn-fa" onclick="new_return(this)"><strong><i class="fa fa-recycle" aria-hidden="true"></i></strong></button>
       </td>
   	</tr>
-    <?php }while($rs_facturaf=mysql_fetch_assoc($qry_facturaf)); ?>
+  <?php }while($rs_facturaf=$qry_facturaf->fetch_array()); ?>
     </tbody>
     </table>
 </div>
@@ -310,7 +340,7 @@ switch ($_COOKIE['coo_tuser']){
     </tr>
 <?php // $total_precio += $preciowdescuento; ?>
 <?php // $total_impuesto += $impuesto; ?>
-<?php }while($rs_nuevadevolucion=mysql_fetch_array($qry_nuevadevolucion)); ?>
+<?php }while($rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array()); ?>
     </tbody>
     <tfoot class="bg-success">
     <tr>
@@ -352,21 +382,19 @@ switch ($_COOKIE['coo_tuser']){
     <?php do{ ?>
     <tr>
     	<td><?php echo $rs_creditnote['TX_cliente_nombre']; ?></td>
-		<td><?php echo number_format($total = $rs_creditnote['TX_notadecredito_monto']+$rs_creditnote['TX_notadecredito_impuesto'],2); ?></td>
+  		<td><?php echo number_format($total = $rs_creditnote['TX_notadecredito_monto']+$rs_creditnote['TX_notadecredito_impuesto'],2); ?></td>
      	<td><?php echo number_format($rs_creditnote['TX_notadecredito_exedente'],2); ?></td>
-       <td><?php
-			$pre_fecha = strtotime($rs_creditnote['TX_notadecredito_fecha']);
-		 echo $fecha = date('d-m-Y',$pre_fecha);  ?></td>
+      <td><?php echo $fecha = date('d-m-Y',strtotime($rs_creditnote['TX_notadecredito_fecha'])); ?></td>
     </tr>
-    <?php }while($rs_creditnote=mysql_fetch_assoc($qry_creditnote)); ?>
-    <?php }else{ ?>
+  <?php }while($rs_creditnote=$qry_creditnote->fetch_array()); ?>
+<?php }else{ ?>
     <tr>
     	<td></td>
-        <td></td>
-        <td></td>
-        <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
-    <?php } ?>
+<?php } ?>
     </tbody>
     </table>
 </div>

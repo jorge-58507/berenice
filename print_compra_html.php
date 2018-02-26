@@ -24,11 +24,10 @@ if (!empty($date_i) && !empty($date_f)) {
 $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
 
-$txt_facturacompra="SELECT bh_facturacompra.AI_facturacompra_id, bh_facturacompra.TX_facturacompra_fecha, bh_facturacompra.TX_facturacompra_numero, bh_almacen.TX_almacen_value, bh_facturacompra.TX_facturacompra_ordendecompra, bh_proveedor.TX_proveedor_nombre, bh_metododepago.TX_metododepago_value
-FROM (((bh_facturacompra
+$txt_facturacompra="SELECT bh_facturacompra.AI_facturacompra_id, bh_facturacompra.TX_facturacompra_fecha, bh_facturacompra.TX_facturacompra_numero, bh_almacen.TX_almacen_value, bh_facturacompra.TX_facturacompra_ordendecompra, bh_proveedor.TX_proveedor_nombre, bh_facturacompra.TX_facturacompra_status
+FROM ((bh_facturacompra
     INNER JOIN bh_proveedor ON bh_facturacompra.facturacompra_AI_proveedor_id = bh_proveedor.AI_proveedor_id)
 	  INNER JOIN bh_almacen ON bh_facturacompra.TX_facturacompra_almacen = bh_almacen.AI_almacen_id)
-		INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_facturacompra.facturacompra_AI_metododepago_id)
 WHERE";
 
 for($it=0;$it<$size_value;$it++){
@@ -59,7 +58,7 @@ $txt_facturacompra=$txt_facturacompra." bh_proveedor.TX_proveedor_nombre LIKE '%
 	}
 }
 
-$txt_facturacompra .= " ORDER BY TX_facturacompra_fecha DESC".$line_limit;
+$txt_facturacompra .= " ORDER BY TX_facturacompra_fecha DESC, AI_facturacompra_id DESC".$line_limit;
 
 $qry_facturacompra=$link->query($txt_facturacompra)or die($link->error);
 $nr_facturacompra=$qry_facturacompra->num_rows;
@@ -137,8 +136,8 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 		<tr>
 			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">FECHA</th>
 			<th class="col-xs-5 col-sm-5 col-md-5 col-lg-5">PROVEEDOR</th>
-			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">FACT. N&deg;</th>
-			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">METODO</th>
+			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">FACT.</th>
+			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">STATUS</th>
 			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">ALMACEN</th>
 			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">TOTAL</th>
 		</tr>
@@ -168,10 +167,10 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 
 	?>
 		<tr>
-			<td><?php echo $rs_facturacompra['TX_facturacompra_fecha']; ?></td>
+			<td><?php echo date('d-m-Y',strtotime($rs_facturacompra['TX_facturacompra_fecha'])); ?></td>
 			<td><?php echo $rs_facturacompra['TX_proveedor_nombre']; ?></td>
 			<td><?php echo $rs_facturacompra['TX_facturacompra_numero']; ?></td>
-			<td><?php echo $rs_facturacompra['TX_metododepago_value']; ?></td>
+			<td><?php echo $rs_facturacompra['TX_facturacompra_status']; ?></td>
 			<td><?php echo $rs_facturacompra['TX_almacen_value']; ?></td>
 			<td><?php echo number_format($total4facturacompra,4); ?></td>
 		</tr>
@@ -183,7 +182,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 			<td></td>
 			<td></td>
 			<td></td>
-			<td colspan="2"><strong>Total: </strong> B/ <?php echo number_format($total,2); ?></td>
+			<td colspan="2"  style="text-align: right;"><strong>Total: </strong> B/ <?php echo number_format($total,2); ?></td>
 		</tr>
 		</tfoot>
 		</table>

@@ -2,7 +2,6 @@
 require '../../bh_conexion.php';
 $link = conexion();
 require '../php/req_login_admin.php';
-$anulated = $_GET['d'];
 // ############################## FUNCIONES #####################
 function ObtenerIP(){
 if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
@@ -18,14 +17,14 @@ $ip = "IP desconocida";
 return($ip);
 }
 
-function insert_notadecredito($cliente_id,$facturaf_id,$user_id,$numero_nc,$motivo,$fecha,$hora,$destino,$retencion,$anulated){
+function insert_notadecredito($cliente_id,$facturaf_id,$user_id,$numero_nc,$motivo,$fecha,$hora,$destino,$retencion){
 	$link = conexion();
 	$host_ip=ObtenerIP();
 	$host_name=gethostbyaddr($host_ip);
 	$qry_impresora = $link->query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);
 	$rs_impresora = $qry_impresora->fetch_array();
 
-	$bh_insert_nc="INSERT INTO bh_notadecredito (notadecredito_AI_cliente_id, notadecredito_AI_facturaf_id, notadecredito_AI_user_id, notadecredito_AI_impresora_id, TX_notadecredito_tipo, TX_notadecredito_numero, TX_notadecredito_motivo, TX_notadecredito_fecha, TX_notadecredito_hora, TX_notadecredito_destino, TX_notadecredito_status, TX_notadecredito_retencion, TX_notadecredito_anulado) VALUES ('$cliente_id', '$facturaf_id', '$user_id', '{$rs_impresora['AI_impresora_id']}', '1', '$numero_nc', '$motivo', '$fecha', '$hora', '$destino', 'ACTIVA', $retencion, '$anulated')";
+	$bh_insert_nc="INSERT INTO bh_notadecredito (notadecredito_AI_cliente_id, notadecredito_AI_facturaf_id, notadecredito_AI_user_id, notadecredito_AI_impresora_id, TX_notadecredito_tipo, TX_notadecredito_numero, TX_notadecredito_motivo, TX_notadecredito_fecha, TX_notadecredito_hora, TX_notadecredito_destino, TX_notadecredito_status, TX_notadecredito_retencion) VALUES ('$cliente_id', '$facturaf_id', '$user_id', '{$rs_impresora['AI_impresora_id']}', '1', '$numero_nc', '$motivo', '$fecha', '$hora', '$destino', 'ACTIVA', $retencion)";
 	$link->query($bh_insert_nc) or die ($link->error);
 
 	$qry_lastid=$link->query("SELECT LAST_INSERT_ID();");
@@ -125,7 +124,7 @@ $retencion = (100-$_GET['c'])/100;
 $qry_checkcreditnote=$link->query("SELECT AI_notadecredito_id FROM bh_notadecredito WHERE TX_notadecredito_numero = '$numero_nc'")or die($link->error);
 $nr_checkcreditnote=$qry_checkcreditnote->num_rows;
 if($nr_checkcreditnote < 1){
-	$creditnote_id = insert_notadecredito($cliente_id,$facturaf_id,$user_id,$numero_nc,$motivo,$fecha,$hora,$destino,$_GET['c'],$_GET['d']);
+	$creditnote_id = insert_notadecredito($cliente_id,$facturaf_id,$user_id,$numero_nc,$motivo,$fecha,$hora,$destino,$_GET['c']);
 }
 // ################################## INSERCIONES  #######################################
 // ########################## CALCULAR MONTO E IMPUESTO ############################
@@ -161,7 +160,7 @@ insert_devolucion($creditnote_id,$rs_nuevadevolucion['nuevadevolucion_AI_product
 $monto_nc = round(($precio*$retencion)-$descuento,2);
 $exedente = round($monto_nc+$impuesto,2);
 // ########################## CALCULAR MONTO E IMPUESTO ############################
-if($destino == 'EFECTIVO' || $anulated != 0){
+if($destino == 'EFECTIVO'){
 	$exedente='0';
 }
 $link->query("UPDATE bh_notadecredito SET TX_notadecredito_monto = '$monto_nc', TX_notadecredito_impuesto = '$impuesto', TX_notadecredito_exedente = '0' WHERE AI_notadecredito_id = '$creditnote_id'");
@@ -170,49 +169,29 @@ $qry_cliente = $link->query("SELECT bh_cliente.TX_cliente_saldo FROM bh_cliente 
 $rs_cliente = $qry_cliente->fetch_array();
 $new_saldo = $rs_cliente['TX_cliente_saldo'] + $exedente;
 
-
-
-if($_GET['d'] != 1){
-	if ($rs_facturaf['TX_facturaf_deficit'] > 0) {
-		$def_saldo = $rs_facturaf['TX_facturaf_deficit']-$new_saldo;
-		if ($def_saldo > 0) {
-			$new_deficit=$rs_facturaf['TX_facturaf_deficit']-$new_saldo;
-			$new_saldo=0;
-		}else if ($def_saldo < 0) {
-			$new_deficit=0;
-			$new_saldo=$new_saldo-$rs_facturaf['TX_facturaf_deficit'];
-		}else{
-			$new_deficit=0;
-			$new_saldo=0;
-		}
-		$total_nd = $rs_facturaf['TX_facturaf_deficit']-$new_deficit;
-		$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit =	'$new_deficit' WHERE AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}'")or die($link->error);
-		$motivo_nd = 'DEDUCCION POR NC '.$numero_nc;
-		if ($total_nd > 0) {
-			$debito_id = insert_notadebito($cliente_id,$user_id,$numero_nd,$motivo_nd,$fecha,$hora,$total_nd);
-			$link->query("INSERT INTO rel_facturaf_notadebito (rel_AI_facturaf_id, rel_AI_notadebito_id, TX_rel_facturafnotadebito_importe) VALUES ('{$rs_facturaf['AI_facturaf_id']}','$debito_id','$total_nd')");
-			$bh_insert_datodebito="INSERT INTO bh_datodebito (datodebito_AI_notadebito_id, datodebito_AI_user_id,  datodebito_AI_metododepago_id, TX_datodebito_monto, TX_datodebito_numero, TX_datodebito_fecha) VALUES ('$debito_id','$user_id','7','$total_nd','','$fecha')";
-			$link->query($bh_insert_datodebito)or die($link->error);
-		}
+if ($rs_facturaf['TX_facturaf_deficit'] > 0) {
+	$def_saldo = $rs_facturaf['TX_facturaf_deficit']-$new_saldo;
+	if ($def_saldo > 0) {
+		$new_deficit=$rs_facturaf['TX_facturaf_deficit']-$new_saldo;
+		$new_saldo=0;
+	}else if ($def_saldo < 0) {
+		$new_deficit=0;
+		$new_saldo=$new_saldo-$rs_facturaf['TX_facturaf_deficit'];
+	}else{
+		$new_deficit=0;
+		$new_saldo=0;
 	}
-}else{
+	$total_nd = $rs_facturaf['TX_facturaf_deficit']-$new_deficit;
+	$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit =	'$new_deficit' WHERE AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}'")or die($link->error);
+	$motivo_nd = 'DEDUCCION POR NC '.$numero_nc;
+	$debito_id = insert_notadebito($cliente_id,$user_id,$numero_nd,$motivo_nd,$fecha,$hora,$total_nd);
+	$link->query("INSERT INTO rel_facturaf_notadebito (rel_AI_facturaf_id, rel_AI_notadebito_id, TX_rel_facturafnotadebito_importe) VALUES ('{$rs_facturaf['AI_facturaf_id']}','$debito_id','$total_nd')");
+	$bh_insert_datodebito="INSERT INTO bh_datodebito (datodebito_AI_notadebito_id, datodebito_AI_user_id,  datodebito_AI_metododepago_id, TX_datodebito_monto, TX_datodebito_numero, TX_datodebito_fecha) VALUES ('$debito_id','$user_id','7','$total_nd','','$fecha')";
+	$link->query($bh_insert_datodebito)or die($link->error);
 
-	if ($rs_facturaf['TX_facturaf_deficit'] > 0) {
 
-			$new_deficit=0;
-			$new_saldo=0;
-
-		$total_nd = $rs_facturaf['TX_facturaf_deficit']-$new_deficit;
-		$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit =	'$new_deficit' WHERE AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}'")or die($link->error);
-		// $motivo_nd = 'ANULACION DE FACTURA ('.$numero_nc.')';
-		// $debito_id = insert_notadebito($cliente_id,$user_id,$numero_nd,$motivo_nd,$fecha,$hora,$total_nd);
-		// $link->query("INSERT INTO rel_facturaf_notadebito (rel_AI_facturaf_id, rel_AI_notadebito_id, TX_rel_facturafnotadebito_importe) VALUES ('{$rs_facturaf['AI_facturaf_id']}','$debito_id','$total_nd')");
-		// $bh_insert_datodebito="INSERT INTO bh_datodebito (datodebito_AI_notadebito_id, datodebito_AI_user_id,  datodebito_AI_metododepago_id, TX_datodebito_monto, TX_datodebito_numero, TX_datodebito_fecha) VALUES ('$debito_id','$user_id','7','$total_nd','','$fecha')";
-		// $link->query($bh_insert_datodebito)or die($link->error);
-	}
 
 }
-
 $link->query("UPDATE bh_cliente SET TX_cliente_saldo = '$new_saldo' WHERE AI_cliente_id = '$cliente_id'")or die($link->error);
 
 $host_ip=ObtenerIP();
@@ -220,8 +199,7 @@ $host_name=gethostbyaddr($host_ip);
 $qry_impresora = $link->query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);
 $rs_impresora = $qry_impresora->fetch_array();
 
-if($destino == "EFECTIVO" && $anulated != 1){
-	//   #######################	INSERCION DE LA SALIDA
+if($destino == "EFECTIVO"){
 	$motivo_efectivo="NOTA DE CREDITO ".$numero_nc;
 	$monto_efectivo=round((($precio*$retencion)-$descuento)+$impuesto,2);
 		$link->query("INSERT INTO bh_efectivo (efectivo_AI_user_id, efectivo_AI_impresora_id, TX_efectivo_tipo, TX_efectivo_motivo, TX_efectivo_monto, TX_efectivo_fecha, TX_efectivo_status)
