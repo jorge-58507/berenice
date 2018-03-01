@@ -1,11 +1,11 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 
 $client_id=$_GET['a'];
 
-$qry_client = mysql_query("SELECT AI_cliente_id, TX_cliente_nombre, TX_cliente_cif, TX_cliente_telefono, TX_cliente_direccion FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die(mysql_error());
-$rs_client = mysql_fetch_array($qry_client);
+$qry_client = $link->query("SELECT AI_cliente_id, TX_cliente_nombre, TX_cliente_cif, TX_cliente_telefono, TX_cliente_direccion FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die($link->error);
+$rs_client = $qry_client->fetch_array();
 
 ?>
 
@@ -51,7 +51,7 @@ $('#btn_cancel').click(function(){
 })
 
 $('#txt_telephone').validCampoFranz('0123456789 -');
-$('#txt_cif').validCampoFranz('0123456789-');
+$('#txt_cif').validCampoFranz('0123456789 -edvan:');
 
 
 });

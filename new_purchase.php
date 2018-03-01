@@ -3,8 +3,6 @@ require 'bh_conexion.php';
 $link=conexion();
 date_default_timezone_set('America/Panama');
 
-// $link->query("DELETE FROM bh_nuevacompra WHERE nuevacompra_AI_user_id = '{$_COOKIE['coo_iuser']}'");
-
 require 'attached/php/req_login_stock.php';
 $proveedor="";
 $pedido_numero="";
@@ -39,7 +37,7 @@ $rs_proveedor=$qry_proveedor->fetch_array();
 $qry_warehouse=$link->query("SELECT * FROM bh_almacen");
 $rs_warehouse=$qry_warehouse->fetch_array();
 
-$qry_product=$link->query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 10");
+$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_referencia FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 10");
 $rs_product=$qry_product->fetch_array();
 
 $qry_newpurchase=$link->query("SELECT bh_nuevacompra.AI_nuevacompra_id, bh_nuevacompra.nuevacompra_AI_producto_id, bh_nuevacompra.TX_nuevacompra_unidades, bh_nuevacompra.TX_nuevacompra_precio, bh_nuevacompra.TX_nuevacompra_itbm, bh_nuevacompra.TX_nuevacompra_descuento, bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_cantidad, bh_nuevacompra.TX_nuevacompra_p4
@@ -177,6 +175,21 @@ function save_invoice(){
 
 }
 
+function upd_quantitynewpurchase(nuevacompra_id){
+	var new_quantity=prompt("Ingrese la cantidad");
+	new_quantity=val_intw2dec(new_quantity);
+	if (new_quantity ===	'NaN') {
+		return false;
+	}
+	$.ajax({	data: { "a" : nuevacompra_id, "b" : new_quantity },	type: "GET",	dataType: "text",	url: "attached/get/upd_quantitynewpurchase.php", })
+	.done(function( data, textStatus, jqXHR ) {
+		console.log("GOOD" + textStatus);
+		if(data){
+			$("#container_tblnewentry").html(data);
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {		});
+}
 </script>
 
 </head>
@@ -329,11 +342,11 @@ switch ($_COOKIE['coo_tuser']){
 		$total+=$total_desc_imp;
 	?>
     <tr>
-    	<td><?php echo $rs_newpurchase['TX_producto_codigo'] ?></td>
-      <td><?php echo $rs_newpurchase['TX_producto_value'] ?></td>
-      <td><?php echo $rs_newpurchase['TX_producto_medida'] ?></td>
-      <td><?php echo $rs_newpurchase['TX_nuevacompra_unidades'] ?></td>
-      <td><?php echo $rs_newpurchase['TX_nuevacompra_precio'] ?></td>
+    	<td><?php echo $rs_newpurchase['TX_producto_codigo']; ?></td>
+      <td><?php echo $rs_newpurchase['TX_producto_value']; ?></td>
+      <td><?php echo $rs_newpurchase['TX_producto_medida']; ?></td>
+      <td onclick="upd_quantitynewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_unidades']; ?></td>
+      <td><?php echo $rs_newpurchase['TX_nuevacompra_precio']; ?></td>
       <td><?php echo $rs_newpurchase['TX_nuevacompra_descuento']."% = ".number_format($descuento4product,4);?></td>
       <td><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".number_format($impuesto4product,4); ?></td>
       <td><?php echo number_format($total_desc_imp,4);	?></td>

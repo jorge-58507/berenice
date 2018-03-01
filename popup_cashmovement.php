@@ -1,10 +1,10 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 require 'attached/php/req_login_paydesk.php';
 
 $fecha_actual = date('Y-m-d');
-$qry_cashmovement = mysql_query("SELECT bh_efectivo.TX_efectivo_fecha, bh_efectivo.TX_efectivo_tipo, bh_efectivo.TX_efectivo_motivo, bh_efectivo.TX_efectivo_monto, bh_user.TX_user_seudonimo, bh_efectivo.AI_efectivo_id
+$qry_cashmovement = $link->query("SELECT bh_efectivo.TX_efectivo_fecha, bh_efectivo.TX_efectivo_tipo, bh_efectivo.TX_efectivo_motivo, bh_efectivo.TX_efectivo_monto, bh_user.TX_user_seudonimo, bh_efectivo.AI_efectivo_id, bh_efectivo.efectivo_AI_arqueo_id
 FROM (bh_efectivo
 INNER JOIN bh_user ON bh_efectivo.efectivo_AI_user_id = bh_user.AI_user_id)
 WHERE TX_efectivo_fecha = '$fecha_actual'");
@@ -66,15 +66,6 @@ $('#txt_monto').on("blur",function(){
 	this.value = val_intw2dec(this.value);
 });
 
-// $('#tbl_cashmovement tbody tr td button').click(function(){
-// 	alert("llll");
-// //	print_html('print_cashmovement.php?a='+this.name);
-// });
-
-// $("#btn_print").on("click",function(){
-// 	print_html('print_all_cashmovement.php');
-// });
-
 $("#btn_clear_datei").on("click",function(){
 	$("#txt_fecha").val("");
 });
@@ -118,9 +109,9 @@ $("#btn_print_all").on("click",function(){
 <div id="container_seltipo" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 	<label for="sel_tipo">Tipo:</label>
 	<select id="sel_tipo" name="sel_tipo" class="form-control">
-    	<option value="SALIDA" selected="selected">Salida</option>
-        <option value="ENTRADA">Entrada</option>
-    </select>
+  	<option value="SALIDA" selected="selected">Salida</option>
+	  <option value="ENTRADA">Entrada</option>
+  </select>
 </div>
 <div id="container_txtmotivo" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 	<label for="txt_motivo">Motivo:</label>
@@ -141,33 +132,36 @@ $("#btn_print_all").on("click",function(){
     <button type="button" id="btn_clear_datei" class="btn btn-danger btn-xs"><strong>!</strong></button>
     <input type="text" id="txt_fecha" name="txt_fecha" class="form-control" value="<?php echo date('d-m-Y'); ?>" readonly="readonly" />
 </div>
-<div id="container_btnfilter" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    <button type="button" id="btn_filter" name="btn_filter" class="btn btn-success">Buscar</button>
-</div>
 </div>
 <div id="container_cashmovement" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<table id="tbl_cashmovement" class="table table-bordered table-condensed table-striped">
     <caption class="caption">Movimientos del: <?php echo date('d-m-Y'); ?></caption>
     <thead class="bg-primary">
     <tr>
-      <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Tipo</th>
+      <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Tipo</th>
       <th class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Motivo</th>
       <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Monto</th>
-      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+      <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"></th>
     </tr>
     </thead>
     <tfoot class="bg-primary"><tr><td></td><td></td><td></td><td></td></tr></tfoot>
     <tbody>
-<?php 	while($rs_cashmovement = mysql_fetch_array($qry_cashmovement)){ ?>
-	<tr title="<?php echo $rs_cashmovement['TX_user_seudonimo']; ?>">
-		<td><?php echo $rs_cashmovement['TX_efectivo_tipo']; ?></td>
-		<td><?php echo $rs_cashmovement['TX_efectivo_motivo']; ?></td>
-		<td><?php echo substr($rs_cashmovement['TX_efectivo_monto'],0,20); ?></td>
-		<td>
-			<button type="button" class="btn btn-info btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="print_html('print_cashmovement.php?a='+this.name)" ><i class="fa fa-print fa-2x" aria-hidden="true"></i></button>
-		</td>
-	</tr>
-    <?php } ?>
+<?php 	while($rs_cashmovement = $qry_cashmovement->fetch_array(MYSQLI_ASSOC)){ ?>
+			<tr title="<?php echo $rs_cashmovement['TX_user_seudonimo']; ?>">
+				<td><?php echo $rs_cashmovement['TX_efectivo_tipo']; ?></td>
+				<td><?php echo $rs_cashmovement['TX_efectivo_motivo']; ?></td>
+				<td><?php echo substr($rs_cashmovement['TX_efectivo_monto'],0,20); ?></td>
+				<td>
+					<button type="button" class="btn btn-info btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="print_html('print_cashmovement.php?a='+this.name)" ><i class="fa fa-print fa-2x" aria-hidden="true"></i></button>
+					&nbsp;
+<?php if ($rs_cashmovement['efectivo_AI_arqueo_id'] === '0') { ?>
+					<button type="button" class="btn btn-warning btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="open_popup('popup_updcashmovement.php?a=<?php echo $rs_cashmovement['AI_efectivo_id'] ?>','_popup',420, 420)" ><i class="fa fa-wrench fa-2x" aria-hidden="true"></i></button>
+<?php } else {?>
+					<button type="button" class="btn btn-warning btn-xs" disabled><i class="fa fa-wrench fa-2x" aria-hidden="true"></i></button>
+<?php } ?>
+				</td>
+			</tr>
+<?php } ?>
     </tbody>
     </table>
 </div>

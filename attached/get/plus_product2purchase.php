@@ -62,7 +62,7 @@ $rs_newpurchase=mysql_fetch_assoc($qry_newpurchase)
     	<td><?php echo $rs_newpurchase['TX_producto_codigo'] ?></td>
         <td><?php echo $rs_newpurchase['TX_producto_value'] ?></td>
         <td><?php echo $rs_newpurchase['TX_producto_medida'] ?></td>
-        <td><?php echo $rs_newpurchase['TX_nuevacompra_unidades'] ?></td>
+				<td onclick="upd_quantitynewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_unidades']; ?></td>
 
         <td><?php echo $rs_newpurchase['TX_nuevacompra_precio'] ?></td>
         <td><?php echo $rs_newpurchase['TX_nuevacompra_descuento']."% = ".

@@ -46,6 +46,7 @@ function new_return(field){
 	if(parseFloat(cantidad) > parseFloat(retirable)){
 		return false;
 	}
+	$("#btn_anulate").attr("disabled", true);
 	plus_return(field.name,cantidad);
 }
 

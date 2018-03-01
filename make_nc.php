@@ -47,6 +47,8 @@ while ($rs_datopago=$qry_datopago->fetch_array()) {
   }
 }
 
+$qry_datodevolucion=$link->prepare("SELECT bh_datodevolucion.TX_datodevolucion_cantidad, bh_datodevolucion.datodevolucion_AI_producto_id FROM ((bh_facturaf INNER JOIN bh_notadecredito ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id) INNER JOIN bh_datodevolucion ON bh_notadecredito.AI_notadecredito_id = bh_datodevolucion.datodevolucion_AI_notadecredito_id) WHERE bh_datodevolucion.datodevolucion_AI_producto_id = '{$rs_facturaf['AI_producto_id']}' AND bh_notadecredito.notadecredito_AI_facturaf_id = ? ")or die($link->error);
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -102,10 +104,10 @@ $("#txt_motivonc").keyup(function(){
 
 
 $("#btn_save").click(function(){
-	if($("#span_totalnc").text() < '0.01' ){
+	if(parseFloat($("#span_totalnc").text()) < 0.01 ){
 		return false;
 	}
-	if($("#txt_motivonc").val() == "" ){
+	if($("#txt_motivonc").val() === "" ){
 		$("#txt_motivonc").css("border", "2px outset #F00");
 		$("#txt_motivonc").focus();
 		return false;
@@ -119,17 +121,19 @@ $("#btn_save").click(function(){
     $("#btn_save, #btn_anulate").attr("disabled", true);
     plus_creditnote(0);
 });
+
 $("#btn_cancel").click(function(){
 	clean_newreturn();
 });
 
 $("#btn_anulate").on("click", function(){
+  $("#btn_save, #btn_anulate").attr("disabled", true);
+  res = confirm('¿Confirma la anulacion de la factura?');
+  if (!res) { return false; }
   $.ajax({	data: {"a" : '<?php echo $facturaf_id; ?>' },	type: "GET",	dataType: "text",	url: "attached/get/get_datoventabyfacturaf_nc.php", })
    .done(function( data, textStatus, jqXHR ) { console.log("GOOD " + textStatus);
-
    $("#txt_motivonc").val("ANULACION");
    $("#sel_destinonc").val('EFECTIVO');
-   $("#btn_save, #btn_anulate").attr("disabled", true);
    plus_creditnote(1);
   })
    .fail(function( jqXHR, textStatus, errorThrown ) {	     console.log("BAD " + textStatus);	});
@@ -137,23 +141,23 @@ $("#btn_anulate").on("click", function(){
 
 });
 
-function nc_makerefund(datoventa_id, cantidad_actual){
-	var cantidad = prompt("¿Que cantidad reingresara?");
-	pat = new RegExp(/[0-9]/);
-	res = pat.test(cantidad);
-	if(!res){
-		return false;
-	}
-	if(cantidad > cantidad_actual){
-		alert("El valor ingresado es erroneo");
-		return false;
-	}
-	if(cantidad < 1){
-		alert("El valor ingresado es erroneo");
-		return false;
-	}
-	window.location='plus_refund.php?a='+datoventa_id+'&b='+cantidad;
-}
+// function nc_makerefund(datoventa_id, cantidad_actual){
+// 	var cantidad = prompt("¿Que cantidad reingresara?");
+// 	pat = new RegExp(/[0-9]/);
+// 	res = pat.test(cantidad);
+// 	if(!res){
+// 		return false;
+// 	}
+// 	if(cantidad > cantidad_actual){
+// 		alert("El valor ingresado es erroneo");
+// 		return false;
+// 	}
+// 	if(cantidad < 1){
+// 		alert("El valor ingresado es erroneo");
+// 		return false;
+// 	}
+// 	window.location='plus_refund.php?a='+datoventa_id+'&b='+cantidad;
+// }
 function plus_creditnote(anulated_index){
   $.ajax({	data: {"a" : $("#txt_motivonc").val(), "b" : $("#sel_destinonc").val(), "c" : $("#txt_debito").val(), "d" : anulated_index },	type: "GET",	dataType: "text",	url: "attached/get/plus_creditnote.php", })
    .done(function( data, textStatus, jqXHR ) {
@@ -243,11 +247,11 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div class="container-fluid al_center">
 <?php if ($qry_datopago->num_rows < 2 && $nr_creditnote < 1 && $block_btn_anulate > 0) { ?>
-  <button type="button" name="" id="btn_anulate" class="btn btn-primary" title="<?php echo $payment_method; ?>">Anular Factura</button>
+  <button type="button" name="" id="btn_anulate" class="btn btn-danger btn-lg" title="<?php echo $payment_method; ?>"><i class="fa fa-times"></i> Anular Factura</button>
 <?php
 } else {
 ?>
-  <button type="button" name="" id="" disabled  class="btn btn-primary" title="<?php echo $payment_method; ?>">Anular Factura</button>
+  <button type="button" name="" id="" disabled  class="btn btn-danger btn-lg" title="<?php echo $payment_method; ?>"><i class="fa fa-times"></i> Anular Factura</button>
 <?php } ?>
 
 </div>
@@ -266,15 +270,9 @@ switch ($_COOKIE['coo_tuser']){
         </tr>
     </thead>
     <tfoot class="bg-primary">
-    <tr>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-    </tr>
+      <tr>
+        <td colspan="7"></td>
+      </tr>
     </tfoot>
 
     <tbody>
@@ -284,27 +282,30 @@ switch ($_COOKIE['coo_tuser']){
         <td><?php echo $rs_facturaf['TX_producto_codigo']; ?></td>
         <td><?php echo $rs_facturaf['TX_producto_value']; ?></td>
         <td><?php echo $rs_facturaf['TX_producto_medida']; ?></td>
-        <td><?php echo number_format($precio_total = ($rs_facturaf['TX_datoventa_precio']-
-			($rs_facturaf['TX_datoventa_precio']*($rs_facturaf['TX_datoventa_descuento']/100)))+
-			($rs_facturaf['TX_datoventa_precio']*($rs_facturaf['TX_datoventa_impuesto']/100)),2)
-			; ?></td>
+        <td><?php
+        $descuento = ($rs_facturaf['TX_datoventa_precio']*$rs_facturaf['TX_datoventa_descuento'])/100;
+        $precio_descuento = $rs_facturaf['TX_datoventa_precio']-$descuento;
+        $impuesto = ($rs_facturaf['TX_datoventa_precio']*$rs_facturaf['TX_datoventa_impuesto'])/100;
+        $precio_total = $precio_descuento+$impuesto;
+        echo number_format($precio_total,2)
+			  ?></td>
         <td><?php echo $rs_facturaf['TX_datoventa_cantidad']; ?></td>
         <td><?php
-      $qry_datodevolucion=$link->query("SELECT bh_datodevolucion.TX_datodevolucion_cantidad, bh_datodevolucion.datodevolucion_AI_producto_id FROM ((bh_facturaf INNER JOIN bh_notadecredito ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id) INNER JOIN bh_datodevolucion ON bh_notadecredito.AI_notadecredito_id = bh_datodevolucion.datodevolucion_AI_notadecredito_id) WHERE bh_datodevolucion.datodevolucion_AI_producto_id = '{$rs_facturaf['AI_producto_id']}' AND bh_notadecredito.notadecredito_AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}' ")or die($link->error);
-			$rs_datodevolucion=$qry_datodevolucion->fetch_array();
-			$total_devuelto=0;
-			do{
-			$total_devuelto += $rs_datodevolucion['TX_datodevolucion_cantidad'];
-    }while($rs_datodevolucion=$qry_datodevolucion->fetch_array());
-			echo $retired_quantity = $rs_facturaf['TX_datoventa_cantidad']-$total_devuelto;
+        $qry_datodevolucion->bind_param("i",$rs_facturaf['AI_facturaf_id']); $qry_datodevolucion->execute(); $result=$qry_datodevolucion->get_result();
+        $rs_datodevolucion=$result->fetch_array();
+			  $total_devuelto=0;
+			  do{
+    			$total_devuelto += $rs_datodevolucion['TX_datodevolucion_cantidad'];
+        }while($rs_datodevolucion=$result->fetch_array());
+			  echo $retired_quantity = $rs_facturaf['TX_datoventa_cantidad']-$total_devuelto;
       ?></td>
-      <td>
-      <button type="button" id="<?php echo $retired_quantity ?>" name="<?php echo $rs_facturaf['AI_datoventa_id'];?>"  class="btn btn-warning btn-xs btn-fa" onclick="new_return(this)"><strong><i class="fa fa-recycle" aria-hidden="true"></i></strong></button>
-      </td>
+        <td>
+          <button type="button" id="<?php echo $retired_quantity ?>" name="<?php echo $rs_facturaf['AI_datoventa_id'];?>"  class="btn btn-warning btn-xs btn-fa" onclick="new_return(this)"><strong><i class="fa fa-recycle" aria-hidden="true"></i></strong></button>
+        </td>
   	</tr>
-  <?php }while($rs_facturaf=$qry_facturaf->fetch_array()); ?>
+<?php }while($rs_facturaf=$qry_facturaf->fetch_array()); ?>
     </tbody>
-    </table>
+  </table>
 </div>
 <div id="container_tblreturn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<table id="tbl_return" class="table table-bordered table-striped table-condensed">
@@ -329,17 +330,10 @@ switch ($_COOKIE['coo_tuser']){
         <td><?php echo $rs_nuevadevolucion['TX_producto_value']; ?></td>
         <td><?php echo $rs_nuevadevolucion['TX_producto_medida']; ?></td>
         <td><?php echo $rs_nuevadevolucion['TX_nuevadevolucion_cantidad']; ?></td>
-        <td><?php
-        //  $preciowdescuento = $rs_nuevadevolucion['TX_nuevadevolucion_cantidad']*($rs_nuevadevolucion['TX_datoventa_precio']*$multiplo) - ($rs_nuevadevolucion['TX_nuevadevolucion_cantidad']*($rs_nuevadevolucion['TX_datoventa_precio']*($rs_nuevadevolucion['TX_datoventa_descuento']/100)));
-		    //  echo number_format($preciowdescuento,2); ?></td>
-        <td><?php
-        //  $impuesto = $rs_nuevadevolucion['TX_nuevadevolucion_cantidad']*(($rs_nuevadevolucion['TX_datoventa_precio']*$multiplo)*($rs_nuevadevolucion['TX_datoventa_impuesto']/100));
-		    //   echo number_format($impuesto,2); ?></td>
-        <td>
-        </td>
+        <td><?php ?></td>
+        <td><?php ?></td>
+        <td>        </td>
     </tr>
-<?php // $total_precio += $preciowdescuento; ?>
-<?php // $total_impuesto += $impuesto; ?>
 <?php }while($rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array()); ?>
     </tbody>
     <tfoot class="bg-success">
@@ -347,13 +341,13 @@ switch ($_COOKIE['coo_tuser']){
     	<td></td><td></td><td></td><td></td>
       <td>
       <label for="span_preciowdescuento">Precio c/ Descuento:</label><br />
-      <span id="span_preciowdescuento">B/ <?php echo number_format($total_precio,2); ?></span></td>
+      B/ <span id="span_preciowdescuento"><?php echo number_format($total_precio,2); ?></span></td>
       <td>
       <label for="span_impuesto">Impuesto:</label><br />
-      <span id="span_impuesto">B/ <?php echo number_format($total_impuesto,2); ?></span></td>
+      B/ <span id="span_impuesto"><?php echo number_format($total_impuesto,2); ?></span></td>
       <td>
       <label for="span_totalnc">Total:</label><br />
-      <span id="span_totalnc">B/ <?php echo number_format($total_nc = $total_precio+$total_impuesto,2); ?></span></td>
+      B/ <span id="span_totalnc"><?php echo number_format($total_nc = $total_precio+$total_impuesto,2); ?></span></td>
     </tr>
     </tfoot>
     </table>

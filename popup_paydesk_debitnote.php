@@ -31,21 +31,22 @@ require 'attached/php/req_login_paydesk.php';
 
 $(document).ready(function() {
 
-$('#txt_filter_creditnote').validCampoFranz('0123456789');
+$('#txt_filter_debitnote').validCampoFranz('0123456789');
 
 $("#btn_cancel").click(function(){
 	self.close()
 });
 
-$("#txt_filter_creditnote").on("keyup", function(){
-	$.ajax({	data: {"a" : this.value, "b" : $("#txt_datei").val(), "c" : $("#txt_datef").val() },	type: "GET",	dataType: "text",	url: "attached/get/filter_paydesk_creditnote.php", })
+$("#txt_filter_debitnote").on("keyup", function(){
+	$.ajax({	data: {"a" : this.value, "b" : $("#txt_datei").val(), "c" : $("#txt_datef").val() },	type: "GET",	dataType: "text",	url: "attached/get/filter_paydesk_debitnote.php", })
 	 .done(function( data, textStatus, jqXHR ) {
-		 $("#tbl_paydesk_creditnote tbody").html(data);
+		 $("#tbl_paydesk_debitnote tbody").html(data);
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
+
 $("#btn_search").on("click", function(){
-	$("#txt_filter_creditnote").keyup();
+	$("#txt_filter_debitnote").keyup();
 })
 
 $( function() {
@@ -97,8 +98,8 @@ function getDate( element ) {
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtfiltercreditnote" class="col-xs-12 col-sm-8 col-md-5 col-lg-5">
-  	<label for="txt_filter_creditnote">Buscar</label>
-		<input type="text" id="txt_filter_creditnote" value="" class="form-control" autofocus>
+  	<label for="txt_filter_debitnote">Buscar</label>
+		<input type="text" id="txt_filter_debitnote" value="" class="form-control" autofocus>
   </div>
 	<div id="container_txtdatei" class="col-xs-12 col-sm-6 col-md-2 col-lg-2">
   	<label for="txt_datei">Fecha Inicial</label>
@@ -111,27 +112,25 @@ function getDate( element ) {
 	<div class="col-xs-12 col-sm-6 col-md-2 col-lg-2 container_btn_md">
 		<button type="button" id="btn_search" class="btn btn-success btn-md" name="button"><i class="fa fa-search fa-2x"></i></button>
 	</div>
-	<div id="container_tblcreditnote" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:5px 15px;">
-		<table id="tbl_paydesk_creditnote" class="table table-bordered table-condensed table-striped">
+	<div id="container_tbldebitnote" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:5px 15px;">
+		<table id="tbl_paydesk_debitnote" class="table table-bordered table-condensed table-striped">
 			<thead class="bg-primary">
 				<tr>
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Numero</th>
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Factura</th>
-					<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Cliente</th>
-					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Destino</th>
-					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Total</th>
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Saldo</th>
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">&nbsp;</th>
+					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">Fecha</th>
+					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">Numero</th>
+					<th class="col-xs-5 col-sm-5 col-md-5 col-lg-5 al_center">Cliente</th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center">Factura</th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center">Total</th>
+					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">&nbsp;</th>
 				</tr>
 			</thead>
 			<tbody>
 				<tr>
-					<td> </td><td> </td><td> </td><td> </td><td> </td><td> </td><td> </td>
+					<td colspan="6"> </td>
 				</tr>
 			</tbody>
 			<tfoot class="bg-primary">
-				<tr><td colspan="8"> </td></tr>
+				<tr><td colspan="6"> </td></tr>
 			</tfoot>
 
 		</table>

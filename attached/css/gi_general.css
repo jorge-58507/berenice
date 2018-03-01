@@ -206,3 +206,6 @@ h1{
 .no_padding{
 	padding: 0;
 }
+.container_btn_md{
+	padding-top: 15px;
+}

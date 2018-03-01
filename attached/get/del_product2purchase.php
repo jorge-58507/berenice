@@ -57,7 +57,7 @@ $rs_newpurchase=$qry_newpurchase->fetch_array();
     	<td><?php echo $rs_newpurchase['TX_producto_codigo'] ?></td>
         <td><?php echo $rs_newpurchase['TX_producto_value'] ?></td>
         <td><?php echo $rs_newpurchase['TX_producto_medida'] ?></td>
-        <td><?php echo $rs_newpurchase['TX_nuevacompra_unidades'] ?></td>
+				<td onclick="upd_quantitynewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_unidades']; ?></td>
 
         <td><?php echo $rs_newpurchase['TX_nuevacompra_precio'] ?></td>
         <td><?php echo $rs_newpurchase['TX_nuevacompra_descuento']."% = ".
@@ -66,19 +66,13 @@ $rs_newpurchase=$qry_newpurchase->fetch_array();
         <td><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".
 		number_format($impuesto,2);
 		 ?></td>
-
-
-        <td><?php
-		echo number_format($precio_total,2);
-		?></td>
+        <td><?php echo number_format($precio_total,2); ?></td>
         <td>
         <center>
         <button type="button" name="<?php echo $rs_newpurchase['nuevacompra_AI_producto_id'] ?>" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_product2purchase(this);"><strong>X</strong></button>
         </center>
         </td>
-				<td><?php
-				echo number_format($rs_newpurchase['TX_nuevacompra_p4'],2);
-				?></td>
+				<td><span id="<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>" class="form-control" onclick="upd_newpurchase_price(this)"><?php echo number_format($rs_newpurchase['TX_nuevacompra_p4'],2);	?></span></td>
     </tr>
 <?php
 		$total_itbm += $impuesto;

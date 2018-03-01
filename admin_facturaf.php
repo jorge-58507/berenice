@@ -1,11 +1,9 @@
 ﻿<?php
 require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 require 'attached/php/req_login_paydesk.php';
-?>
-<?php
+
 $qry_facturaf=$link->query("SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.facturaf_AI_cliente_id, bh_facturaf.facturaf_AI_user_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_status,
 bh_cliente.TX_cliente_nombre,
 bh_user.TX_user_seudonimo
@@ -177,7 +175,6 @@ switch ($_COOKIE['coo_tuser']){
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="login.php" method="post" name="form_login"  id="form_login">
 <div id="container_btn_nuevanc" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-?>
 </div>
 <div id="container_txtfilterfacturaf" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
     <label for="txt_filterfacturaf">Buscar</label>

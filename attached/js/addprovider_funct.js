@@ -14,7 +14,7 @@ function chk_providername(field){
 }
 
 content_cif = "";
-limit_cif = 16;
+limit_cif = 22;
 
 function chk_cif(field){
 	field.value = field.value.toUpperCase();

@@ -138,29 +138,14 @@ $("#btn_refresh_tblproduct2sale").on("click",function(){
 
 
 $("#btn_guardar").click(function(){
-var str = $("#txt_filterclient").val();
-var patt = new RegExp(/\w/);
-var res = patt.test(str);
-
-	if(!res){
-		alert("Debe Ingresar un Cliente");
-		$("#txt_filterclient").val('')
+	if($("#txt_filterclient").attr("alt") === ""){
+		$("#txt_filterclient").css("border","inset 2px #F84C4C");
+		$("#txt_filterclient").focus();
 		return false;
 	}
-	if($("#txt_filterclient").attr("alt") == ""){
-		var answer = confirm("El cliente no existe, se creara a contado. ¿Desea Continuar?");
-		if(answer == true){
-			$("#txt_filterclient").prop("alt","18");
-			save_old_sale();
-			return false;
-		}else{
-			return false;
-		}
-	}else{
-		save_old_sale();
-//		$('#btn_imprimir').show(200);
-		return false;
-	}
+	$("#btn_guardar").attr("disabled", true);
+	save_old_sale();
+	return false;
 })
 
 $("#btn_salir").click(function(){

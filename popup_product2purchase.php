@@ -13,7 +13,6 @@ $rs_product=$qry_product->fetch_array();
 $qry_product_letter = $link->query("SELECT bh_letra.TX_letra_value, bh_letra.TX_letra_porcentaje FROM (bh_producto INNER JOIN bh_letra ON bh_letra.AI_letra_id = bh_producto.producto_AI_letra_id) WHERE AI_producto_id = '$product_id'")or die($link->error);
 $rs_product_letter = $qry_product_letter->fetch_array();
 $porcentaje = (!empty($rs_product_letter['TX_letra_porcentaje'])) ? $rs_product_letter['TX_letra_porcentaje'] : "0" ;
-//$porcentaje = $rs_product_letter['TX_letra_porcentaje'];
 
 $qry_datocompra_listado = $link->query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_facturacompra.TX_facturacompra_numero,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
 WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_facturacompra_fecha DESC LIMIT 3")or die($link->error);
@@ -92,13 +91,17 @@ $("#sel_letra").on("change", function(){
 	 .fail(function( jqXHR, textStatus, errorThrown ) {	 console.log("BAD "+textStatus);	});
 })
 
+$('#txt_quantity').on("keyup", function(){
+	suggest_price();
+})
+
 $('#txt_quantity, #txt_p_4').validCampoFranz('.0123456789');
 $('#txt_price').validCampoFranz('.0123456789');
 $('#txt_itbm').validCampoFranz('.0123456789');
 $('#txt_discount').validCampoFranz('.0123456789');
 
 function suggest_price(){
-	var base = parseFloat($("#txt_price").val());
+	var base = ($("#txt_price").val() === '') ? 0.00 : $("#txt_price").val(); base = parseFloat(base);
 	var letra = $("#sel_letra option:selected").attr("label");
 	var sugerido = ((base*letra)/100)+base;
 
@@ -106,15 +109,14 @@ function suggest_price(){
 	$("#txt_p_4").val(sugerido);
 }
 
-$("#txt_price").on("keyup",function(){
-var base = parseFloat($("#txt_price").val()); var impuesto = $("#txt_itbm").val();
-var descuento = $("#txt_discount").val(); var cantidad = $("#txt_quantity").val();
-
-	suggest_price();
-
+function cal_total(){
+	var base = ($("#txt_price").val() === '') ? 0.00 : $("#txt_price").val(); base = parseFloat(base);
+	var impuesto = ($("#txt_itbm").val() === '') ? 0.00 : $("#txt_itbm").val(); impuesto = parseFloat(impuesto);
+	var descuento = ($("#txt_discount").val() === '') ? 0.00 : $("#txt_discount").val(); descuento = parseFloat(descuento);
+	var cantidad = ($("#txt_quantity").val() === '') ? 0.00 : $("#txt_quantity").val(); cantidad = parseFloat(cantidad);
 	var precio = cantidad*base;
 	var descuento = (precio*descuento)/100;
-	var precio_descuento = precio+descuento;
+	var precio_descuento = precio-descuento;
 	var impuesto = (precio_descuento*impuesto)/100;
 	var total = precio_descuento+impuesto;
 	total = total.toFixed(2);
@@ -122,26 +124,25 @@ var descuento = $("#txt_discount").val(); var cantidad = $("#txt_quantity").val(
 	if (!isNaN(total)){
 		$("#span_total").html(total);
 	}
-	$("#txt_p_4").on("blur", function(){
-		this.value = val_intw2dec(this.value);
-	})
+}
 
+$("#txt_price, #txt_quantity, #txt_itbm, #txt_discount").on("keyup",function(){
+	suggest_price();
+	cal_total();
 });
-$("#txt_p_4").on("blur", function(){
-	if ($(this).val() === "") {
-		$(this).val("0.00")
-	}else{
-		this.value = val_intw2dec(this.value);
-	}
+
+
+$("#txt_p_4, #txt_quantity, #txt_itbm, #txt_discount").on("blur", function(){
+	($(this).val() === "") ?	$(this).val("0.00") :	this.value = val_intw2dec(this.value);
 })
 $("#txt_quantity, #txt_itbm, #txt_discount").on("blur",function(){
 	this.value = val_intw2dec(this.value);
 });
 
 $("#txt_price").on("blur",function(){
-	this.value = val_intw4dec(this.value);
+	($(this).val() === "") ?	$(this).val("0.00") :	this.value = val_intw4dec(this.value);
 		if(this.value != last_price){
-			console.log("value: "+this.value+" last: "+last_price);
+			// console.log("value: "+this.value+" last: "+last_price);
 			$("#alert").show(500);
 		}else{
 			$("#alert").hide(500);
@@ -199,11 +200,11 @@ $("#txt_price").on("blur",function(){
 </div>
 <div id="container_quantity" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 	<label for="txt_quantity">Cantidad:</label>
-    <input type="text" name="txt_quantity" id="txt_quantity" class="form-control" value="1" onkeyup="chk_quantity(this)" />
+    <input type="text" name="txt_quantity" id="txt_quantity" class="form-control" value="1" onkeyup="chk_quantity(this)" autofocus="autofocus" />
 </div>
 <div id="container_price" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
     <label for="txt_price">Costo Base:</label>
-    <input type="text" name="txt_price" id="txt_price" class="form-control" onkeyup="chk_price(this)" autofocus="autofocus" />
+    <input type="text" name="txt_price" id="txt_price" class="form-control" onkeyup="chk_price(this)"  />
 </div>
 <div id="container_regular" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
     <label for="txt_p_4">Precio Regular:</label>

@@ -331,9 +331,9 @@ $cantidad_ff = $i;
 </tbody>
 <tfoot class="bg_green">
 <tr>
-	<td><strong>Venta Bruta:</strong> <?php echo $venta_bruta; ?></td>
-	<td><strong>Venta Neta:</strong> <?php echo $venta_neta; ?></td>
-	<td><strong>Venta Real:</strong> <?php echo $venta_neta+$devolucion+$anulado; ?></td>
+	<td><strong>Venta Bruta:</strong> <?php echo number_format($venta_bruta,2); ?></td>
+	<td><strong>Venta Neta:</strong> <?php echo number_format($venta_neta,2); ?></td>
+	<td><strong>Venta Real:</strong> <?php echo number_format($venta_neta+$devolucion+$anulado,2); ?></td>
 </tr>
 </tfoot>
 </table>

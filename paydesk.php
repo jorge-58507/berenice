@@ -112,10 +112,12 @@ $("#btn_cashregister").on("click",function(){
 });
 $("#btn_facturaf").on("click",function(){
 	document.location.href="admin_facturaf.php";
-//	open_popup_w_scroll('popup_facturaf_paydesk.php','popup_facturaf','1000','420');
 });
 $("#btn_creditnote").on("click",function(){
 	open_popup_w_scroll('popup_paydesk_creditnote.php','_popup','1000','420');
+});
+$("#btn_debitnote").on("click",function(){
+	open_popup_w_scroll('popup_paydesk_debitnote.php','_popup','1000','420');
 });
 
 $("#btn_client").on("click", function(){
@@ -179,14 +181,16 @@ switch ($_COOKIE['coo_tuser']){
         &nbsp;&nbsp;
         <button type="button" id="btn_cashmovement" class="btn btn-warning"><strong>Caja Menuda</strong></button>
         &nbsp;&nbsp;
-        <button type="button" id="btn_refresh" class="btn btn-info btn-md" onclick="document.location.reload();"><strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>
-<span class="sr-only"></strong></button>
+				<button type="button" id="btn_facturaf" class="btn btn-info"><strong>Factura F.</strong></button>
 				&nbsp;&nbsp;
-				<button type="button" id="btn_facturaf" class="btn btn-warning"><strong>Factura F.</strong></button>
+				<button type="button" id="btn_refresh" class="btn btn-success btn-md" onclick="document.location.reload();"><strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>
+<span class="sr-only"></strong></button>
 				&nbsp;&nbsp;
 				<button type="button" id="btn_creditnote" class="btn btn-info"><strong>Notas de C.</strong></button>
         &nbsp;&nbsp;
-				<button type="button" id="btn_client" class="btn btn-warning"><strong>Clientes</strong></button>
+				<button type="button" id="btn_debitnote" class="btn btn-warning"><strong>Debitos</strong></button>
+        &nbsp;&nbsp;
+				<button type="button" id="btn_client" class="btn btn-info"><strong>Clientes</strong></button>
         &nbsp;&nbsp;
         <button type="button" id="btn_cashregister" class="btn btn-danger"><strong>Arqueo de Caja</strong></button>
 </div>
