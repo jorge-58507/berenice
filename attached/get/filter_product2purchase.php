@@ -44,7 +44,7 @@ $txt_product=$txt_product."TX_producto_referencia LIKE '%{$arr_value[$it]}%' AND
 }
 
 
-$qry_product=mysql_query($txt_product." ORDER BY TX_producto_value ASC LIMIT 50");
+$qry_product=mysql_query($txt_product." ORDER BY TX_producto_value ASC LIMIT 100");
 $rs_product=mysql_fetch_assoc($qry_product);
 
 $nr_product=mysql_num_rows($qry_product);

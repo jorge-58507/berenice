@@ -28,6 +28,11 @@ $last_price=$rs_precio['TX_datocompra_precio'];
 
 $qry_letra=$link->query("SELECT AI_letra_id, TX_letra_value, TX_letra_porcentaje FROM bh_letra")or die($link->error);
 
+$qry_precio_listado = $link->query("SELECT bh_precio.AI_precio_id, bh_precio.TX_precio_fecha, bh_precio.TX_precio_uno, bh_precio.TX_precio_dos, bh_precio.TX_precio_tres, bh_precio.TX_precio_cuatro, bh_precio.TX_precio_cinco, bh_producto.AI_producto_id FROM (bh_precio INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_precio.precio_AI_producto_id) WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_precio_fecha DESC, AI_precio_id DESC")or die($link->error);
+
+$qry_datocompra_listado = $link->query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
+WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_facturacompra_fecha DESC")or die($link->error);
+
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -51,7 +56,7 @@ $qry_letra=$link->query("SELECT AI_letra_id, TX_letra_value, TX_letra_porcentaje
 <script type="text/javascript">
 
 $(document).ready(function() {
-	window.resizeTo("555", "670");
+	// window.resizeTo("555", "670");
 
 	$("#form_product2purchase").on("keyup", function(e){
 		console.log(e.which);
@@ -170,102 +175,152 @@ $("#txt_price").on("blur",function(){
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form method="post" id="form_product2purchase" name="form_product2purchase">
-<div id="container_product" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<label for="txt_product">Producto:</label>
-    <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_value'] ?>" />
-</div>
-<div id="container_measure" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-	<label for="txt_measure">Medida:</label>
-    <input type="text" name="txt_measure" id="txt_measure" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_medida'] ?>" />
-</div>
-<div id="container_quantity" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-	<label for="sel_letra">Letra:</label>
-	<select class="form-control" id="sel_letra">
-<?php while($rs_letra = $qry_letra->fetch_array()){
-	if ($rs_letra['TX_letra_value'] === $rs_product_letter['TX_letra_value']) {
-?>
-		<option value="<?php echo $rs_letra['AI_letra_id']; ?>" label="<?php echo $rs_letra['TX_letra_porcentaje']; ?>" selected><?php echo $rs_letra['TX_letra_value']; ?></option>
-<?php
-}else{
-?>
-		<option value="<?php echo $rs_letra['AI_letra_id']; ?>" label="<?php echo $rs_letra['TX_letra_porcentaje']; ?>" ><?php echo $rs_letra['TX_letra_value']; ?></option>
-<?php
-			}
-		} ?>
-	</select>
-</div>
-<div id="container_code" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-	<label for="txt_code">C&oacute;digo:</label>
-    <input type="text" name="txt_code" id="txt_code" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_codigo'] ?>" />
-</div>
-<div id="container_quantity" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-	<label for="txt_quantity">Cantidad:</label>
-    <input type="text" name="txt_quantity" id="txt_quantity" class="form-control" value="1" onkeyup="chk_quantity(this)" autofocus="autofocus" />
-</div>
-<div id="container_price" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-    <label for="txt_price">Costo Base:</label>
-    <input type="text" name="txt_price" id="txt_price" class="form-control" onkeyup="chk_price(this)"  />
-</div>
-<div id="container_regular" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-    <label for="txt_p_4">Precio Regular:</label>
-    <input type="text" name="txt_p_4" id="txt_p_4" class="form-control" />
-</div>
-<div id="container_itbm" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-    <label for="txt_itbm">Impuesto %:</label>
-    <input type="text" name="txt_itbm" id="txt_itbm" class="form-control" value="<?php echo $rs_product['TX_producto_exento'] ?>" onkeyup="chk_itbm(this)"/>
-</div>
-<div id="container_discount" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-    <label for="txt_discount">Descuento %:</label>
-    <input type="text" name="txt_discount" id="txt_discount" class="form-control" value="0" onkeyup="chk_descuento(this)" />
-</div>
-<div id="container_total" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-    <label for="txt_discount">Total:</label>
-	<span id="span_total" class="form-control bg-disabled">0.00</span>
-    </div>
-<div id="container_button" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<button type="button" id="btn_acept" class="btn btn-success">Aceptar</button>
-&nbsp;
-<button type="button" id="btn_cancel" class="btn btn-warning">Cancelar</button>
-</div>
-
-<div id="alert" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<div id="div_alert" class="alert alert-danger">
-		<strong>Atenci&oacute;n!</strong> El precio cambi&oacute;.
-		<table id="tbl_purchase_price" class="table table-bordered table-condensed">
-			<caption class="caption">Historial de Precios de Compras</caption>
-			<thead class="bg-primary">
-			<tr>
-				<th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Fecha</th>
-				<th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">N&deg; Fact</th>
-				<th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Precio</th>
-			</tr>
-			</thead>
-			<tfoot class="bg-primary">
-			<tr>
-				<td colspan="5"></td>
-			</tr>
-			</tfoot>
-			<tbody>
+	<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+		<div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<label for="txt_product">Producto:</label>
+		    <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_value'] ?>" />
+		</div>
+		<div id="container_measure" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+			<label for="txt_measure">Medida:</label>
+	    <input type="text" name="txt_measure" id="txt_measure" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_medida'] ?>" />
+		</div>
+		<div id="container_quantity" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+			<label for="sel_letra">Letra:</label>
+			<select class="form-control" id="sel_letra">
+		<?php while($rs_letra = $qry_letra->fetch_array()){
+			if ($rs_letra['TX_letra_value'] === $rs_product_letter['TX_letra_value']) {
+		?>
+				<option value="<?php echo $rs_letra['AI_letra_id']; ?>" label="<?php echo $rs_letra['TX_letra_porcentaje']; ?>" selected><?php echo $rs_letra['TX_letra_value']; ?></option>
 		<?php
-			while ($rs_datocompra_listado = $qry_datocompra_listado->fetch_array()) {
-				$descuento = ($rs_datocompra_listado['TX_datocompra_descuento']*$rs_datocompra_listado['TX_datocompra_precio'])/100;
-				$precio_descuento = $rs_datocompra_listado['TX_datocompra_precio']-$descuento;
-				$impuesto = ($rs_datocompra_listado['TX_datocompra_impuesto']*$precio_descuento)/100;
-				$total_precio = $precio_descuento + $impuesto;
+		}else{
+		?>
+				<option value="<?php echo $rs_letra['AI_letra_id']; ?>" label="<?php echo $rs_letra['TX_letra_porcentaje']; ?>" ><?php echo $rs_letra['TX_letra_value']; ?></option>
+		<?php
+					}
+				} ?>
+			</select>
+		</div>
+		<div id="container_code" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+			<label for="txt_code">C&oacute;digo:</label>
+	    <input type="text" name="txt_code" id="txt_code" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_codigo'] ?>" />
+		</div>
+		<div id="container_quantity" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+			<label for="txt_quantity">Cantidad:</label>
+	    <input type="text" name="txt_quantity" id="txt_quantity" class="form-control" value="1" onkeyup="chk_quantity(this)" autofocus="autofocus" />
+		</div>
+		<div id="container_price" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+	    <label for="txt_price">Costo Base:</label>
+	    <input type="text" name="txt_price" id="txt_price" class="form-control" onkeyup="chk_price(this)"  />
+		</div>
+		<div id="container_regular" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+	    <label for="txt_p_4">Precio Regular:</label>
+	    <input type="text" name="txt_p_4" id="txt_p_4" class="form-control" />
+		</div>
+		<div id="container_itbm" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+	    <label for="txt_itbm">Impuesto %:</label>
+	    <input type="text" name="txt_itbm" id="txt_itbm" class="form-control" value="<?php echo $rs_product['TX_producto_exento'] ?>" onkeyup="chk_itbm(this)"/>
+		</div>
+		<div id="container_discount" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+	    <label for="txt_discount">Descuento %:</label>
+	    <input type="text" name="txt_discount" id="txt_discount" class="form-control" value="0" onkeyup="chk_descuento(this)" />
+		</div>
+		<div id="container_total" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+	    <label for="txt_discount">Total:</label>
+			<span id="span_total" class="form-control bg-disabled">0.00</span>
+    </div>
+		<div id="container_button" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<button type="button" id="btn_acept" class="btn btn-success">Aceptar</button>
+		&nbsp;
+		<button type="button" id="btn_cancel" class="btn btn-warning">Cancelar</button>
+		</div>
+
+		<div id="alert" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div id="div_alert" class="alert alert-danger">
+				<strong>Atenci&oacute;n!</strong> El precio cambi&oacute;.
+			</div>
+		</div>
+	</div>
+
+	<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+		<div id="container_tbl_purchase_price" style="max-height: 167px; padding: 0;" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<table id="tbl_purchase_price" class="table table-bordered table-condensed table-striped">
+				<caption class="caption">Historial de Precios de Compras</caption>
+				<thead class="bg-primary">
+				<tr>
+					<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Fecha</th>
+					<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Precio</th>
+					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Imp.</th>
+					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Desc.</th>
+					<th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Total</th>
+				</tr>
+				</thead>
+				<tfoot class="bg-primary">
+				<tr>
+					<td colspan="5"></td>
+				</tr>
+				</tfoot>
+				<tbody>
+		<?php
+				while ($rs_datocompra_listado = $qry_datocompra_listado->fetch_array(MYSQLI_ASSOC)) {
+					$descuento = ($rs_datocompra_listado['TX_datocompra_descuento']*$rs_datocompra_listado['TX_datocompra_precio'])/100;
+					$precio_descuento = $rs_datocompra_listado['TX_datocompra_precio']-$descuento;
+					$impuesto = ($rs_datocompra_listado['TX_datocompra_impuesto']*$precio_descuento)/100;
+					$total_precio = $precio_descuento + $impuesto;
+		?>
+					<tr>
+						<td><?php echo date('d-m-Y', strtotime($rs_datocompra_listado['TX_facturacompra_fecha'])); ?></td>
+						<td>B/ <?php echo $rs_datocompra_listado['TX_datocompra_precio']; ?></td>
+						<td><?php echo $rs_datocompra_listado['TX_datocompra_impuesto']; ?>%</td>
+						<td><?php echo $rs_datocompra_listado['TX_datocompra_descuento']; ?>%</td>
+						<td>B/ <?php echo number_format($total_precio,2); ?></td>
+					</tr>
+		<?php
+				}
+		?>
+				</tbody>
+			</table>
+		</div>
+
+		<div id="container_tbl_historical_price" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"  style="max-height: 167px; padding: 0;" >
+			<table id="tbl_historical_price" class="table table-bordered table-condensed table-striped" >
+				<caption>Historial de Precios de Venta</caption>
+				<thead class="bg_green">
+				<tr>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Fecha</th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">P.Reg.</th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">P.Max.</th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">D. #3</th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">D. #2</th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">D. #1</th>
+				</tr>
+				</thead>
+				<tfoot class="bg_green">
+					<tr>
+						<td colspan="6"></td>
+					</tr>
+				</tfoot>
+				<tbody>
+		<?php
+				while ($rs_precio_listado = $qry_precio_listado->fetch_array(MYSQLI_ASSOC)) {
+		?>
+			<tr>
+				<td><?php echo date('d-m-Y', strtotime($rs_precio_listado['TX_precio_fecha'])); ?></td>
+				<td><?php if (!empty($rs_precio_listado['TX_precio_cuatro'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_cuatro'],2); } ?></td>
+				<td><?php if (!empty($rs_precio_listado['TX_precio_cinco'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_cinco'],2); } ?></td>
+				<td><?php if (!empty($rs_precio_listado['TX_precio_tres'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_tres'],2); } ?></td>
+				<td><?php if (!empty($rs_precio_listado['TX_precio_dos'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_dos'],2); } ?></td>
+				<td><?php if (!empty($rs_precio_listado['TX_precio_uno'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_uno'],2); } ?></td>
+			</tr>
+		<?php
+				}
 		?>
 				<tr>
-					<td><?php echo date('d-m-Y', strtotime($rs_datocompra_listado['TX_facturacompra_fecha'])); ?></td>
-					<td><?php echo $rs_datocompra_listado['TX_facturacompra_numero']; ?></td>
-					<td>B/ <?php echo $rs_datocompra_listado['TX_datocompra_precio']; ?></td>
-				</tr>
-		<?php
-			}
-		?>
-			</tbody>
-		</table>
-	</div>
-</div>
 
+				</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
 </form>
 </div>
 

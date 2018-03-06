@@ -148,8 +148,7 @@ function clean_product2purchase(){
 			}
 		}
 		xmlhttp.open("GET","attached/get/clean_product2purchase.php",true);	xmlhttp.send();
-//		alert("Elemento modificado exitosamente");
-		setTimeout("window.location='stock.php'",250);
+		setTimeout("window.location='purchase.php'",250);
 }
 
 function del_nuevacompra(){

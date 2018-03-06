@@ -71,8 +71,18 @@ $rs_newpurchase=$qry_newpurchase->fetch_array();
 <script type="text/javascript" src="attached/js/validCampoFranz.js"></script>
 
 <script type="text/javascript">
-
 $(document).ready(function() {
+	var raw_facturacompra = new Object();
+			raw_facturacompra.numero = '';
+			raw_facturacompra.orden='';
+			raw_facturacompra.observacion='';
+			raw_facturacompra.almacen='1';
+			raw_facturacompra.proveedor='1';
+	<?php
+	if(isset($_GET['b'])){
+			$json_facturacompra=$_GET['b'];?>
+				var raw_facturacompra = <?php echo $json_facturacompra; ?>;
+<?php	}	 ?>
 $("#btn_navsale").click(function(){
 	window.location="sale.php";
 });
@@ -85,20 +95,19 @@ $("#btn_navpaydesk").click(function(){
 $("#btn_navadmin").click(function(){
 	window.location="start_admin.php";
 });
-
-$(window).on('beforeunload', function(){
-	// close_popup();
-});
 $("#btn_exit").click(function(){
 	location.href="index.php";
 })
 $("#btn_start").click(function(){
 	window.location="start.php";
 });
-
-$("#sel_product").click(function(){
-	open_product2purchase(this);
+$(window).on('beforeunload',function(){
+	close_popup();
 });
+
+// $("#sel_product").click(function(){
+// 	open_product2purchase(this);
+// });
 $("#btn_addprovider").click(function(){
 	open_addprovider(this);
 })
@@ -106,24 +115,38 @@ $("#btn_insert").click(function(){
 	var	provider = $("#sel_provider_purchase").val();
 	var	billnumber = $("#txt_billnumber").val();
 	var chk_product = $("#tbl_newentry tbody tr td").html();
-	if(provider ==	""){
-		$("#sel_provider_purchase").css("border","inset 2px #cc3300");
-		$("#sel_provider_purchase").focus();
+
+	if(provider ===	""){ $("#sel_provider_purchase").css("border","inset 2px #cc3300"); $("#sel_provider_purchase").focus();
 		return false;
 	}
-	if(billnumber ==	""){
-		$("#txt_billnumber").css("border","inset 2px #cc3300");
-		$("#txt_billnumber").focus();
+	if(billnumber ===	""){ $("#txt_billnumber").css("border","inset 2px #cc3300"); $("#txt_billnumber").focus();
 		return false;
 	}
-	if(chk_product ==	""){
-		$("#txt_filterproduct").css("border","inset 2px #cc3300");
-		$("#txt_filterproduct").focus();
+	if(chk_product ===	""){ $("#txt_filterproduct").css("border","inset 2px #cc3300"); $("#txt_filterproduct").focus();
 		return false;
 	}
 	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", })
 	 .done(function( data, textStatus, jqXHR ) {  console.log("GOOD" + textStatus);
-	 	if(data == 0){	save_invoice();	 }else{	console.log("Already Exist "+data);	}	 })
+	 	if(data === '0'){ save_invoice(0);	}else{	alert("La Factura "+billnumber+" de "+$("#sel_provider_purchase option:selected").text()+" ya existe.");	}	 })
+	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+})
+$("#btn_save").click(function(){
+	var	provider = $("#sel_provider_purchase").val();
+	var	billnumber = $("#txt_billnumber").val();
+	var chk_product = $("#tbl_newentry tbody tr td").html();
+
+	if(provider ===	""){ $("#sel_provider_purchase").css("border","inset 2px #cc3300"); $("#sel_provider_purchase").focus();
+		return false;
+	}
+	if(billnumber ===	""){ $("#txt_billnumber").css("border","inset 2px #cc3300"); $("#txt_billnumber").focus();
+		return false;
+	}
+	if(chk_product ===	""){ $("#txt_filterproduct").css("border","inset 2px #cc3300"); $("#txt_filterproduct").focus();
+		return false;
+	}
+	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", })
+	 .done(function( data, textStatus, jqXHR ) {  console.log("GOOD" + textStatus);
+	 	if(data === '0'){ save_invoice(1);	}else{	alert("La Factura "+billnumber+" de "+$("#sel_provider_purchase option:selected").text()+" ya existe.");	}	 })
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
 $("#btn_cancelar").click(function(){
@@ -143,6 +166,7 @@ $("#ta_observation").on("keyup",function(){
 	rest = 200-count;
 	$("#span_taobservation").html(rest);
 });
+
 $("#btn_addproduct").on("click", function(){
 	open_popup('popup_addproduct.php','add_product',520,586);
 })
@@ -152,10 +176,15 @@ $("#txt_billnumber").validCampoFranz('.0123456789 abcdefghijklmnopqrstuvwxyz');
 $("#txt_purchaseorder").validCampoFranz('.0123456789 abcdefghijklmnopqrstuvwxyz');
 $("#ta_observation").validCampoFranz('.0123456789 abcdefghijklmnopqrstuvwxyz-*#');
 
+$("#txt_billnumber").val(raw_facturacompra['numero']);
+$("#txt_purchaseorder").val(raw_facturacompra['orden']);
+$("#ta_observation").val(raw_facturacompra['observacion']);
+$("#sel_warehouse").val(raw_facturacompra['almacen']);
+$("#sel_provider_purchase").val(raw_facturacompra['proveedor']);
 
 });
 
-function save_invoice(){
+function save_invoice(preguardado){
 	var ans = confirm("¿Esta cuenta esta POR PAGAR?");
 	if(ans){	ans="POR PAGAR";	}else{	ans="PAGADO";	}
 	var	date = $("#txt_date").val();
@@ -163,12 +192,15 @@ function save_invoice(){
 	var	billnumber = $("#txt_billnumber").val();
 	var	warehouse = $("#sel_warehouse").val();
 	var	purchaseorder = $("#txt_purchaseorder").val();
-	$.ajax({	data: { "a" : date, "b" : provider, "c" : billnumber, "e" : warehouse, "f" : purchaseorder, "g" : ans  },	type: "GET",	dataType: "text",	url: "attached/get/save_invoice.php", })
+
+	$.ajax({	data: { "a" : date, "b" : provider, "c" : billnumber, "e" : warehouse, "f" : purchaseorder, "g" : ans, "h" : preguardado  },	type: "GET",	dataType: "text",	url: "attached/get/save_invoice.php", })
 	.done(function( data, textStatus, jqXHR ) {
 		console.log("GOOD" + textStatus);
 		if(data){
-			print_html("print_purchase_html.php?a="+data);
-			setTimeout(function(){window.location="stock.php"},250);
+			if (preguardado === 0) {
+				print_html("print_purchase_html.php?a="+data);
+			}
+				setTimeout(function(){window.location="purchase.php"},450);
 		}
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {		});
@@ -236,11 +268,7 @@ switch ($_COOKIE['coo_tuser']){
 <form action="" method="post" name="form_newpurchase"  id="form_newpurchase">
 
 
-<div id="container_date" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-	<label for="txt_date">Fecha:</label>
-    <input type="text" name="txt_date" id="txt_date" value="<?php echo date('d-m-Y'); ?>" class="form-control" readonly="readonly" />
-</div>
-<div id="container_provider" class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+<div id="container_provider" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
 	<label for="sel_provider_purchase">Proveedor:</label>
 	<select id="sel_provider_purchase" name="sel_provider_purchase" class="form-control">
   <?php
@@ -258,6 +286,11 @@ switch ($_COOKIE['coo_tuser']){
 <div id="container_btnaddprovider" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 	<button type="button" id="btn_addprovider" class="btn btn-success"><strong>+</strong></button>
 </div>
+<div id="container_date" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+	<label for="txt_date">Fecha:</label>
+    <input type="text" name="txt_date" id="txt_date" value="<?php echo date('d-m-Y'); ?>" class="form-control" readonly="readonly" />
+</div>
+
 <div id="container_billnumber" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
     <label for="txt_bill">Factura N°:</label>
     <input type="text" name="txt_billnumber" id="txt_billnumber" class="form-control" />
@@ -289,17 +322,17 @@ switch ($_COOKIE['coo_tuser']){
 		<div id="container_tblproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     	<table id="tbl_product" class="table table-bordered table-condensed table-striped table-hover">
         <tbody>
-        <?php
+<?php
         do{
-        ?>
+?>
 	        <tr onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)">
             <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_product['TX_producto_codigo'] ?></td>
 	        	<td class="col-xs-6 col-sm-6 col-md-6 col-lg-6"><?php echo $rs_product['TX_producto_value'] ?></td>
             <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_product['TX_producto_referencia'] ?></td>
 	        </tr>
-        <?php
+<?php
         }while($rs_product=$qry_product->fetch_array());
-        ?>
+?>
         </tbody>
         </table>
     </div>
@@ -381,9 +414,11 @@ switch ($_COOKIE['coo_tuser']){
 
 </div>
 <div id="container_btnnewpurchase" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<button type="button" id="btn_insert" class="btn btn-success">Aceptar</button>
-&nbsp;
-<button type="button" id="btn_cancelar" class="btn btn-warning">Cancelar</button>
+	<button type="button" id="btn_save" class="btn btn-info">Guardar</button>
+	&nbsp;
+	<button type="button" id="btn_insert" class="btn btn-success btn-lg">Procesar</button>
+	&nbsp;
+	<button type="button" id="btn_cancelar" class="btn btn-warning">Cancelar</button>
 </div>
 </form>
 </div>

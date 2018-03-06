@@ -1,5 +1,5 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
 
 $value=$_GET['a'];
@@ -23,7 +23,7 @@ WHERE";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturacompra=$txt_facturacompra." bh_facturacompra.TX_facturacompra_numero LIKE '%{$arr_value[$it]}%'".$line_date;
+$txt_facturacompra=$txt_facturacompra." bh_facturacompra.TX_facturacompra_numero LIKE '%{$arr_value[$it]}%'"." AND TX_facturacompra_preguardado != 1 ".$line_date;
 	}else{
 $txt_facturacompra=$txt_facturacompra." bh_facturacompra.TX_facturacompra_numero LIKE '%{$arr_value[$it]}%' AND ";
 	}
@@ -33,7 +33,7 @@ $txt_facturacompra=$txt_facturacompra." OR ";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturacompra=$txt_facturacompra." bh_facturacompra.TX_facturacompra_ordendecompra LIKE '%{$arr_value[$it]}%'".$line_date;
+$txt_facturacompra=$txt_facturacompra." bh_facturacompra.TX_facturacompra_ordendecompra LIKE '%{$arr_value[$it]}%'"." AND TX_facturacompra_preguardado != 1 ".$line_date;
 	}else{
 $txt_facturacompra=$txt_facturacompra." bh_facturacompra.TX_facturacompra_ordendecompra LIKE '%{$arr_value[$it]}%' AND ";
 	}
@@ -43,7 +43,7 @@ $txt_facturacompra=$txt_facturacompra." OR ";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturacompra=$txt_facturacompra." bh_proveedor.TX_proveedor_nombre LIKE '%{$arr_value[$it]}%'".$line_date;
+$txt_facturacompra=$txt_facturacompra." bh_proveedor.TX_proveedor_nombre LIKE '%{$arr_value[$it]}%'"." AND TX_facturacompra_preguardado != 1 ".$line_date;
 	}else{
 $txt_facturacompra=$txt_facturacompra." bh_proveedor.TX_proveedor_nombre LIKE '%{$arr_value[$it]}%' AND ";
 	}
@@ -51,9 +51,9 @@ $txt_facturacompra=$txt_facturacompra." bh_proveedor.TX_proveedor_nombre LIKE '%
 
 $txt_facturacompra .= " ORDER BY TX_facturacompra_fecha DESC".$line_limit;
 
-$qry_facturacompra=mysql_query($txt_facturacompra)or die(mysql_error());
-$rs_facturacompra=mysql_fetch_assoc($qry_facturacompra);
-$nr_facturacompra=mysql_num_rows($qry_facturacompra);
+$qry_facturacompra=$link->query($txt_facturacompra)or die($link->error);
+$rs_facturacompra=$qry_facturacompra->fetch_array(MYSQLI_ASSOC);
+$nr_facturacompra=$qry_facturacompra->num_rows;
 
 ?>
 
@@ -88,7 +88,7 @@ $nr_facturacompra=mysql_num_rows($qry_facturacompra);
 					</button>
 				</td>
         </tr>
-        <?php }while($rs_facturacompra=mysql_fetch_assoc($qry_facturacompra));
+			<?php }while($rs_facturacompra=$qry_facturacompra->fetch_array(MYSQLI_ASSOC));
 		}else{?>
         <tr>
         <td></td>

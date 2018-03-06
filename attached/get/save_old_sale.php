@@ -6,6 +6,7 @@ $time=strtotime($_GET['a']);
 $date=date('Y-m-d',$time);
 $vendor_id=$_GET['d'];
 $number=$_GET['e'];
+$observation=$_GET['g'];
 
 $qry_facturaventa=$link->query("SELECT AI_facturaventa_id FROM bh_facturaventa WHERE TX_facturaventa_numero = '$number' AND facturaventa_AI_facturaf_id is NULL")or die($link->error);
 if ($qry_facturaventa->num_rows < 1) {
@@ -49,7 +50,7 @@ $total=round($total,2);
 // }
 $rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC);
 
-$link->query("UPDATE bh_facturaventa SET TX_facturaventa_fecha='$date', facturaventa_AI_cliente_id='$client_id', TX_facturaventa_total='$total' WHERE AI_facturaventa_id = '{$rs_facturaventa['AI_facturaventa_id']}'")or die($link->error);
+$link->query("UPDATE bh_facturaventa SET TX_facturaventa_fecha='$date', facturaventa_AI_cliente_id='$client_id', TX_facturaventa_total='$total', TX_facturaventa_observacion='$observation' WHERE AI_facturaventa_id = '{$rs_facturaventa['AI_facturaventa_id']}'")or die($link->error);
 
 $link->query("DELETE FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '{$rs_facturaventa['AI_facturaventa_id']}'");
 

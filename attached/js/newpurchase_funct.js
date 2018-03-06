@@ -1,7 +1,7 @@
 // JavaScript Document
 
 function open_product2purchase(field){
-	open_popup('popup_product2purchase.php?a='+field+'', 'popup_product2purchase','425','620');
+	open_popup('popup_product2purchase.php?a='+field+'', 'popup_product2purchase','985','461');
 }
 
 function open_addprovider(field){

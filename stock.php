@@ -1,37 +1,35 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
-$qry_medida=mysql_query("SELECT * FROM bh_medida", $link);
-$rs_medida=mysql_fetch_assoc($qry_medida);
-?>
-<?php
-session_start();
-session_destroy();
-?>
-<?php
+
 require 'attached/php/req_login_stock.php';
+
+$qry_medida=$link->query("SELECT * FROM bh_medida");
+$rs_medida=$qry_medida->fetch_array(MYSQLI_ASSOC);
+
+
+$qry_product=$link->query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 20 ");
+$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
 ?>
 <?php
-$qry_product=mysql_query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 20 ", $link);
-$rs_product=mysql_fetch_assoc($qry_product);
-?>
-<?php
-$qry_itbm=mysql_query("SELECT TX_opcion_value FROM bh_opcion WHERE TX_opcion_titulo = 'IMPUESTO'");
-$row_itbm=mysql_fetch_row($qry_itbm);
+$qry_itbm=$link->query("SELECT TX_opcion_value FROM bh_opcion WHERE TX_opcion_titulo = 'IMPUESTO'");
+$row_itbm=$qry_itbm->fetch_array();
 $itbm = $row_itbm[0];
 ?>
 <?php
 
-$qry_checkbeneath=mysql_query("SELECT AI_producto_id FROM bh_producto WHERE TX_producto_cantidad < TX_producto_minimo AND TX_producto_alarma = '0'");
-$nr_checkbeneath=mysql_num_rows($qry_checkbeneath);
+$qry_checkbeneath=$link->query("SELECT AI_producto_id FROM bh_producto WHERE TX_producto_cantidad < TX_producto_minimo AND TX_producto_alarma = '0'");
+$nr_checkbeneath=$qry_checkbeneath->num_rows;
 
-$qry_checkreport=mysql_query("SELECT AI_reporte_id FROM bh_reporte WHERE TX_reporte_tipo = 'INVENTARIO' AND TX_reporte_status = 'ACTIVA'");
-$nr_checkreport=mysql_num_rows($qry_checkreport);
+$qry_checkreport=$link->query("SELECT AI_reporte_id FROM bh_reporte WHERE TX_reporte_tipo = 'INVENTARIO' AND TX_reporte_status = 'ACTIVA'");
+$nr_checkreport=$qry_checkreport->num_rows;
 if($nr_checkreport > 0){ $value_button="Reporte (".$nr_checkreport.")"; }else{ $value_button="Reporte"; }
 
-$qry_letter=mysql_query("SELECT AI_letra_id, TX_letra_value, TX_letra_porcentaje FROM bh_letra")or die (mysql_error());
+$qry_letter=$link->query("SELECT AI_letra_id, TX_letra_value, TX_letra_porcentaje FROM bh_letra")or die ($link->error);
+
+$prep_precio=$link->prepare("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0' ORDER BY AI_precio_id DESC LIMIT 1");
+
+$prep_facturaventa=$link->prepare("SELECT bh_facturaventa.AI_facturaventa_id FROM (bh_datoventa INNER JOIN bh_facturaventa ON bh_datoventa.datoventa_AI_facturaventa_id = bh_facturaventa.AI_facturaventa_id) WHERE bh_datoventa.datoventa_AI_producto_id = ?")or die($link->error);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -114,13 +112,13 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 
 
 	$("#btn_qry_entry").click(function(){
-		window.location='purchase.php';
+		window.location='purchased.php';
 	});
 	$("#btn_reg_entry").click(function(){
 		window.location='order.php';
 	});
-	$("#btn_new_entry").on("click",function(){
-		window.location='new_purchase.php';
+	$("#btn_purchase").on("click",function(){
+		window.location='purchase.php';
 	})
 	$("#btn_qry_sale").click(function(){
 		window.location='sold.php';
@@ -251,7 +249,7 @@ switch ($_COOKIE['coo_tuser']){
 			<select  class="form-control input-sm" id="sel_medida" name="sel_medida">
 <?php	do{	?>
 <option value="<?php echo $rs_medida['TX_medida_value']; ?>"><?php echo $rs_medida['TX_medida_value']; ?></option>
-<?php	}while($rs_medida=mysql_fetch_assoc($qry_medida));	?>
+<?php	}while($rs_medida=$qry_medida->fetch_array(MYSQLI_ASSOC));	?>
 			</select>
         </div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
@@ -269,7 +267,7 @@ switch ($_COOKIE['coo_tuser']){
 		<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 			<label for="txt_impuesto">Letra:</label><br />
 			<select id="sel_letter" class="form-control input-sm">
-            <?php while($rs_letter=mysql_fetch_array($qry_letter)){ ?>
+            <?php while($rs_letter=$qry_letter->fetch_array(MYSQLI_ASSOC)){ ?>
     <option value="<?php echo $rs_letter['AI_letra_id']; ?>"><?php echo $rs_letter['TX_letra_value']; ?></option>
             <?php } ?>
             </select>
@@ -306,7 +304,7 @@ switch ($_COOKIE['coo_tuser']){
 		<div id="div_newproduct" class="fa fa-angle-double-down"> Nvo. Articulo</div>
   </div>
 
-<button type="button" name="btn_new_entry" id="btn_new_entry" class="btn btn-default btn-lg" >Nueva Compra</button>
+<button type="button" name="btn_new_entry" id="btn_purchase" class="btn btn-default btn-lg" >Compras</button>
 &nbsp;
 <button type="button" name="btn_reg_entry" id="btn_reg_entry" class="btn btn-info btn-lg" >Pedidos</button>
 &nbsp;
@@ -343,7 +341,7 @@ switch ($_COOKIE['coo_tuser']){
 <div id="container_tblproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
         <?php
-		if($nr_product=mysql_num_rows($qry_product) != '0'){
+		if($nr_product=$qry_product->num_rows != '0'){
 			?>
 			<table id="tbl_product" border="0" class="table table-bordered table-hover table-condensed table-striped">
 			<thead class="bg-primary">
@@ -362,9 +360,7 @@ switch ($_COOKIE['coo_tuser']){
 				<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 			</tfoot>
 			<tbody>
-			<?php
-				do{
-						?>
+<?php		do{		?>
 				<tr ondblclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');">
 						<td><?php echo $rs_product['TX_producto_codigo'] ?></td>
 						<td><?php echo $rs_product['TX_producto_referencia'] ?></td>
@@ -381,12 +377,10 @@ switch ($_COOKIE['coo_tuser']){
 						?>
 						</td>
 						<td>
-							<?php
-							$qry_precio=mysql_query("SELECT * FROM bh_precio WHERE precio_AI_producto_id = '{$rs_product['AI_producto_id']}' AND TX_precio_inactivo = '0' ORDER BY TX_precio_fecha DESC LIMIT 1", $link);
-							$rs_precio=mysql_fetch_assoc($qry_precio);
+<?php 				$prep_precio->bind_param("i",$rs_product['AI_producto_id']); $prep_precio->execute(); $qry_precio=$prep_precio->get_result();
+							$rs_precio=$qry_precio->fetch_array(MYSQLI_ASSOC);
 							echo $rs_precio['TX_precio_cuatro'];
 							?>
-
 						</td>
 						<td>
 						<button type="button" class="btn btn-success" onclick="open_popup('popup_relacion.php?a=<?php echo $rs_product['AI_producto_id'] ?>','popup_relacion','500','491')">
@@ -398,18 +392,14 @@ switch ($_COOKIE['coo_tuser']){
 						Modificar</button>
 						</td>
 						<td>
-						<?php
-				$qry_checkfacturaventa=mysql_query("SELECT bh_facturaventa.AI_facturaventa_id FROM (bh_datoventa INNER JOIN bh_facturaventa ON bh_datoventa.datoventa_AI_facturaventa_id = bh_facturaventa.AI_facturaventa_id) WHERE bh_datoventa.datoventa_AI_producto_id = '{$rs_product['AI_producto_id']}'");
-				$nr_checkfacturaventa=mysql_num_rows($qry_checkfacturaventa);
-				if($nr_checkfacturaventa < 1){
-				 ?>
-			<button type="button" name="btn_del_product" id="btn_del_product" class="btn btn-danger btn-sm" onclick="del_product('<?php echo $rs_product['AI_producto_id'] ?>');">
-						Eliminar</button>
-						<?php } ?>
+<?php 				$prep_facturaventa->bind_param("i", $rs_product['AI_producto_id']); $prep_facturaventa->execute(); $qry_facturaventa=$prep_facturaventa->get_result();
+							if($qry_facturaventa->num_rows < 1){ 	?>
+								<button type="button" name="btn_del_product" id="btn_del_product" class="btn btn-danger btn-sm" onclick="del_product('<?php echo $rs_product['AI_producto_id'] ?>');">Eliminar</button>
+<?php 				} ?>
 						</td>
 				</tr>
 						<?php
-				}while($rs_product=mysql_fetch_assoc($qry_product));
+				}while($rs_product=$qry_product->fetch_array());
 				?>
 				</tbody>
 				</table>
