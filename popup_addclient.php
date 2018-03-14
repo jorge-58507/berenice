@@ -44,7 +44,7 @@ $('#btn_cancel').click(function(){
 })
 
 $('#txt_telephone').validCampoFranz('0123456789 -');
-$('#txt_cif').validCampoFranz('0123456789 -edvan:');
+$('#txt_cif').validCampoFranz('0123456789 -abcdefghijklmnopqrstuvwxyz:');
 
 
 });

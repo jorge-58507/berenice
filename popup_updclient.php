@@ -1,6 +1,7 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
+require 'attached/php/req_login_sale.php';
 
 $client_id=$_GET['a'];
 
@@ -50,11 +51,23 @@ $('#btn_cancel').click(function(){
 	self.close();
 })
 
+
 $('#txt_telephone').validCampoFranz('0123456789 -');
-$('#txt_cif').validCampoFranz('0123456789 -edvan:');
+$('#txt_cif').validCampoFranz('0123456789 -abcdefghijklmnopqrstuvwxyz:');
 
 
 });
+function mod_clientname(){
+	$.ajax({	data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
+	.done(function( data, textStatus, jqXHR ) {
+		if (data[0][0] === '') {
+			return false;
+		}else{
+			$("#txt_clientname").removeAttr("readonly");
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
 
 
 </script>
@@ -75,7 +88,7 @@ $('#txt_cif').validCampoFranz('0123456789 -edvan:');
 <form method="post" name="form_addprovider">
 <div id="container_name" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 	<label for="txt_providername">Nombre:</label>
-    <input type="text" name="txt_clientname" id="txt_clientname" class="form-control" onkeyup="chk_clientname(this)" value="<?php echo $rs_client['TX_cliente_nombre']; ?>" />
+  <input type="text" name="txt_clientname" id="txt_clientname" class="form-control" onkeyup="chk_clientname(this)" value="<?php echo $rs_client['TX_cliente_nombre']; ?>" readonly onclick="mod_clientname()"/>
 </div>
 <div id="container_cif" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
 	<label for="txt_cif">RUC:</label>

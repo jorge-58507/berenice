@@ -16,10 +16,10 @@ $limit=$_GET['b'];
 $date_i=date('Y-m-d',strtotime($_GET['c']));
 $date_f=date('Y-m-d',strtotime($_GET['d']));
 
-if($limit == ""){	$line_limit="";	}else{	$line_limit= " LIMIT ".$limit;	}
+if($limit === ""){	$line_limit="";	}else{	$line_limit= " LIMIT ".$limit;	}
 if (!empty($date_i) && !empty($date_f)) {
 	$line_date = " AND TX_facturaf_fecha >=	'$date_i' AND TX_facturaf_fecha <= '$date_f'";
-	$line_date_nc = "TX_notadecredito_fecha >= '$date_i' AND TX_notadecredito_fecha <= '$date_f'";
+	$line_date_nc = " TX_notadecredito_fecha >= '$date_i' AND TX_notadecredito_fecha <= '$date_f'";
 }
 
 $arr_value = (explode(' ',$value));
@@ -48,7 +48,8 @@ $txt_facturaf=$txt_facturaf." bh_cliente.TX_cliente_nombre LIKE '%{$arr_value[$i
 	}
 }
 
-$txt_facturaf .= " ORDER BY TX_facturaf_fecha DESC".$line_limit;
+$txt_facturaf .= " ORDER BY TX_facturaf_fecha DESC, AI_facturaf_id DESC ".$line_limit;
+
 $qry_facturaf=$link->query($txt_facturaf)or die(mysql_error());
 $nr_facturaf=$qry_facturaf->num_rows;
 
@@ -286,6 +287,13 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 			</tr>
 			<tr>
 				<td><strong>Devolucion de Impuestos</strong><br /><strong>B/</strong> <?php echo number_format($ttl_nc_impuesto,2); ?></td>
+			</tr>
+			<tr>
+				<td valign="center" style="text-align:center;">
+					<p><h4>FACTURAS DE VENTAS</h4></p>
+					<strong>Desde:</strong> <?php echo date('d-m-Y',strtotime($date_i)) ?>&nbsp;
+					<strong>Hasta:</strong> <?php echo date('d-m-Y',strtotime($date_f)) ?>
+        </td>
 			</tr>
 		</tbody>
 	</table>

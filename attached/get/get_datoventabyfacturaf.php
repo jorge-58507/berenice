@@ -4,12 +4,13 @@ $link = conexion();
 session_start();
 $facturaf_id=$_GET['a'];
 
-$txt_datoventa="SELECT 
-bh_producto.TX_producto_value, 
-bh_datoventa.TX_datoventa_cantidad, 
-bh_datoventa.TX_datoventa_precio, 
+$txt_datoventa="SELECT
+bh_producto.TX_producto_value,
+bh_datoventa.TX_datoventa_cantidad,
+bh_datoventa.TX_datoventa_precio,
 bh_datoventa.TX_datoventa_impuesto,
 bh_datoventa.TX_datoventa_descuento,
+bh_datoventa.TX_datoventa_descripcion,
 bh_facturaf.TX_facturaf_deficit,
 bh_facturaf.facturaf_AI_cliente_id
 FROM (((bh_datoventa
@@ -33,7 +34,7 @@ $rs_datoventa = mysql_fetch_assoc($qry_datoventa);
         <tbody>
         <?php $total=0; ?>
         <?php do{ ?>
-        <?php 
+        <?php
 		$precio=$rs_datoventa['TX_datoventa_cantidad']*$rs_datoventa['TX_datoventa_precio'];
 		$descuento=($precio*$rs_datoventa['TX_datoventa_descuento'])/100;
 		$precio_descuento=$precio-$descuento;
@@ -42,11 +43,11 @@ $rs_datoventa = mysql_fetch_assoc($qry_datoventa);
 		$total += $subtotal;
 		 ?>
         <tr>
-        	<td><?php echo $rs_datoventa['TX_producto_value']; ?></td>
+        	<td><?php echo $rs_datoventa['TX_datoventa_descripcion']; ?></td>
         	<td><?php echo $rs_datoventa['TX_datoventa_cantidad']; ?></td>
         	<td><?php echo number_format($subtotal,2); ?></td>
         </tr>
-        
+
         <?php	$deficit = $rs_datoventa['TX_facturaf_deficit'];
 				$client_id = $rs_datoventa['facturaf_AI_cliente_id'];
 			 }while($rs_datoventa = mysql_fetch_assoc($qry_datoventa)); ?>
@@ -61,10 +62,10 @@ $rs_datoventa = mysql_fetch_assoc($qry_datoventa);
 			if(isset($_SESSION['admin'])){
 		?>
         <div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	    <button type="button" id="btn_makenc" class="btn btn-warning" onclick="window.opener.location='make_nc.php?a=<?php echo $facturaf_id; ?>'">N.C.</button>  
+    	    <button type="button" id="btn_makenc" class="btn btn-warning" onclick="window.opener.location='make_nc.php?a=<?php echo $facturaf_id; ?>'">N.C.</button>
             &nbsp;&nbsp;
             <?php  if($deficit > 0){ ?>
-            <button type="button" id="btn_debit" class="btn btn-success" onclick="window.opener.location='new_debit.php?a=<?php echo $facturaf_id; ?>&b=<?php echo $client_id;?>'">DEBITAR</button>     
+            <button type="button" id="btn_debit" class="btn btn-success" onclick="window.opener.location='new_debit.php?a=<?php echo $facturaf_id; ?>&b=<?php echo $client_id;?>'">DEBITAR</button>
             <?php  } ?>
         </div>
         <?php

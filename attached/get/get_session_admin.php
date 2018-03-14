@@ -1,6 +1,4 @@
 <?php
-require '../../bh_con.php';
-$link=conexion();
 
 session_start();
 

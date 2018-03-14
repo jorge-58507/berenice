@@ -138,7 +138,7 @@ function upd_return(facturaf_id){
 <?php
 
 $raw_facti=["documento" => "", "c_nombre" => "", "c_ruc" => "", "c_direccion" => "", "total_descuento" => "", "total_pagado" => "", "total_final" => "", "recargo" => "", "porcentaje_recargo" => "",
-"p_efectivo" => "", "p_cheque" => "", "p_tdc" => "", "p_tdd" => "", "p_nc" => "", "p_otro" => "", "dv" => ""];
+"p_efectivo" => "", "p_tdc" => "", "p_cheque" => "", "p_tdd" => "", "p_nc" => "", "p_otro" => "", "dv" => ""];
 
 $raw_facti['documento']="FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7);
 $raw_facti['c_nombre']=$rs_facturaf['TX_cliente_nombre'];
@@ -183,7 +183,7 @@ fclose($file);
 /* ####################### ENCABEZADO  ###################### */
 /* ####################### ARTICULOS  ###################### */
 
-$txt_datoventa="SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_datoventa.TX_datoventa_cantidad ,
+$txt_datoventa="SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_descripcion,
 (bh_datoventa.TX_datoventa_precio-((bh_datoventa.TX_datoventa_precio*bh_datoventa.TX_datoventa_descuento)/100)) AS precio, bh_datoventa.TX_datoventa_impuesto
 FROM (((bh_facturaf
 INNER JOIN bh_facturaventa ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
@@ -195,22 +195,18 @@ $rs_datoventa=$qry_datoventa->fetch_array();
 
 $file = fopen($recipiente."FACMV".substr($rs_facturaf['TX_facturaf_numero'],-7).".txt", "w");
 
-do{
-fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],6).chr(9).substr($rs_datoventa['TX_producto_value'],0,37).chr(9).$rs_datoventa['TX_producto_medida'].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
-}while($rs_datoventa=$qry_datoventa->fetch_array());
+if ($qry_datoventa->num_rows > 3) {
+  do{
+  fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($rs_datoventa['TX_datoventa_descripcion'],0,35).chr(9).$rs_datoventa['TX_producto_medida'].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+  }while($rs_datoventa=$qry_datoventa->fetch_array());
+}else{
+  do{
+  fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($rs_datoventa['TX_datoventa_descripcion'],0,65).chr(9).$rs_datoventa['TX_producto_medida'].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+  }while($rs_datoventa=$qry_datoventa->fetch_array());
+}
 
 fclose($file);
 
-/* ####################### ARTICULOS  ###################### */
-
-//sleep(3);
-
-// $file = fopen($retorno."FACTI".substr($str,-7).".txt", "r");
-// $content = fgets($file);
-// fclose($file);
-// $raw_content = explode("\t",$content);
-// $ticket = substr("00000000".$raw_content[7],-8);
-// mysql_query("UPDATE bh_facturaf SET TX_facturaf_serial = '$raw_content[6]', TX_facturaf_ticket = '$ticket' WHERE AI_facturaf_id = '$facturaf_id'")or die(mysql_error());
  ?>
  <div id="container_background" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="height:500px;">
  </div>

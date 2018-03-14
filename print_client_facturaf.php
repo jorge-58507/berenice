@@ -1,20 +1,18 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 require 'attached/php/req_login_sale.php';
-?>
-<?php
-$qry_opcion=mysql_query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion");
+
+$qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
-while($rs_opcion=mysql_fetch_array($qry_opcion)){
+while($rs_opcion=$qry_opcion->fetch_array()){
 	$raw_opcion[$rs_opcion['TX_opcion_titulo']]=$rs_opcion['TX_opcion_value'];
 }
 $facturaf_id=$_GET['a'];
 
-$qry_client=mysql_query("SELECT bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, bh_cliente.TX_cliente_direccion, bh_facturaf.TX_facturaf_numero FROM (bh_cliente INNER JOIN bh_facturaf ON bh_cliente.AI_cliente_id = bh_facturaf.facturaf_AI_cliente_id) WHERE AI_facturaf_id = '$facturaf_id'");
-$rs_client=mysql_fetch_array($qry_client);
+$qry_client=$link->query("SELECT bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, bh_cliente.TX_cliente_direccion, bh_facturaf.TX_facturaf_numero FROM (bh_cliente INNER JOIN bh_facturaf ON bh_cliente.AI_cliente_id = bh_facturaf.facturaf_AI_cliente_id) WHERE AI_facturaf_id = '$facturaf_id'");
+$rs_client=$qry_client->fetch_array();
 
 $txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_ticket, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_cambio,
 bh_user.TX_user_seudonimo
@@ -22,11 +20,11 @@ FROM ((bh_facturaf
 INNER JOIN bh_facturaventa ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
 INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
 WHERE AI_facturaf_id = '$facturaf_id'";
-$qry_facturaf=mysql_query($txt_facturaf) or die(mysql_error());
-$rs_facturaf=mysql_fetch_array($qry_facturaf);
+$qry_facturaf=$link->query($txt_facturaf) or die($link->error);
+$rs_facturaf=$qry_facturaf->fetch_array();
 
-$qry_facturaventa=mysql_query("SELECT bh_facturaventa.TX_facturaventa_observacion FROM (bh_facturaventa INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id) WHERE AI_facturaf_id = '$facturaf_id' GROUP BY AI_facturaf_id");
-$rs_facturaventa=mysql_fetch_array($qry_facturaventa);
+$qry_facturaventa=$link->query("SELECT bh_facturaventa.TX_facturaventa_observacion FROM (bh_facturaventa INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id) WHERE AI_facturaf_id = '$facturaf_id' GROUP BY AI_facturaf_id");
+$rs_facturaventa=$qry_facturaventa->fetch_array();
 
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -73,8 +71,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 <br />
 <font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
 <font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
-<font style="font-size:10px"><?php echo $raw_opcion['TELEFONO']." "
-.$raw_opcion['FAX']."<br />"; ?></font>
+<font style="font-size:10px"><?php echo "TLF. ".$raw_opcion['TELEFONO']." WHATSAPP: ".$raw_opcion['FAX']."<br />"; ?></font>
 <font style="font-size:10px"><?php echo $raw_opcion['EMAIL']."<br />"; ?></font>
     </td>
 
@@ -178,17 +175,17 @@ font-size: 12px;
     </td>
 </tr>
 <?php
-$txt_datoventa="SELECT bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,
-bh_producto.TX_producto_codigo, bh_producto.TX_producto_value
+$txt_datoventa="SELECT bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_datoventa.TX_datoventa_descripcion,
+bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_datoventa.AI_datoventa_id
 FROM (((bh_datoventa
 INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datoventa.datoventa_AI_producto_id)
 INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
 INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
 WHERE bh_facturaventa.facturaventa_AI_facturaf_id = '$facturaf_id'";
-$qry_datoventa=mysql_query($txt_datoventa);
-$rs_datoventa=mysql_fetch_assoc($qry_datoventa);
+$qry_datoventa=$link->query($txt_datoventa);
+$rs_datoventa=$qry_datoventa->fetch_array();
 ?>
-<tr style="height:580px;">
+<tr style="height:588px;">
 	<td valign="top" colspan="10" style="padding-top:2px;">
     <table  id="tbl_datoventa" class="table table-print table-bordered table-striped">
     <thead style="border:solid">
@@ -220,7 +217,7 @@ $rs_datoventa=mysql_fetch_assoc($qry_datoventa);
 		do{
 			$pager++;
 			if($index === 1){
-				if($pager === 12){
+				if($pager === 13){
 					$pager = 0;
 					$index++;
 ?>
@@ -228,7 +225,7 @@ $rs_datoventa=mysql_fetch_assoc($qry_datoventa);
 				</table>
 			</td>
 		</tr>
-		<tr style="height:580px;">
+		<tr style="height:588px;">
 			<td valign="top" colspan="10" style="padding-top:2px;">
 		    <table  id="tbl_datoventa" class="table table-print table-bordered table-striped">
 		    <thead style="border:solid">
@@ -262,7 +259,7 @@ $rs_datoventa=mysql_fetch_assoc($qry_datoventa);
 							</table>
 						</td>
 					</tr>
-					<tr style="height:580px;">
+					<tr style="height:588px;">
 						<td valign="top" colspan="10" style="padding-top:2px;">
 							<table  id="tbl_datoventa" class="table table-print table-bordered table-striped">
 							<thead style="border:solid">
@@ -290,13 +287,12 @@ $rs_datoventa=mysql_fetch_assoc($qry_datoventa);
 			}
 ?>
 
-    	<tr style="height:30px;">
-        	<td style="width:20%; text-align:center;">
-				<?php echo $rs_datoventa['TX_producto_codigo']; ?>
-            </td>
-            <td style="width:50%; text-align:center;">
-				<?php echo substr($rs_datoventa['TX_producto_value'],0,40); ?>
-            </td>
+    	<tr style="height:41px;">
+        	<td style="width:20%; text-align:center;"><?php echo $rs_datoventa['TX_producto_codigo']; ?></td>
+          <td style="width:50%; text-align:center;"><?php
+					$descripcion = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']);
+						echo substr($descripcion,0,96);
+					?></td>
             <td style="width:10%; text-align:center;">
 				<?php echo $rs_datoventa['TX_datoventa_cantidad']; ?>
             </td>
@@ -309,19 +305,19 @@ $rs_datoventa=mysql_fetch_assoc($qry_datoventa);
 				echo number_format($precio_descuento_impuesto,2);	?>
             </td>
             <td style="width:10%; text-align:center;">
-				<?php
+<?php
 				$total4product = $rs_datoventa['TX_datoventa_cantidad'] * $precio_descuento_impuesto;
 				echo number_format($total4product,2);
-				?>
-                <?php
+?>
+<?php
 				$totalitbm+=$rs_datoventa['TX_datoventa_cantidad'] * $impuesto;
 				$totaldescuento+=$rs_datoventa['TX_datoventa_cantidad'] * $descuento;
 				$subtotal+=$rs_datoventa['TX_datoventa_cantidad'] * $precio_descuento;
-				?>
+?>
             </td>
 		</tr>
 <?php
-		}while($rs_datoventa=mysql_fetch_array($qry_datoventa)); ?>
+}while($rs_datoventa=$qry_datoventa->fetch_array()); ?>
  	</tbody>
     <tfoot>
     <tr>
@@ -347,8 +343,8 @@ $rs_datoventa=mysql_fetch_assoc($qry_datoventa);
     </tfoot>
 	</table>
 	<?php
-	$qry_datopago=mysql_query("SELECT bh_metododepago.TX_metododepago_value, bh_datopago.TX_datopago_monto, bh_datopago.TX_datopago_numero FROM (bh_datopago INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datopago.datopago_AI_metododepago_id) WHERE bh_datopago.datopago_AI_facturaf_id = '$facturaf_id'");
-	$qry_datodebito=mysql_query("SELECT bh_metododepago.TX_metododepago_value, bh_datodebito.TX_datodebito_monto, bh_datodebito.TX_datodebito_numero
+	$qry_datopago=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datopago.TX_datopago_monto, bh_datopago.TX_datopago_numero FROM (bh_datopago INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datopago.datopago_AI_metododepago_id) WHERE bh_datopago.datopago_AI_facturaf_id = '$facturaf_id'");
+	$qry_datodebito=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datodebito.TX_datodebito_monto, bh_datodebito.TX_datodebito_numero
 FROM (((bh_datodebito
 INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datodebito.datodebito_AI_metododepago_id)
 INNER JOIN rel_facturaf_notadebito ON rel_facturaf_notadebito.rel_AI_notadebito_id = datodebito_AI_notadebito_id)
@@ -367,7 +363,7 @@ WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'");
 	</thead>
 	<tbody>
 		<?php
-		while($rs_datopago=mysql_fetch_array($qry_datopago)){
+		while($rs_datopago=$qry_datopago->fetch_array()){
 			?>
 	<tr>
 		<td>Pago</td>
@@ -376,7 +372,7 @@ WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'");
 		<td><?php echo $rs_datopago['TX_datopago_numero']; ?></td>
 	</tr>
 		<?php }
-		while($rs_datodebito=mysql_fetch_array($qry_datodebito)){
+		while($rs_datodebito=$qry_datodebito->fetch_array()){
 		?>
 	<tr>
 		<td>Abono a Cr&eacute;dito </td>

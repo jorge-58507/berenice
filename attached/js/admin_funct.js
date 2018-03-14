@@ -28,7 +28,7 @@ function make_nc(facturaf_id){
 		 if(data[0][0] != ""){
 			 window.location.href='make_nc.php?a='+facturaf_id+'';
 		 }else{
-			 open_popup('popup_loginadmin.php?z=start_admin.php','_popup','425','420');
+			 open_popup('popup_loginadmin.php?z=make_nc.php?a='+facturaf_id,'_popup','425','420');
 		 }
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});

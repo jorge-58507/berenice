@@ -1,5 +1,5 @@
 <?php
-require '../../bh_conexion.php';
+require '../../bh_con.php';
 $link = conexion();
 
 $uid=$_COOKIE['coo_iuser'];
@@ -28,20 +28,17 @@ foreach ($arr_factid as $key => $value) {
 		$txt_datoventa=$txt_datoventa." datoventa_AI_producto_id = '$id' AND bh_facturaventa.AI_facturaventa_id = '$value' OR";
 	}
 }
-	$qry_datoventa=$link->query($txt_datoventa)or die($link->error);
-	$nr_datoventa=$qry_datoventa->num_rows;
+	$qry_datoventa=mysql_query($txt_datoventa);
+	$nr_datoventa=mysql_num_rows($qry_datoventa);
 	if($nr_datoventa < 1){
-		$qry_checkfacturaventa=$link->query("SELECT TX_facturaventa_total, facturaventa_AI_cliente_id FROM bh_facturaventa WHERE AI_facturaventa_id = '$facturaventa_id'");
-		$row_checkfacturaventa=$qry_checkfacturaventa->fetch_array();
+		$qry_checkfacturaventa=mysql_query("SELECT TX_facturaventa_total, facturaventa_AI_cliente_id FROM bh_facturaventa WHERE AI_facturaventa_id = '$facturaventa_id'");
+		$row_checkfacturaventa=mysql_fetch_array($qry_checkfacturaventa);
 		$client_id=$row_checkfacturaventa['facturaventa_AI_cliente_id'];
 		$total_facturaventa=$row_checkfacturaventa['TX_facturaventa_total']+$new_total;
-		$link->query("UPDATE bh_facturaventa SET TX_facturaventa_total = $total_facturaventa WHERE AI_facturaventa_id = '$facturaventa_id'") or die($link->error);
+		mysql_query("UPDATE bh_facturaventa SET TX_facturaventa_total = $total_facturaventa WHERE AI_facturaventa_id = '$facturaventa_id'", $link) or die(mysql_error());
 
-		$qry_product = $link->query("SELECT TX_producto_value FROM bh_producto WHERE AI_producto_id = '$id'")or die($link->error);
-		$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
-		$descripcion = $r_function->replace_regular_character($rs_product['TX_producto_value']);
-		$link->query("INSERT INTO bh_datoventa (datoventa_AI_facturaventa_id, datoventa_AI_user_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion)
-VALUES ('$facturaventa_id', '{$_COOKIE['coo_iuser']}', '$id', '$cantidad', '$precio', '$impuesto', '$descuento', '$descripcion')");
+	mysql_query("INSERT INTO bh_datoventa (datoventa_AI_facturaventa_id, datoventa_AI_user_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento)
+VALUES ('$facturaventa_id', '{$_COOKIE['coo_iuser']}', '$id', '$cantidad', '$precio', '$impuesto', '$descuento')");
 	}
 
 //   ###############################    ANSWER     ###########################
@@ -55,8 +52,8 @@ foreach ($arr_factid as $key => $value) {
 		$txt_clientid=$txt_clientid." AI_facturaventa_id = '$value' OR";
 	}
 }
-$qry_clientid=$link->query($txt_clientid);
-$row_clientid=$qry_clientid->fetch_array();
+$qry_clientid=mysql_query($txt_clientid);
+$row_clientid=mysql_fetch_array($qry_clientid);
 $client_id=$row_clientid['facturaventa_AI_cliente_id'];
 
 $txt_facturaventa="SELECT
@@ -77,9 +74,9 @@ foreach ($arr_factid as $key => $value) {
 		$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' OR";
 	}
 }
-$qry_facturaventa=$link->query($txt_facturaventa);
+$qry_facturaventa=mysql_query($txt_facturaventa);
 $raw_facturaventa=array();
-while ($rs_facturaventa=$qry_facturaventa->fetch_array()) {
+while ($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa)) {
 	$raw_facturaventa[]=$rs_facturaventa;
 }
 
@@ -116,7 +113,7 @@ while ($rs_facturaventa=$qry_facturaventa->fetch_array()) {
 <tr ondblclick="open_popup('popup_loginadmin.php?a=<?php echo $str_factid ?>&b=<?php echo $client_id ?>&z=admin_datoventa.php','popup_loginadmin','425','420');">
 	<td><?php echo $value['TX_producto_codigo']; ?> </td>
 	<td><?php echo $value['TX_facturaventa_numero']; ?></td>
-	<td><?php echo $value['TX_datoventa_descripcion']; ?></td>
+	<td><?php echo $value['TX_nuevaventa_descripcion']; ?></td>
 	<td><?php echo $value['TX_producto_medida']; ?></td>
 	<td onclick="upd_quantityonnewcollect('<?php echo $value['AI_datoventa_id']; ?>');"><?php echo $value['TX_datoventa_cantidad']; ?></td>
 	<td><?php echo number_format($value['TX_datoventa_precio'],2); ?></td>

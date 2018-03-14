@@ -10,4 +10,19 @@ function conexion(){
 	}
 return $mysqli;
 }
+
+class recurrent_function{
+	public function replace_special_character($str){
+		$special_char = array("&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\'","&deg;","&ntilde;");
+		$replace = array("Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ");
+		return $value = str_replace($special_char,$replace,$str);
+	}
+	public function replace_regular_character($str){
+		$special_char = array("Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ");
+		$replace = array("&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\'","&deg;","&ntilde;");
+		return $value = str_replace($special_char,$replace,$str);
+	}
+}
+$r_function = new recurrent_function();
+
 ?>

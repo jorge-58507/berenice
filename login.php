@@ -1,10 +1,26 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+date_default_timezone_set('America/Panama');
 session_start();
 session_destroy();
+
+function ObtenerIP(){
+if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
+$ip = getenv("HTTP_CLIENT_IP");
+else if (getenv("HTTP_X_FORWARDED_FOR") && strcasecmp(getenv("HTTP_X_FORWARDED_FOR"), "unknown"))
+$ip = getenv("HTTP_X_FORWARDED_FOR");
+else if (getenv("REMOTE_ADDR") && strcasecmp(getenv("REMOTE_ADDR"), "unknown"))
+$ip = getenv("REMOTE_ADDR");
+else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], "unknown"))
+$ip = $_SERVER['REMOTE_ADDR'];
+else
+$ip = "IP desconocida";
+return($ip);
+}
+$ip   = ObtenerIP();
+$cliente = gethostbyaddr($ip);
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -71,32 +87,23 @@ $pass=$_POST['password_login'];
 
 
 $txt_checkpass="SELECT * FROM bh_user WHERE TX_user_password = '$pass'";
-$exe_checkpass=mysql_query($txt_checkpass, $link);
-$nr_checkpass=mysql_num_rows($exe_checkpass);
+$exe_checkpass=$link->query($txt_checkpass);
+$nr_checkpass=$exe_checkpass->num_rows;
 if($nr_checkpass <= '0'){
 	$login_alert = "<script type='text/javascript'>alert('Este usuario no existe')</script>";
 	$login_content = "&nbsp; Para ingresar haga Click <a href='index.php' target='_self' class='link_1'>AQU&Iacute;</a>";
 	echo "<meta http-equiv='Refresh' content='1;url=index.php'>".$login_alert.$login_content;
 
 }else{
-	$rs_checkpass=mysql_fetch_assoc($exe_checkpass);
-	$user_id=$rs_checkpass['AI_user_id'];
-	$user_type=$rs_checkpass['TX_user_type'];
-	$user_seudonimo=$rs_checkpass['TX_user_seudonimo'];
-
-	//$login_alert = "<script type='text/javascript'>alert('Bienvenido:".$user_seudonimo."')</script>";
-
+	$rs_checkpass=$exe_checkpass->fetch_array();
+	$user_id=$rs_checkpass['AI_user_id'];  	$user_type=$rs_checkpass['TX_user_type'];  	$user_seudonimo=$rs_checkpass['TX_user_seudonimo'];
 	create_cookies_user($user_id,$user_type,$user_seudonimo);
-
-	$QRY_title=mysql_query("SELECT * FROM bh_opcion WHERE TX_opcion_titulo = 'titulo'");
-	$RS_title=mysql_fetch_assoc($QRY_title);
+	$QRY_title=$link->query("SELECT * FROM bh_opcion WHERE TX_opcion_titulo = 'titulo'")or die($link->error);
+	$RS_title=$QRY_title->fetch_array();
 	$title=$RS_title['TX_opcion_value'];
-
 	setcookie("coo_tittle","".$title."",time()+86400);
-
-$user_type=$rs_checkpass['TX_user_type'];
-
-switch ($user_type) {
+  $user_type=$rs_checkpass['TX_user_type'];
+  switch ($user_type) {
     case "1":
 		$login_content = "&nbsp;Para ingresar haga Click <a href='start.php' target='_self' >AQU&Iacute;</a>";
 		echo "<meta http-equiv='Refresh' content='1;url=start.php'>".$login_content;
@@ -120,20 +127,22 @@ switch ($user_type) {
     default:
 		$login_content = "&nbsp;Para ingresar haga Click <a href='start.php' target='_self' >AQU&Iacute;</a>";
 		echo "<meta http-equiv='Refresh' content='1;url=start.php'>".$login_content;
-}
+  }
 
+  $file = fopen("login_log.txt", "a");
+  fwrite($file, date('d-m-Y H:i:s')." (".$cliente.")"." - ".$user_seudonimo.PHP_EOL );
+  fclose($file);
 
-/*if($rs_checkpass['TX_user_type']==1){
-	$login_content = "&nbsp;Para ingresar haga Click <a href='stock.php' target='_self' >AQU&Iacute;</a>";
-	echo "<meta http-equiv='Refresh' content='1;url=stock.php'>".$login_alert.$login_content;
-}else{
-	$login_content = "&nbsp;Para ingresar haga Click <a href='stock.php' target='_self' >AQU&Iacute;</a>";
-	echo "<meta http-equiv='Refresh' content='1;url=new_purchase.php'>".$login_alert;
-}
-*/
-}
-?>
+  $qry_user=$link->query("SELECT AI_user_id, TX_user_cliente FROM bh_user WHERE AI_user_id = '$user_id' AND TX_user_online = 1")or die($link->error);
+  $rs_user=$qry_user->fetch_array(MYSQLI_ASSOC);
+  if ($qry_user->num_rows > 0) {
+    setcookie("coo_usercliente","".$rs_user['TX_user_cliente']."",time()+(60*60*24*365));
+  }else{
+      $link->query("UPDATE bh_user SET TX_user_online = '1', TX_user_cliente = '$cliente' WHERE AI_user_id = '$user_id'")or die($link->error);
+  }
 
+}
+ ?>
 </div>
 
 

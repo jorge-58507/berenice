@@ -9,9 +9,6 @@ $facturaventa_id=$_GET['a'];
 $qry_product=$link->query("SELECT AI_producto_id, TX_producto_value, TX_producto_codigo, TX_producto_medida, TX_producto_cantidad, producto_AI_letra_id FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 10")or die($link->error);
 $rs_product=$qry_product->fetch_array();
 
-$qry_client=$link->query("SELECT * FROM bh_cliente ORDER BY TX_cliente_nombre ASC");
-$rs_client=$qry_client->fetch_array();
-
 /* #####################  FACTURA VENTA QUERY   #####################*/
 
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_observacion, bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.facturaventa_AI_cliente_id, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_facturaventa.TX_facturaventa_status
@@ -28,23 +25,31 @@ $rs_facturaventa=$qry_facturaventa->fetch_array();
 $qry_vendor=$link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$rs_facturaventa['facturaventa_AI_user_id']}'");
 $rs_vendor=$qry_vendor->fetch_array();
 
-$qry_datoventa=$link->query("SELECT `AI_datoventa_id`, `datoventa_AI_facturaventa_id`, `datoventa_AI_producto_id`, `TX_datoventa_cantidad`, `TX_datoventa_precio`, `TX_datoventa_impuesto`, `TX_datoventa_descuento` FROM `bh_datoventa` WHERE `datoventa_AI_facturaventa_id` = '$facturaventa_id'")or die($link->error);
+$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_facturaventa_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '$facturaventa_id'")or die($link->error);
 $rs_datoventa=$qry_datoventa->fetch_array();
 
 $bh_del="DELETE FROM bh_nuevaventa WHERE nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}'";
 $link->query($bh_del) or die($link->error);
 
+$prep_producto_value=$link->prepare("SELECT TX_producto_value FROM bh_producto WHERE AI_producto_id = ?")or die($link->error);
+
 do{
-	ins_nuevaventa($rs_datoventa['datoventa_AI_producto_id'],$rs_datoventa['TX_datoventa_cantidad'],$rs_datoventa['TX_datoventa_precio'],$rs_datoventa['TX_datoventa_impuesto'],$rs_datoventa['TX_datoventa_descuento']);
+	$prep_producto_value->bind_param("i",$rs_datoventa['datoventa_AI_producto_id']); $prep_producto_value->execute();$qry_producto_value=$prep_producto_value->get_result();
+	$rs_producto_value=$qry_producto_value->fetch_array();
+	ins_nuevaventa($rs_datoventa['datoventa_AI_producto_id'],$rs_datoventa['TX_datoventa_cantidad'],$rs_datoventa['TX_datoventa_precio'],$rs_datoventa['TX_datoventa_impuesto'],$rs_datoventa['TX_datoventa_descuento'],(!empty($rs_datoventa['TX_datoventa_descripcion']))?$rs_datoventa['TX_datoventa_descripcion']:$rs_producto_value['TX_producto_value']);
 }while($rs_datoventa=$qry_datoventa->fetch_array());
 
-function ins_nuevaventa($product,$cantidad,$precio,$itbm,$descuento){
+function ins_nuevaventa($product,$cantidad,$precio,$itbm,$descuento,$descripcion){
+	$descripcion = str_replace("'","",$descripcion);
 	$link = conexion();
-	$link->query("INSERT INTO bh_nuevaventa (nuevaventa_AI_user_id, nuevaventa_AI_producto_id, TX_nuevaventa_unidades, TX_nuevaventa_precio, TX_nuevaventa_itbm, TX_nuevaventa_descuento)
-	VALUES ('{$_COOKIE['coo_iuser']}','$product','$cantidad','$precio','$itbm','$descuento')");
+	$link->query("INSERT INTO bh_nuevaventa (nuevaventa_AI_user_id, nuevaventa_AI_producto_id, TX_nuevaventa_unidades, TX_nuevaventa_precio, TX_nuevaventa_itbm, TX_nuevaventa_descuento, TX_nuevaventa_descripcion)
+	VALUES ('{$_COOKIE['coo_iuser']}','$product','$cantidad','$precio','$itbm','$descuento','$descripcion')");
 }
 
-$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_cantidad, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id FROM bh_producto, bh_nuevaventa WHERE bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id AND bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
+$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_cantidad, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id, bh_nuevaventa.TX_nuevaventa_descripcion, bh_nuevaventa.AI_nuevaventa_id
+	FROM (bh_producto
+	INNER JOIN bh_nuevaventa ON bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id)
+	WHERE bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
 $nr_nuevaventa=$qry_nuevaventa->num_rows;
 
 ?>
@@ -77,7 +82,7 @@ $nr_nuevaventa=$qry_nuevaventa->num_rows;
 $(document).ready(function() {
 
 $(window).on('beforeunload', function(){
-clean_nuevaventa();
+	clean_nuevaventa();
 	close_popup();
 });
 
@@ -184,7 +189,28 @@ $("#container_client_recall").css("display","none");
 
 });
 
-
+var upd_nuevaventa_descripcion = function(nuevaventa_id){
+	$.ajax({	data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
+	.done(function( data, textStatus, jqXHR ) {
+		if (data[0][0] === '') {
+			return false
+		}else{
+			var n_description = prompt("Introduzca la nueva descripcion");
+			if (n_description.length > 100) {
+				alert("La descripcion en muy larga");
+				upd_nuevaventa_descripcion(nuevaventa_id);
+			}else{
+				n_description = n_description.toUpperCase();
+				$.ajax({	data: {"a" : nuevaventa_id, "b" : n_description }, type: "GET", dataType: "text", url: "attached/get/upd_nuevaventa_descripcion.php",	})
+				.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+					$("#container_tblproduct2sale").html(data);
+			})
+				.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+			}
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
 </script>
 
 </head>
@@ -300,94 +326,109 @@ switch ($_COOKIE['coo_tuser']){
 
 <div id="container_product2sell" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_tblproduct2sale" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <table id="tbl_product2sell" class="table table-bordered table-hover ">
-    <caption>Lista de Productos para la Venta</caption>
-	<thead class="bg_green">
-        <tr>
-            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Codigo</th>
-            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-4">Producto</th>
-            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Medida</th>
-            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Cantidad</th>
-            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Precio</th>
-            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Imp</th>
-						<th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Desc</th>
-						<th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">P. Uni.</th>
-            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">SubTotal</th>
-            <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">  </th>
-        </tr>
-    </thead>
-    <tbody>
+		<table id="tbl_product2sell" class="table table-bordered table-hover ">
+		<caption>Lista de Productos para la Venta</caption>
+		<thead class="bg_green">
+				<tr>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Codigo</th>
+						<th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Producto</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Medida</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cantidad</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Precio</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Imp.</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Desc</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">P. Uni.</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">SubTotal</th>
+						<th></th>
+				</tr>
+		</thead>
+		<tbody>
 			<?php
-			      $total_itbm = 0; $total_descuento = 0; $total = 0;
-			      if($nr_nuevaventa > 0){
-			        $rs_nuevaventa=$qry_nuevaventa->fetch_array();
-			        do{
-			      	 	$precio = $rs_nuevaventa['TX_nuevaventa_precio'];
-			          $descuento = ($precio*$rs_nuevaventa['TX_nuevaventa_descuento'])/100;
-			          $precio_descuento = $precio-$descuento;
-			          $impuesto = ($precio_descuento*$rs_nuevaventa['TX_nuevaventa_itbm'])/100;
-			      		$p_unitario = $precio_descuento+$impuesto;
-			          $subtotal = $rs_nuevaventa['TX_nuevaventa_unidades']*$p_unitario;
+			if($nr_nuevaventa > 0){
+			$rs_nuevaventa=$qry_nuevaventa->fetch_array(MYSQLI_ASSOC);
 
-			      		$total_descuento += $rs_nuevaventa['TX_nuevaventa_unidades']*$descuento;
-			      		$total_itbm += $rs_nuevaventa['TX_nuevaventa_unidades']*$impuesto;
-			          $total += $subtotal;
+			$total_itbm = 0;
+			$total_descuento = 0;
+			$sub_total = 0;
+			do{
+				$descuento = (($rs_nuevaventa['TX_nuevaventa_descuento']*$rs_nuevaventa['TX_nuevaventa_precio'])/100);
+				$precio_descuento = ($rs_nuevaventa['TX_nuevaventa_precio']-$descuento);
+				$impuesto = (($rs_nuevaventa['TX_nuevaventa_itbm']*$precio_descuento)/100);
+				$precio_unitario = round($precio_descuento+$impuesto,2);
+				$precio_total = ($rs_nuevaventa['TX_nuevaventa_unidades']*($precio_unitario));
+
+				$total_itbm += $rs_nuevaventa['TX_nuevaventa_unidades']*$impuesto;
+				$total_descuento += $rs_nuevaventa['TX_nuevaventa_unidades']*$descuento;
+				$sub_total += $rs_nuevaventa['TX_nuevaventa_unidades']*$rs_nuevaventa['TX_nuevaventa_precio'];
 			?>
-			      		<tr>
-			            <td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
-			            <td><?php echo $rs_nuevaventa['TX_producto_value']; ?></td>
-			            <td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
-			            <td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);"><?php
-			      			echo $rs_nuevaventa['TX_nuevaventa_unidades'];
-			      			?></td>
-			      			<td onclick="upd_precionuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
-			      				<?php echo number_format($rs_nuevaventa['TX_nuevaventa_precio'],2); ?></td>
-			            <td><?php echo number_format($impuesto,2); ?></td>
-			            <td><?php echo number_format($descuento,2); ?></td>
-			      			<td><?php echo number_format($p_unitario,2); ?></td>
-			            <td><?php	echo number_format($subtotal,2);	?></td>
-			            <td>
-			            <center>
-			            <button type="button" name="<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_product2sell(this);"><strong>X</strong></button>
-			            </center>
-			            </td>
-			      		</tr>
-			<?php       }while($rs_nuevaventa=$qry_nuevaventa->fetch_array());
-			          }else{ ?>
-			      		<tr>
-			            <td></td>
-			            <td></td>
-			            <td></td>
-			            <td></td>
-			            <td></td>
-			            <td></td>
-			            <td></td>
-			            <td></td>
-			            <td></td>
-			      		</tr>
-			<?php     }   ?>
-    </tbody>
-    <tfoot class="bg_green">
-		<tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td>
-            <strong>T. Imp: </strong> <br /><span id="span_itbm"><?php echo number_format($total_itbm,2); ?></span>
-            </td>
-            <td>
-            <strong>T. Desc: </strong> <br /><span id="span_discount"><?php echo number_format($total_descuento,2); ?></span>
-            </td>
+
+					<tr>
+						<td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
+						<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>)"><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
+						<td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
+						<td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
+						<?php echo $rs_nuevaventa['TX_nuevaventa_unidades']; ?>
+						<span id="stock_quantity"><?php echo $rs_nuevaventa['TX_producto_cantidad']; ?></span>
+						</td>
+						<td onclick="upd_precionuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
+							<?php echo number_format($rs_nuevaventa['TX_nuevaventa_precio'],2); ?>
+						</td>
+						<td><?php echo number_format($impuesto,2); ?></td>
+						<td><?php echo number_format($descuento,2); ?></td>
+						<td><?php echo number_format($precio_unitario,2); ?></td>
+						<td><?php echo number_format($precio_total,2); ?></td>
+						<td>
+						<center>
+						<button type="button" name="<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_product2sell(this);"><strong>X</strong></button>
+						</center>
+						</td>
+					</tr>
+			<?php }while($rs_nuevaventa=$qry_nuevaventa->fetch_array(MYSQLI_ASSOC)); ?>
+			<?php }else{ ?>
+			<?php
+			$total_itbm = 0;
+			$total_descuento = 0;
+			$sub_total = 0;
+			?>
+					<tr>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+									<td></td>
+					</tr>
+			<?php }
+
+			$total=($sub_total-$total_descuento)+$total_itbm;
+
+			?>
+		</tbody>
+		<tfoot class="bg_green">
+				<tr>
 						<td></td>
-            <td>
-            <strong>Total: </strong> <br /><span id="span_total"><?php echo number_format($total,2); ?></span>
-            </td>
-            <td>  </td>
-		</tr>
-    </tfoot>
-    </table>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td></td>
+						<td>
+						<strong>T. Imp: </strong> <br /><span id="span_itbm"><?php echo number_format($total_itbm,2); ?></span>
+						</td>
+						<td>
+						<strong>T. Desc: </strong> <br /><span id="span_discount"><?php echo number_format($total_descuento,2); ?></span>
+						</td>
+						<td></td>
+						<td>
+						<strong>Total: </strong> <br /><span id="span_total"><?php echo number_format($total,2); ?></span>
+						</td>
+						<td>  </td>
+				</tr>
+		</tfoot>
+		</table>
     </div>
 </div>
 <div id="container_product_list" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -441,13 +482,9 @@ switch ($_COOKIE['coo_tuser']){
     	<tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);">
         	<td title="<?php echo $rs_product['AI_producto_id']; ?>">
             <?php echo $rs_product['TX_producto_codigo']; ?>
-            </td>
-        	<td>
-            <?php echo $rs_product['TX_producto_value']; ?>
-            </td>
-        	<td>
-            <?php echo $rs_product['TX_producto_cantidad']; ?>
-            </td>
+          </td>
+        	<td><?php echo $rs_product['TX_producto_value']; ?></td>
+        	<td><?php echo $rs_product['TX_producto_cantidad']; ?></td>
         	<td>
 <?php 			$qry_precio = $link->query("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = '{$rs_product['AI_producto_id']}' AND TX_precio_inactivo = '0'")or die($link->error);
 						$rs_precio=$qry_precio->fetch_array();

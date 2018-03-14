@@ -1,33 +1,33 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 require 'attached/php/req_login_paydesk.php';
 
-mysql_query("DELETE FROM bh_pago WHERE pago_AI_user_id = '{$_COOKIE['coo_iuser']}'", $link) or die(mysql_error());
+$link->query("DELETE FROM bh_pago WHERE pago_AI_user_id = '{$_COOKIE['coo_iuser']}'") or die($link->error);
 
 $client_id=$_GET['b'];
 
-$qry_credit = mysql_query("SELECT TX_cliente_limitecredito, TX_cliente_plazocredito FROM bh_cliente WHERE AI_cliente_id = '$client_id'");
-$row_credit = mysql_fetch_row($qry_credit);
+$qry_credit = $link->query("SELECT TX_cliente_limitecredito, TX_cliente_plazocredito FROM bh_cliente WHERE AI_cliente_id = '$client_id'");
+$row_credit = $qry_credit->fetch_array();
 
 $facturaf_limite=strtotime('-'.$row_credit[1].' weeks');
 $limit_facturaf=date('Y-m-d',$facturaf_limite);
-$qry_outcredit_term=mysql_query("SELECT AI_facturaf_id FROM bh_facturaf WHERE TX_facturaf_fecha < '$limit_facturaf'");
-$nr_outcredit_term=mysql_num_rows($qry_outcredit_term);
+$qry_outcredit_term=$link->query("SELECT AI_facturaf_id FROM bh_facturaf WHERE TX_facturaf_fecha < '$limit_facturaf'");
+$nr_outcredit_term=$qry_outcredit_term->num_rows;
 
-$qry_deficit=mysql_query("SELECT SUM(bh_facturaf.TX_facturaf_deficit) AS suma FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) WHERE bh_cliente.AI_cliente_id = '$client_id' AND bh_facturaf.TX_facturaf_deficit > '0' GROUP BY AI_cliente_id ORDER BY TX_cliente_nombre DESC LIMIT 10");
-$row_deficit=mysql_fetch_array($qry_deficit);
+$qry_deficit=$link->query("SELECT SUM(bh_facturaf.TX_facturaf_deficit) AS suma FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) WHERE bh_cliente.AI_cliente_id = '$client_id' AND bh_facturaf.TX_facturaf_deficit > '0' GROUP BY AI_cliente_id ORDER BY TX_cliente_nombre DESC LIMIT 10");
+$row_deficit=$qry_deficit->fetch_array();
 
-$qry_product=mysql_query("SELECT * FROM bh_producto WHERE TX_producto_activo = '0' ORDER BY TX_producto_value ASC LIMIT 10")or die(mysql_error());
-$rs_product=mysql_fetch_assoc($qry_product);
+$qry_product=$link->query("SELECT * FROM bh_producto WHERE TX_producto_activo = '0' ORDER BY TX_producto_value ASC LIMIT 10")or die($link->error);
+$rs_product=$qry_product->fetch_array();
 
-$qry_client=mysql_query("SELECT AI_cliente_id, TX_cliente_nombre, TX_cliente_saldo FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die(mysql_error());
-$rs_client=mysql_fetch_assoc($qry_client);
+$qry_client=$link->query("SELECT AI_cliente_id, TX_cliente_nombre, TX_cliente_saldo FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die($link->error);
+$rs_client=$qry_client->fetch_array();
 
 $txt_facturaventa="SELECT
 bh_facturaventa.AI_facturaventa_id, bh_facturaventa.facturaventa_AI_cliente_id, bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.TX_facturaventa_numero,
 bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono,
-bh_datoventa.AI_datoventa_id, bh_datoventa.datoventa_AI_producto_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_datoventa.datoventa_AI_user_id,
+bh_datoventa.AI_datoventa_id, bh_datoventa.datoventa_AI_producto_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_datoventa.datoventa_AI_user_id, bh_datoventa.TX_datoventa_descripcion,
 bh_producto.TX_producto_value, bh_producto.TX_producto_codigo, bh_producto.TX_producto_medida, bh_producto.TX_producto_exento
 FROM ((((bh_facturaventa
        INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
@@ -46,20 +46,20 @@ foreach ($arr_factid as $key => $value) {
 		$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' OR";
 	}
 }
-$qry_facturaventa=mysql_query($txt_facturaventa, $link);
-$nr_facturaventa=mysql_num_rows($qry_facturaventa);
+$qry_facturaventa=$link->query($txt_facturaventa);
+$nr_facturaventa=$qry_facturaventa->num_rows;
 if($nr_facturaventa<1){
 	echo "<meta http-equiv='Refresh' content='1;url=paydesk.php'>";
 }
 
 $raw_facturaventa=array();
-while ($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa)) {
+while ($rs_facturaventa=$qry_facturaventa->fetch_array()) {
 	$raw_facturaventa[]=$rs_facturaventa;
 }
 
 $txt_pago="SELECT bh_pago.AI_pago_id, bh_pago.TX_pago_fecha, bh_pago.TX_pago_monto, bh_pago.TX_pago_numero, bh_metododepago.TX_metododepago_value FROM (bh_pago INNER JOIN bh_metododepago ON bh_pago.pago_AI_metododepago_id = bh_metododepago.AI_metododepago_id) WHERE pago_AI_user_id = '{$_COOKIE['coo_iuser']}'";
-$qry_pago=mysql_query($txt_pago,$link);
-$rs_pago=mysql_fetch_assoc($qry_pago);
+$qry_pago=$link->query($txt_pago);
+$rs_pago=$qry_pago->fetch_array();
 $ite=0;
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -366,7 +366,7 @@ switch ($_COOKIE['coo_tuser']){
 <tr ondblclick="open_popup('popup_loginadmin.php?a=<?php echo $str_factid ?>&b=<?php echo $_GET['b'] ?>&z=admin_datoventa.php','popup_loginadmin','425','420');">
 	<td><?php echo $value['TX_producto_codigo']; ?> </td>
 	<td><?php echo $value['TX_facturaventa_numero']; ?></td>
-	<td><?php echo $value['TX_producto_value']; ?></td>
+	<td><?php echo $value['TX_datoventa_descripcion']; ?></td>
 	<td><?php echo $value['TX_producto_medida']; ?></td>
 	<td onclick="upd_quantityonnewcollect('<?php echo $value['AI_datoventa_id']; ?>');"><?php echo $value['TX_datoventa_cantidad']; ?></td>
 	<td><?php echo number_format($value['TX_datoventa_precio'],2); ?></td>
@@ -476,7 +476,7 @@ switch ($_COOKIE['coo_tuser']){
         <tbody id="tbody_paymentlist">
 <?php
 					$monto_pagado=0;	$var_pmethod="0";
-					if($nr_pago=mysql_num_rows($qry_pago) > 0){
+					if($nr_pago=$qry_pago->num_rows > 0){
  					do{ ?>
         <tr>
 	        <td><?php echo $ite=$ite+'1'.".-" ?></td>
@@ -492,7 +492,7 @@ switch ($_COOKIE['coo_tuser']){
         </tr>
 <?php
 				$monto_pagado += $rs_pago['TX_pago_monto'];
-				}while($rs_pago=mysql_fetch_assoc($qry_pago)); ?>
+      }while($rs_pago=$qry_pago->fetch_array()); ?>
 <?php }else{ ?>
 		    <tr>
 	        <td>&nbsp;</td>
@@ -584,7 +584,7 @@ switch ($_COOKIE['coo_tuser']){
 	<tbody>
 
     <?php
-	if($nr_product=mysql_num_rows($qry_product) > 0){
+	if($nr_product=$qry_product->num_rows > 0){
 	do{ ?>
     	<tr onclick="open_product2addpaycollect('<?php echo $rs_product['AI_producto_id']; ?>','<?php echo $str_factid; ?>');">
         	<td>
@@ -598,9 +598,9 @@ switch ($_COOKIE['coo_tuser']){
             </td>
         	<td>
             <?php
-			$qry_precio=mysql_query("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = '{$rs_product['AI_producto_id']}'")or die(mysql_error());
-			if($nr_precio=mysql_num_rows($qry_precio) > 0){
-				$rs_precio=mysql_fetch_array($qry_precio);
+			$qry_precio=$link->query("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = '{$rs_product['AI_producto_id']}'")or die($link->error);
+			if($nr_precio=$qry_precio->num_rows > 0){
+				$rs_precio=$qry_precio->fetch_array();
         if (!empty($rs_precio['TX_precio_cuatro'])) {
           echo number_format($rs_precio['TX_precio_cuatro'],2);
         }else if(empty($rs_precio['TX_precio_cuatro'])) {
@@ -613,12 +613,13 @@ switch ($_COOKIE['coo_tuser']){
             </td>
         	<td>
             <?php
-			$rs_letra=mysql_fetch_array(mysql_query("SELECT bh_letra.TX_letra_value FROM bh_letra, bh_producto WHERE bh_letra.AI_letra_id = '{$rs_product['producto_AI_letra_id']}'"));
-			echo $rs_letra['TX_letra_value']; ?>
-            </td>
+            $qry_letra = $link->query("SELECT bh_letra.TX_letra_value FROM bh_letra, bh_producto WHERE bh_letra.AI_letra_id = '{$rs_product['producto_AI_letra_id']}'");
+            $rs_letra=$qry_letra->fetch_array();
+			      echo $rs_letra['TX_letra_value']; ?>
+          </td>
         </tr>
     <?php
-	}while($rs_product=mysql_fetch_assoc($qry_product));
+	}while($rs_product=$qry_product->fetch_array());
 	}else{
 	?>
 	    <tr class="bg-info">

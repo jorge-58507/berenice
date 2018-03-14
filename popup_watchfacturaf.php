@@ -1,5 +1,5 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 
 require 'attached/php/req_login_paydesk.php';
@@ -18,8 +18,8 @@ INNER JOIN bh_datopago ON bh_facturaf.AI_facturaf_id = bh_datopago.datopago_AI_f
 INNER JOIN bh_metododepago ON bh_datopago.datopago_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
 INNER JOIN bh_user ON bh_datopago.datopago_AI_user_id = bh_user.AI_user_id)
 WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'";
-$qry_facturaf=mysql_query($txt_facturaf);
-$rs_facturaf=mysql_fetch_assoc($qry_facturaf);
+$qry_facturaf=$link->query($txt_facturaf);
+$rs_facturaf=$qry_facturaf->fetch_array();
 ?>
 <?php
 $txt_notadebito="SELECT bh_notadebito.TX_notadebito_numero, bh_notadebito.TX_notadebito_total, bh_notadebito.TX_notadebito_impuesto, bh_notadebito.TX_notadebito_fecha, bh_notadebito.TX_notadebito_hora, bh_user.TX_user_seudonimo, SUM(bh_datodebito.TX_datodebito_monto) as TX_datodebito_monto
@@ -32,12 +32,12 @@ FROM ((((bh_facturaf
       WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'
 	  GROUP BY bh_notadebito.TX_notadebito_numero
 	  ORDER BY bh_notadebito.TX_notadebito_fecha";
-$qry_notadebito=mysql_query($txt_notadebito);
-$rs_notadebito=mysql_fetch_assoc($qry_notadebito);
-$nr_notadebito=mysql_num_rows($qry_notadebito);
+$qry_notadebito=$link->query($txt_notadebito);
+$rs_notadebito=$qry_notadebito->fetch_array();
+$nr_notadebito=$qry_notadebito->num_rows;
 ?>
 <?php
-$txt_datoventa="SELECT bh_producto.TX_producto_value, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,
+$txt_datoventa="SELECT bh_producto.TX_producto_value, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_datoventa.TX_datoventa_descripcion,
 bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio as precio,
 ((bh_datoventa.TX_datoventa_descuento*bh_datoventa.TX_datoventa_precio)/100) as descuento
 FROM (((bh_datoventa
@@ -46,8 +46,8 @@ INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.
 INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
 WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'";
 
-$qry_datoventa = mysql_query($txt_datoventa);
-$rs_datoventa = mysql_fetch_assoc($qry_datoventa);
+$qry_datoventa = $link->query($txt_datoventa);
+$rs_datoventa = $qry_datoventa->fetch_array();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -61,6 +61,7 @@ $rs_datoventa = mysql_fetch_assoc($qry_datoventa);
 <link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/popup_css.css" rel="stylesheet" type="text/css" />
+<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="attached/js/jquery.js"></script>
 <script type="text/javascript" src="attached/js/bootstrap.js"></script>
@@ -123,6 +124,9 @@ $(document).ready(function() {
           <label for="span_deficit">Deficit</label>
           <span id="span_deficit" class="form-control bg-disabled"><?php echo number_format($deficit=$rs_facturaf['TX_facturaf_deficit'],2); ?></span>
     </div>
+    <div id="container_btn" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+      <button type="button" class="btn btn-info btn-lg" onclick="print_html('print_client_facturaf.php?a=<?php echo $facturaf_id; ?>')"><i class="fa fa-print"></i> Imprimir</button>
+    </div>
 </div>
 <div id="container_payment" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 	<div id="container_tblpayment" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -157,7 +161,7 @@ $(document).ready(function() {
 		}
 		?>
 
-		<?php }while($rs_facturaf=mysql_fetch_assoc($qry_facturaf)); ?>
+  <?php }while($rs_facturaf=$qry_facturaf->fetch_array()); ?>
         </tbody>
         <tfoot class="bg-primary"><tr><td></td><td></td><td></td>
         <td>$ <?php echo number_format($total_pago,2); ?></td>
@@ -182,7 +186,7 @@ $(document).ready(function() {
         <tbody>
         <?php $total_abono=0; ?>
         <?php
-		if($nr_notadebito=mysql_num_rows($qry_notadebito) > 0){
+		if($nr_notadebito=$qry_notadebito->num_rows > 0){
 		do{ ?>
         <tr title="<?php echo $rs_notadebito['TX_user_seudonimo']; ?>">
         <td><?php echo $rs_notadebito['TX_notadebito_fecha']; ?></td>
@@ -191,7 +195,7 @@ $(document).ready(function() {
         <td><?php echo number_format($rs_notadebito['TX_datodebito_monto'],2);?></td>
         </tr>
         <?php $total_abono += $rs_notadebito['TX_datodebito_monto']; ?>
-        <?php }while($rs_notadebito=mysql_fetch_assoc($qry_notadebito));
+      <?php }while($rs_notadebito=$qry_notadebito->fetch_array());
 		}else{
 		?>
         <tr>
@@ -229,12 +233,12 @@ $(document).ready(function() {
 				$precio_total = $rs_datoventa['TX_datoventa_cantidad']*($precio_descuento+$precio_impuesto);
 		 ?>
         <tr>
-        	<td><?php echo $rs_datoventa['TX_producto_value']; ?></td>
+        	<td><?php echo $rs_datoventa['TX_datoventa_descripcion']; ?></td>
         	<td><?php echo $rs_datoventa['TX_datoventa_cantidad']; ?></td>
         	<td><?php echo number_format($precio_total,2); ?></td>
         </tr>
         <?php $total += $precio_total; ?>
-        <?php }while($rs_datoventa = mysql_fetch_assoc($qry_datoventa)); ?>
+      <?php }while($rs_datoventa = $qry_datoventa->fetch_array()); ?>
         </tbody>
         <tfoot class="bg_green">
 		<tr>

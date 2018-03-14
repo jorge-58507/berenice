@@ -10,16 +10,22 @@ $precio=round($precio,2);
 $impuesto=$_GET['e'];
 $descuento=$_GET['d'];
 
-	$qry_chkproduct=$link->query("SELECT * FROM bh_nuevaventa WHERE nuevaventa_AI_producto_id = '$id' AND nuevaventa_AI_user_id = '$uid'");
+	$qry_product = $link->query("SELECT TX_producto_value FROM bh_producto WHERE AI_producto_id = '$id'")or die($link->error);
+	$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
+	$descripcion = $r_function->replace_regular_character($rs_product['TX_producto_value']);
+
+	$qry_chkproduct=$link->query("SELECT AI_nuevaventa_id FROM bh_nuevaventa WHERE nuevaventa_AI_producto_id = '$id' AND nuevaventa_AI_user_id = '$uid'");
 	$nr_chkproduct=$qry_chkproduct->num_rows;
 	if($nr_chkproduct < 1){
-		$link->query("INSERT INTO bh_nuevaventa (nuevaventa_AI_user_id, nuevaventa_AI_producto_id, TX_nuevaventa_unidades, TX_nuevaventa_precio, TX_nuevaventa_itbm, TX_nuevaventa_descuento)
-	VALUES ('$uid', '$id', '$cantidad', '$precio', '$impuesto', '$descuento')");
-	}
+		// $descripcion = str_replace("'","",$descripcion);
+		$link->query("INSERT INTO bh_nuevaventa (nuevaventa_AI_user_id, nuevaventa_AI_producto_id, TX_nuevaventa_unidades, TX_nuevaventa_precio, TX_nuevaventa_itbm, TX_nuevaventa_descuento, TX_nuevaventa_descripcion)
+	VALUES ('$uid', '$id', '$cantidad', '$precio', '$impuesto', '$descuento', '$descripcion')");
+}
 
-?>
-<?php
-$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id FROM bh_producto, bh_nuevaventa WHERE bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id AND bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
+$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id, bh_nuevaventa.TX_nuevaventa_descripcion, bh_nuevaventa.AI_nuevaventa_id
+	 FROM (bh_producto
+	 INNER JOIN bh_nuevaventa ON bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id)
+	 WHERE bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
 $nr_nuevaventa=$qry_nuevaventa->num_rows;
 
 ?>
@@ -60,7 +66,7 @@ $nr_nuevaventa=$qry_nuevaventa->num_rows;
 			?>
 			      		<tr>
 			            <td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
-			            <td><?php echo $rs_nuevaventa['TX_producto_value']; ?></td>
+			            <td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>)"><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
 			            <td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
 			            <td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);"><?php
 			      			echo $rs_nuevaventa['TX_nuevaventa_unidades'];

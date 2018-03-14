@@ -1,11 +1,9 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 require 'attached/php/req_login_sale.php';
-?>
-<?php
+
 $qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion");
 $raw_opcion=array();
 while($rs_opcion=$qry_opcion->fetch_array()){

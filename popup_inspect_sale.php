@@ -30,7 +30,7 @@ break;
 $qry_facturaventa=$link->query($txt_facturaventa)or die($link->error);
 $rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC);
 
-$qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_value
+$qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_value, bh_datoventa.TX_datoventa_descripcion
 	FROM ((bh_producto
 		INNER JOIN bh_datoventa ON bh_producto.AI_producto_id = bh_datoventa.datoventa_AI_producto_id)
 		INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
@@ -112,8 +112,17 @@ $(document).ready(function() {
 });
 
 function toogle_tr_datoventa(facturaventa_id){
-	console.log(facturaventa_id);
 	$('#tr_datoventa_'+facturaventa_id).toggle( "fast");
+}
+function duplicate_datoventa(facturaventa_id){
+	$.ajax({data: {"a" : facturaventa_id, "z" : 'duplicate' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",})
+	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+	if (data) {
+		window.opener.location.href='new_sale.php';
+		setTimeout('self.close()', 500);
+	}
+})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
 
 </script>
@@ -257,7 +266,7 @@ function toogle_tr_datoventa(facturaventa_id){
 		?>
 						<tr>
 							<td><?php echo $rs_datoventa['TX_datoventa_cantidad']; ?></td>
-							<td><?php echo $rs_datoventa['TX_producto_value']; ?></td>
+							<td><?php echo $rs_datoventa['TX_datoventa_descripcion']; ?></td>
 							<td><?php echo number_format($rs_datoventa['TX_datoventa_precio'],2); ?></td>
 							<td><?php echo $rs_datoventa['TX_datoventa_descuento']."%"; ?></td>
 							<td><?php echo $rs_datoventa['TX_datoventa_impuesto']."%"; ?></td>
@@ -276,6 +285,7 @@ function toogle_tr_datoventa(facturaventa_id){
 						</tr>
 					</tfoot>
 				</table>
+				<button type="button" onclick="duplicate_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)" class="btn btn-success">Duplicar</button>
 			</td>
 		</tr>
 <?php

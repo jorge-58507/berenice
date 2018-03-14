@@ -57,9 +57,9 @@
 #container_alert{
 	padding: 5px 30px;
 }
-#container_txtobservation{
+/* #container_txtobservation_first, #container_txtobservation_second{
 	padding: 0 30px;
-}
+} */
 #container_report{
 	padding-top:25px;
 }
@@ -115,4 +115,42 @@
 	text-align: center;
 	border: solid 2px #ccc;
 	border-radius: 25px;
+}
+.zoomed{
+	position: absolute;
+	min-width: 600px;
+	background-color: #F84C4C;
+	text-align: center;
+}
+#span_useronline{
+	width: 300px;
+	color: #FFFFFF;
+	opacity: 0.7;
+	padding: 5px;
+	position: absolute;
+	z-index: 1;
+	float: left;
+	border-radius: 10px;
+	margin: 5px;
+	text-align: center;
+
+	background: rgba(241,111,92,1);
+	background: -moz-linear-gradient(top, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	/* background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(241,111,92,1)), color-stop(5%, rgba(241,111,92,1)), color-stop(42%, rgba(248,80,50,1)), color-stop(67%, rgba(246,41,12,1)), color-stop(87%, rgba(240,47,23,1)), color-stop(100%, rgba(201,22,52,1))); */
+	background: -webkit-linear-gradient(top, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	background: -o-linear-gradient(top, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	background: -ms-linear-gradient(top, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	background: linear-gradient(to bottom, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f16f5c', endColorstr='#c91634', GradientType=0 );
+}
+#span_useronline>div>i{
+	font-size: 60px;
+	padding: 5px 0 0 0;
+}
+#span_useronline>div>span{
+	font-size: 40px;
+}
+.nav-tabs>li>a{
+	font-size: 24px;
+	padding: 0 5px;
 }

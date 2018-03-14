@@ -13,8 +13,6 @@ $arr_factid = explode(",",$str_factid);
 
 $client_id = $_GET['b'];
 
-?>
-<?php
 /* V ########################### FUNCIONES ################### V */
 function ObtenerIP(){
 	if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))

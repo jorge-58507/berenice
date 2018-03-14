@@ -4,6 +4,10 @@ $link=conexion();
 
 require 'attached/php/req_login_paydesk.php';
 
+$fecha_actual=date('Y-m-d');
+$fecha_i=date('d-m-Y',strtotime(date('Y-m-d',strtotime('-1 week'))));
+$fecha_f = date('d-m-Y', strtotime($fecha_actual));
+
 $qry_facturaf=$link->query("SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.facturaf_AI_cliente_id, bh_facturaf.facturaf_AI_user_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_status,
 bh_cliente.TX_cliente_nombre,
 bh_user.TX_user_seudonimo
@@ -73,6 +77,9 @@ $("#btn_back").click(function(){
 $("#txt_filterfacturaf").keyup(function(){
 	filter_adminfacturaf(this.value);
 })
+$("input[name=r_limit]").on("change", function(){
+	$("#txt_filterfacturaf").keyup();
+})
 
 $( function() {
 var dateFormat = "dd-mm-yy",
@@ -123,6 +130,8 @@ function open_newdebit(client_id){
 	 .done(function( data, textStatus, jqXHR ) {
 		 if(data[0][0] != ""){
 			 open_popup('popup_newdebit.php?a='+client_id,'newdebit','425','420');
+		 }else{
+			 open_popup('popup_loginadmin.php?z=start_admin.php','_popup','425','420');
 		 }
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
@@ -182,22 +191,22 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="container_txtdatei"  class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
     <label for="txt_date_initial">Fecha
-    <button type="button" id="clear_date_initial" class="btn btn-danger btn-xs" onclick="setEmpty('txt_date_i')"><strong>!</strong></button>
+    <button type="button" id="clear_date_initial" class="btn btn-danger btn-xs"><strong>!</strong></button>
     </label>
-    <input type="text" id="txt_date_initial" name="txt_date_initial" class="form-control" readonly="readonly" />
+    <input type="text" id="txt_date_initial" name="txt_date_initial" class="form-control" readonly="readonly" value="<?php echo $fecha_i; ?>" />
 </div>
 <div id="container_txtdatef"  class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
     <label for="txt_date_final">Fecha
-    <button type="button" id="clear_date_initial" class="btn btn-danger btn-xs" onclick="setEmpty('txt_date_f')"><strong>!</strong></button>
+    <button type="button" id="clear_date_initial" class="btn btn-danger btn-xs"><strong>!</strong></button>
     </label>
-    <input type="text" id="txt_date_final" name="txt_date_final" class="form-control" readonly="readonly" />
+    <input type="text" id="txt_date_final" name="txt_date_final" class="form-control" readonly="readonly" value="<?php echo $fecha_f; ?>" />
 </div>
 <div id="container_txtdate"  class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
     <label for="txt_date">Mostrar:</label><br />
 <label class="radio-inline"><input type="radio" name="r_limit" id="r_limit_10" value="10" checked="checked">10</label>
     <label class="radio-inline"><input type="radio" name="r_limit" id="r_limit_50" value="50">50</label>
-    <label class="radio-inline"><input type="radio" name="r_limit" id="r_limit_10" value="100">100</label>
-    <label class="radio-inline"><input type="radio" name="r_limit" id="r_limit_10" value="">Todas</label>
+    <label class="radio-inline"><input type="radio" name="r_limit" id="r_limit_100" value="100">100</label>
+    <label class="radio-inline"><input type="radio" name="r_limit" id="r_limit_0" value="">Todas</label>
 </div>
 <div id="container_tblfacturaf" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     <table id="tbl_facturaf" class="table table-bordered table-condensed table-striped">

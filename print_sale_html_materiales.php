@@ -42,7 +42,6 @@ $rs_facturaventa=$qry_facturaventa->fetch_array();
 function cap_fl(str){
 	  return string.charAt(0).toUpperCase() + string.slice(1);
 }
-setTimeout('self.close()',15000);
 </script>
 
 <body style="font-family:Arial<?php /* echo $RS_medinfo['TX_fuente_medico']; */?>" onLoad="window.print()">
@@ -69,9 +68,9 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
     </td>
 
    	<td valign="top" colspan="6" style="text-align:center">
-<img width="200px" height="75px" src="attached/image/logo_factura.png" ondblclick="window.location.href='print_sale_html_materiales.php?a=<?php echo $facturaventa_id; ?>'">
+<img width="180px" height="80px" src="attached/image/logo_factura_materiales.png">
 <br />
-<font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
+<font style="font-size:10px">RUC: 36021-11-261981 DV: <?php echo "90<br/>"; ?></font>
 <font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
 <font style="font-size:10px"><?php echo "TLF. ".$raw_opcion['TELEFONO']." WHATSAPP: "
 .$raw_opcion['FAX']."<br />"; ?></font>
@@ -135,7 +134,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
         </table>
     </td>
 </tr>
-<tr style="height:535px;">
+<tr style="height:587px;">
 	<td valign="top" colspan="10" style="padding-top:2px;">
     <table table id="tbl_product" class="table table-print table-bordered table-striped" >
     <thead style="border:solid">
@@ -167,7 +166,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 				</table>
 				</td>
 				</tr>
-				<tr style="height:535px;">
+				<tr style="height:587px;">
 				<td valign="top" colspan="10" style="padding-top:2px;">
 					<table table id="tbl_product" class="table table-bordered table-striped table-print" >
 			    <thead style="border:solid">
@@ -221,7 +220,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 
     	<tr>
             <td><?php echo $rs_facturaventa['TX_producto_codigo']; 				?></td>
-            <td><?php echo $r_function->replace_special_character($rs_facturaventa['TX_datoventa_descripcion']); 	?></td>
+            <td><?php echo $rs_facturaventa['TX_datoventa_descripcion']; 	?></td>
             <td><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
             <td><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
             <td><?php echo number_format($descuento,4); 			?></td>

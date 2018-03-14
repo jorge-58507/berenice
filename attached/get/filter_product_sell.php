@@ -1,8 +1,8 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
 
-$value=$_GET['a'];
+$value=$r_function->replace_regular_character($_GET['a']);
 $line_limit = "";
 if(!empty($_GET['b']) && $_GET['b'] != 'undefined'){
 	$line_limit = "LIMIT ".$_GET['b'];
@@ -29,80 +29,39 @@ $txt_product=$txt_product."TX_producto_codigo LIKE '%{$arr_value[$it]}%' AND ";
 	}
 }
 
-$qry_product=mysql_query($txt_product." ORDER BY TX_producto_value ASC ".$line_limit);
-$rs_product=mysql_fetch_assoc($qry_product)or die (mysql_error());
+$qry_precio = $link->prepare("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0'")or die($link->error);
+$qry_letra = $link->prepare("SELECT bh_letra.TX_letra_value FROM (bh_letra INNER JOIN bh_producto ON bh_letra.AI_letra_id = bh_producto.producto_AI_letra_id) WHERE bh_producto.AI_producto_id = ? ")or die($link->error);
 
-$nr_product=mysql_num_rows($qry_product);
+$qry_product=$link->query($txt_product." ORDER BY TX_producto_value ASC ".$line_limit)or die($link->error);
+$raw_producto=array(); $i=0;
+while ($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)) {
+	$qry_precio->bind_param("i", $rs_product['AI_producto_id']); $qry_precio->execute(); $result = $qry_precio->get_result();
+	$rs_precio=$result->fetch_array(MYSQLI_ASSOC);
+	$qry_letra->bind_param("i", $rs_product['AI_producto_id']); $qry_letra->execute(); $result = $qry_letra->get_result();
+	$rs_letra=$result->fetch_array(MYSQLI_ASSOC);
+
+	$raw_producto[$i]=$rs_product;
+	$raw_producto[$i]['precio']=$rs_precio['TX_precio_cuatro'];
+	$raw_producto[$i]['letra']=(!empty($rs_letra['TX_letra_value'])) ? $rs_letra['TX_letra_value'] :  '';
+	$i++;
+};
+
+
+			if($nr_product=$qry_product->num_rows > 0){
+				foreach ($raw_producto as $key => $rs_product) {
 ?>
-    <table id="tbl_product" class="table table-bordered table-hover table-striped">
-    <caption>Lista de Productos:</caption>
-    <thead class="bg-primary">
-    	<tr>
-        	<th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">
-            	Codigo
-            </th>
-            <th class="col-xs-6 col-sm-6 col-md-8 col-lg-8">
-            	Nombre
-            </th>
-        	<th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">
-            	Cantidad
-            </th>
-        	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            	Precio
-            </th>
-        	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            	Letra
-            </th>
-        </tr>
-    </thead>
-    <tfoot class="bg-primary">
-	    <tr>
-    		<td>  </td>
-    		<td>  </td>
-    		<td>  </td>
-    		<td>  </td>
-    		<td>  </td>
-    	</tr>
-    </tfoot>
-    <tbody>
-    <?php
-	if($nr_product > 0){
-	do{
-	?>
-    	<tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);">
-        	<td title="<?php echo $rs_product['AI_producto_id']; ?>">
-            <?php echo $rs_product['TX_producto_codigo']; ?>
-            </td>
-        	<td>
-            <?php echo $rs_product['TX_producto_value']; ?>
-            </td>
-        	<td>
-            <?php echo $rs_product['TX_producto_cantidad']; ?>
-            </td>
-        	<td>
-            <?php
-			$rs_precio=mysql_fetch_array(mysql_query("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = '{$rs_product['AI_producto_id']}' AND TX_precio_inactivo = '0'"));
-			echo $rs_precio['TX_precio_cuatro']; ?>
-            </td>
-        	<td>
-            <?php
-			$rs_letra=mysql_fetch_array(mysql_query("SELECT bh_letra.TX_letra_value FROM bh_letra, bh_producto WHERE bh_letra.AI_letra_id = '{$rs_product['producto_AI_letra_id']}'"));
-			echo $rs_letra['TX_letra_value']; ?>
-            </td>
-        </tr>
-    <?php }while($rs_product=mysql_fetch_assoc($qry_product)); ?>
+			    <tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);">
+	        	<td title="<?php echo $rs_product['AI_producto_id']; ?>"><?php echo $rs_product['TX_producto_codigo']; ?></td>
+	        	<td><?php echo $rs_product['TX_producto_value']; ?></td>
+	        	<td><?php echo $rs_product['TX_producto_cantidad']; ?></td>
+						<td><?php echo $rs_product['precio']; ?></td>
+						<td><?php echo $rs_product['letra']; ?></td>
+	        </tr>
+<?php 	};
+			}else{
+?>
+		    <tr>
+	    		<td colspan="5">  </td>
+	    	</tr>
 <?php
-}else{
-?>
-	    <tr>
-    		<td>  </td>
-    		<td>  </td>
-    		<td>  </td>
-    		<td>  </td>
-    		<td>  </td>
-    	</tr>
-<?php
-}
-?>
-    </tbody>
-    </table>
+			}

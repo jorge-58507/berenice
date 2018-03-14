@@ -1,10 +1,25 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 date_default_timezone_set('America/Panama');
 
 require 'attached/php/req_login_sale.php';
 
+function ObtenerIP(){
+if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
+$ip = getenv("HTTP_CLIENT_IP");
+else if (getenv("HTTP_X_FORWARDED_FOR") && strcasecmp(getenv("HTTP_X_FORWARDED_FOR"), "unknown"))
+$ip = getenv("HTTP_X_FORWARDED_FOR");
+else if (getenv("REMOTE_ADDR") && strcasecmp(getenv("REMOTE_ADDR"), "unknown"))
+$ip = getenv("REMOTE_ADDR");
+else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], "unknown"))
+$ip = $_SERVER['REMOTE_ADDR'];
+else
+$ip = "IP desconocida";
+return($ip);
+}
+$ip   = ObtenerIP();
+$cliente = gethostbyaddr($ip);
 
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_user.TX_user_seudonimo
 FROM ((bh_facturaventa
@@ -25,8 +40,8 @@ default:
 $txt_facturaventa=$txt_facturaventa." TX_facturaventa_status != 'CANCELADA' AND TX_facturaventa_status != 'INACTIVA' ORDER BY AI_facturaventa_id DESC LIMIT 10";
 break;
 }
-$qry_facturaventa=mysql_query($txt_facturaventa)or die(mysql_error());
-$rs_facturaventa=mysql_fetch_assoc($qry_facturaventa);
+$qry_facturaventa=$link->query($txt_facturaventa)or die($link->error);
+$rs_facturaventa=$qry_facturaventa->fetch_array();
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -104,7 +119,16 @@ $(window).on('beforeunload',function(){
 
 });
 
-
+function upd_loginclient (){
+	var ans = confirm("¿Desea ocultar este aviso?");
+	if (!ans) { return false; }
+	$.ajax({	data: {"a" : '<?php echo $_COOKIE['coo_iuser']; ?>', "b" : '<?php echo $cliente; ?>'}, type: "GET", dataType: "text", url: "attached/get/upd_loginclient.php",	})
+	.done(function( data, textStatus, jqXHR ) {
+		console.log("GOOD "+textStatus);
+		setTimeout(function(){ window.location.href="index.php";},500);
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
 
 </script>
 
@@ -151,6 +175,18 @@ switch ($_COOKIE['coo_tuser']){
 
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="sale.php" method="post" name="form_sell"  id="form_sell">
+
+<?php
+if (!empty($_COOKIE['coo_usercliente'])) {
+	if ($cliente != $_COOKIE['coo_usercliente']) {?>
+		<div id="span_useronline">
+			<div ondblclick="upd_loginclient()" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 no_padding"><i class="glyphicon glyphicon-exclamation-sign"></i></div>
+			Estas conectado en:<br />
+			<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 no_padding"><span><?php echo strtoupper($_COOKIE['coo_usercliente']); ?></span></div>
+		</div>
+<?php
+	}
+} ?>
 
 <div id="container_btn_sale" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<button type="button" id="btn_newsale" class="btn btn-info btn-lg" autofocus="autofocus"><strong>Nueva Venta</strong></button>
@@ -208,7 +244,7 @@ switch ($_COOKIE['coo_tuser']){
 		</tr>
     </tfoot>
     <tbody>
-    <?php if($nr_facturaventa=mysql_num_rows($qry_facturaventa)>0){ ?>
+    <?php if($qry_facturaventa->num_rows > 0){ ?>
     <?php
 	do{
 	?>
@@ -256,7 +292,7 @@ switch ($_COOKIE['coo_tuser']){
         </td>
     </tr>
     <?php
-	}while($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa));
+	}while($rs_facturaventa=$qry_facturaventa->fetch_array());
     ?>
     <?php }else{ ?>
     <tr>

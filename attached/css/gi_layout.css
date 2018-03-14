@@ -46,11 +46,11 @@
 	background-image:url(../image/tileable-metal-textures.jpg);
 	color:#FFFFFF;
 }
-.active{
+/* .active{
 	background-image:url(../image/tileable-metal-textures.jpg);
 	color:#FFFFFF;
 	opacity:0.8;
-}
+} */
 #bottom_right_navigation{
 	float:right;
 	margin-top:2px;

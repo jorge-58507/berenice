@@ -689,3 +689,20 @@ return false;
 function close_popup(){
 	popup.close();
 }
+
+function replace_regular_character(str){
+	var special_char = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\'","&deg;","&ntilde;"];
+	var replace = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ"];
+	for (var x in replace) {
+		str = str.replace(replace[x],special_char[x]);
+	}
+	return str;
+}
+function replace_special_character(str){
+	var replace = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\'","&deg;","&ntilde;"];
+	var regular_char = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ"];
+	for (var x in replace) {
+		str = str.replace(replace[x],special_char[x]);
+	}
+	return str;
+}

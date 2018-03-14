@@ -1,46 +1,62 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 date_default_timezone_set('America/Panama');
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Trilli, S.A. - Todo en Materiales</title>
+<?php
+function ObtenerIP(){
+if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
+$ip = getenv("HTTP_CLIENT_IP");
+else if (getenv("HTTP_X_FORWARDED_FOR") && strcasecmp(getenv("HTTP_X_FORWARDED_FOR"), "unknown"))
+$ip = getenv("HTTP_X_FORWARDED_FOR");
+else if (getenv("REMOTE_ADDR") && strcasecmp(getenv("REMOTE_ADDR"), "unknown"))
+$ip = getenv("REMOTE_ADDR");
+else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], "unknown"))
+$ip = $_SERVER['REMOTE_ADDR'];
+else
+$ip = "IP desconocida";
+return($ip);
+}
+$ip   = ObtenerIP();
+$cliente = gethostbyaddr($ip);
 
-<?php
-if(!empty($_COOKIE['coo_iuser'])){
-setcookie('coo_iuser','',time()-100);
-}
-if(!empty($_COOKIE['coo_tuser'])){
-setcookie('coo_tuser','',time()-100);
-}
-if(!empty($_COOKIE['coo_suser'])){
-setcookie('coo_suser','',time()-100);
-}
-if(!empty($_COOKIE['coo_tittle'])){
-setcookie('coo_tittle','',time()-100);
-}
-?>
-<?php
-session_start();
-session_destroy();
-?>
-<?php
 $txt_vendor="SELECT TX_user_seudonimo, TX_user_password FROM bh_user WHERE TX_user_type = '3'";
-$qry_vendor=mysql_query($txt_vendor);
+$qry_vendor=$link->query($txt_vendor);
 $vendor_array=array();
 $i=0;
-while($rs_vendor=mysql_fetch_array($qry_vendor)){
+while($rs_vendor=$qry_vendor->fetch_array()){
 	$vendor_array[$i] = $rs_vendor;
 	$i++;
 };
+function unlog_user(){
+	if(!empty($_COOKIE['coo_iuser'])){
+	setcookie('coo_iuser','',time()-100);
+	}
+	if(!empty($_COOKIE['coo_tuser'])){
+	setcookie('coo_tuser','',time()-100);
+	}
+	if(!empty($_COOKIE['coo_suser'])){
+	setcookie('coo_suser','',time()-100);
+	}
+	if(!empty($_COOKIE['coo_tittle'])){
+	setcookie('coo_tittle','',time()-100);
+	}
+	if(!empty($_COOKIE['coo_usercliente'])){
+	setcookie('coo_usercliente','',time()-100);
+	}
+}
+if(!empty($_COOKIE['coo_iuser'])){
+$link->query("UPDATE bh_user SET TX_user_online = '0' WHERE AI_user_id = '{$_COOKIE['coo_iuser']}' AND TX_user_cliente = '$cliente'")or die($link->error);
+unlog_user();
+}
 
 ?>
-<link href="attached/image/fav_icon.ico" rel="shortcut icon" type="icon" />
-
+<link href="attached/image/f_icono.ico" rel="shortcut icon" type="icon" />
 <link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
@@ -74,15 +90,12 @@ $('#form_login').submit(function(){
 	obj_form.submit();
 })
 
-//$("#login_container").css("display","none");
 $("#container_expand_login").click(function(){
 	$("#login_container").slideToggle(300);
 	$("#container_expand_login").toggleClass("fa-angle-double-down");
 	$("#container_expand_login").toggleClass("fa-angle-double-up");
 	setTimeout($('#password_login').focus(),500);
 });
-
-
 
 
 });
@@ -130,7 +143,8 @@ $("#container_expand_login").click(function(){
 	</div>
     <div id="container_div_expand_login" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
 		<div id="container_expand_login" class="fa fa-angle-double-down"></div>
-    </div>
+  </div>
+
 </form>
 </div>
 

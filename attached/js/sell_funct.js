@@ -18,13 +18,7 @@ function set_txtfilterclient(field){
 function upd_unidadesnuevaventa(product_id){
 	var new_quantity = prompt("Ingrese la cantidad:");
 	new_quantity = val_intw2dec(new_quantity);
-	// if(new_quantity > stock_quantity){
-		// var answer = confirm("El monto ingresado es mayor que el existente. ¿Desea Continuar?");
-		// if(answer == true){
 	upd_quantityproduct2sell(product_id,new_quantity);
-	// }else{
-	// 	upd_quantityproduct2sell(product_id,new_quantity);
-	// }
 }
 function upd_precionuevaventa(product_id){
 	$.ajax({ data: {"a" : "1"}, type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
@@ -36,6 +30,114 @@ function upd_precionuevaventa(product_id){
 		}	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
+//  #########################  nuevas funciones de edicion del txt ##################
+function plus_product2nuevaventa(product_id,precio,descuento,itbm,activo,cantidad){
+	close_popup();
+	$.ajax({	data: {"a" : product_id, "b" : precio, "c" : descuento, "d" : itbm, "e" : activo, "f" : cantidad, "z" : 'plus' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+		if(data){
+			data = JSON.parse(data);
+			generate_tbl_nuevaventa(data,activo);
+			activo=activo.replace("_sale","");
+			$("#btn_guardar, #btn_facturar").css("display","initial");
+			$("#txt_filterproduct").focus();$("#txt_filterproduct").val('');
+			// $("tbl_product2sell").scrollIntoView(true);
+			$('html, body').animate({
+			 // scrollTop: $("#tbl_product2sell_"+activo)[0].offset().top
+		 }, 500);
+
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+
+}
+
+function upd_descripcion_nuevaventa(product_id){
+	$.ajax({	data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
+	.done(function( data, textStatus, jqXHR ) {
+		if (data[0][0] === '') {
+			return false
+		}else{
+			var n_description = prompt("Introduzca la nueva descripcion");
+			if (n_description.length > 100) {
+				alert("La descripcion en muy larga");
+				upd_descripcion_nuevaventa(product_id);
+			}else{
+				var activo = $(".tab-pane.active").attr("id");
+				n_description  = n_description.replace('&','');
+				n_description  = n_description.replace('#','');
+				n_description  = n_description.replace("'","");
+				n_description = n_description.toUpperCase();
+				$.ajax({	data: {"a" : product_id, "b" : n_description, "c" : activo, "d" : 'descripcion', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+				.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+					if(data){
+					data = JSON.parse(data);
+					generate_tbl_nuevaventa(data,activo);
+				}
+				})
+				.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+			}
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+
+}
+function upd_precio_nuevaventa(product_id){
+	$.ajax({ data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
+	.done(function( data, textStatus, jqXHR ) {	if(data[0][0] != ""){
+			var activo = $(".tab-pane.active").attr("id");
+			var new_price = prompt("Ingrese el Nvo. Precio:");
+			new_price = val_intw2dec(new_price);
+			new_price = parseFloat(new_price);
+			$.ajax({	data: {"a" : product_id, "b" : new_price.toFixed(2), "c" : activo, "d" : 'precio', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+			.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+				if(data){
+					data = JSON.parse(data);
+					generate_tbl_nuevaventa(data,activo);
+				}
+			})
+			.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+		}	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+
+}
+function upd_unidades_nuevaventa(product_id){
+	var activo = $(".tab-pane.active").attr("id");
+	var new_quantity = prompt("Ingrese la cantidad:");
+	new_quantity = val_intw2dec(new_quantity);
+	new_quantity = parseFloat(new_quantity);
+	$.ajax({	data: {"a" : product_id, "b" : new_quantity.toFixed(2), "c" : activo, "d" : 'cantidad', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+		if(data){
+			data = JSON.parse(data);
+			generate_tbl_nuevaventa(data,activo);
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
+function del_nuevaventa(product_id){
+	var activo = $(".tab-pane.active").attr("id");
+	$.ajax({	data: {"a" : product_id, "b" : activo, "z" : 'del' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+		if(data){
+			data = JSON.parse(data);
+			generate_tbl_nuevaventa(data,activo);
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
+function refresh_tblproduct2sale(){
+	var activo = $(".tab-pane.active").attr("id");
+	$.ajax({	data: {"a" : activo, "z" : 'reload' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+		if(data){
+			data = JSON.parse(data);
+			generate_tbl_nuevaventa(data,activo);
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
+
 
 function close_popup(){
 	popup.close();
@@ -50,24 +152,42 @@ function open_product2addpaydesk(id, facturaventa_id){
 // #############################
 
 function  unset_filterclient(e){
+	var activo = $(".tab-pane.active").attr("id");
+			activo = activo.replace("_sale","");
 	if (e.which === 13) {
-		$("#btn_addclient").click();
+		$("#btn_addclient_"+activo).click();
 	}else{
-		$( "#txt_filterclient").prop("alt","");
+		$( "#txt_filterclient_"+activo).prop("alt","");
 	}
+
 	$( function() {
-		$( "#txt_filterclient").autocomplete({
+		$( "#txt_filterclient_"+activo).autocomplete({
 			source: "attached/get/filter_client_sell.php",
 			minLength: 2,
 			select: function( event, ui ) {
 							var n_val = ui.item.value;
 								raw_n_val = n_val.split(" | Dir:");
 								ui.item.value = raw_n_val[0];
-								console.log("ss");
-				$("#txt_filterclient").prop('alt', ui.item.id);
+				$("#txt_filterclient_"+activo).prop('alt', ui.item.id);
 				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
-				fire_recall('container_client_recall', content)
+				fire_recall('container_client_recall_'+activo, content)
 			}
 		});
 	});
 }
+function add_client(){
+	var activo = $(".tab-pane.active").attr("id");
+			activo = activo.replace("_sale","");
+	var name = $("#txt_filterclient_"+activo).val();
+			name = replace_regular_character(name);
+	if($("#txt_filterclient_"+activo).prop('alt') != ""){
+		if($("#txt_filterclient_"+activo).prop('alt') === "1"){
+			open_popup('popup_addclient.php?a='+name,'popup_addclient','425','420')
+		}else{
+			open_popup('popup_updclient.php?a='+$("#txt_filterclient_"+activo).prop('alt'),'popup_updclient','425','420')
+		}
+	}else{
+		open_popup('popup_addclient.php?a='+name,'popup_addclient','425','420')
+	}
+
+};

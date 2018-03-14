@@ -10,7 +10,7 @@ $link->query("DELETE FROM bh_nuevadevolucion WHERE nuevadevolucion_AI_user_id = 
 
 $qry_facturaf=$link->query("SELECT bh_facturaventa.AI_facturaventa_id, bh_facturaventa.TX_facturaventa_fecha,
 bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_deficit,
-bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,
+bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,bh_datoventa.datoventa_AI_producto_id,bh_datoventa.TX_datoventa_descripcion,
 bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.AI_producto_id, bh_producto.TX_producto_medida,
 bh_cliente.TX_cliente_nombre
 FROM ((((bh_facturaf
@@ -23,7 +23,7 @@ $rs_facturaf=$qry_facturaf->fetch_array();
 
 $qry_nuevadevolucion=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevadevolucion.TX_nuevadevolucion_cantidad, bh_nuevadevolucion.AI_nuevadevolucion_id, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento
 FROM ((bh_datoventa
-       INNER JOIN bh_nuevadevolucion ON bh_datoventa.AI_datoventa_id = bh_nuevadevolucion.nuevadevolucion_AI_datoventa_id)
+      INNER JOIN bh_nuevadevolucion ON bh_datoventa.AI_datoventa_id = bh_nuevadevolucion.nuevadevolucion_AI_datoventa_id)
       INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
       WHERE bh_nuevadevolucion.nuevadevolucion_AI_user_id = '$user_id'")or die($link->error);
 $rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array();
@@ -47,7 +47,14 @@ while ($rs_datopago=$qry_datopago->fetch_array()) {
   }
 }
 
-$qry_datodevolucion=$link->prepare("SELECT bh_datodevolucion.TX_datodevolucion_cantidad, bh_datodevolucion.datodevolucion_AI_producto_id FROM ((bh_facturaf INNER JOIN bh_notadecredito ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id) INNER JOIN bh_datodevolucion ON bh_notadecredito.AI_notadecredito_id = bh_datodevolucion.datodevolucion_AI_notadecredito_id) WHERE bh_datodevolucion.datodevolucion_AI_producto_id = '{$rs_facturaf['AI_producto_id']}' AND bh_notadecredito.notadecredito_AI_facturaf_id = ? ")or die($link->error);
+$qry_datodevolucion=$link->prepare("SELECT bh_datodevolucion.TX_datodevolucion_cantidad, bh_datodevolucion.datodevolucion_AI_producto_id
+  FROM ((((bh_datodevolucion
+    INNER JOIN bh_notadecredito ON bh_notadecredito.AI_notadecredito_id = bh_datodevolucion.datodevolucion_AI_notadecredito_id)
+    INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id)
+    INNER JOIN bh_facturaventa ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
+    INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
+WHERE bh_datoventa.AI_datoventa_id = ?
+AND bh_datodevolucion.datodevolucion_AI_producto_id = ? ")or die($link->error);
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -141,23 +148,6 @@ $("#btn_anulate").on("click", function(){
 
 });
 
-// function nc_makerefund(datoventa_id, cantidad_actual){
-// 	var cantidad = prompt("¿Que cantidad reingresara?");
-// 	pat = new RegExp(/[0-9]/);
-// 	res = pat.test(cantidad);
-// 	if(!res){
-// 		return false;
-// 	}
-// 	if(cantidad > cantidad_actual){
-// 		alert("El valor ingresado es erroneo");
-// 		return false;
-// 	}
-// 	if(cantidad < 1){
-// 		alert("El valor ingresado es erroneo");
-// 		return false;
-// 	}
-// 	window.location='plus_refund.php?a='+datoventa_id+'&b='+cantidad;
-// }
 function plus_creditnote(anulated_index){
   $.ajax({	data: {"a" : $("#txt_motivonc").val(), "b" : $("#sel_destinonc").val(), "c" : $("#txt_debito").val(), "d" : anulated_index },	type: "GET",	dataType: "text",	url: "attached/get/plus_creditnote.php", })
    .done(function( data, textStatus, jqXHR ) {
@@ -280,24 +270,24 @@ switch ($_COOKIE['coo_tuser']){
 <?php do{ ?>
     	<tr>
         <td><?php echo $rs_facturaf['TX_producto_codigo']; ?></td>
-        <td><?php echo $rs_facturaf['TX_producto_value']; ?></td>
+        <td><?php echo $rs_facturaf['TX_datoventa_descripcion']; ?></td>
         <td><?php echo $rs_facturaf['TX_producto_medida']; ?></td>
         <td><?php
-        $descuento = ($rs_facturaf['TX_datoventa_precio']*$rs_facturaf['TX_datoventa_descuento'])/100;
-        $precio_descuento = $rs_facturaf['TX_datoventa_precio']-$descuento;
-        $impuesto = ($rs_facturaf['TX_datoventa_precio']*$rs_facturaf['TX_datoventa_impuesto'])/100;
-        $precio_total = $precio_descuento+$impuesto;
-        echo number_format($precio_total,2)
-			  ?></td>
+          $descuento = ($rs_facturaf['TX_datoventa_precio']*$rs_facturaf['TX_datoventa_descuento'])/100;
+          $precio_descuento = $rs_facturaf['TX_datoventa_precio']-$descuento;
+          $impuesto = ($rs_facturaf['TX_datoventa_precio']*$rs_facturaf['TX_datoventa_impuesto'])/100;
+          $precio_total = $precio_descuento+$impuesto;
+          echo number_format($precio_total,2)
+			?></td>
         <td><?php echo $rs_facturaf['TX_datoventa_cantidad']; ?></td>
         <td><?php
-        $qry_datodevolucion->bind_param("i",$rs_facturaf['AI_facturaf_id']); $qry_datodevolucion->execute(); $result=$qry_datodevolucion->get_result();
-        $rs_datodevolucion=$result->fetch_array();
-			  $total_devuelto=0;
-			  do{
-    			$total_devuelto += $rs_datodevolucion['TX_datodevolucion_cantidad'];
-        }while($rs_datodevolucion=$result->fetch_array());
-			  echo $retired_quantity = $rs_facturaf['TX_datoventa_cantidad']-$total_devuelto;
+          $qry_datodevolucion->bind_param("ii",$rs_facturaf['AI_datoventa_id'],$rs_facturaf['datoventa_AI_producto_id']); $qry_datodevolucion->execute(); $result=$qry_datodevolucion->get_result();
+          $rs_datodevolucion=$result->fetch_array();
+  			  $total_devuelto=0;
+  			  do{
+      			$total_devuelto += $rs_datodevolucion['TX_datodevolucion_cantidad'];
+          }while($rs_datodevolucion=$result->fetch_array());
+  			  echo $retired_quantity = $rs_facturaf['TX_datoventa_cantidad']-$total_devuelto;
       ?></td>
         <td>
           <button type="button" id="<?php echo $retired_quantity ?>" name="<?php echo $rs_facturaf['AI_datoventa_id'];?>"  class="btn btn-warning btn-xs btn-fa" onclick="new_return(this)"><strong><i class="fa fa-recycle" aria-hidden="true"></i></strong></button>
@@ -327,7 +317,7 @@ switch ($_COOKIE['coo_tuser']){
 <?php do{ ?>
     <tr>
     	<td><?php echo $rs_nuevadevolucion['TX_producto_codigo']; ?></td>
-        <td><?php echo $rs_nuevadevolucion['TX_producto_value']; ?></td>
+        <td><?php echo $rs_nuevadevolucion['TX_datoventa_descripcion']; ?></td>
         <td><?php echo $rs_nuevadevolucion['TX_producto_medida']; ?></td>
         <td><?php echo $rs_nuevadevolucion['TX_nuevadevolucion_cantidad']; ?></td>
         <td><?php ?></td>

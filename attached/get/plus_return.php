@@ -20,7 +20,7 @@ $multiplo = (100-$debito)/100;
 
 //############################## ANSWER   ##########################
 
-$qry_nuevadevolucion=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevadevolucion.TX_nuevadevolucion_cantidad, bh_nuevadevolucion.AI_nuevadevolucion_id, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento
+$qry_nuevadevolucion=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevadevolucion.TX_nuevadevolucion_cantidad, bh_nuevadevolucion.AI_nuevadevolucion_id, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_datoventa.TX_datoventa_descripcion
 FROM ((bh_datoventa
        INNER JOIN bh_nuevadevolucion ON bh_datoventa.AI_datoventa_id = bh_nuevadevolucion.nuevadevolucion_AI_datoventa_id)
       INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
@@ -46,7 +46,7 @@ $rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array();
 <?php do{ ?>
     <tr>
     	<td><?php echo $rs_nuevadevolucion['TX_producto_codigo']; ?></td>
-      <td><?php echo $rs_nuevadevolucion['TX_producto_value']; ?></td>
+      <td><?php echo $rs_nuevadevolucion['TX_datoventa_descripcion']; ?></td>
       <td><?php echo $rs_nuevadevolucion['TX_producto_medida']; ?></td>
       <td><?php echo $rs_nuevadevolucion['TX_nuevadevolucion_cantidad']; ?></td>
       <td><?php

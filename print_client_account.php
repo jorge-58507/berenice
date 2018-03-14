@@ -143,11 +143,11 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
     <table id="tbl_movement" class="table table-striped table-bordered" style="font-size:12px">
 	    <thead style="border:solid; background-color:#DDDDDD">
 	    	<tr>
-	        	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>FECHA</strong></th>
-	          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-4"><strong>DESCRIPCION</strong></th>
-	          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>NUMERO</strong></th>
-	          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>IMPORTE</strong></th>
-	          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>SALDO</strong></th>
+					<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>FECHA</strong></th>
+					<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>DESCRIPCION</strong></th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>NUMERO</strong></th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>IMPORTE</strong></th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>SALDO</strong></th>
 				</tr>
 			</thead>
 	    	<tbody>
@@ -156,7 +156,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 		foreach ($raw_facturaf_debito as $key => $rs_facturaf_debito) {
 			$pager++;
 			if($index === 1){
-				if($pager === 11){
+				if($pager === 19){
 					$pager = 0;
 					$index++;
 ?>
@@ -169,18 +169,18 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 		    <table id="tbl_movement" class="table table-striped table-bordered" style="font-size:12px">
 			    <thead style="border:solid; background-color:#DDDDDD">
 			    	<tr>
-			        	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>FECHA</strong></th>
-			          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-4"><strong>DESCRIPCION</strong></th>
-			          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>NUMERO</strong></th>
-			          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>IMPORTE</strong></th>
-			          <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>SALDO</strong></th>
+							<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>FECHA</strong></th>
+							<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>DESCRIPCION</strong></th>
+							<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>NUMERO</strong></th>
+							<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>IMPORTE</strong></th>
+							<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>SALDO</strong></th>
 						</tr>
 					</thead>
 		    	<tbody>
 <?php
 				}
 			}else{
-				if($pager === 17){
+				if($pager === 19){
 					$pager = 0;
 					$index++;
 ?>
@@ -193,11 +193,11 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 				<table id="tbl_movement" class="table table-striped table-bordered" style="font-size:12px">
 					<thead style="border:solid; background-color:#DDDDDD">
 						<tr>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>FECHA</strong></th>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-4"><strong>DESCRIPCION</strong></th>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>NUMERO</strong></th>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>IMPORTE</strong></th>
-							<th class="col-xs-1 col-sm-1 col-md-1 col-lg-2"><strong>SALDO</strong></th>
+							<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>FECHA</strong></th>
+							<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>DESCRIPCION</strong></th>
+							<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>NUMERO</strong></th>
+							<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>IMPORTE</strong></th>
+							<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>SALDO</strong></th>
 						</tr>
 					</thead>
 					<tbody>
@@ -208,7 +208,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 		$str = $key;
 			if ($coincidencia = substr_count($str, "ff") > 0): ?>
 				<tr>
-					<td><?php echo date('d-m-Y', strtotime($rs_facturaf_debito['TX_facturaf_fecha']))." - ".$rs_facturaf_debito['TX_facturaf_hora']; ?></td>
+					<td><?php echo date('d-m-Y', strtotime($rs_facturaf_debito['TX_facturaf_fecha']))."-".$rs_facturaf_debito['TX_facturaf_hora']; ?></td>
 					<td><?php echo "FACTURA"; ?></td>
 					<td><?php echo $rs_facturaf_debito['TX_facturaf_numero']; ?></td>
 					<td><?php echo "+".$rs_facturaf_debito['TX_datopago_monto']; ?></td>

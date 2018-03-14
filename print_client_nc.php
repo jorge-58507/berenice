@@ -1,11 +1,9 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 require 'attached/php/req_login_sale.php';
-?>
-<?php
+
 $qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
 while($rs_opcion=$qry_opcion->fetch_array()){
@@ -31,7 +29,7 @@ $qry_client=$link->query("SELECT bh_cliente.TX_cliente_nombre, bh_cliente.TX_cli
 $rs_client=$qry_client->fetch_array();
 
 $qry_datodevolucion = $link->query("SELECT bh_datodevolucion.TX_datodevolucion_cantidad,
-	bh_producto.TX_producto_value, bh_producto.TX_producto_codigo, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento
+	bh_producto.TX_producto_value, bh_producto.TX_producto_codigo, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_datoventa.TX_datoventa_descripcion
 	FROM ((bh_datodevolucion	INNER JOIN bh_producto ON bh_producto.AI_producto_id =	bh_datodevolucion.datodevolucion_AI_producto_id)
 	INNER JOIN bh_datoventa ON bh_datoventa.AI_datoventa_id = bh_datodevolucion.datodevolucion_AI_datoventa_id)
 	WHERE bh_datodevolucion.datodevolucion_AI_notadecredito_id = '$notadecredito_id'")or die($link->error);
@@ -48,10 +46,10 @@ $qry_datodevolucion = $link->query("SELECT bh_datodevolucion.TX_datodevolucion_c
 function cap_fl(str){
 	  return string.charAt(0).toUpperCase() + string.slice(1);
 }
-//setTimeout("self.close()", 10000);
+setTimeout("self.close()", 10000);
 </script>
-<!-- onLoad="window.print()" -->
-<body style="font-family:Arial" >
+<!--  -->
+<body style="font-family:Arial" onLoad="window.print()" >
 <?php
 $fecha_actual=date('Y-m-d');
 $dias = array('Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','Sabado');
@@ -159,13 +157,13 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
     <table  id="tbl_datoventa" class="table table-print table-bordered table-striped">
     <thead style="border:solid">
     	<tr>
-            <th style="width:50%; text-align:center; border:solid 1px #000;">
+            <th style="width:10%; text-align:center; border:solid 1px #000;">
             <strong>Cantidad</strong>
             </th>
 						<th style="width:20%; text-align:center; border:solid 1px #000; border-bottom-left-radius:3px;border-top-left-radius:3px;">
 						<strong>Codigo </strong>
 	           </th>
-            <th style="width:10%; text-align:center; border:solid 1px #000;">
+            <th style="width:50%; text-align:center; border:solid 1px #000;">
             <strong>Descripcion </strong>
             </th>
             <th style="width:10%; text-align:center; border:solid 1px #000;">
@@ -199,13 +197,13 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 		    <table  id="tbl_datoventa" class="table table-print table-bordered table-striped">
 		    <thead style="border:solid">
 		    	<tr>
-						<th style="width:50%; text-align:center; border:solid 1px #000;">
+						<th style="width:10%; text-align:center; border:solid 1px #000;">
             <strong>Cantidad</strong>
             </th>
 						<th style="width:20%; text-align:center; border:solid 1px #000; border-bottom-left-radius:3px;border-top-left-radius:3px;">
 						<strong>Codigo </strong>
 	           </th>
-            <th style="width:10%; text-align:center; border:solid 1px #000;">
+            <th style="width:50%; text-align:center; border:solid 1px #000;">
             <strong>Descripcion </strong>
             </th>
             <th style="width:10%; text-align:center; border:solid 1px #000;">
@@ -233,13 +231,13 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 							<table  id="tbl_datoventa" class="table table-print table-bordered table-striped">
 							<thead style="border:solid">
 								<tr>
-									<th style="width:50%; text-align:center; border:solid 1px #000;">
+									<th style="width:10%; text-align:center; border:solid 1px #000;">
 			            <strong>Cantidad</strong>
 			            </th>
 									<th style="width:20%; text-align:center; border:solid 1px #000; border-bottom-left-radius:3px;border-top-left-radius:3px;">
 									<strong>Codigo </strong>
 				           </th>
-			            <th style="width:10%; text-align:center; border:solid 1px #000;">
+			            <th style="width:50%; text-align:center; border:solid 1px #000;">
 			            <strong>Descripcion </strong>
 			            </th>
 			            <th style="width:10%; text-align:center; border:solid 1px #000;">
@@ -264,7 +262,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 					<?php echo $rs_datodevolucion['TX_producto_codigo']; ?>
         </td>
         <td style="width:50%; text-align:center;">
-					<?php echo substr($rs_datodevolucion['TX_producto_value'],0,40); ?>
+					<?php echo substr($rs_datodevolucion['TX_datoventa_descripcion'],0,40); ?>
         </td>
 <?php
 					$descuento=($rs_datodevolucion['TX_datoventa_precio']*$rs_datodevolucion['TX_datoventa_descuento'])/100;

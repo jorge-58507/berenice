@@ -1,32 +1,23 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
 
 if(!empty($_GET['a'])){
 	$product_id=$_GET['a'];
 	$txt_product = "SELECT * FROM bh_producto WHERE AI_producto_id = '{$_GET['a']}'";
 }
-if(!empty($_GET['b'])){
-	$product_cod=$_GET['b'];
-	$txt_product = "SELECT * FROM bh_producto WHERE TX_producto_codigo = '{$_GET['b']}'";
-}
 
-$qry_product=mysql_query($txt_product);
-$nr_product=mysql_num_rows($qry_product);
+$qry_product=$link->query($txt_product)or die($link->error);
+$nr_product=$qry_product->num_rows;
 if($nr_product < 1){
 	$cod_jscript="<script type='text/javascript'>self.close();</script>";
 	echo $cod_jscript;
 }
-$rs_product=mysql_fetch_assoc($qry_product);
+$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
 $product_id=$rs_product['AI_producto_id'];
-$qry_precio=mysql_query("SELECT * FROM bh_precio WHERE precio_AI_producto_id = '$product_id' AND TX_precio_inactivo = '0' ORDER BY TX_precio_fecha DESC");
-$nr_precio=mysql_num_rows($qry_precio);
 
-$qry_itbm=mysql_query("SELECT TX_opcion_value FROM bh_opcion WHERE TX_opcion_titulo = 'itbm'");
-$row_itbm=mysql_fetch_row($qry_itbm);
-$itbm = $row_itbm[0];
+$qry_precio=$link->query("SELECT AI_precio_id, TX_precio_uno,TX_precio_dos, TX_precio_tres, TX_precio_cuatro, TX_precio_cinco FROM bh_precio WHERE precio_AI_producto_id = '$product_id' AND TX_precio_inactivo = '0' ORDER BY TX_precio_fecha DESC");
+$nr_precio =	$qry_precio->num_rows;
 
 ?>
 
@@ -46,14 +37,11 @@ $itbm = $row_itbm[0];
 <script type="text/javascript" src="attached/js/jquery.js"></script>
 <script type="text/javascript" src="attached/js/bootstrap.js"></script>
 <script type="text/javascript" src="attached/js/general_funct.js"></script>
-<script type="text/javascript" src="attached/js/product2sell_funct.js"></script>
 <script type="text/javascript" src="attached/js/ajax_funct.js"></script>
 <script type="text/javascript" src="attached/js/validCampoFranz.js"></script>
 <script type="text/javascript">
 
 $(document).ready(function() {
-
-setFocus("txt_quantity");
 
 $("#txt_quantity").blur(function(){
 	var quantity = $("#txt_quantity").val();
@@ -79,7 +67,6 @@ $('#btn_acept').click(function(){
 	var txt_itbm = document.forms[0]['txt_itbm'].name;
 	var txt_discount = document.forms[0]['txt_discount'].name;
 	if (id == ""||isEmpty(input_price)||isEmpty(txt_itbm)||isEmpty(txt_discount)){
-	//	alert("Faltan datos para continuar.");
 		return false;
 	}
 	var ans = val_intwdec($("#input_price").val());
@@ -87,7 +74,16 @@ $('#btn_acept').click(function(){
 		$("#input_price").css("border", "2px outset #F00")
 		return false;
 	}	$("#input_price").css("border", "2px inset #797b7e80")
-	plus_product2sell(id);
+	var activo = window.opener.$(".tab-pane.active").attr("id");
+	// if (activo === 'first_sale') {
+	// 	// plus_product2sell(id);
+	// }
+	// if (activo === 'second_sale') {
+		var	cantidad = $("#txt_quantity").val();
+		if(cantidad === ""){cantidad='1.00'}
+		precio = $("#input_price").val();	descuento = $("#txt_discount").val();	itbm = $("#txt_itbm").val();
+		window.opener.plus_product2nuevaventa(id,precio,descuento,itbm,activo,cantidad);
+	// }
 })
 
 $('#btn_cancel').click(function(){
@@ -142,12 +138,12 @@ $('#txt_discount').validCampoFranz('.0123456789');
 </div>
 <div id="container_quantity" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
 	<label for="txt_quantity">Cantidad:</label>
-    <input type="text" name="txt_quantity" id="txt_quantity" class="form-control" onkeyup="chk_quantity(this)" placeholder="1" />
+    <input type="text" name="txt_quantity" id="txt_quantity" class="form-control" placeholder="1" autofocus/>
 </div>
 <div id="container_price" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
     <label for="input_price">Precio:</label>
 <?php
-	$rs_precio=mysql_fetch_array($qry_precio);
+	$rs_precio=$qry_precio->fetch_array(MYSQLI_ASSOC);
 	if($nr_precio > 0){
 		if($rs_precio['TX_precio_cuatro'] === '0' || $rs_precio['TX_precio_cuatro'] === '' || $rs_precio['TX_precio_cuatro'] === '0.00'){
 ?>
@@ -174,30 +170,30 @@ $('#txt_discount').validCampoFranz('.0123456789');
     <?php
 	}else{
 	?>
-    <input type="text" name="input_price" id="input_price" class="form-control" />
-    <?php } ?>
+  <input type="text" name="input_price" id="input_price" class="form-control" />
+<?php } ?>
 </div>
 <div id="container_itbm" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
-    <label for="txt_itbm">Imp.%:</label>
-    <input type="text" name="txt_itbm" id="txt_itbm" class="form-control" value="<?php echo $rs_product['TX_producto_exento'] ?>" readonly="readonly"/>
+  <label for="txt_itbm">Imp.%:</label>
+  <input type="text" name="txt_itbm" id="txt_itbm" class="form-control" value="<?php echo $rs_product['TX_producto_exento'] ?>" readonly="readonly"/>
 </div>
 <div id="container_discount" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
-    <label for="txt_discount">Descuento%:</label>
+  <label for="txt_discount">Descuento%:</label>
 <?php
 	if ($_COOKIE['coo_iuser'] < 3) { ?>
 		<input type="text" name="txt_discount" id="txt_discount" class="form-control" value="<?php echo $rs_product['TX_producto_descuento'] ?>"/>
 <?php
-}else {
+	}else {
 	?>
-	<input type="text" name="txt_discount" id="txt_discount" class="form-control" value="<?php echo $rs_product['TX_producto_descuento'] ?>" readonly="readonly"/>
+		<input type="text" name="txt_discount" id="txt_discount" class="form-control" value="<?php echo $rs_product['TX_producto_descuento'] ?>" readonly="readonly"/>
 <?php
-}
+	}
 ?>
 </div>
 <div id="container_button" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<button type="button" id="btn_acept" class="btn btn-success">Aceptar</button>
-&nbsp;
-<button type="button" id="btn_cancel" class="btn btn-warning">Cancelar</button>
+	<button type="button" id="btn_acept" class="btn btn-success">Aceptar</button>
+	&nbsp;
+	<button type="button" id="btn_cancel" class="btn btn-warning">Cancelar</button>
 </div>
 
 </form>

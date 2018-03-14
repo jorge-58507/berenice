@@ -214,13 +214,22 @@ function filter_product_purchase(field) {
 function filter_product_sell(field){
 	var value = field.value;
 	var limit = ($("input[name=r_limit]:checked").val());
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("container_selproduct").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/filter_product_sell.php?a="+value+"&b="+limit,true);	xmlhttp.send();
+console.log(value+" / "+limit);
+	$.ajax({	data: {"a" : value, "b" : limit },	type: "GET",	dataType: "text",	url: "attached/get/filter_product_sell.php", })
+	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+	 	$("#tbl_product tbody").html(data);
+		})
+	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+
+	// 	if (window.XMLHttpRequest){
+	// 		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
+	// 		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
+	// 		document.getElementById("tbl_selproduct").innerHTML=xmlhttp.responseText;
+	// 	}
+	// }
+	// xmlhttp.open("GET","attached/get/filter_product_sell.php?a="+value+"&b="+limit,true);	xmlhttp.send();
+
+
 }
 
 function filter_product_collect(field,fact_id){
@@ -298,25 +307,34 @@ function del_product2oldsell(field){
 // }
 
 function save_sale(status){
-	var	date = $("#txt_date").val();
-	client_id = $("#txt_filterclient").prop("alt");
-	client = $("#txt_filterclient").val();
+	var activo = $(".tab-pane.active").attr("id");
+	activo = activo.replace("_sale","");
+	if($("#txt_filterclient_"+activo).prop("alt") === ''){
+		$("#txt_filterclient_"+activo).css("border","solid 2px #f50000");
+		$("#txt_filterclient_"+activo).val('');	$("#txt_filterclient_"+activo).focus();
+		return false;
+	}
+	if($("#tbl_product2sell_"+activo+" tbody tr td")[0].innerHTML === " "){
+		return false;
+	}
+	var	date = $("#txt_date_"+activo).val();
+	client_id = $("#txt_filterclient_"+activo).prop("alt");
+	client = $("#txt_filterclient_"+activo).val();
 	vendor_id = $("#txt_vendedor").prop("alt");
-	number = $("#txt_numero").val();
-	observation = $("#txt_observation").val();
-	total = $("#span_total").html();
-	total = total.replace(",","");
+	observation = $("#txt_observation_"+activo).val();
 	tuser= $.cookie('coo_tuser');
-	$.ajax({	data: {"a" : date, "b" : client_id, "c" : client, "d" : vendor_id, "e" : number, "f" : total, "g" : observation, "h" : status },	type: "GET",	dataType: "text",	url: "attached/get/save_sale.php", })
+	$.ajax({	data: {"a" : date, "b" : client_id, "c" : client, "d" : vendor_id, "g" : observation, "h" : status, "i" : activo+'_sale' },	type: "GET",	dataType: "text",	url: "attached/get/save_sale.php", })
 	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+	 		refresh_tblproduct2sale();
+			$("#txt_filterclient_"+activo).prop("alt",'1');
+			$("#txt_filterclient_"+activo).val('');
+
 		 var ans = confirm("¿Desea Imprimir el documento?");
 		 if (ans) {
 		 	print_html('print_sale_html.php?a='+data);
 		 }
 		 if(tuser === '4'){
 			 open_popup_w_scroll('popup_newcollect.php?a='+client_id+'&b='+vendor_id, 'popup_newcollect','525','425');
-		 }else{
-			 setTimeout("history.back(1)",250);
 		 }
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});

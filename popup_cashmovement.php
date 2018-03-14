@@ -88,6 +88,16 @@ $("#btn_print_all").on("click",function(){
 
 });
 
+var del_cashmovement = function(efectivo_id){
+	var ans = confirm("¿Confirma anular esta salida?");
+		if(!ans){ return false; }
+	$.ajax({ data: {"a" : efectivo_id}, type: "GET", dataType: "text", url: "attached/get/del_cashmovement.php",	})
+	.done(function( data, textStatus, jqXHR ) {
+		self.close();
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+
+}
 
 </script>
 
@@ -139,9 +149,9 @@ $("#btn_print_all").on("click",function(){
     <thead class="bg-primary">
     <tr>
       <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Tipo</th>
-      <th class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Motivo</th>
+      <th class="col-xs-5 col-sm-5 col-md-5 col-lg-5">Motivo</th>
       <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Monto</th>
-      <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"></th>
+      <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></th>
     </tr>
     </thead>
     <tfoot class="bg-primary"><tr><td></td><td></td><td></td><td></td></tr></tfoot>
@@ -159,6 +169,12 @@ $("#btn_print_all").on("click",function(){
 <?php } else {?>
 					<button type="button" class="btn btn-warning btn-xs" disabled><i class="fa fa-wrench fa-2x" aria-hidden="true"></i></button>
 <?php } ?>
+					&nbsp;
+<?php 		if ($rs_cashmovement['efectivo_AI_arqueo_id'] === '0' && $rs_cashmovement['TX_efectivo_tipo'] === 'SALIDA') { ?>
+					<button type="button" class="btn btn-danger btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="del_cashmovement(<?php echo $rs_cashmovement['AI_efectivo_id'] ?>)" ><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
+<?php 		} else {?>
+					<button type="button" class="btn btn-danger btn-xs" disabled><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
+<?php 		} ?>
 				</td>
 			</tr>
 <?php } ?>
