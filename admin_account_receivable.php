@@ -6,8 +6,8 @@ $link=conexion();
 require 'attached/php/req_login_paydesk.php';
 ?>
 <?php
-$qry_cliente=mysql_query("SELECT bh_cliente.AI_cliente_id, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, SUM(bh_facturaf.TX_facturaf_deficit) AS suma, bh_facturaf.TX_facturaf_deficit, bh_cliente.TX_cliente_direccion FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) GROUP BY AI_cliente_id ORDER BY TX_cliente_nombre ASC LIMIT 10");
-$rs_cliente=mysql_fetch_assoc($qry_cliente);
+$qry_cliente=$link->query("SELECT bh_cliente.AI_cliente_id, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, SUM(bh_facturaf.TX_facturaf_deficit) AS suma, bh_facturaf.TX_facturaf_deficit, bh_cliente.TX_cliente_direccion FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) GROUP BY AI_cliente_id ORDER BY TX_cliente_nombre ASC LIMIT 10");
+$rs_cliente=$qry_cliente->fetch_array();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -157,7 +157,7 @@ switch ($_COOKIE['coo_tuser']){
     <tbody>
 
     <?php
-	if($nr_cliente=mysql_num_rows($qry_cliente) > 0){
+	if($nr_cliente=$qry_cliente->num_rows > 0){
 	do{ ?>
     	<tr>
             <td><?php echo $rs_cliente['TX_cliente_nombre']; ?><br /><font style="font-size:10px; font-weight:bolder;"><?php echo substr($rs_cliente['TX_cliente_direccion'],0,70); ?></font></td>
@@ -177,7 +177,7 @@ switch ($_COOKIE['coo_tuser']){
             <button type="button" id="btn_enablecredit" name="<?php echo $rs_cliente['AI_cliente_id']; ?>" class="btn btn-success btn-sm" onclick="open_popup_w_scroll('popup_client_credit.php?a='+this.name,'client_credit','1000','420');">MOVIMIENTOS</button>
             </td>
     	</tr>
-    <?php }while($rs_cliente=mysql_fetch_assoc($qry_cliente));
+    <?php }while($rs_cliente=$qry_cliente->fetch_array());
 	}else{
 	?>
         <tr>

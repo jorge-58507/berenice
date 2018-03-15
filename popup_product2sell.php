@@ -74,16 +74,18 @@ $('#btn_acept').click(function(){
 		$("#input_price").css("border", "2px outset #F00")
 		return false;
 	}	$("#input_price").css("border", "2px inset #797b7e80")
+	var url = window.opener.location;
+	var patt = new RegExp("old_sale.php");
+	ans = patt.test(url)
 	var activo = window.opener.$(".tab-pane.active").attr("id");
-	// if (activo === 'first_sale') {
-	// 	// plus_product2sell(id);
-	// }
-	// if (activo === 'second_sale') {
+	if (ans) {
+		plus_product2sell(id);
+	}else{
 		var	cantidad = $("#txt_quantity").val();
 		if(cantidad === ""){cantidad='1.00'}
 		precio = $("#input_price").val();	descuento = $("#txt_discount").val();	itbm = $("#txt_itbm").val();
 		window.opener.plus_product2nuevaventa(id,precio,descuento,itbm,activo,cantidad);
-	// }
+	}
 })
 
 $('#btn_cancel').click(function(){

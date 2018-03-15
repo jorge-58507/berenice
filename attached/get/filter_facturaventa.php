@@ -290,6 +290,7 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 						</tr>
 					</tfoot>
 				</table>
+				<button type="button" onclick="duplicate_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)" class="btn btn-success">Duplicar</button>
 			</td>
 		</tr>
     <?php

@@ -219,14 +219,14 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 				$precio_total=$precio_descuento+$itbm;
 	 ?>
 
-    	<tr>
-            <td><?php echo $rs_facturaventa['TX_producto_codigo']; 				?></td>
-            <td><?php echo $r_function->replace_special_character($rs_facturaventa['TX_datoventa_descripcion']); 	?></td>
-            <td><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
-            <td><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
-            <td><?php echo number_format($descuento,4); 			?></td>
-            <td><?php echo number_format($itbm,4); 						?></td>
-            <td><?php echo number_format($precio_total,4); 		?></td>
+    	<tr  style="height:41px;">
+            <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_producto_codigo']; 				?></td>
+            <td style="vertical-align: middle;"><?php echo substr($r_function->replace_special_character($rs_facturaventa['TX_datoventa_descripcion']),0,96); 	?></td>
+            <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
+            <td style="vertical-align: middle;"><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
+            <td style="vertical-align: middle;"><?php echo number_format($descuento,4); 			?></td>
+            <td style="vertical-align: middle;"><?php echo number_format($itbm,4); 						?></td>
+            <td style="vertical-align: middle;"><?php echo number_format($precio_total,4); 		?></td>
 		</tr>
         <?php
 			/* ###### impuesto ######## */

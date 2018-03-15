@@ -40,8 +40,8 @@ do{
 }while($rs_datoventa=$qry_datoventa->fetch_array());
 
 function ins_nuevaventa($product,$cantidad,$precio,$itbm,$descuento,$descripcion){
-	$descripcion = str_replace("'","",$descripcion);
-	$link = conexion();
+	$link = conexion();	$r_function = new recurrent_function();
+ 	$descripcion = $r_function->replace_regular_character($descripcion);
 	$link->query("INSERT INTO bh_nuevaventa (nuevaventa_AI_user_id, nuevaventa_AI_producto_id, TX_nuevaventa_unidades, TX_nuevaventa_precio, TX_nuevaventa_itbm, TX_nuevaventa_descuento, TX_nuevaventa_descripcion)
 	VALUES ('{$_COOKIE['coo_iuser']}','$product','$cantidad','$precio','$itbm','$descuento','$descripcion')");
 }
@@ -364,7 +364,7 @@ switch ($_COOKIE['coo_tuser']){
 
 					<tr>
 						<td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
-						<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>)"><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
+						<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>)"><?php echo $r_function->replace_special_character($rs_nuevaventa['TX_nuevaventa_descripcion']); ?></td>
 						<td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
 						<td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
 						<?php echo $rs_nuevaventa['TX_nuevaventa_unidades']; ?>

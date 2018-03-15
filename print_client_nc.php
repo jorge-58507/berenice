@@ -88,10 +88,10 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 <?php echo $fecha_dia."&nbsp;-&nbsp;"; ?><?php echo $fecha; ?>
     </td>
 </tr>
-<tr style="height:21px" align="center">
+<tr style="height:40px" align="center">
 	<td valign="top" colspan="10"><h4>RECIBO POR NOTA DE CREDITO</h4></td>
 </tr>
-<tr style="height:184px">
+<tr style="height:190px">
 	<td valign="top" colspan="10">
     <table id="tbl_client" class="table">
 		<tbody style="background-color:#DDDDDD; border:solid;">
@@ -113,7 +113,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
         </tr>
     </table>
     <table id="tbl_creditnote" class="table">
-		<tbody style="border:solid;">
+		<tbody style="border:solid; font-size: 12px;">
     	<tr>
         	<td valign="top">
             <strong>Usuario(a): </strong><?php echo strtoupper($rs_creditnote['TX_user_seudonimo']); ?>
@@ -152,7 +152,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 		</table>
     </td>
 </tr>
-<tr style="height:580px;">
+<tr style="height:608px;">
 	<td valign="top" colspan="10" style="padding-top:2px;">
     <table  id="tbl_datoventa" class="table table-print table-bordered table-striped">
     <thead style="border:solid">
@@ -176,15 +176,11 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 	</thead>
     <tbody>
 <?php
-		$subtotal=0;
-		$totalitbm=0;
-		$totaldescuento=0;
-		$index = 1;
-		$pager = 0;
+		$subtotal=0;	$totalitbm=0;	$totaldescuento=0;	$index = 1;	$pager = 0;
 		while($rs_datodevolucion=$qry_datodevolucion->fetch_array()){
 			$pager++;
 			if($index === 1){
-				if($pager === 12){
+				if($pager === 14){
 					$pager = 0;
 					$index++;
 ?>
@@ -192,7 +188,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 				</table>
 			</td>
 		</tr>
-		<tr style="height:580px;">
+		<tr style="height:800px;">
 			<td valign="top" colspan="10" style="padding-top:2px;">
 		    <table  id="tbl_datoventa" class="table table-print table-bordered table-striped">
 		    <thead style="border:solid">
@@ -218,7 +214,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 <?php
 				}
 			}else{
-				if($pager === 20){
+				if($pager === 23){
 					$pager = 0;
 					$index++;
 ?>
@@ -254,7 +250,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 			}
 ?>
 
-    	<tr style="height:30px;">
+    	<tr style="height:41px;">
 				<td style="width:20%; text-align:center;">
 					<?php echo $rs_datodevolucion['TX_datodevolucion_cantidad']; ?>
 				</td>
@@ -262,7 +258,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 					<?php echo $rs_datodevolucion['TX_producto_codigo']; ?>
         </td>
         <td style="width:50%; text-align:center;">
-					<?php echo substr($rs_datodevolucion['TX_datoventa_descripcion'],0,40); ?>
+					<?php echo substr($r_function->replace_special_character($rs_datodevolucion['TX_datoventa_descripcion']),0,96); ?>
         </td>
 <?php
 					$descuento=($rs_datodevolucion['TX_datoventa_precio']*$rs_datodevolucion['TX_datoventa_descuento'])/100;

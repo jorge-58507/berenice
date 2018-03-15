@@ -40,7 +40,7 @@ function plus_product2nuevaventa(product_id,precio,descuento,itbm,activo,cantida
 			generate_tbl_nuevaventa(data,activo);
 			activo=activo.replace("_sale","");
 			$("#btn_guardar, #btn_facturar").css("display","initial");
-			$("#txt_filterproduct").focus();$("#txt_filterproduct").val('');
+			$("#txt_filterproduct").focus();
 			// $("tbl_product2sell").scrollIntoView(true);
 			$('html, body').animate({
 			 // scrollTop: $("#tbl_product2sell_"+activo)[0].offset().top
