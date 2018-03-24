@@ -1,13 +1,8 @@
 <?php
-
 require 'bh_conexion.php';
 $link=conexion();
 
-$qry_provider=$link->query("SELECT * FROM bh_proveedor")or die($link->error);
-$rs_provider=$qry_provider->fetch_array();
-
 ?>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -32,18 +27,17 @@ $rs_provider=$qry_provider->fetch_array();
 $(document).ready(function() {
 
 $('#btn_acept').click(function(){
-	var txt_providername = document.forms[0]['txt_providername'].name;
-	var txt_cif = document.forms[0]['txt_cif'].name;
-	var txt_telephone = document.forms[0]['txt_telephone'].name;
-	var txt_direction = document.forms[0]['txt_direction'].name;
-	if (isEmpty(txt_providername)||isEmpty(txt_cif)||isEmpty(txt_direction)){
-		return false;
-	}
-	plus_newprovider();
+	if($("#txt_providername").val() === ''){ return false; }
+	if ($("#txt_cif").val() === '') { $("#txt_cif").val('0000-0-000000');	}
+	if ($("#txt_dv").val() === '') { $("#txt_dv").val('00');	}
+	if ($("#txt_telephone").val() === '') { $("#txt_telephone").val('0000-0000');	 }
+	if ($("#txt_direction").val() === '') { $("#txt_direction").val('PTY');	}
+	 plus_newprovider();
 })
 $('#btn_cancel').click(function(){
 	self.close();
 })
+
 
 $('#txt_telephone').validCampoFranz('0123456789 -');
 $('#txt_cif').validCampoFranz('abcdefghijklmnopqrstuvwxyz0123456789 -');
@@ -71,11 +65,15 @@ $('#txt_direction, #txt_providername').validCampoFranz('0123456789 .,- abcdefghi
 <form method="post" name="form_addprovider">
 <div id="container_name" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 	<label for="txt_providername">Nombre:</label>
-    <input type="text" name="txt_providername" id="txt_providername" class="form-control" onkeyup="chk_providername(this)" />
+    <input type="text" name="txt_providername" id="txt_providername" class="form-control" onkeyup="chk_providername(this)" value="<?php echo $_GET['a']; ?>" />
 </div>
 <div id="container_cif" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
 	<label for="txt_cif">RUC:</label>
-    <input type="text" name="txt_cif" id="txt_cif" class="form-control" onkeyup="chk_cif(this)" />
+  <input type="text" name="txt_cif" id="txt_cif" class="form-control" onkeyup="chk_cif(this)" />
+</div>
+<div class="col-xs-3 col-sm-3 col-md-3 col-lg-1">
+	<label for="txt_cif">DV:</label>
+  <input type="text" name="txt_dv" id="txt_dv" class="form-control" onkeyup="chk_dv(this)" />
 </div>
 <div id="container_telephone" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
     <label for="txt_telephone">Tel&eacute;fono:</label>

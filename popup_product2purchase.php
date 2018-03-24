@@ -4,9 +4,6 @@ $link=conexion();
 
 $product_id=$_GET['a'];
 
-$qry_warehouse=$link->query("SELECT * FROM bh_almacen");
-$rs_warehouse=$qry_warehouse->fetch_array();
-
 $qry_product=$link->query("SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_exento FROM bh_producto WHERE AI_producto_id = '$product_id' AND TX_producto_activo = '0'")or die($link->error);
 $rs_product=$qry_product->fetch_array();
 
@@ -61,7 +58,8 @@ $(document).ready(function() {
 	$("#form_product2purchase").on("keyup", function(e){
 		console.log(e.which);
 		if (e.which === 13) {
-			$("#btn_acept").click();
+			$("#btn_acept").focus()
+			setTimeout( function(){ $("#btn_acept").click(); }, 300);
 		}
 	})
 var last_price = '<?php echo $last_price; ?>';
@@ -111,7 +109,7 @@ function suggest_price(){
 	var sugerido = ((base*letra)/100)+base;
 
 	sugerido = sugerido.toFixed(2);
-	$("#txt_p_4").val(sugerido);
+	$("#txt_p_4").attr("placeholder",sugerido);
 }
 
 function cal_total(){
@@ -213,7 +211,7 @@ $("#txt_price").on("blur",function(){
 	    <input type="text" name="txt_price" id="txt_price" class="form-control" onkeyup="chk_price(this)"  />
 		</div>
 		<div id="container_regular" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-	    <label for="txt_p_4">Precio Regular:</label>
+	    <label for="txt_p_4">Precio Venta:</label>
 	    <input type="text" name="txt_p_4" id="txt_p_4" class="form-control" />
 		</div>
 		<div id="container_itbm" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">

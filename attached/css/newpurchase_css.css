@@ -13,9 +13,12 @@ margin-top: 24px;
 	padding:10px 15px;
 }
 #container_tblproduct{
-	padding:10px 0;
+	padding:0;
 	max-height: 250px;
 	overflow-y: auto;
+	border: solid 1px #ccc;
+	border-radius: 4px;
+	margin: 10px 0 0 0;
 }
 #tbl_newentry, #tbl_newentry th{
 	text-align:center;
@@ -40,7 +43,7 @@ margin-top: 24px;
 }
 #ta_observation{
 	width: 602px;
-	height: 284px;
+	height: 294px;
 }
 #container_btnfiltercompra{
 	padding-top: 24px;
@@ -53,4 +56,12 @@ margin-top: 24px;
 }
 #container_filterproduct{
 	padding: 0;
+}
+#container_product{
+	max-height: 300px;
+	overflow-y: auto;
+}
+#container_facturacompra{
+	max-height: 300px;
+	overflow-y: auto;
 }

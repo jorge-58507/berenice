@@ -41,9 +41,19 @@ $('#btn_acept').click(function(){
 		$("#txt_cif").focus();
 		return false;
 	}
-	$.ajax({	data: { "a" : $("#txt_clientname").val().replace("&","ampersand"), "b" : $("#txt_cif").val(), "c" : $("#txt_telephone").val(), "d" : $("#txt_direction").val(), "e" : '<?php echo $client_id; ?>' },	type: "GET",	dataType: "text",	url: "attached/get/upd_client_info.php", })
+
+	var opener_url = window.opener.location;
+		patt = RegExp(/old_sale|new_collect/);
+	activo = (patt.test(opener_url)) ?	'' :	window.opener.$(".tab-pane.active").attr("id");	activo = activo.replace("_sale","");
+
+	$.ajax({	data: { "a" : $("#txt_clientname").val().replace("&","ampersand"), "b" : $("#txt_cif").val(), "c" : $("#txt_telephone").val(), "d" : $("#txt_direction").val(), "e" : '<?php echo $client_id; ?>', "f" : activo },	type: "GET",	dataType: "text",	url: "attached/get/upd_client_info.php", })
 	 .done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
-		 window.opener.$("#container_txtfilterclient").html(data);
+	 if (activo != '') {
+		 window.opener.$("#container_txtfilterclient"+activo).html(data);
+	 } else {
+			window.opener.$("#container_txtfilterclient").html(data);
+	 }
+
 		 self.close(); })
 	 .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 })

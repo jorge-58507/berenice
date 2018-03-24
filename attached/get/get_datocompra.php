@@ -21,13 +21,15 @@ while ($rs_datocompra=$qry_datocompra->fetch_array(MYSQLI_ASSOC)) {
 	$prep_ins_nuevacompra->execute();
 }
 
-$qry_facturacompra=$link->query("SELECT AI_facturacompra_id, TX_facturacompra_ordendecompra, TX_facturacompra_numero, TX_facturacompra_almacen, facturacompra_AI_proveedor_id, TX_facturacompra_observacion FROM bh_facturacompra WHERE AI_facturacompra_id =	'$facturacompra_id'")or die($link->error);
+$qry_facturacompra=$link->query("SELECT  bh_facturacompra.AI_facturacompra_id,  bh_facturacompra.TX_facturacompra_ordendecompra,  bh_facturacompra.TX_facturacompra_numero,  bh_facturacompra.TX_facturacompra_almacen,  bh_facturacompra.facturacompra_AI_proveedor_id, bh_facturacompra.TX_facturacompra_observacion, bh_proveedor.TX_proveedor_nombre
+	FROM (bh_facturacompra INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = bh_facturacompra.facturacompra_AI_proveedor_id) WHERE AI_facturacompra_id =	'$facturacompra_id'")or die($link->error);
 $rs_facturacompra=$qry_facturacompra->fetch_array(MYSQLI_ASSOC);
 $raw_facturacompra['resultado']='acepted';
 $raw_facturacompra['numero']=$rs_facturacompra['TX_facturacompra_numero'];
 $raw_facturacompra['orden']=$rs_facturacompra['TX_facturacompra_ordendecompra'];
 $raw_facturacompra['almacen']=$rs_facturacompra['TX_facturacompra_almacen'];
 $raw_facturacompra['proveedor']=$rs_facturacompra['facturacompra_AI_proveedor_id'];
+$raw_facturacompra['proveedor_nombre']=$rs_facturacompra['TX_proveedor_nombre'];
 $raw_facturacompra['observacion']=$rs_facturacompra['TX_facturacompra_observacion'];
 
 echo json_encode($raw_facturacompra);

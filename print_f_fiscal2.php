@@ -183,16 +183,8 @@ fclose($file);
 /* ####################### ENCABEZADO  ###################### */
 /* ####################### ARTICULOS  ###################### */
 
-// $txt_datoventa="SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_descripcion,
-// (bh_datoventa.TX_datoventa_precio-((bh_datoventa.TX_datoventa_precio*bh_datoventa.TX_datoventa_descuento)/100)) AS precio, bh_datoventa.TX_datoventa_impuesto
-// FROM (((bh_facturaf
-// INNER JOIN bh_facturaventa ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
-// INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
-// INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
-// WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'";
-
 $txt_datoventa="SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_descripcion,
-bh_datoventa.TX_datoventa_precio AS precio, bh_datoventa.TX_datoventa_impuesto
+(bh_datoventa.TX_datoventa_precio-((bh_datoventa.TX_datoventa_precio*bh_datoventa.TX_datoventa_descuento)/100)) AS precio, bh_datoventa.TX_datoventa_impuesto
 FROM (((bh_facturaf
 INNER JOIN bh_facturaventa ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
 INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
@@ -205,11 +197,11 @@ $file = fopen($recipiente."FACMV".substr($rs_facturaf['TX_facturaf_numero'],-7).
 
 if ($qry_datoventa->num_rows > 3) {
   do{
-  fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,35).chr(9).$rs_datoventa['TX_producto_medida'].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+  fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($rs_datoventa['TX_datoventa_descripcion'],0,35).chr(9).$rs_datoventa['TX_producto_medida'].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }else{
   do{
-  fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,65).chr(9).$rs_datoventa['TX_producto_medida'].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+  fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($rs_datoventa['TX_datoventa_descripcion'],0,65).chr(9).$rs_datoventa['TX_producto_medida'].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }
 

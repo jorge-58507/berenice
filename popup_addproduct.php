@@ -1,12 +1,14 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 
-$qry_medida=mysql_query("SELECT * FROM bh_medida", $link);
-$rs_medida=mysql_fetch_assoc($qry_medida);
+$qry_medida=$link->query("SELECT * FROM bh_medida")or die($link->error);
+$rs_medida=$qry_medida->fetch_array();
 
-$qry_letra=mysql_query("SELECT bh_letra.AI_letra_id, bh_letra.TX_letra_value, bh_letra.TX_letra_porcentaje FROM bh_letra");
+$qry_letra=$link->query("SELECT bh_letra.AI_letra_id, bh_letra.TX_letra_value, bh_letra.TX_letra_porcentaje FROM bh_letra")or die($link->error);
 
+$qry_impuesto = $link->query("SELECT SUM(TX_impuesto_value) as impuesto FROM bh_impuesto WHERE TX_impuesto_categoria = 'GENERAL'")or die($link->error);
+$rs_impuesto = $qry_impuesto->fetch_array();
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -17,12 +19,14 @@ $qry_letra=mysql_query("SELECT bh_letra.AI_letra_id, bh_letra.TX_letra_value, bh
 
 <link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+<link href="attached/css/jquery-ui.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/popup_css.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="attached/js/jquery.js"></script>
+<script type="text/javascript" src="attached/js/jquery-ui.min_edit.js"></script>
 <script type="text/javascript" src="attached/js/bootstrap.js"></script>
 <script type="text/javascript" src="attached/js/general_funct.js"></script>
 <script type="text/javascript" src="attached/js/ajax_funct.js"></script>
@@ -40,34 +44,44 @@ $(document).ready(function() {
 
 
 	$('#btn_save_product').click(function(){
-		if($("#txt_nombre").val() ===	"" || $("#txt_codigo").val() ===	"" || $("#txt_impuesto").val() ===	"" || $("#txt_cantmaxima").val() ===	"" || $("#txt_cantminima").val() ===	"" || $("#txt_cantidad").val() ===	""){
+		if($("#txt_nombre").val() ===	"" || $("#txt_codigo").val() ===	"" || $("#txt_impuesto").val() ===	"" || $("#txt_cantmaxima").val() ===	"" || $("#txt_cantminima").val() ===	"" || $("#txt_cantidad").val() ===	"" || $("#txt_p_4").val() ===	""){
 			return false;
 		}
- 		add_product();
-		setTimeout(function(){ self.close(); },250);
+		$.ajax({	data: {"a" : $("#txt_codigo").val(), "b" : $("#txt_referencia").val(), "c" : $("#txt_nombre").val(), "d" : $("#sel_medida").val(), "e" : $("#txt_cantidad").val(), "f" : $("#txt_cantmaxima").val(), "g" : $("#txt_cantminima").val(), "h" : $("#txt_impuesto").val(), "i" : $("#sel_letter").val(), "j" : $("#txt_p_1").val(), "k" : $("#txt_p_2").val(), "l" : $("#txt_p_3").val(), "m" : $("#txt_p_4").val(), "n" : $("#txt_p_5").val()  }, type: "GET", dataType: "text", url: "attached/get/plus_newproduct_popup.php",	})
+		.done(function( data, textStatus, jqXHR ) {
+			window.opener.open_product2purchase(data);
+		})
+		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 	});
 
 	$("#txt_nombre").on("keyup", function(){
 		$("#txt_nombre").val(this.value.toUpperCase());
 	});
+	$("#txt_codigo").on("blur", function(){
+		if(this.value.length == '6'){
+			this.value = "0000000"+this.value;
+		}
+	});
+	$( function() {
+		$("#txt_codigo").autocomplete({
+			source: "attached/get/filter_producto_codigo.php",
+			minLength: 2,
+			select: function( event, ui ) {
+				splited_value = ui.item.value.split(" | ");
+				new_value = splited_value[0];
+				ui.item.value = new_value;
+				fire_recall('container_product_recall', '¡Atencion!, Codigo a duplicar')
+			}
+		});
+	});
 
-	$('#txt_cantidad').validCampoFranz('.0123456789');
-	$('#txt_cantminima').validCampoFranz('0123456789');
-	$('#txt_cantmaxima').validCampoFranz('0123456789');
-	$('#txt_impuesto').validCampoFranz('0123456789');
+
+	$('#txt_cantidad, #txt_impuesto, #txt_cantminima, #txt_cantmaxima').validCampoFranz('.0123456789');
 	$('#txt_referencia').validCampoFranz(".0123456789abcdefghijklmnopqrstuvwxyz/- ")
 	$('#txt_nombre').validCampoFranz(".0123456789abcdefghijklmnopqrstuvwxyzº'#/-; ");
 	$('#txt_codigo').validCampoFranz(".0123456789abcdefghijklmnopqrstuvwxyz");
-	$('#txt_precio1').validCampoFranz('.0123456789');
-	$('#txt_precio2').validCampoFranz('.0123456789');
-	$('#txt_precio3').validCampoFranz('.0123456789');
-	$('#txt_precio4').validCampoFranz('.0123456789');
-	$('#txt_precio5').validCampoFranz('.0123456789');
-
-
+	$('#txt_precio1, #txt_precio2, #txt_precio3, #txt_precio4, #txt_precio5').validCampoFranz('.0123456789');
 });
-
-
 </script>
 
 </head>
@@ -96,25 +110,18 @@ $(document).ready(function() {
 		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
       <label for="txt_cantidad">Cantidad:</label>
       <input type="text" class="form-control input-sm" id="txt_cantidad" name="txt_cantidad" value="">
-      	</div>
-		<div id="container_alarm" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-      <label for="r_alarm">Alarma:</label>
-		<label for="r_alarm_0" class="radio"><input type="radio" name="r_alarm" value="0" checked="checked" /> Si</label>
-		<label for="r_alarm_0" class="radio"><input type="radio" name="r_alarm" value="1" /> No</label>
-  	</div>
+		</div>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 alert alert-danger display_none" id="container_product_recall">
+
+		</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
       <label for="txt_referencia">Referencia:</label>
 		<input type="text" id="txt_referencia" name="txt_referencia" class="form-control input-sm" value=""/>
       	</div>
 		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
       <label for="txt_impuesto">Impuesto:</label>
-      <input type="text" class="form-control input-sm" id="txt_impuesto" name="txt_impuesto" value="">
+      <input type="text" class="form-control input-sm" id="txt_impuesto" name="txt_impuesto" value="<?php echo $rs_impuesto['impuesto'] ?>">
   	</div>
-		<div id="container_activo" style="color:<?php echo $color; ?>;" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 container_radio">
-      <label for="r_alarm">ACTIVO:</label>
-			<label for="r_activo_0" class="radio"><input type="radio" name="r_active" value="0" checked="checked" /> Si</label>
-			<label for="r_activo_0" class="radio"><input type="radio" name="r_active" value="1" /> No</label>
-		</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
       <label for="sel_medida">Medida:</label>
 			<select  class="form-control input-sm" id="sel_medida" name="sel_medida">
@@ -122,7 +129,7 @@ $(document).ready(function() {
 		do{ ?>
 <option value="<?php echo $rs_medida['TX_medida_value']; ?>"><?php echo $rs_medida['TX_medida_value']; ?></option>
 <?php
-		}while($rs_medida=mysql_fetch_assoc($qry_medida));
+}while($rs_medida=$qry_medida->fetch_array());
 ?>    </select>
       	</div>
 		<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
@@ -130,7 +137,7 @@ $(document).ready(function() {
 		<select  class="form-control input-sm" id="sel_letter" name="sel_letter">
 <?php
        	$percent = 0;
-		while($rs_letra=mysql_fetch_assoc($qry_letra)){
+		while($rs_letra=$qry_letra->fetch_array()){
 ?>
 <option value="<?php echo $rs_letra['AI_letra_id']; ?>"><?php echo $rs_letra['TX_letra_value']; ?></option>
 <?php

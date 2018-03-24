@@ -258,8 +258,18 @@ th{
 #container_activo > label{
 	margin-left: 17px;
 }
+#container_activo{
+	box-shadow: inset 0px 0px 2px red;
+	border-radius: 5px;
+	padding: 0 5px;
+}
 #container_alarm > label{
 	margin-left: 17px;
+}
+#container_alarm{
+	box-shadow: inset 0px 0px 2px red;
+	border-radius: 5px;
+	padding: 0 5px;
 }
 #tbl_purchase_price th{
 	text-align: center;

@@ -57,7 +57,7 @@ $nr_product=mysql_num_rows($qry_product);
         <tr onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)">
             <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_product['TX_producto_codigo'] ?></td>
         	<td class="col-xs-6 col-sm-6 col-md-6 col-lg-6"><?php echo $rs_product['TX_producto_value'] ?></td>
-            <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_product['TX_producto_referencia'] ?></td>
+            <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_product['TX_producto_cantidad'] ?></td>
         </tr>
         <?php
         }while($rs_product=mysql_fetch_assoc($qry_product));

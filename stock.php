@@ -7,16 +7,12 @@ require 'attached/php/req_login_stock.php';
 $qry_medida=$link->query("SELECT * FROM bh_medida");
 $rs_medida=$qry_medida->fetch_array(MYSQLI_ASSOC);
 
-
 $qry_product=$link->query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 20 ");
 $rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
-?>
-<?php
+
 $qry_itbm=$link->query("SELECT TX_opcion_value FROM bh_opcion WHERE TX_opcion_titulo = 'IMPUESTO'");
 $row_itbm=$qry_itbm->fetch_array();
 $itbm = $row_itbm[0];
-?>
-<?php
 
 $qry_checkbeneath=$link->query("SELECT AI_producto_id FROM bh_producto WHERE TX_producto_cantidad < TX_producto_minimo AND TX_producto_alarma = '0'");
 $nr_checkbeneath=$qry_checkbeneath->num_rows;
@@ -87,10 +83,8 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 
 	$('#btn_save_product').click(function(){
 		if($("#txt_codigo, #txt_cantidad, #txt_medida, #txt_cantminima, #txt_cantmaxima") === ""){
-			console.log("algo esta vacio");
 			return false;
 		}
-		console.log("pasolaprueba");
 		if($('#txt_p_4').val() === ""){
 			$('#txt_p_4').val('0.00');
 		}
@@ -167,9 +161,25 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 			this.value = "0000000"+this.value;
 		}
 	});
+
+	$( function() {
+		$("#txt_codigo").autocomplete({
+			source: "attached/get/filter_producto_codigo.php",
+			minLength: 2,
+			select: function( event, ui ) {
+				splited_value = ui.item.value.split(" | ");
+				new_value = splited_value[0];
+				ui.item.value = new_value;
+				fire_recall('container_product_recall', '¡Atencion!, Codigo a duplicar')
+			}
+		});
+	});
+
 	$("#btn_qry_report").on("click",function(){
 		open_popup('popup_stock_report.php','popup_stock_report','600','425');
 	});
+
+
 
 });
 	function upd_btn_report(){
@@ -234,12 +244,17 @@ switch ($_COOKIE['coo_tuser']){
         </div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 			<label for="txt_codigo">Codigo:</label>
-	<input type="text" class="form-control input-sm" id="txt_codigo" name="txt_codigo" onkeyup="setUpperCase(this);">
-        </div>
+			<input type="text" class="form-control input-sm" id="txt_codigo" name="txt_codigo" onkeyup="setUpperCase(this);">
+    </div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 			<label for="txt_referencia">Referencia:</label>
-	<input type="text" class="form-control input-sm" id="txt_referencia" name="txt_referencia" onkeyup="setUpperCase(this);">
-        </div>
+			<input type="text" class="form-control input-sm" id="txt_referencia" name="txt_referencia" onkeyup="setUpperCase(this);">
+    </div>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 alert alert-danger display_none" id="container_product_recall">
+				
+			</div>
+		</div>
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<label for="txt_cantidad">Cantidad:</label>
 			<input type="text" class="form-control  input-sm" id="txt_cantidad" name="txt_cantidad">

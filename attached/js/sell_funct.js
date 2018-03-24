@@ -52,22 +52,23 @@ function plus_product2nuevaventa(product_id,precio,descuento,itbm,activo,cantida
 
 }
 
-function upd_descripcion_nuevaventa(product_id){
+function upd_descripcion_nuevaventa(product_id,description){
 	$.ajax({	data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
 	.done(function( data, textStatus, jqXHR ) {
 		if (data[0][0] === '') {
 			return false
 		}else{
-			var n_description = prompt("Introduzca la nueva descripcion");
+			var n_description = prompt("Introduzca la nueva descripcion",description);
 			if (n_description.length > 100) {
 				alert("La descripcion en muy larga");
-				upd_descripcion_nuevaventa(product_id);
+				upd_descripcion_nuevaventa(product_id,description);
 			}else{
 				var activo = $(".tab-pane.active").attr("id");
-				n_description  = n_description.replace('&','');
-				n_description  = n_description.replace('#','');
-				n_description  = n_description.replace("'","");
+				// n_description  = n_description.replace('&','');
+				// n_description  = n_description.replace('#','');
+				// n_description  = n_description.replace("'","");
 				n_description = n_description.toUpperCase();
+				n_description = replace_regular_character(n_description);
 				$.ajax({	data: {"a" : product_id, "b" : n_description, "c" : activo, "d" : 'descripcion', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
 				.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
 					if(data){
@@ -87,6 +88,9 @@ function upd_precio_nuevaventa(product_id){
 	.done(function( data, textStatus, jqXHR ) {	if(data[0][0] != ""){
 			var activo = $(".tab-pane.active").attr("id");
 			var new_price = prompt("Ingrese el Nvo. Precio:");
+			if (new_price === '' || isNaN(new_price)) {
+				return false;
+			}
 			new_price = val_intw2dec(new_price);
 			new_price = parseFloat(new_price);
 			$.ajax({	data: {"a" : product_id, "b" : new_price.toFixed(2), "c" : activo, "d" : 'precio', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
@@ -104,6 +108,9 @@ function upd_precio_nuevaventa(product_id){
 function upd_unidades_nuevaventa(product_id){
 	var activo = $(".tab-pane.active").attr("id");
 	var new_quantity = prompt("Ingrese la cantidad:");
+	if (new_quantity === '' || isNaN(new_quantity)) {
+		return false;
+	}
 	new_quantity = val_intw2dec(new_quantity);
 	new_quantity = parseFloat(new_quantity);
 	$.ajax({	data: {"a" : product_id, "b" : new_quantity.toFixed(2), "c" : activo, "d" : 'cantidad', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})

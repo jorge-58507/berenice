@@ -29,15 +29,11 @@ if(isset($_GET['a'])){
 		$pedido_numero=$rs_pedido['TX_pedido_numero'];
 		$proveedor=$rs_pedido['pedido_AI_proveedor_id'];
 }
-?>
-<?php
-$qry_proveedor=$link->query("SELECT * FROM bh_proveedor WHERE TX_proveedor_tipo = 'DISTRIBUIDOR' ORDER BY TX_proveedor_nombre ASC")or die($link->error);
-$rs_proveedor=$qry_proveedor->fetch_array();
 
-$qry_warehouse=$link->query("SELECT * FROM bh_almacen");
+$qry_warehouse=$link->query("SELECT AI_almacen_id, TX_almacen_value FROM bh_almacen");
 $rs_warehouse=$qry_warehouse->fetch_array();
 
-$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_referencia FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 10");
+$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_referencia, TX_producto_cantidad FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 15");
 $rs_product=$qry_product->fetch_array();
 
 $qry_newpurchase=$link->query("SELECT bh_nuevacompra.AI_nuevacompra_id, bh_nuevacompra.nuevacompra_AI_producto_id, bh_nuevacompra.TX_nuevacompra_unidades, bh_nuevacompra.TX_nuevacompra_precio, bh_nuevacompra.TX_nuevacompra_itbm, bh_nuevacompra.TX_nuevacompra_descuento, bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_cantidad, bh_nuevacompra.TX_nuevacompra_p4
@@ -52,8 +48,6 @@ $rs_newpurchase=$qry_newpurchase->fetch_array();
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Trilli, S.A. - Todo en Materiales</title>
 
-
-
 <link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
@@ -61,6 +55,7 @@ $rs_newpurchase=$qry_newpurchase->fetch_array();
 <link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/jquery-ui.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/newpurchase_css.css" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" href="attached/css/font-awesome.css" type="text/css" />
 
 <script type="text/javascript" src="attached/js/jquery.js"></script>
 <script type="text/javascript" src="attached/js/bootstrap.js"></script>
@@ -77,10 +72,11 @@ $(document).ready(function() {
 			raw_facturacompra.orden='';
 			raw_facturacompra.observacion='';
 			raw_facturacompra.almacen='1';
-			raw_facturacompra.proveedor='1';
-	<?php
-	if(isset($_GET['b'])){
-			$json_facturacompra=$_GET['b'];?>
+			raw_facturacompra.proveedor='';
+			raw_facturacompra.proveedor_nombre='';
+<?php
+			if(isset($_GET['b'])){
+				$json_facturacompra=$_GET['b'];?>
 				var raw_facturacompra = <?php echo $json_facturacompra; ?>;
 <?php	}	 ?>
 $("#btn_navsale").click(function(){
@@ -105,60 +101,58 @@ $(window).on('beforeunload',function(){
 	close_popup();
 });
 
-// $("#sel_product").click(function(){
-// 	open_product2purchase(this);
-// });
-$("#btn_addprovider").click(function(){
-	open_addprovider(this);
+$("#btn_add_provider").click(function(){
+	open_addprovider();
 })
 $("#btn_insert").click(function(){
-	var	provider = $("#sel_provider_purchase").val();
+	var	provider = $("#txt_filterprovider").val();
 	var	billnumber = $("#txt_billnumber").val();
 	var chk_product = $("#tbl_newentry tbody tr td").html();
 
-	if(provider ===	""){ $("#sel_provider_purchase").css("border","inset 2px #cc3300"); $("#sel_provider_purchase").focus();
-		return false;
-	}
-	if(billnumber ===	""){ $("#txt_billnumber").css("border","inset 2px #cc3300"); $("#txt_billnumber").focus();
-		return false;
-	}
-	if(chk_product ===	""){ $("#txt_filterproduct").css("border","inset 2px #cc3300"); $("#txt_filterproduct").focus();
-		return false;
-	}
+	if(provider ===	""){ $("#txt_filterprovider").css("border","inset 2px #cc3300"); $("#txt_filterprovider").focus(); return false; }
+	if(billnumber ===	""){ $("#txt_billnumber").css("border","inset 2px #cc3300"); $("#txt_billnumber").focus(); return false; }
+	if(chk_product ===	""){ $("#txt_filterproduct").css("border","inset 2px #cc3300"); $("#txt_filterproduct").focus(); return false; }
+
 	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", })
 	 .done(function( data, textStatus, jqXHR ) {  console.log("GOOD" + textStatus);
-	 	if(data === '0'){ save_invoice(0);	}else{	alert("La Factura "+billnumber+" de "+$("#sel_provider_purchase option:selected").text()+" ya existe.");	}	 })
+	 	if(data === '0'){ save_invoice(0);	}else{	alert("La Factura "+billnumber+" de "+$("#txt_filterprovider option:selected").text()+" ya existe.");	}	 })
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
 $("#btn_save").click(function(){
-	var	provider = $("#sel_provider_purchase").val();
+	var	provider = $("#txt_filterprovider").val();
 	var	billnumber = $("#txt_billnumber").val();
 	var chk_product = $("#tbl_newentry tbody tr td").html();
 
-	if(provider ===	""){ $("#sel_provider_purchase").css("border","inset 2px #cc3300"); $("#sel_provider_purchase").focus();
-		return false;
-	}
-	if(billnumber ===	""){ $("#txt_billnumber").css("border","inset 2px #cc3300"); $("#txt_billnumber").focus();
-		return false;
-	}
-	if(chk_product ===	""){ $("#txt_filterproduct").css("border","inset 2px #cc3300"); $("#txt_filterproduct").focus();
-		return false;
-	}
+	if(provider ===	""){ $("#txt_filterprovider").css("border","inset 2px #cc3300"); $("#txt_filterprovider").focus(); return false; }
+	if(billnumber ===	""){ $("#txt_billnumber").css("border","inset 2px #cc3300"); $("#txt_billnumber").focus(); return false; }
+	if(chk_product ===	""){ $("#txt_filterproduct").css("border","inset 2px #cc3300"); $("#txt_filterproduct").focus(); return false; }
+
 	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", })
 	 .done(function( data, textStatus, jqXHR ) {  console.log("GOOD" + textStatus);
-	 	if(data === '0'){ save_invoice(1);	}else{	alert("La Factura "+billnumber+" de "+$("#sel_provider_purchase option:selected").text()+" ya existe.");	}	 })
+	 	if(data === '0'){ save_invoice(1);	}else{	alert("La Factura "+billnumber+" de "+$("#txt_filterprovider option:selected").text()+" ya existe.");	}	 })
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
-$("#btn_cancelar").click(function(){
-	clean_product2purchase();
-})
+$("#btn_cancelar").click(function(){	clean_product2purchase();	})
 $( function() {
 	$("#txt_date").datepicker({
 		changeMonth: true,
 		changeYear: true
 	});
 });
-
+$("#txt_filterprovider").on("keyup", function(e){
+  (e.which === 13) ?	$("#btn_add_provider").click() :	$( "#txt_filterprovider").prop("alt","");
+  $( function() {
+    $( "#txt_filterprovider").autocomplete({
+      source: "attached/get/filter_check_provider.php",
+      minLength: 2,
+      select: function( event, ui ) {
+        $("#txt_filterprovider").prop('alt', ui.item.id);
+        content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
+        fire_recall('container_provider_recall', content)
+      }
+    });
+  });
+})
 $("#ta_observation").on("keyup",function(){
 	this.value = this.value.toUpperCase();
 	chk_txtobservation(this.value);
@@ -168,7 +162,7 @@ $("#ta_observation").on("keyup",function(){
 });
 
 $("#btn_addproduct").on("click", function(){
-	open_popup('popup_addproduct.php','add_product',520,586);
+	open_popup('popup_addproduct.php','_popup',520,586);
 })
 
 
@@ -180,15 +174,18 @@ $("#txt_billnumber").val(raw_facturacompra['numero']);
 $("#txt_purchaseorder").val(raw_facturacompra['orden']);
 $("#ta_observation").val(raw_facturacompra['observacion']);
 $("#sel_warehouse").val(raw_facturacompra['almacen']);
-$("#sel_provider_purchase").val(raw_facturacompra['proveedor']);
+$("#txt_filterprovider").prop("alt",raw_facturacompra['proveedor']);
+$("#txt_filterprovider").val(raw_facturacompra['proveedor_nombre']);
 
 });
 
 function save_invoice(preguardado){
-	var ans = confirm("¿Esta cuenta esta POR PAGAR?");
+	if(preguardado === 1){ans=false;}else{
+		var ans = confirm("¿Esta cuenta esta POR PAGAR?");
+	}
 	if(ans){	ans="POR PAGAR";	}else{	ans="PAGADO";	}
 	var	date = $("#txt_date").val();
-	var	provider = $("#sel_provider_purchase").val();
+	var	provider = $("#txt_filterprovider").prop("alt");
 	var	billnumber = $("#txt_billnumber").val();
 	var	warehouse = $("#sel_warehouse").val();
 	var	purchaseorder = $("#txt_purchaseorder").val();
@@ -207,21 +204,6 @@ function save_invoice(preguardado){
 
 }
 
-function upd_quantitynewpurchase(nuevacompra_id){
-	var new_quantity=prompt("Ingrese la cantidad");
-	new_quantity=val_intw2dec(new_quantity);
-	if (new_quantity ===	'NaN') {
-		return false;
-	}
-	$.ajax({	data: { "a" : nuevacompra_id, "b" : new_quantity },	type: "GET",	dataType: "text",	url: "attached/get/upd_quantitynewpurchase.php", })
-	.done(function( data, textStatus, jqXHR ) {
-		console.log("GOOD" + textStatus);
-		if(data){
-			$("#container_tblnewentry").html(data);
-		}
-	})
-	.fail(function( jqXHR, textStatus, errorThrown ) {		});
-}
 </script>
 
 </head>
@@ -269,22 +251,11 @@ switch ($_COOKIE['coo_tuser']){
 
 
 <div id="container_provider" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-	<label for="sel_provider_purchase">Proveedor:</label>
-	<select id="sel_provider_purchase" name="sel_provider_purchase" class="form-control">
-  <?php
-	do{
-		if($rs_proveedor['AI_proveedor_id'] ===	$proveedor){
-	?>
-			<option value="<?php echo $rs_proveedor['AI_proveedor_id'] ?>" selected="selected"><?php echo $rs_proveedor['TX_proveedor_nombre'] ?></option>
-		<?php }else{	?>
-    	<option value="<?php echo $rs_proveedor['AI_proveedor_id'] ?>"><?php echo $rs_proveedor['TX_proveedor_nombre'] ?></option>
-	<?php }
-	}while($rs_proveedor=$qry_proveedor->fetch_array());
-	?>
-    </select>
+	<label for="txt_filterprovider">Proveedor:</label>
+	<input type="text" class="form-control" id="txt_filterprovider" placeholder="Proveedor">
 </div>
-<div id="container_btnaddprovider" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-	<button type="button" id="btn_addprovider" class="btn btn-success"><strong>+</strong></button>
+<div id="container_btnaddprovider" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md">
+	<button type="button" id="btn_add_provider" class="btn btn-success"><i class="fa fa-plus"></i></button>
 </div>
 <div id="container_date" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 	<label for="txt_date">Fecha:</label>
@@ -314,10 +285,10 @@ switch ($_COOKIE['coo_tuser']){
 <div id="container_product" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 	<div id="container_filterproduct" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
 	  <label for="sel_product">Producto:</label>
-    <input type="text" alt="select" class="form-control" id="txt_filterproduct" name="txt_filterproduct" onkeyup="filter_product2purchase(this);" />
+    <input type="text" alt="select" class="form-control" id="txt_filterproduct" name="txt_filterproduct" onkeyup="filter_product2purchase(this);" placeholder="Codigo, Descripcion o Referencia" />
 	</div>
-	<div id="container_btnaddproduct" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-		<button type="button" name="btn_addproduct" id="btn_addproduct" class="btn btn-success btn-md">+</button>
+	<div id="container_btnaddproduct" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 side-btn-md">
+		<button type="button" name="btn_addproduct" id="btn_addproduct" class="btn btn-success btn-md"><i class="fa fa-plus"></i></button>
 	</div>
 		<div id="container_tblproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     	<table id="tbl_product" class="table table-bordered table-condensed table-striped table-hover">
@@ -328,7 +299,7 @@ switch ($_COOKIE['coo_tuser']){
 	        <tr onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)">
             <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_product['TX_producto_codigo'] ?></td>
 	        	<td class="col-xs-6 col-sm-6 col-md-6 col-lg-6"><?php echo $rs_product['TX_producto_value'] ?></td>
-            <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_product['TX_producto_referencia'] ?></td>
+            <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_product['TX_producto_cantidad'] ?></td>
 	        </tr>
 <?php
         }while($rs_product=$qry_product->fetch_array());
@@ -342,7 +313,8 @@ switch ($_COOKIE['coo_tuser']){
     <textarea id="ta_observation" class="form-control"></textarea>
 </div>
 <div id="container_tblnewentry" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<table id="tbl_newentry" class="table table-bordered table-condensed table-striped">
+<table id="tbl_newentry" class="table table-bordered table-condensed">
+	<caption class="caption">Productos Incluidos en la Factura</caption>
 	<thead class="bg_green">
     <tr>
 			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Codigo</th>
@@ -390,24 +362,27 @@ switch ($_COOKIE['coo_tuser']){
       </td>
 			<td><span id="<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>" class="form-control" onclick="upd_newpurchase_price(this)"><?php echo number_format($rs_newpurchase['TX_nuevacompra_p4'],2);	?></span></td>
     </tr>
-    <?php }while($rs_newpurchase=$qry_newpurchase->fetch_array());?>
-    <?php }else{ ?>
+<?php }while($rs_newpurchase=$qry_newpurchase->fetch_array());?>
+		<tr class="bg_green">
+			<td colspan="5"></td>
+				<td>B/ <?php echo number_format($total_descuento,4); ?></td>
+				<td>B/ <?php echo number_format($total_itbm,4); ?></td>
+				<td>B/ <?php echo number_format($total,2); ?></td>
+				<td colspan="2"></td>
+		</tr>
+<?php }else{ ?>
     <tr>
-    	<td></td><td></td><td></td><td></td><td></td>
-        <td></td><td></td><td></td><td></td>
+    	<td colspan="9">&nbsp;</td>
     </tr>
-    <?php } ?>
-    </tbody>
-	<tfoot class="bg_green">
-    <tr>
-    	<td></td><td></td><td></td><td></td><td></td>
+		<tr class="bg_green">
+    	<td colspan="5"></td>
         <td>B/ <?php echo number_format($total_descuento,4); ?></td>
         <td>B/ <?php echo number_format($total_itbm,4); ?></td>
         <td>B/ <?php echo number_format($total,2); ?></td>
-				<td></td>
-				<td></td>
+				<td colspan="2"></td>
     </tr>
-    </tfoot>
+    <?php } ?>
+    </tbody>
 </table>
 </div>
 <div id="alert" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">

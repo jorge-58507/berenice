@@ -4,7 +4,6 @@ $link=conexion();
 
 require 'attached/php/req_login_admin.php';
 
-
 $raw_payment_i=json_decode($_GET['a'], true);
 $i=$_GET['b'];
 $cpp_id=$_GET['c'];
@@ -13,7 +12,7 @@ $method=$raw_payment_i['metodo'];
 $number=$raw_payment_i['numero'];
 $amount=$raw_payment_i['monto'];
 
-$qry_cpp = $link->query("SELECT bh_proveedor.TX_proveedor_nombre FROM (bh_cpp INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = bh_cpp.cpp_AI_proveedor_id) WHERE AI_cpp_id = '$cpp_id'")or die($link->error);
+$qry_cpp = $link->query("SELECT bh_proveedor.AI_proveedor_id, bh_proveedor.TX_proveedor_nombre FROM (bh_cpp INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = bh_cpp.cpp_AI_proveedor_id) WHERE AI_cpp_id = '$cpp_id'")or die($link->error);
 $rs_cpp = $qry_cpp->fetch_array();
 
 $qry_pedido = $link->query("SELECT bh_pedido.TX_pedido_numero FROM (bh_cpp INNER JOIN bh_pedido ON bh_pedido.AI_pedido_id = bh_cpp.cpp_AI_pedido_id) WHERE AI_cpp_id = '$cpp_id'")or die($link->error);
@@ -54,7 +53,7 @@ $("#btn_print").click(function(){
 	window.opener.raw_payment[<?php echo $i; ?>]['monto'] = $("#txt_monto").val();
 	window.opener.print_payment_cpp(window.opener.raw_payment);
 
-	$.ajax({	data: {"a" : '<?php echo $cpp_id; ?>', "b" : $("#txt_number").val(), "c" : $("#txt_monto").val(), "d" : $("#txt_montoletras").val(), "e" : $("#txt_observation").val() },	type: "GET",	dataType: "text",	url: "attached/get/plus_check.php", })
+	$.ajax({	data: {"a" : '<?php echo $cpp_id; ?>', "b" : $("#txt_number").val(), "c" : $("#txt_monto").val(), "d" : $("#txt_montoletras").val(), "e" : $("#txt_observation").val(), "f" : <?php echo $rs_cpp['AI_proveedor_id']; ?> },	type: "GET",	dataType: "text",	url: "attached/get/plus_check.php", })
 	 .done(function( data, textStatus, jqXHR ) {
 		 if (data) {
 		 	console.log('GOOD '+textStatus);

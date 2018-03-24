@@ -16,7 +16,7 @@ $new_price=$_GET['b'];
 		}
 	}
 
-	$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id FROM bh_producto, bh_nuevaventa WHERE bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id AND bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
+	$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id, bh_nuevaventa.TX_nuevaventa_descripcion FROM bh_producto, bh_nuevaventa WHERE bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id AND bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
 	$nr_nuevaventa=$qry_nuevaventa->num_rows;
 
 ?>
@@ -55,7 +55,7 @@ $new_price=$_GET['b'];
 			?>
 			      		<tr>
 			            <td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
-			            <td><?php echo $rs_nuevaventa['TX_producto_value']; ?></td>
+			            <td><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
 			            <td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
 			            <td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);"><?php
 			      			echo $rs_nuevaventa['TX_nuevaventa_unidades'];

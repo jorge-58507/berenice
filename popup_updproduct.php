@@ -162,18 +162,20 @@ $(document).ready(function() {
       <label for="txt_cantidad">Cantidad:</label>
       <input type="text" class="form-control input-sm" id="txt_cantidad" name="txt_cantidad" value="<?php echo $rs_product['TX_producto_cantidad']; ?>">
       	</div>
-		<div id="container_alarm" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-      <label for="r_alarm">Alarma:</label>
-      <?php if($rs_product['TX_producto_alarma'] == '0'){
-	  $checked_0="checked='checked'";
-	  $checked_1="";
-	  }else{
-	  $checked_0="";
-	  $checked_1="checked='checked'";
-	  } ?>
-		<label for="r_alarm_0" class="radio"><input type="radio" name="r_alarm" value="0" <?php echo $checked_0 ?> /> Si</label>
-		<label for="r_alarm_0" class="radio"><input type="radio" name="r_alarm" value="1" <?php echo $checked_1 ?> /> No</label>
-      	</div>
+		<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+			<div class=""  id="container_alarm">
+	      <label for="r_alarm" style="margin:0" >Alarma:</label>
+	      <?php if($rs_product['TX_producto_alarma'] == '0'){
+		  $checked_0="checked='checked'";
+		  $checked_1="";
+		  }else{
+		  $checked_0="";
+		  $checked_1="checked='checked'";
+		  } ?>
+			<label for="r_alarm_0" class="radio"><input type="radio" name="r_alarm" value="0" <?php echo $checked_0 ?> /> Si</label>
+			<label for="r_alarm_0" class="radio"><input type="radio" name="r_alarm" value="1" <?php echo $checked_1 ?> /> No</label>
+			</div>
+		</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
       <label for="sel_medida">Referencia:</label>
 		<input type="text" id="txt_reference" name="txt_reference" class="form-control input-sm" value="<?php echo $rs_product['TX_producto_referencia']; ?>"/>
@@ -191,10 +193,12 @@ $(document).ready(function() {
 	  $checked_1="checked='checked'";
 	  $color = "#F00";
 	  } ?>
-		<div id="container_activo" style="color:<?php echo $color; ?>;" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 container_radio">
-      <label for="r_alarm">ACTIVO:</label>
-			<label for="r_activo_0" class="radio"><input type="radio" name="r_active" value="0" <?php echo $checked_0 ?> /> Si</label>
-			<label for="r_activo_0" class="radio"><input type="radio" name="r_active" value="1" <?php echo $checked_1 ?> /> No</label>
+		<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 container_radio">
+			<div class="" id="container_activo">
+				<label for="r_alarm" style="margin:0" >Activo:</label>
+				<label for="r_activo_0" class="radio"><input type="radio" name="r_active" value="0" <?php echo $checked_0 ?> /> Si</label>
+				<label for="r_activo_0" class="radio"><input type="radio" name="r_active" value="1" <?php echo $checked_1 ?> /> No</label>
+			</div>
 		</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
       <label for="sel_medida">Medida:</label>

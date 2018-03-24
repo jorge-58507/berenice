@@ -1,5 +1,5 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
 
 $value=$_GET['term'];
@@ -15,10 +15,10 @@ $txt_client=$txt_client."TX_cliente_nombre LIKE '%{$arr_value[$it]}%'";
 $txt_client=$txt_client."TX_cliente_nombre LIKE '%{$arr_value[$it]}%' AND ";
 	}
 }
-$qry_client=mysql_query($txt_client." ORDER BY TX_cliente_nombre ASC");
+$qry_client=$link->query($txt_client." ORDER BY TX_cliente_nombre ASC")or die($link->error);
 $raw_cliente = array();
 $i=0;
-while($rs_cliente=mysql_fetch_assoc($qry_client)){
+while($rs_cliente=$qry_client->fetch_array(MYSQLI_ASSOC)){
 	if (substr_count($rs_cliente['TX_cliente_nombre'], 'NO USAR') < 1 ) {
 		$raw_cliente[$i]['id'] = $rs_cliente['AI_cliente_id'];
 		$raw_cliente[$i]['value'] = $rs_cliente['TX_cliente_nombre']." | Dir: ".$rs_cliente['TX_cliente_direccion'];

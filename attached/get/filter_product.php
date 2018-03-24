@@ -75,8 +75,9 @@ $nr_product=mysql_num_rows($qry_product);
 	<tbody>
 	<?php
     do{
-        ?>
-    <tr ondblclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');">
+			$font_color='#000'; $title='';
+			if ($rs_product['TX_producto_activo'] === '1'){ $font_color = '#fb1414'; $title='INACTIVO'; } ?>
+    	<tr ondblclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');"  style="color:<?php echo $font_color ?>" title="<?php echo $title; ?>">
         <td><?php echo $rs_product['TX_producto_codigo'] ?></td>
         <td><?php echo $rs_product['TX_producto_referencia'] ?></td>
         <td><?php echo $rs_product['TX_producto_value'] ?></td>

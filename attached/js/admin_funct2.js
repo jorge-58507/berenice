@@ -177,13 +177,15 @@ var u=new Array("cero", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete"
 var d=new Array("", "", "", "treinta", "cuarenta", "cincuenta", "sesenta", "setenta", "ochenta", "noventa");
 var c=new Array("", "ciento", "doscientos", "trescientos", "cuatrocientos", "quinientos", "seiscientos", "setecientos", "ochocientos", "novecientos");
 
-function nn(n){
+function nn(n)
+{
 	if(n != ''){
   var n=parseFloat(n).toFixed(2); /*se limita a dos decimales, no sabía que existía toFixed() :)*/
   var p=n.toString().substring(n.toString().indexOf(".")+1); /*decimales*/
   var m=n.toString().substring(0,n.toString().indexOf(".")); /*número sin decimales*/
   var m=parseFloat(m).toString().split("").reverse(); /*tampoco que reverse() existía :D*/
   var t="";
+
   /*Se analiza cada 3 dígitos*/
   for (var i=0; i<m.length; i+=3)
   {
@@ -208,8 +210,8 @@ function nn(n){
 	}
   t=t+" Balboas con "+p+"/100";
   /*correcciones*/
-  t=t.replace(" Cero","");
-	t=t.replace("  "," ");
+  t=t.replace("  "," ");
+  t=t.replace(" cero","");
   //t=t.replace("ciento y","cien y");
   //alert("Numero: "+n+"\nNº Dígitos: "+m.length+"\nDígitos: "+m+"\nDecimales: "+p+"\nt: "+t);
   //document.getElementById("esc").value=t;

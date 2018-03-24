@@ -112,34 +112,56 @@ function add_newentry(field){
 }
 
 function plus_product2purchase(id){
-	var	cantidad = document.getElementById("txt_quantity").value;
-		precio = document.getElementById("txt_price").value;
-		descuento = document.getElementById("txt_discount").value;
-		itbm = document.getElementById("txt_itbm").value;
-		p4 = document.getElementById("txt_p_4").value;
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			window.opener.document.getElementById("container_tblnewentry").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/plus_product2purchase.php?a="+id+"&b="+cantidad+"&c="+precio+"&d="+descuento+"&e="+itbm+"&f="+p4,true);	xmlhttp.send();
-//		alert("Elemento modificado exitosamente");
-		setTimeout("self.close()",250);
-//		window.opener.document.location.reload();
+		var	cantidad = $("#txt_quantity").val();
+		precio = $("#txt_price").val();
+		descuento = $("#txt_discount").val();
+		itbm = $("#txt_itbm").val();
+		p4 = $("#txt_p_4").val();
+
+		$.ajax({	data: {"a" : id, "b" : cantidad, "c" : precio, "d" : descuento, "e" : itbm, "f" : p4 },	type: "GET",	dataType: "text",	url: "attached/get/plus_product2purchase.php", })
+		 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+				window.opener.$("#tbl_newentry tbody").html(data);
+				setTimeout("self.close()",500);
+			})
+		 .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
 function del_product2purchase(field){
 		var id = field.name;
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("container_tblnewentry").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/del_product2purchase.php?a="+id,true);	xmlhttp.send();
-//		alert("Elemento modificado exitosamente");
-//		location.reload();
+		$.ajax({	data: {"a" : id},	type: "GET",	dataType: "text",	url: "attached/get/del_product2purchase.php", })
+		 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+				$("#tbl_newentry tbody").html(data);
+			})
+		 .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
+function upd_quantitynewpurchase(nuevacompra_id){
+	var new_quantity=prompt("Ingrese la cantidad");
+	new_quantity=val_intw2dec(new_quantity);
+	if (new_quantity ===	'NaN') {
+		return false;
+	}
+	$.ajax({	data: { "a" : nuevacompra_id, "b" : new_quantity },	type: "GET",	dataType: "text",	url: "attached/get/upd_quantitynewpurchase.php", })
+	.done(function( data, textStatus, jqXHR ) {
+		console.log("GOOD" + textStatus);
+		if(data){
+			$("#tbl_newentry tbody").html(data);
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {		});
+};
+function upd_newpurchase_price(f){
+	id = f.id;
+	new_price = prompt("Ingrese la Nueva Cantidad:");
+	new_price = val_intw2dec(new_price);
+	ans = val_intwdec(new_price);
+	if (!ans) {	return false;	}
+	new_price = parseFloat(new_price);
+	$.ajax({	data: {"a" : id, "b" : new_price }, type: "GET", dataType: "text", url: "attached/get/upd_newpurchase_price.php",	})
+	.done(function( data, textStatus, jqXHR ) {
+		$("#tbl_newentry tbody").html(data);
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
+
 function clean_product2purchase(){
 		if (window.XMLHttpRequest){
 			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
@@ -162,20 +184,25 @@ function del_nuevacompra(){
 }
 
 function plus_newprovider(){
-	var	providername = document.getElementById("txt_providername").value;
-		cif = document.getElementById("txt_cif").value;
-		direction = document.getElementById("txt_direction").value;
-		telephone = document.getElementById("txt_telephone").value;
-		type = document.getElementById('sel_type').value;
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("response").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/plus_newprovider.php?a="+providername+"&b="+cif+"&c="+direction+"&d="+telephone+"&e="+type,true);	xmlhttp.send();
-		setTimeout(function(){ window.opener.document.location.reload();}, 250);
-		setTimeout(function(){ self.close()}, 500);
+	$.ajax({	data: {"a" : $("#txt_providername").val().toUpperCase(), "b" : $("#txt_cif").val(), "c" : $("#txt_direction").val(), "d" : $("#txt_telephone").val(), "e" : $("#sel_type").val(), "f" : $("#txt_dv").val() },	type: "GET",	dataType: "text",	url: "attached/get/plus_newprovider.php", })
+	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+			data = JSON.parse(data);
+			window.opener.$("#txt_filterprovider").val(data['nombre']);
+			window.opener.$("#txt_filterprovider").prop("alt",data['id']);
+			setTimeout(function(){ self.close()}, 500);
+		})
+	 .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
+
+function upd_provider(proveedor_id){
+	$.ajax({	data: {"a" : $("#txt_providername").val().toUpperCase(), "b" : $("#txt_cif").val(), "c" : $("#txt_direction").val(), "d" : $("#txt_telephone").val(), "e" : $("#sel_type").val(), "f" : $("#txt_dv").val(), "g" : proveedor_id },	type: "GET",	dataType: "text",	url: "attached/get/upd_provider.php", })
+	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+			data = JSON.parse(data);
+			window.opener.$("#txt_filterprovider").val(data['nombre']);
+			window.opener.$("#txt_filterprovider").prop("alt",data['id']);
+			setTimeout(function(){ self.close()}, 250);
+		})
+	 .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
 function filter_product(field){
 	var value = field.value.replace("#","laremun");
@@ -220,16 +247,6 @@ console.log(value+" / "+limit);
 	 	$("#tbl_product tbody").html(data);
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
-
-	// 	if (window.XMLHttpRequest){
-	// 		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-	// 		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-	// 		document.getElementById("tbl_selproduct").innerHTML=xmlhttp.responseText;
-	// 	}
-	// }
-	// xmlhttp.open("GET","attached/get/filter_product_sell.php?a="+value+"&b="+limit,true);	xmlhttp.send();
-
-
 }
 
 function filter_product_collect(field,fact_id){
@@ -421,6 +438,9 @@ function clean_nuevaventa(){
 }
 
 function plus_newclient(){
+	var opener_url = window.opener.location;
+		patt = RegExp(/old_sale|new_collect/);
+	activo = (patt.test(opener_url)) ?	'' :	window.opener.$(".tab-pane.active").attr("id");	activo = activo.replace("_sale","");
 	var	name = $("#txt_clientname").val().replace("&","ampersand");
 			cif = $("#txt_cif").val();
 			if(cif === ""){ cif = '0-000-000'; }
@@ -428,14 +448,17 @@ function plus_newclient(){
 			if(direction === ""){ direction = 'NO INDICA'; }
 			telephone = $("#txt_telephone").val();
 			if (telephone === "") { telephone = '0000-0000'; }
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			window.opener.document.getElementById("container_txtfilterclient").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/plus_newclient.php?a="+name+"&b="+cif+"&c="+direction+"&d="+telephone,true);	xmlhttp.send();
-		setTimeout("self.close()",250);
+
+			$.ajax({	data: {"a" : name, "b" : cif, "c" : direction, "d" : telephone, "e" : activo },	type: "GET",	dataType: "text",	url: "attached/get/plus_newclient.php", })
+			 	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+				 	if (activo != '') {
+						window.opener.$("#container_txtfilterclient_"+activo).html(data);
+					} else {
+						 window.opener.$("#container_txtfilterclient").html(data);
+					}
+					setTimeout("self.close()",250);
+				})
+			 	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
 
 function plus_product2addpaydesk(id,facturaventa_id,arr_factid){

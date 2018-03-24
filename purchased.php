@@ -1,18 +1,15 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
 require 'attached/php/req_login_sale.php';
-
 session_destroy();
 
 $fecha_actual = date('d-m-Y');
 $month_year = date('Y-m',strtotime($fecha_actual));
 $fecha_inicial = date('d-m-Y',strtotime($month_year));
 
-	$qry_product=mysql_query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 5 ", $link);
-	$rs_product=mysql_fetch_assoc($qry_product);
+	$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_cantidad, TX_producto_maximo, TX_producto_minimo FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 5 ");
+	$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -157,9 +154,9 @@ switch ($_COOKIE['coo_tuser']){
   </div>
   <div id="container_filterproduct" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
     <label for="txt_filterproduct">Mostrar:</label><br />
-<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
-<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
-<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="" /> Todas</label>
+		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
+		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
+		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="" /> Todas</label>
 	</div>
 	<div id="container_date" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 		<div id="container_txtdateinitial" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
@@ -174,7 +171,7 @@ switch ($_COOKIE['coo_tuser']){
 	<div id="container_tblproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
         <?php
-		if($nr_product=mysql_num_rows($qry_product) != '0'){
+		if($nr_product=$qry_product->num_rows != '0'){
 			?>
 	<table id="tbl_product" border="0" class="table table-bordered table-hover table-condensed">
 	<thead class="bg-primary">
@@ -207,7 +204,7 @@ switch ($_COOKIE['coo_tuser']){
         </td>
     </tr>
         <?php
-    }while($rs_product=mysql_fetch_assoc($qry_product));
+    }while($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC));
     ?>
     </tbody>
     </table>
@@ -218,7 +215,7 @@ switch ($_COOKIE['coo_tuser']){
 	</div>
 </div>
 <div id="container_facturacompra" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <div id="container_filterfacturacompra" class="col-xs-9 col-sm-9 col-md-6 col-lg-6">
+    <div id="container_filterfacturacompra" class="col-xs-9 col-sm-9 col-md-6 col-lg-6 no_padding">
         <label for="txt_filterfacturacompra">Buscar por Factura:</label>
         <input type="text" class="form-control" id="txt_filterfacturacompra" name="txt_filterfacturacompra" onkeyup="filter_facturacompra(this);" />
     </div>

@@ -366,7 +366,7 @@ switch ($_COOKIE['coo_tuser']){
 <tr ondblclick="open_popup('popup_loginadmin.php?a=<?php echo $str_factid ?>&b=<?php echo $_GET['b'] ?>&z=admin_datoventa.php','popup_loginadmin','425','420');">
 	<td><?php echo $value['TX_producto_codigo']; ?> </td>
 	<td><?php echo $value['TX_facturaventa_numero']; ?></td>
-	<td><?php echo $value['TX_datoventa_descripcion']; ?></td>
+	<td><?php echo $r_function->replace_special_character($value['TX_datoventa_descripcion']); ?></td>
 	<td><?php echo $value['TX_producto_medida']; ?></td>
 	<td onclick="upd_quantityonnewcollect('<?php echo $value['AI_datoventa_id']; ?>');"><?php echo $value['TX_datoventa_cantidad']; ?></td>
 	<td><?php echo number_format($value['TX_datoventa_precio'],2); ?></td>

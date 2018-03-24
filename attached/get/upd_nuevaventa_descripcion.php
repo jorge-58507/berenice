@@ -51,7 +51,7 @@ $nr_nuevaventa=$qry_nuevaventa->num_rows;
 
 			<tr>
 				<td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
-				<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>)"><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
+				<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['TX_nuevaventa_descripcion']);?>')"><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
 				<td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
 				<td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
 				<?php echo $rs_nuevaventa['TX_nuevaventa_unidades']; ?>

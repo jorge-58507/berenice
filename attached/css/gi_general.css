@@ -16,8 +16,14 @@
     margin-top: 2px;
 }
 .side-btn-md{
-	padding-top: 28px;
+	padding-top: 25px;
 }
+.side-btn-md>button{
+	height: 34px;
+	width: 34px;
+	padding: 0px;
+}
+
 #btn_start{
 	cursor:pointer;
 }
@@ -214,4 +220,7 @@ h1{
 	padding: 6px 6px;
 	width: 34px;
 	height: 34px;
+}
+.btn{
+	border-radius: 3px;
 }

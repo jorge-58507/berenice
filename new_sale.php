@@ -183,7 +183,7 @@ function generate_tbl_nuevaventa(data,activo){
 			total_descuento += descuento*nuevaventa[x]['cantidad'];
 			total += subtotal;
 
-			content=content+'<tr><td>'+nuevaventa[x]['codigo']+'</td><td onclick="upd_descripcion_nuevaventa('+x+')">'+nuevaventa[x]['descripcion']+'</td><td>'+nuevaventa[x]['medida']+'</td><td onclick="upd_unidades_nuevaventa('+x+');">'+nuevaventa[x]['cantidad']+'</td><td  onclick="upd_precio_nuevaventa('+x+');">'+nuevaventa[x]['precio']+'</td><td>'+descuento.toFixed(2)+'</td><td>'+impuesto.toFixed(2)+'</td><td>'+precio_unitario.toFixed(2)+'</td><td>'+subtotal.toFixed(2)+'</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_nuevaventa('+x+');"><strong>X</strong></button></td></tr>';
+			content=content+'<tr><td>'+nuevaventa[x]['codigo']+'</td><td onclick="upd_descripcion_nuevaventa('+x+',\''+replace_regular_character(nuevaventa[x]['descripcion'])+'\')">'+replace_special_character(nuevaventa[x]['descripcion'])+'</td><td>'+nuevaventa[x]['medida']+'</td><td onclick="upd_unidades_nuevaventa('+x+');">'+nuevaventa[x]['cantidad']+'</td><td  onclick="upd_precio_nuevaventa('+x+');">'+nuevaventa[x]['precio']+'</td><td>'+descuento.toFixed(2)+'</td><td>'+impuesto.toFixed(2)+'</td><td>'+precio_unitario.toFixed(2)+'</td><td>'+subtotal.toFixed(2)+'</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_nuevaventa('+x+');"><strong>X</strong></button></td></tr>';
 		}
 		activo = activo.replace("_sale","");
 
@@ -329,7 +329,7 @@ switch ($_COOKIE['coo_tuser']){
 ?>
 									<tr>
 				            <td><?php echo $rs_nuevaventa['codigo']; ?></td>
-				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>)"><?php echo $rs_nuevaventa['descripcion']; ?></td>
+				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['descripcion']);?>')"><?php echo $r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
 				            <td><?php echo $rs_nuevaventa['medida']; ?></td>
 				            <td onclick="upd_unidades_nuevaventa(<?php echo $key ?>);"><?php echo $rs_nuevaventa['cantidad']; ?></td>
 				            <td onclick="upd_precio_nuevaventa(<?php echo $key; ?>);"><?php echo number_format($rs_nuevaventa['precio'],2); ?></td>
@@ -451,7 +451,7 @@ switch ($_COOKIE['coo_tuser']){
 ?>
 									<tr>
 				            <td><?php echo $rs_nuevaventa['codigo']; ?></td>
-				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>)"><?php echo $rs_nuevaventa['descripcion']; ?></td>
+				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['descripcion']);?>')"><?php echo $r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
 				            <td><?php echo $rs_nuevaventa['medida']; ?></td>
 				            <td onclick="upd_unidades_nuevaventa(<?php echo $key ?>);"><?php echo $rs_nuevaventa['cantidad']; ?></td>
 				            <td onclick="upd_precio_nuevaventa(<?php echo $key; ?>);"><?php echo number_format($rs_nuevaventa['precio'],2); ?></td>

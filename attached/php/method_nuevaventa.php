@@ -62,7 +62,7 @@ function upd_nuevaventa(){
 
 	$contenido=read_nuevaventa_content();
 	$raw_nuevaventa=json_decode($contenido, true);
-	$raw_nuevaventa[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"][$campo] = $value;
+	$raw_nuevaventa[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"][$campo] = $r_function->replace_special_character($value);
 	$contenido = json_encode($raw_nuevaventa);
 
 	write_nuevaventa_content($contenido);
@@ -119,7 +119,7 @@ function duplicate_datoventa(){
 		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['precio'] = $rs_datoventa['TX_datoventa_precio'];
 		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['impuesto'] = $rs_datoventa['TX_datoventa_impuesto'];
 		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['descuento'] = $rs_datoventa['TX_datoventa_descuento'];
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['descripcion'] = $rs_datoventa['TX_datoventa_descripcion'];
+		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['descripcion'] = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']);
 		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['codigo'] = $rs_product['TX_producto_codigo'];
 		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['medida'] = $rs_product['TX_producto_medida'];
 		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['stock'] = $rs_product['TX_producto_cantidad'];

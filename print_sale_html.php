@@ -42,7 +42,7 @@ $rs_facturaventa=$qry_facturaventa->fetch_array();
 function cap_fl(str){
 	  return string.charAt(0).toUpperCase() + string.slice(1);
 }
-setTimeout('self.close()',15000);
+// setTimeout('self.close()',15000);
 </script>
 
 <body style="font-family:Arial<?php /* echo $RS_medinfo['TX_fuente_medico']; */?>" onLoad="window.print()">
@@ -52,206 +52,193 @@ $dias = array('','Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes
 $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1];
 ?>
 <table cellpadding="0" cellspacing="0" border="0" style="height:975px; width:720px; font-size:12px; margin:0 auto">
-<tr style="height:6px">
-<td width="10%"></td>
-<td width="10%"></td>
-<td width="10%"></td>
-<td width="10%"></td>
-<td width="10%"></td>
-<td width="10%"></td>
-<td width="10%"></td>
-<td width="10%"></td>
-<td width="10%"></td>
-<td width="10%"></td>
-</tr>
-<tr style="height:135px" align="right">
-	<td colspan="2" style="text-align:left">
-    </td>
-
-   	<td valign="top" colspan="6" style="text-align:center">
-<img width="200px" height="75px" src="attached/image/logo_factura.png" ondblclick="window.location.href='print_sale_html_materiales.php?a=<?php echo $facturaventa_id; ?>'">
-<br />
-<font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
-<font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
-<font style="font-size:10px"><?php echo "TLF. ".$raw_opcion['TELEFONO']." WHATSAPP: "
-.$raw_opcion['FAX']."<br />"; ?></font>
-<font style="font-size:10px"><?php echo $raw_opcion['EMAIL']."<br />"; ?></font>
-    </td>
-
-    <td valign="top" colspan="2" class="optmayuscula">
-    <?php
-		$time=strtotime($rs_facturaventa['TX_facturaventa_fecha']);
-		$date=date('d-m-Y',$time);
-	?>
-<?php echo $fecha."&nbsp;-&nbsp;"; ?><?php echo $date; ?>
-    </td>
-</tr>
-<tr style="height:57px">
-	<td colspan="10" style="text-align:center;"><h3>COTIZACI&Oacute;N</h3></td>
-</tr>
-<tr style="height:123px">
-	<td valign="top" colspan="10">
-    <table id="tbl_client" class="table table-print" style="border:solid; background-color:#DDDDDD;">
-    	<tr>
-        	<td valign="top" style="width:50%;">
-            <strong>Vendedor(a): </strong><?php echo strtoupper($rs_facturaventa['TX_user_seudonimo']); ?>
-            </td>
-            <td valign="top" style="width:20%">
-            <strong>Presupuesto Nº: </strong><?php echo strtoupper($rs_facturaventa['TX_facturaventa_numero']); ?>
-            </td>
-            <td valign="top" style="width:30%">
-            </td>
-    	</tr>
-	</table>
-    <table id="tbl_client" class="table table-print" style="border:solid; background-color:#DDDDDD;">
-    	<tr>
-        	<td valign="top" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-            <strong>Nombre: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_nombre']); ?>
-            </td>
-            <td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-            <strong>RUC: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_cif']); ?>
-            </td>
-            <td valign="top" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-            <strong>Telefono: </strong><?php echo $rs_facturaventa['TX_cliente_telefono']; ?>
-            </td>
-    	</tr>
-        <tr>
-        	<td colspan="2">
-            <strong>Direcci&oacute;n: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_direccion']); ?>
-            </td>
-            <td></td>
-        </tr>
-    </table>
-    </td>
-</tr>
-<tr style="height:45px">
-	<td valign="top" colspan="10">
-        <table id="tbl_observation" class="table table-print" style="border:solid;">
-        <tr>
-        	<td valign="top" style="width:100%">
-            <strong>Observaci&oacute;n: </strong><?php echo strtoupper($rs_facturaventa['TX_facturaventa_observacion']); ?>
-            </td>
-        </tr>
-        </table>
-    </td>
-</tr>
-<tr style="height:535px;">
-	<td valign="top" colspan="10" style="padding-top:2px;">
-    <table table id="tbl_product" class="table table-print table-bordered table-striped" >
-    <thead style="border:solid">
-    	<tr>
-        <th>Codigo</th>
-        <th>Detalle</th>
-        <th>Cant.</th>
-        <th>Precio</th>
-        <th>Desc.</th>
-        <th>Imp.</th>
-        <th>Total.</th>
-		</tr>
-		</thead>
-    <tbody>
+	<tr style="height:6px">
+		<td width="10%"></td>
+		<td width="10%"></td>
+		<td width="10%"></td>
+		<td width="10%"></td>
+		<td width="10%"></td>
+		<td width="10%"></td>
+		<td width="10%"></td>
+		<td width="10%"></td>
+		<td width="10%"></td>
+		<td width="10%"></td>
+	</tr>
+	<tr style="height:135px" align="right">
+		<td colspan="2" style="text-align:left">
+	  </td>
+	 	<td valign="top" colspan="6" style="text-align:center">
+			<img width="200px" height="75px" src="attached/image/logo_factura.png" ondblclick="window.location.href='print_sale_html_materiales.php?a=<?php echo $facturaventa_id; ?>'">
+			<br />
+			<font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
+			<font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
+			<font style="font-size:10px"><?php echo "TLF. ".$raw_opcion['TELEFONO']." WHATSAPP: ".$raw_opcion['FAX']."<br />"; ?></font>
+			<font style="font-size:10px"><?php echo $raw_opcion['EMAIL']."<br />"; ?></font>
+	  </td>
+	  <td valign="top" colspan="2" class="optmayuscula"><?php
+			$time=strtotime($rs_facturaventa['TX_facturaventa_fecha']);
+			$date=date('d-m-Y',$time);
+			echo $fecha."&nbsp;-&nbsp;".$date;
+	?></td>
+	</tr>
+	<tr style="height:57px">
+		<td colspan="10" style="text-align:center;"><h3>COTIZACI&Oacute;N</h3></td>
+	</tr>
+	<tr style="height:123px">
+		<td valign="top" colspan="10">
+	  	<table id="tbl_client" class="table table-print" style="border:solid; background-color:#DDDDDD;">
+	    	<tr>
+	      	<td valign="top" style="width:50%;"><strong>Vendedor(a): </strong><?php echo strtoupper($rs_facturaventa['TX_user_seudonimo']); ?></td>
+	        <td valign="top" style="width:20%"><strong>Presupuesto Nº: </strong><?php echo strtoupper($rs_facturaventa['TX_facturaventa_numero']); ?></td>
+	        <td valign="top" style="width:30%"></td>
+	    	</tr>
+			</table>
+	    <table id="tbl_client" class="table table-print" style="border:solid; background-color:#DDDDDD;">
+	    	<tr>
+	        <td valign="top" class="col-xs-5 col-sm-5 col-md-5 col-lg-5"><strong>Nombre: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_nombre']); ?></td>
+	        <td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>RUC: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_cif']); ?></td>
+	        <td valign="top" class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><strong>Telefono: </strong><?php echo $rs_facturaventa['TX_cliente_telefono']; ?></td>
+	    	</tr>
+	      <tr>
+	      	<td colspan="2"><strong>Direcci&oacute;n: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_direccion']); ?></td>
+	        <td></td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+	<tr style="height:45px">
+		<td valign="top" colspan="10">
+	    <table id="tbl_observation" class="table table-print" style="border:solid;">
+	    	<tr>
+	      	<td valign="top" style="width:100%">
+	        <strong>Observaci&oacute;n: </strong><?php echo strtoupper($rs_facturaventa['TX_facturaventa_observacion']); ?>
+	        </td>
+	      </tr>
+	    </table>
+	  </td>
+	</tr>
+	<tr style="height:570px;">
+		<td valign="top" colspan="10" style="padding-top:2px;">
+	    <table table id="tbl_product" class="table table-print table-bordered table-striped" >
+		    <thead style="border:solid">
+		    	<tr>
+		        <th>Codigo</th>
+		        <th>Detalle</th>
+		        <th>Cant.</th>
+		        <th>Precio</th>
+		        <th>Desc.</th>
+		        <th>Imp.</th>
+		        <th>Total.</th>
+					</tr>
+				</thead>
+		  	<tbody>
 <?php
-				$total=0;
-				$totalitbm=0;
-				$totaldescuento=0;
-				$index = 1;
-				$pager = 0;
- 			do{
-				$pager++;
-				if($index === 1){
-					if($pager === 14){
-						$pager = 0;
-						$index++;
+				$total=0; 	$totalitbm=0; 	$totaldescuento=0;
+				$index = 1;	$pager = 0;
+	 			do{
+					$pager++;
+					if($index === 1){
+						if($pager === 13){
+							$pager = 0;
+							$index++;
 ?>
 				</tbody>
-				</table>
-				</td>
-				</tr>
-				<tr style="height:535px;">
-				<td valign="top" colspan="10" style="padding-top:2px;">
-					<table table id="tbl_product" class="table table-bordered table-striped table-print" >
-			    <thead style="border:solid">
-			    	<tr>
-			        <th>Codigo</th>
-			        <th>Detalle</th>
-			        <th>Cant.</th>
-			        <th>Precio</th>
-			        <th>Desc.</th>
-			        <th>Imp.</th>
-			        <th>Total.</th>
-					</tr>
-					</thead>
-			    <tbody>
-<?php
-				}
-			}else{
-				if($pager === 23){
-					$pager = 0;
-					$index++;
-?>
-					</tbody>
-					</table>
-					</td>
-					</tr>
-					<tr style="height:943px;">
-					<td valign="top" colspan="10" style="padding-top:2px;">
-						<table table id="tbl_product" class="table table-bordered table-striped table-print" >
-				    <thead style="border:solid">
-				    	<tr>
-				        <th>Codigo</th>
-				        <th>Detalle</th>
-				        <th>Cant.</th>
-				        <th>Precio</th>
-				        <th>Desc.</th>
-				        <th>Imp.</th>
-				        <th>Total.</th>
-						</tr>
-						</thead>
-				    <tbody>
-<?php
-					}
-				}
+			</table>
 
-				$precio = $rs_facturaventa['TX_datoventa_cantidad'] * $rs_facturaventa['TX_datoventa_precio'];
-				$descuento=($precio*$rs_facturaventa['TX_datoventa_descuento'])/100;
-				$precio_descuento=$precio-$descuento;
-				$itbm=($precio_descuento*$rs_facturaventa['TX_datoventa_impuesto'])/100;
-				$precio_total=$precio_descuento+$itbm;
-	 ?>
+			<tr style="height:38px; font-size:14px; border:solid; ">
+				<td colspan="10"></td>
+			</tr>
 
-    	<tr  style="height:41px;">
-            <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_producto_codigo']; 				?></td>
-            <td style="vertical-align: middle;"><?php echo substr($r_function->replace_special_character($rs_facturaventa['TX_datoventa_descripcion']),0,96); 	?></td>
-            <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
-            <td style="vertical-align: middle;"><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
-            <td style="vertical-align: middle;"><?php echo number_format($descuento,4); 			?></td>
-            <td style="vertical-align: middle;"><?php echo number_format($itbm,4); 						?></td>
-            <td style="vertical-align: middle;"><?php echo number_format($precio_total,4); 		?></td>
-		</tr>
-        <?php
-			/* ###### impuesto ######## */
-			$totalitbm += $itbm;
-			/* ###### impuesto ######## */
-			$totaldescuento += $descuento;
-			/* ###### subtotal ######## */
-			$total += $precio_total;
-		?>
-	<?php }while($rs_facturaventa=$qry_facturaventa->fetch_array()); ?>
- 	</tbody>
-	</table>
-    </td>
-</tr>
-<tr style="border:solid; height:22px; font-size:14px;">
-	<td colspan="2"></td>
-	<td colspan="2"><strong>Subtotal</strong><br /> B/ <?php echo number_format($total-$totalitbm+$totaldescuento,4) ?></td>
-	<td colspan="2"><strong>Impuesto</strong><br />B/ <?php echo number_format($totalitbm,4) ?></td>
-	<td colspan="2"><strong>Descuento</strong><br />B/ <?php echo number_format($totaldescuento,4); ?></td>
-	<td colspan="2"><strong>Total</strong><br />B/ <?php echo number_format($total,2); ?></td>
-</tr>
-    </tbody>
-    </table>
-    </td>
-</tr>
+		</td>
+	</tr>
 </table>
+<table cellpadding="0" cellspacing="0" border="0" style="height:975px; width:720px; font-size:12px; margin:0 auto; page-break-before: always">
+	<tr style="height:936px;">
+		<td valign="top" colspan="10" style="padding-top:2px;">
+			<table table id="tbl_product" class="table table-bordered table-striped table-print" >
+		    <thead style="border:solid">
+		    	<tr>
+		        <th>Codigo</th>
+		        <th>Detalle</th>
+		        <th>Cant.</th>
+		        <th>Precio</th>
+		        <th>Desc.</th>
+		        <th>Imp.</th>
+		        <th>Total.</th>
+					</tr>
+				</thead>
+				<tbody>
+	<?php
+					}
+				}else{
+					if($pager === 21){
+						$pager = 0;
+						$index++;
+	?>
+				</tbody>
+			</table>
+			<tr style="height:38px; font-size:14px; border:solid; ">
+				<td colspan="10"></td>
+			</tr>
+		</td>
+	</tr>
+</table>
+<table cellpadding="0" cellspacing="0" border="0" style="height:975px; width:720px; font-size:12px; margin:0 auto; page-break-before: always">
+	<tr style="height:936px;">
+		<td valign="top" colspan="10" style="padding-top:2px;">
+			<table table id="tbl_product" class="table table-bordered table-striped table-print" >
+		    <thead style="border:solid">
+		    	<tr>
+		        <th>Codigo</th>
+		        <th>Detalle</th>
+		        <th>Cant.</th>
+		        <th>Precio</th>
+		        <th>Desc.</th>
+		        <th>Imp.</th>
+		        <th>Total.</th>
+					</tr>
+				</thead>
+		    <tbody>
+	<?php
+						}
+					}
+
+					$precio = $rs_facturaventa['TX_datoventa_cantidad'] * $rs_facturaventa['TX_datoventa_precio'];
+					$descuento=($precio*$rs_facturaventa['TX_datoventa_descuento'])/100;
+					$precio_descuento=$precio-$descuento;
+					$itbm=($precio_descuento*$rs_facturaventa['TX_datoventa_impuesto'])/100;
+					$precio_total=$precio_descuento+$itbm;
+	 ?>
+		    	<tr  style="height:41px;">
+		        <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_producto_codigo']; 				?></td>
+		        <td style="vertical-align: middle;"><?php echo substr($r_function->replace_special_character($rs_facturaventa['TX_datoventa_descripcion']),0,96); 	?></td>
+		        <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
+		        <td style="vertical-align: middle;"><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
+		        <td style="vertical-align: middle;"><?php echo number_format($descuento,4); 			?></td>
+		        <td style="vertical-align: middle;"><?php echo number_format($itbm,4); 						?></td>
+		        <td style="vertical-align: middle;"><?php echo number_format($precio_total,4); 		?></td>
+					</tr>
+	<?php
+				$totalitbm += $itbm;
+				$totaldescuento += $descuento;
+				$total += $precio_total;
+?>
+	<?php }while($rs_facturaventa=$qry_facturaventa->fetch_array()); ?>
+	 			</tbody>
+			</table>
+		</td>
+	</tr>
+	<tr style="height:38px; font-size:14px; border:solid; ">
+		<td colspan="2"></td>
+		<td colspan="2"><strong>Subtotal</strong><br /> B/ <?php echo number_format($total-$totalitbm+$totaldescuento,4) ?></td>
+		<td colspan="2"><strong>Impuesto</strong><br />B/ <?php echo number_format($totalitbm,4) ?></td>
+		<td colspan="2"><strong>Descuento</strong><br />B/ <?php echo number_format($totaldescuento,4); ?></td>
+		<td colspan="2"><strong>Total</strong><br />B/ <?php echo number_format($total,2); ?></td>
+	</tr>
+</tbody>
+</table>
+<!-- </td>
+</tr>
+</table> -->
 </body>
 </html>

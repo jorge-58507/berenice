@@ -25,19 +25,18 @@ $rs_facturaventa=$qry_facturaventa->fetch_array();
 $qry_vendor=$link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$rs_facturaventa['facturaventa_AI_user_id']}'");
 $rs_vendor=$qry_vendor->fetch_array();
 
-$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_facturaventa_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '$facturaventa_id'")or die($link->error);
-$rs_datoventa=$qry_datoventa->fetch_array();
+$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_facturaventa_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '$facturaventa_id' ORDER BY AI_datoventa_id ASC")or die($link->error);
 
 $bh_del="DELETE FROM bh_nuevaventa WHERE nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}'";
 $link->query($bh_del) or die($link->error);
 
 $prep_producto_value=$link->prepare("SELECT TX_producto_value FROM bh_producto WHERE AI_producto_id = ?")or die($link->error);
 
-do{
+while($rs_datoventa=$qry_datoventa->fetch_array()){
 	$prep_producto_value->bind_param("i",$rs_datoventa['datoventa_AI_producto_id']); $prep_producto_value->execute();$qry_producto_value=$prep_producto_value->get_result();
 	$rs_producto_value=$qry_producto_value->fetch_array();
 	ins_nuevaventa($rs_datoventa['datoventa_AI_producto_id'],$rs_datoventa['TX_datoventa_cantidad'],$rs_datoventa['TX_datoventa_precio'],$rs_datoventa['TX_datoventa_impuesto'],$rs_datoventa['TX_datoventa_descuento'],(!empty($rs_datoventa['TX_datoventa_descripcion']))?$rs_datoventa['TX_datoventa_descripcion']:$rs_producto_value['TX_producto_value']);
-}while($rs_datoventa=$qry_datoventa->fetch_array());
+};
 
 function ins_nuevaventa($product,$cantidad,$precio,$itbm,$descuento,$descripcion){
 	$link = conexion();	$r_function = new recurrent_function();
@@ -73,7 +72,7 @@ $nr_nuevaventa=$qry_nuevaventa->num_rows;
 <script type="text/javascript" src="attached/js/bootstrap.js"></script>
 <script type="text/javascript" src="attached/js/general_funct.js"></script>
 <script type="text/javascript" src="attached/js/ajax_funct.js"></script>
-<script type="text/javascript" src="attached/js/sell_funct.js"></script>
+<!-- <script type="text/javascript" src="attached/js/sell_funct.js"></script> -->
 <script type="text/javascript" src="attached/js/jquery-ui.min_edit.js"></script>
 
 
@@ -189,17 +188,18 @@ $("#container_client_recall").css("display","none");
 
 });
 
-var upd_nuevaventa_descripcion = function(nuevaventa_id){
+var upd_nuevaventa_descripcion = function(nuevaventa_id, old_descripcion){
 	$.ajax({	data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
 	.done(function( data, textStatus, jqXHR ) {
 		if (data[0][0] === '') {
 			return false
 		}else{
-			var n_description = prompt("Introduzca la nueva descripcion");
+			var n_description = prompt("Introduzca la nueva descripcion",old_descripcion);
 			if (n_description.length > 100) {
 				alert("La descripcion en muy larga");
-				upd_nuevaventa_descripcion(nuevaventa_id);
+				upd_nuevaventa_descripcion(nuevaventa_id,old_descripcion);
 			}else{
+				n_description = replace_regular_character(n_description);
 				n_description = n_description.toUpperCase();
 				$.ajax({	data: {"a" : nuevaventa_id, "b" : n_description }, type: "GET", dataType: "text", url: "attached/get/upd_nuevaventa_descripcion.php",	})
 				.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
@@ -210,6 +210,82 @@ var upd_nuevaventa_descripcion = function(nuevaventa_id){
 		}
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
+function  unset_filterclient_oldsale(e){
+	if (e.which === 13) {
+		$("#btn_addclient").click();
+	}else{
+		$( "#txt_filterclient").prop("alt","");
+	}
+
+	$( function() {
+		$( "#txt_filterclient").autocomplete({
+			source: "attached/get/filter_client_sell.php",
+			minLength: 2,
+			select: function( event, ui ) {
+							var n_val = ui.item.value;
+								raw_n_val = n_val.split(" | Dir:");
+								ui.item.value = raw_n_val[0];
+				$("#txt_filterclient").prop('alt', ui.item.id);
+				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
+				fire_recall('container_client_recall', content)
+			}
+		});
+	});
+}
+function open_product2sell(id){
+	open_popup('popup_product2sell.php?a='+id+'', 'popup_product2sell','425','420');
+}
+function upd_precionuevaventa(product_id){
+	$.ajax({ data: {"a" : "1"}, type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
+	.done(function( data, textStatus, jqXHR ) {	if(data[0][0] != ""){
+			var new_price = prompt("Ingrese el Nvo. Precio:");
+			if (new_price === '' || isNaN(new_price)) {
+				return false;
+			}
+			new_price = val_intw2dec(new_price);
+			new_price = parseFloat(new_price);
+			upd_priceproduct2sell(product_id,new_price);
+		}	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+}
+function upd_unidadesnuevaventa(product_id){
+	var new_quantity = prompt("Ingrese la cantidad:");
+	if (new_quantity === '' || isNaN(new_quantity)) {
+		return false;
+	}
+	new_quantity = val_intw2dec(new_quantity);
+	upd_quantityproduct2sell(product_id,new_quantity);
+}
+function upd_descripcion_nuevaventa(product_id){
+	$.ajax({	data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
+	.done(function( data, textStatus, jqXHR ) {
+		if (data[0][0] === '') {
+			return false
+		}else{
+			var n_description = prompt("Introduzca la nueva descripcion");
+			if (n_description.length > 100) {
+				alert("La descripcion en muy larga");
+				upd_descripcion_nuevaventa(product_id);
+			}else{
+				var activo = $(".tab-pane.active").attr("id");
+				// n_description  = n_description.replace('&','');
+				// n_description  = n_description.replace('#','');
+				// n_description  = n_description.replace("'","");
+				// n_description = n_description.toUpperCase();
+				$.ajax({	data: {"a" : product_id, "b" : n_description, "c" : activo, "d" : 'descripcion', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+				.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+					if(data){
+					data = JSON.parse(data);
+					generate_tbl_nuevaventa(data,activo);
+				}
+				})
+				.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+			}
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+
 }
 </script>
 
@@ -306,7 +382,7 @@ switch ($_COOKIE['coo_tuser']){
 <div id="container_client" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtfilterclient" class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
     	<label for="txt_filterclient">Cliente:</label>
-	    <input type="text" class="form-control" alt="<?php echo $rs_facturaventa['facturaventa_AI_cliente_id']; ?>" id="txt_filterclient" name="txt_filterclient" onkeyup="unset_filterclient(event)" value="<?php echo $rs_facturaventa['TX_cliente_nombre']; ?>" />
+	    <input type="text" class="form-control" alt="<?php echo $rs_facturaventa['facturaventa_AI_cliente_id']; ?>" id="txt_filterclient" name="txt_filterclient" onkeyup="unset_filterclient_oldsale(event)" value="<?php echo $rs_facturaventa['TX_cliente_nombre']; ?>" />
     </div>
 	<div id="container_btnaddclient" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 		<button type="button" id="btn_addclient" class="btn btn-success"><strong><i class="fa fa-wrench" aria-hidden="true"></i></strong></button>
@@ -314,15 +390,18 @@ switch ($_COOKIE['coo_tuser']){
 	<div id="container_client_recall" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	</div>
 </div>
-<div id="container_txtobservation" class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
-	<label for="txt_observation">Observaciones:</label>
-	<input type="text" class="form-control" id="txt_observation" name="txt_observation" value="<?php echo $rs_facturaventa['TX_facturaventa_observacion']; ?>" />
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<div id="container_txtobservation" class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
+		<label for="txt_observation">Observaciones:</label>
+		<input type="text" class="form-control" id="txt_observation" name="txt_observation" value="<?php echo $rs_facturaventa['TX_facturaventa_observacion']; ?>" />
+	</div>
+	<div id="container_btnrefreshtblproduct2sale" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+			<button type="button" id="btn_refresh_tblproduct2sale" class="btn btn-info btn-md" title="Refrescar Tabla">
+	    <strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></span></strong>
+	    </button>
+	</div>
 </div>
-<div id="container_btnrefreshtblproduct2sale" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-		<button type="button" id="btn_refresh_tblproduct2sale" class="btn btn-info btn-md" title="Refrescar Tabla">
-    <strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></span></strong>
-    </button>
-</div>
+
 
 <div id="container_product2sell" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_tblproduct2sale" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -364,7 +443,7 @@ switch ($_COOKIE['coo_tuser']){
 
 					<tr>
 						<td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
-						<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>)"><?php echo $r_function->replace_special_character($rs_nuevaventa['TX_nuevaventa_descripcion']); ?></td>
+						<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id'];?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['TX_nuevaventa_descripcion']);?>')"><?php echo $r_function->replace_special_character($rs_nuevaventa['TX_nuevaventa_descripcion']); ?></td>
 						<td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
 						<td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
 						<?php echo $rs_nuevaventa['TX_nuevaventa_unidades']; ?>

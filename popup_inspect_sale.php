@@ -50,6 +50,7 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 <link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/popup_css.css" rel="stylesheet" type="text/css" />
+<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="attached/js/jquery.js"></script>
 <script type="text/javascript" src="attached/js/jquery-ui.min_edit.js"></script>
@@ -266,7 +267,7 @@ function duplicate_datoventa(facturaventa_id){
 		?>
 						<tr>
 							<td><?php echo $rs_datoventa['TX_datoventa_cantidad']; ?></td>
-							<td><?php echo $rs_datoventa['TX_datoventa_descripcion']; ?></td>
+							<td><?php echo $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']); ?></td>
 							<td><?php echo number_format($rs_datoventa['TX_datoventa_precio'],2); ?></td>
 							<td><?php echo $rs_datoventa['TX_datoventa_descuento']."%"; ?></td>
 							<td><?php echo $rs_datoventa['TX_datoventa_impuesto']."%"; ?></td>
@@ -285,7 +286,10 @@ function duplicate_datoventa(facturaventa_id){
 						</tr>
 					</tfoot>
 				</table>
-				<button type="button" onclick="duplicate_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)" class="btn btn-success">Duplicar</button>
+				<div class="container-fluid">
+					<span>¿Desea Duplicar la factura?</span>
+					<button type="button" onclick="duplicate_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)" class="btn btn-link" style="color: #fc0909; font-weight: bold;"><i class="fa fa-clone"></i> Click AQUI</button>
+				</div>
 			</td>
 		</tr>
 <?php

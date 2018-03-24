@@ -1,5 +1,5 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 ?>
 <?php

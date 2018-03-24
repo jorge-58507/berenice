@@ -149,6 +149,10 @@ $(document).ready(function() {
 		}
 	});
 
+$("#btn_add_check").on("click", function(){
+	window.location.href="make_check.php?a=<?php echo $_GET['a']; ?>";
+})
+
 $('#txt_cif, #txt_telephone, #txt_dv').validCampoFranz('-0123456789');
 $('#txt_proveedor, #txt_direction').validCampoFranz('.0123456789 abcdefghijklmnopqrstuvwxyz-,');
 $('#txt_filtercpp').validCampoFranz('.0123456789');
@@ -313,6 +317,8 @@ switch ($_COOKIE['coo_tuser']){
 		</table>
 		<div id="container_btn" class="container-fluid">
 			<button type="button" id="btn_add_bankaccount" class="btn btn-default btn-sm"><i class="fa fa-bank" aria-hidden="true"></i> Agregar</button>
+			&nbsp;
+			<button type="button" id="btn_add_check" class="btn btn-info btn-sm"><i class="fa fa-money" aria-hidden="true"></i> Nvo. Cheque</button>
 		</div>
 	</div>
 
@@ -423,7 +429,7 @@ $rs_pedido = $qry_pedido->fetch_array();
 				if (!empty($rs_pedido[0])) {	echo "<strong>".$rs_pedido[0]."</strong>"; }
 				?></td>
 				<td class=" al_center"><button type="button" class="btn btn-success btn-sm" onclick="document.location.href='admin_pay_cpp.php?a=<?php echo $rs_cpp['AI_cpp_id']; ?>'"><i class="fa fa-money" aria-hidden="true"></i></button></td>
-				<td class=" al_center"><button type="button" class="btn btn-info btn-sm" onclick="open_popup('popup_cpp_confirm.php?a=<?php echo $rs_cpp['AI_cpp_id']; ?>','_popup','580','420')"><i class="fa fa-check" aria-hidden="true"></i></button></td>
+				<td class=" al_center"><button type="button" class="btn btn-info btn-sm" onclick="open_popup('popup_cpp_confirm.php?a=<?php echo $rs_cpp['AI_cpp_id']; ?>','_popup','580','580')"><i class="fa fa-check" aria-hidden="true"></i></button></td>
 				<td class=" al_center"><?php
 				$qry_datocpp->bind_param("i", $rs_cpp['AI_cpp_id']); $qry_datocpp->execute(); $result_datocpp = $qry_datocpp->get_result();
 				$qry_cheque->bind_param("i", $rs_cpp['AI_cpp_id']); $qry_cheque->execute(); $result_cheque = $qry_cheque->get_result();

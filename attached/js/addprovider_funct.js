@@ -4,7 +4,6 @@ content_providername = "";
 limit_providername = 50;
 
 function chk_providername(field){
-	field.value = field.value.toUpperCase();
 	var num_char = field.value.length;
 	if(num_char > limit_providername){
 		field.value = content_providername;
@@ -23,6 +22,19 @@ function chk_cif(field){
 		field.value = content_cif;
 	}else{
 		return content_cif = field.value;
+	}
+}
+
+content_dv = "";
+limit_dv = 3;
+
+function chk_dv(field){
+	field.value = field.value.toUpperCase();
+	var num_char = field.value.length;
+	if(num_char > limit_dv){
+		field.value = content_dv;
+	}else{
+		return content_dv = field.value;
 	}
 }
 

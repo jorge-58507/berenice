@@ -43,9 +43,9 @@ $d_number=date('w',strtotime($fecha_actual));
 $fecha_dia = $dias[$d_number];
 $fecha = date('d-m-Y',strtotime($fecha_actual));
 ?>
-<table cellpadding="0" cellspacing="0" border="0" style="height:585px; width:1263px; font-size:11pt;">
+<table cellpadding="0" cellspacing="0" border="0" style="height:585px; width:1263px; font-size:12pt;">
 <tr style="height:11px">
-<td width="10%"><img src="attached\image\imagen-cheque-formato.jpg" width='1263px' style="position: absolute; z-index: -2; margin-top: -2px; display: none;"></img></td>
+<td width="10%"><img src="attached\image\scan.jpg" width='1263px' style="position: absolute; z-index: -2; margin-top: -2px; display: none;"></img></td>
 <td width="10%"></td>
 <td width="10%"></td>
 <td width="10%"></td>
@@ -59,20 +59,20 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 <tr style="height:79px;" align="right">
 	<td valign="top" colspan="10" class="optmayuscula" style="vertical-align: bottom;">
 		<div style="width:848px; float:left;"> &nbsp;</div>
-		<div style="width:345px; float:left; letter-spacing: 28px;"><?php echo date('dmY',strtotime($fecha)); ?></div>
+		<div style="width:345px; float:left; letter-spacing: 27px;"><?php echo date('dmY',strtotime($fecha)); ?></div>
   </td>
 </tr>
-<tr style="height:59px" align="center">
+<tr style="height:57px" align="center">
 	<td valign="top" colspan="10" style="vertical-align:bottom;">
 		<div style="width:191px; float:left;"> &nbsp;</div>
-		<div style="width:692px; float:left; letter-spacing: 5px;">**<?php echo substr($rs_cheque['TX_proveedor_nombre'],0,41); ?>**</div>
-		<div style="width:272px; float:left; padding-top:10px; letter-spacing: 5px; text-align:right;"><?php echo number_format($rs_cheque['TX_cheque_monto'],2); ?></div>
+		<div style="width:692px; float:left; letter-spacing: 6px;">**<?php echo substr($rs_cheque['TX_proveedor_nombre'],0,41); ?>**</div>
+		<div style="width:272px; float:left; padding-top:10px; letter-spacing: 6px; text-align:right;"><?php echo number_format($rs_cheque['TX_cheque_monto'],2); ?></div>
   </td>
 </tr>
 <tr style="height:25px" align="center">
 	<td valign="bottom" colspan="10">
 		<div style="width:193px; float:left;"> &nbsp;</div>
-		<div style="width:878px; float:left; letter-spacing: 5px;">**<?php echo $rs_cheque['TX_cheque_montoletra']; ?>**</div>
+		<div style="width:878px; float:left; letter-spacing: 6.2px;">**<?php echo $rs_cheque['TX_cheque_montoletra']; ?>**</div>
   </td>
 </tr>
 <tr style="height:230px">
@@ -81,9 +81,9 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 <tr style="height:188px">
 	<td valign="top" colspan="10">
 		<div style="width:193px; float:left; text-align:right; letter-spacing: 5px;"><?php echo date('d-M-y',strtotime($fecha_actual)); ?></div>
-		<div style="width:629px; float:left; letter-spacing: 5px;">&nbsp;&nbsp;&nbsp;<?php echo $rs_cheque['TX_cheque_observacion']; ?></div>
+		<div style="width:629px; float:left; letter-spacing: 6px;">&nbsp;&nbsp;<?php echo $rs_cheque['TX_cheque_observacion']; ?></div>
 		<div style="width:163px; float:left;">&nbsp;</div>
-		<div style="width:181px; float:left; letter-spacing: 5px; text-align:right;"><?php echo $rs_cheque['TX_cheque_monto']; ?>&nbsp;&nbsp;</div>
+		<div style="width:181px; float:left; letter-spacing: 6px; text-align:right;"><?php echo $rs_cheque['TX_cheque_monto']; ?>&nbsp;&nbsp;</div>
   </td>
 </tr>
 </table>

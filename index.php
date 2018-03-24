@@ -25,14 +25,18 @@ return($ip);
 $ip   = ObtenerIP();
 $cliente = gethostbyaddr($ip);
 
+$arr_pc=['COTIZADOR','TPV4','TPV3','TPV2','TRIILLI-CAJA','Trilli2015','Servidor','SERVIDORFIRES'];
+$ans_client = in_array($cliente, $arr_pc);
+
 $txt_vendor="SELECT TX_user_seudonimo, TX_user_password FROM bh_user WHERE TX_user_type = '3'";
 $qry_vendor=$link->query($txt_vendor);
-$vendor_array=array();
-$i=0;
-while($rs_vendor=$qry_vendor->fetch_array()){
-	$vendor_array[$i] = $rs_vendor;
-	$i++;
+$vendor_array=array();	$i=0;
+if ($ans_client) {
+	while($rs_vendor=$qry_vendor->fetch_array()){
+		$vendor_array[$i] = $rs_vendor;
+		$i++;
 };
+}
 function unlog_user(){
 	if(!empty($_COOKIE['coo_iuser'])){
 	setcookie('coo_iuser','',time()-100);
@@ -92,8 +96,8 @@ $('#form_login').submit(function(){
 
 $("#container_expand_login").click(function(){
 	$("#login_container").slideToggle(300);
-	$("#container_expand_login").toggleClass("fa-angle-double-down");
 	$("#container_expand_login").toggleClass("fa-angle-double-up");
+	$("#container_expand_login").toggleClass("fa-angle-double-down");
 	setTimeout($('#password_login').focus(),500);
 });
 
@@ -129,20 +133,20 @@ $("#container_expand_login").click(function(){
 <form action="login.php" method="post" name="form_login"  id="form_login">
 	<div id="container_quickaccess" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<?php for($i=0;$i<count($vendor_array);$i++){?>
-		<button type="button" id="btn_vendor" class="btn btn-lg btn-info" name="<?php echo $vendor_array[$i][1] ?>" onclick="quick_access(this);">
-        <?php echo $vendor_array[$i][0] ?></button> &nbsp;&nbsp;
-	<?php }?>
-    </div>
-    <div id="login_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-
-		<strong>Contraseña: </strong>
-		<input type="password" id="password_login" name="password_login" autofocus="autofocus">
-        <br /><br />
-        <button type="submit" id="btn_login" class="btn btn-default">
-        Ingresar</button>
+		<button type="button" id="btn_vendor" class="btn btn-lg btn-info" name="<?php echo $vendor_array[$i][1] ?>" onclick="quick_access(this);"><?php echo $vendor_array[$i][0] ?></button> &nbsp;&nbsp;<?php }?>
 	</div>
+    <div id="login_container" class="col-xs-12 col-sm-6 col-md-4 col-lg-3">
+			<p>
+		<label for="password_login" class="label label-info"><strong>Contraseña: </strong></label>
+		<input type="password" id="password_login" name="password_login" autofocus="autofocus" class="form-control">
+	</p>
+			<div class="al_center">
+        <button type="submit" id="btn_login" class="btn btn-default btn-md">Ingresar</button>
+			</div>
+
+		</div>
     <div id="container_div_expand_login" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-		<div id="container_expand_login" class="fa fa-angle-double-down"></div>
+		<div id="container_expand_login" class="fa fa-angle-double-up"></div>
   </div>
 
 </form>

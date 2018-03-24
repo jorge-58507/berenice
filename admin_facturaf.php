@@ -187,7 +187,7 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="container_txtfilterfacturaf" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
     <label for="txt_filterfacturaf">Buscar</label>
-    <input type="text" id="txt_filterfacturaf" class="form-control" />
+    <input type="text" id="txt_filterfacturaf" class="form-control" placeholder="Numero Factura o Nombre de Cliente" autofocus />
 </div>
 <div id="container_txtdatei"  class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
     <label for="txt_date_initial">Fecha

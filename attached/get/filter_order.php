@@ -95,14 +95,11 @@ if($qry_order->num_rows > 0){
 		?>
 	</td>
 	<td>
-		<button type="button" id="btn_process" name="" onclick="print_html('print_order_html.php?a=<?php echo $rs_order[2]; ?>');" class="btn btn-info btn-sm">
-		<i class="fa fa-print" aria-hidden="true"></i>
-		</button>
-		<?php if($rs_order[5] === 'ACTIVO'){	?>
-			<button type="button" id="btn_delete" name="" onclick="del_order('<?php echo $rs_order[2]; ?>')" class="btn btn-danger btn-sm">
-			<i class="fa fa-trash-o" aria-hidden="true"></i>
-			</button>
-		<?php } ?>
+		<button type="button" id="btn_upd" name="" title="Duplicar" onclick="upd_order('<?php echo $rs_order[2]; ?>');" class="btn btn-warning btn-sm"><i class="fa fa-copy" aria-hidden="true"></i></button>
+		<button type="button" id="btn_process" name="" title="Imprimir"  onclick="print_html('print_order_html.php?a=<?php echo $rs_order[2]; ?>');" class="btn btn-info btn-sm"><i class="fa fa-print" aria-hidden="true"></i></button>
+<?php 	if($rs_order[5] === 'ACTIVO'){	?>
+			<button type="button" id="btn_delete" name="" title="Eliminar" onclick="del_order('<?php echo $rs_order[2]; ?>');" class="btn btn-danger btn-sm"><i class="fa fa-trash-o" aria-hidden="true"></i></button>
+<?php 	} ?>
 	</td>
 </tr>
 

@@ -15,7 +15,7 @@ while($rs_opcion=$qry_opcion->fetch_array()){
 $fecha=date('Y-m-d',strtotime($_GET['a']));
 
 $txt_cajamenuda="SELECT bh_efectivo.AI_efectivo_id, bh_efectivo.TX_efectivo_tipo, bh_efectivo.TX_efectivo_motivo, bh_efectivo.TX_efectivo_monto, bh_efectivo.TX_efectivo_fecha,
-bh_efectivo.TX_efectivo_status, bh_user.TX_user_seudonimo
+bh_efectivo.TX_efectivo_status, bh_user.TX_user_seudonimo, bh_efectivo.efectivo_AI_arqueo_id
 FROM (bh_efectivo INNER JOIN bh_user ON bh_efectivo.efectivo_AI_user_id = bh_user.AI_user_id)
 WHERE bh_efectivo.TX_efectivo_fecha = '$fecha' ORDER BY TX_efectivo_tipo ASC";
 $qry_cajamenuda=$link->query($txt_cajamenuda)or die($link->error);
@@ -188,7 +188,7 @@ $index++;
 					<td><?php echo substr($rs_cajamenuda['TX_user_seudonimo'],0,11); ?></td>
 					<td><?php echo $rs_cajamenuda['AI_efectivo_id']; ?></td>
 					<td><?php echo $rs_cajamenuda['TX_efectivo_tipo']; ?></td>
-					<td><?php echo substr($rs_cajamenuda['TX_efectivo_motivo'],0,45); ?></td>
+					<td><?php echo substr($rs_cajamenuda['TX_efectivo_motivo'],0,45); echo ($rs_cajamenuda['efectivo_AI_arqueo_id'] === '-1') ?  " (ANULADO)" : ""; ?></td>
 					<td><?php echo $rs_cajamenuda['TX_efectivo_monto']; ?></td>
 				</tr>
 <?php
