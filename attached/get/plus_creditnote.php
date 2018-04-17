@@ -34,16 +34,22 @@ function insert_notadecredito($cliente_id,$facturaf_id,$user_id,$numero_nc,$moti
 	$link->close();
 }
 
-function insert_devolucion($notacredito_id,$producto_id,$datoventa_id,$user_id,$cantidad){
+function insert_devolucion($notacredito_id,$producto_id,$datoventa_id,$user_id,$cantidad,$medida_id){
 	$link = conexion();
-	$bh_insert_devolution="INSERT INTO bh_datodevolucion (datodevolucion_AI_notadecredito_id,	datodevolucion_AI_producto_id, datodevolucion_AI_datoventa_id, datodevolucion_AI_user_id, TX_datodevolucion_cantidad ) VALUES ('$notacredito_id','$producto_id','$datoventa_id','$user_id','$cantidad')";
+	$bh_insert_devolution="INSERT INTO bh_datodevolucion (datodevolucion_AI_notadecredito_id,	datodevolucion_AI_producto_id, datodevolucion_AI_datoventa_id, datodevolucion_AI_user_id, TX_datodevolucion_cantidad, TX_datodevolucion_medida ) VALUES ('$notacredito_id','$producto_id','$datoventa_id','$user_id','$cantidad','$medida_id')";
 	$link->query($bh_insert_devolution)or die($link->error);
 
-	$qry_product=$link->query("SELECT TX_producto_cantidad  FROM bh_producto WHERE AI_producto_id = '$producto_id'")or die($link->error);
+	$qry_product=$link->query("SELECT TX_producto_cantidad, TX_producto_medida, TX_producto_descontable  FROM bh_producto WHERE AI_producto_id = '$producto_id'")or die($link->error);
 	$row_product=$qry_product->fetch_array();
+	$prep_producto_medida = $link->prepare("SELECT AI_rel_productomedida_id, TX_rel_productomedida_cantidad FROM rel_producto_medida WHERE productomedida_AI_producto_id = ? AND productomedida_AI_medida_id = ?")or die($link->error);
+	$prep_producto_medida->bind_param("ii", $producto_id, $medida_id); $prep_producto_medida->execute(); $qry_producto_medida = $prep_producto_medida->get_result();
+	$rs_producto_medida = $qry_producto_medida->fetch_array();
+
 	$product_quantity=$row_product[0];
-	$suma=$product_quantity+$cantidad;
-	$link->query("UPDATE bh_producto SET TX_producto_cantidad = '$suma' WHERE AI_producto_id = '$producto_id'");
+	$suma=$product_quantity+($cantidad*$rs_producto_medida['TX_rel_productomedida_cantidad']);
+	if($row_product['TX_producto_descontable'] === '1'){
+		$link->query("UPDATE bh_producto SET TX_producto_cantidad = '$suma' WHERE AI_producto_id = '$producto_id'");
+	}
 	$link->close();
 }
 
@@ -95,6 +101,16 @@ function sumarnumerond($numero_nd){
 		$numero_nd = substr($pre_numero_nd,-8);
 		return checknumerond($numero_nd);
 }
+function get_rel_medida_cantidad($producto_id, $medida_id){
+  $link=conexion();
+  $prep_producto_medida = $link->prepare("SELECT AI_rel_productomedida_id, TX_rel_productomedida_cantidad FROM rel_producto_medida WHERE productomedida_AI_producto_id = ? AND productomedida_AI_medida_id = ?")or die($link->error);
+  $prep_producto_medida->bind_param("ii", $producto_id, $medida_id); $prep_producto_medida->execute(); $qry_producto_medida = $prep_producto_medida->get_result();
+  $rs_producto_medida = $qry_producto_medida->fetch_array();
+  $link->close();
+  return $rs_producto_medida['TX_rel_productomedida_cantidad'];
+}
+
+
 $qry_lastnd=$link->query("SELECT AI_notadebito_id, TX_notadebito_numero FROM bh_notadebito ORDER BY AI_notadebito_id DESC LIMIT 1")or die($link->error);
 $rs_lastnd=$qry_lastnd->fetch_array();
 $numero_nd = $rs_lastnd['TX_notadebito_numero'];
@@ -130,33 +146,38 @@ if($nr_checkcreditnote < 1){
 // ################################## INSERCIONES  #######################################
 // ########################## CALCULAR MONTO E IMPUESTO ############################
 
-$txt_nuevadevolucion="SELECT bh_nuevadevolucion.TX_nuevadevolucion_cantidad, bh_nuevadevolucion.nuevadevolucion_AI_producto_id, bh_nuevadevolucion.nuevadevolucion_AI_datoventa_id,
+$txt_nuevadevolucion="SELECT bh_nuevadevolucion.TX_nuevadevolucion_cantidad, bh_nuevadevolucion.nuevadevolucion_AI_producto_id, bh_nuevadevolucion.nuevadevolucion_AI_datoventa_id, bh_nuevadevolucion.TX_nuevadevolucion_medida,
 bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_descuento, bh_datoventa.TX_datoventa_impuesto
 FROM (bh_nuevadevolucion
        INNER JOIN bh_datoventa ON bh_nuevadevolucion.nuevadevolucion_AI_datoventa_id = bh_datoventa.AI_datoventa_id)
 	WHERE bh_nuevadevolucion.nuevadevolucion_AI_user_id = '$user_id'";
 $qry_nuevadevolucion=$link->query($txt_nuevadevolucion)or die($link->error);
-$rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array();
 
 $precio=0;
 $impuesto=0;
 $descuento=0;
 
-do{
-insert_devolucion($creditnote_id,$rs_nuevadevolucion['nuevadevolucion_AI_producto_id'],$rs_nuevadevolucion['nuevadevolucion_AI_datoventa_id'],$user_id,$rs_nuevadevolucion['TX_nuevadevolucion_cantidad']);
+while($rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array()){
+insert_devolucion($creditnote_id,$rs_nuevadevolucion['nuevadevolucion_AI_producto_id'],$rs_nuevadevolucion['nuevadevolucion_AI_datoventa_id'],$user_id,$rs_nuevadevolucion['TX_nuevadevolucion_cantidad'],$rs_nuevadevolucion['TX_nuevadevolucion_medida']);
 
-	$precio_uni=$rs_nuevadevolucion['TX_nuevadevolucion_cantidad']*$rs_nuevadevolucion['TX_datoventa_precio'];
-	$descuento_uni=($rs_nuevadevolucion['TX_datoventa_precio']*$rs_nuevadevolucion['TX_datoventa_descuento'])/100;
+	$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_producto_id, TX_datoventa_medida, TX_datoventa_cantidad FROM bh_datoventa WHERE AI_datoventa_id = '{$rs_nuevadevolucion['nuevadevolucion_AI_datoventa_id']}'")or die($link->error);
+	$rs_datoventa=$qry_datoventa->fetch_array();
+
+	$rel_nuevadevolucion = get_rel_medida_cantidad($rs_nuevadevolucion['nuevadevolucion_AI_producto_id'],$rs_nuevadevolucion['TX_nuevadevolucion_medida']);
+	$rel_datoventa = get_rel_medida_cantidad($rs_datoventa['datoventa_AI_producto_id'],$rs_datoventa['TX_datoventa_medida']);
+
+	$rel_coheficiente = $rel_nuevadevolucion/$rel_datoventa;
+	$precio_uni=($rs_nuevadevolucion['TX_nuevadevolucion_cantidad']*$rel_coheficiente)*$rs_nuevadevolucion['TX_datoventa_precio'];
+	$descuento_uni=($precio_uni*$rs_nuevadevolucion['TX_datoventa_descuento'])/100;
 	$precio_descuento_uni=$precio_uni-$descuento_uni;
-	$impuesto_uni=($precio_descuento_uni*$rs_nuevadevolucion['TX_datoventa_impuesto'])/100;
-	$precio_descuento_impuesto_uni=$precio_descuento_uni+$impuesto_uni;
-	$retencion_uni=$precio_descuento_impuesto_uni*$retencion;
-	$precio_descuento_impuesto_retencion_uni=$precio_descuento_impuesto_uni-$retencion_uni;
+	$precio_descuento_retencion = $precio_descuento_uni*$retencion;
+	$impuesto_uni=($precio_descuento_retencion*$rs_nuevadevolucion['TX_datoventa_impuesto'])/100;
+	$precio_descuento_impuesto_uni=$precio_descuento_retencion+$impuesto_uni;
 
 	$precio += $precio_uni;
 	$impuesto += $impuesto_uni*$retencion;
 	$descuento += $descuento_uni;
-}while($rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array());
+};
 
 $monto_nc = round(($precio*$retencion)-$descuento,2);
 $exedente = round($monto_nc+$impuesto,2);
@@ -204,11 +225,6 @@ if($_GET['d'] != 1){
 
 		$total_nd = $rs_facturaf['TX_facturaf_deficit']-$new_deficit;
 		$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit =	'$new_deficit' WHERE AI_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}'")or die($link->error);
-		// $motivo_nd = 'ANULACION DE FACTURA ('.$numero_nc.')';
-		// $debito_id = insert_notadebito($cliente_id,$user_id,$numero_nd,$motivo_nd,$fecha,$hora,$total_nd);
-		// $link->query("INSERT INTO rel_facturaf_notadebito (rel_AI_facturaf_id, rel_AI_notadebito_id, TX_rel_facturafnotadebito_importe) VALUES ('{$rs_facturaf['AI_facturaf_id']}','$debito_id','$total_nd')");
-		// $bh_insert_datodebito="INSERT INTO bh_datodebito (datodebito_AI_notadebito_id, datodebito_AI_user_id,  datodebito_AI_metododepago_id, TX_datodebito_monto, TX_datodebito_numero, TX_datodebito_fecha) VALUES ('$debito_id','$user_id','7','$total_nd','','$fecha')";
-		// $link->query($bh_insert_datodebito)or die($link->error);
 	}
 
 }

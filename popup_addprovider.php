@@ -1,7 +1,6 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -72,7 +71,7 @@ $('#txt_direction, #txt_providername').validCampoFranz('0123456789 .,- abcdefghi
   <input type="text" name="txt_cif" id="txt_cif" class="form-control" onkeyup="chk_cif(this)" />
 </div>
 <div class="col-xs-3 col-sm-3 col-md-3 col-lg-1">
-	<label for="txt_cif">DV:</label>
+	<label for="txt_dv">DV:</label>
   <input type="text" name="txt_dv" id="txt_dv" class="form-control" onkeyup="chk_dv(this)" />
 </div>
 <div id="container_telephone" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">

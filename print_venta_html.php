@@ -1,4 +1,5 @@
 <?php
+set_time_limit(120);
 require 'bh_conexion.php';
 $link=conexion();
 ?>

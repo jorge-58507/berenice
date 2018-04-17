@@ -3,7 +3,6 @@ require '../../bh_conexion.php';
 $link = conexion();
 require '../php/req_login_paydesk.php';
 
-date_default_timezone_set('America/Panama');
 if (!empty($_COOKIE['coo_iuser'])) {	$uid=$_COOKIE['coo_iuser'];	}else{ return false;	}
 $fecha_actual=date('Y-m-d');
 $hora_actual=date('h:i a');
@@ -98,7 +97,7 @@ $impuesto=0;
 $descuento_ni=0;
 $descuento_ci=0;
 /* V#################CALCULAR TOTALES DE LOS PRODUCTOS EN LA FACTURA  ###################V */
-$txt_facturaventa="SELECT bh_datoventa.datoventa_AI_producto_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_exento, bh_facturaventa.facturaventa_AI_cliente_id
+$txt_facturaventa="SELECT bh_datoventa.datoventa_AI_producto_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_exento, bh_facturaventa.facturaventa_AI_cliente_id, bh_datoventa.TX_datoventa_medida
 FROM ((bh_facturaventa
 INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
 INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
@@ -178,9 +177,10 @@ foreach ($arr_factid as $key => $value) {
 foreach ($raw_facturaventa as $key => $value) {
 	$qry_producto = $link->query("SELECT TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = '{$value['datoventa_AI_producto_id']}'")or die($link->error);
 	$rs_producto = $qry_producto->fetch_array();
-	$resta=$rs_producto['TX_producto_cantidad']-$value['TX_datoventa_cantidad'];
-	$link->query("UPDATE bh_producto SET TX_producto_cantidad = '$resta' WHERE AI_producto_id = '{$value['datoventa_AI_producto_id']}'");
+	$qry_producto_medida = $link->query("SELECT AI_rel_productomedida_id, TX_rel_productomedida_cantidad FROM rel_producto_medida WHERE productomedida_AI_producto_id = '{$value['datoventa_AI_producto_id']}' AND productomedida_AI_medida_id = '{$value['TX_datoventa_medida']}'")or die($link->error);
+	$rs_producto_medida = $qry_producto_medida->fetch_array();
+	$resta=$rs_producto['TX_producto_cantidad']-($value['TX_datoventa_cantidad']*$rs_producto_medida['TX_rel_productomedida_cantidad']);
+	$link->query("UPDATE bh_producto SET TX_producto_cantidad = '$resta' WHERE AI_producto_id = '{$value['datoventa_AI_producto_id']}' AND TX_producto_descontable = '1'")or die($link->error);
 }
-
 echo "acepted"
 ?>

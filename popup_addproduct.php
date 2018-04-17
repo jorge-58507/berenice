@@ -2,7 +2,7 @@
 require 'bh_conexion.php';
 $link=conexion();
 
-$qry_medida=$link->query("SELECT * FROM bh_medida")or die($link->error);
+$qry_medida=$link->query("SELECT * FROM bh_medida WHERE TX_medida_value = 'UNIDADES'")or die($link->error);
 $rs_medida=$qry_medida->fetch_array();
 
 $qry_letra=$link->query("SELECT bh_letra.AI_letra_id, bh_letra.TX_letra_value, bh_letra.TX_letra_porcentaje FROM bh_letra")or die($link->error);
@@ -47,14 +47,14 @@ $(document).ready(function() {
 		if($("#txt_nombre").val() ===	"" || $("#txt_codigo").val() ===	"" || $("#txt_impuesto").val() ===	"" || $("#txt_cantmaxima").val() ===	"" || $("#txt_cantminima").val() ===	"" || $("#txt_cantidad").val() ===	"" || $("#txt_p_4").val() ===	""){
 			return false;
 		}
-		$.ajax({	data: {"a" : $("#txt_codigo").val(), "b" : $("#txt_referencia").val(), "c" : $("#txt_nombre").val(), "d" : $("#sel_medida").val(), "e" : $("#txt_cantidad").val(), "f" : $("#txt_cantmaxima").val(), "g" : $("#txt_cantminima").val(), "h" : $("#txt_impuesto").val(), "i" : $("#sel_letter").val(), "j" : $("#txt_p_1").val(), "k" : $("#txt_p_2").val(), "l" : $("#txt_p_3").val(), "m" : $("#txt_p_4").val(), "n" : $("#txt_p_5").val()  }, type: "GET", dataType: "text", url: "attached/get/plus_newproduct_popup.php",	})
+		$.ajax({	data: {"a" : $("#txt_codigo").val(), "b" : $("#txt_referencia").val(), "c" : url_replace_regular_character($("#txt_nombre").val()), "d" : $("#sel_medida").val(), "e" : $("#txt_cantidad").val(), "f" : $("#txt_cantmaxima").val(), "g" : $("#txt_cantminima").val(), "h" : $("#txt_impuesto").val(), "i" : $("#sel_letter").val(), "j" : $("#txt_p_1").val(), "k" : $("#txt_p_2").val(), "l" : $("#txt_p_3").val(), "m" : $("#txt_p_4").val(), "n" : $("#txt_p_5").val()  }, type: "GET", dataType: "text", url: "attached/get/plus_newproduct_popup.php",	})
 		.done(function( data, textStatus, jqXHR ) {
 			window.opener.open_product2purchase(data);
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 	});
 
-	$("#txt_nombre").on("keyup", function(){
+	$("#txt_nombre").on("blur", function(){
 		$("#txt_nombre").val(this.value.toUpperCase());
 	});
 	$("#txt_codigo").on("blur", function(){
@@ -100,40 +100,38 @@ $(document).ready(function() {
 
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-      <label for="txt_nombre">Nombre:</label>
+      <label class="label label_blue_sky" for="txt_nombre">Nombre:</label>
       <input type="text" class="form-control input-sm" id="txt_nombre" name="txt_nombre" >
       	</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label for="txt_codigo">Codigo:</label>
+      <label class="label label_blue_sky" for="txt_codigo">Codigo:</label>
       <input type="text" class="form-control input-sm" id="txt_codigo" name="txt_codigo" value="">
     </div>
 		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-      <label for="txt_cantidad">Cantidad:</label>
+      <label class="label label_blue_sky" for="txt_cantidad">Cantidad:</label>
       <input type="text" class="form-control input-sm" id="txt_cantidad" name="txt_cantidad" value="">
 		</div>
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 alert alert-danger display_none" id="container_product_recall">
 
 		</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label for="txt_referencia">Referencia:</label>
+      <label class="label label_blue_sky" for="txt_referencia">Referencia:</label>
 		<input type="text" id="txt_referencia" name="txt_referencia" class="form-control input-sm" value=""/>
       	</div>
 		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-      <label for="txt_impuesto">Impuesto:</label>
+      <label class="label label_blue_sky" for="txt_impuesto">Impuesto:</label>
       <input type="text" class="form-control input-sm" id="txt_impuesto" name="txt_impuesto" value="<?php echo $rs_impuesto['impuesto'] ?>">
   	</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label for="sel_medida">Medida:</label>
+      <label class="label label_blue_sky" for="sel_medida">Medida:</label>
 			<select  class="form-control input-sm" id="sel_medida" name="sel_medida">
-<?php
-		do{ ?>
-<option value="<?php echo $rs_medida['TX_medida_value']; ?>"><?php echo $rs_medida['TX_medida_value']; ?></option>
-<?php
-}while($rs_medida=$qry_medida->fetch_array());
+<?php		do{ ?>
+					<option value="<?php echo $rs_medida['AI_medida_id']; ?>"><?php echo $rs_medida['TX_medida_value']; ?></option>
+<?php		}while($rs_medida=$qry_medida->fetch_array());
 ?>    </select>
       	</div>
 		<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-		<label for="sel_letter">Letra:</label>
+		<label class="label label_blue_sky" for="sel_letter">Letra:</label>
 		<select  class="form-control input-sm" id="sel_letter" name="sel_letter">
 <?php
        	$percent = 0;
@@ -145,33 +143,33 @@ $(document).ready(function() {
 ?>      </select>
       	</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label for="txt_cantminima">Cantidad M&iacute;nima:</label>
+      <label class="label label_blue_sky" for="txt_cantminima">Cantidad M&iacute;nima:</label>
       <input type="text" class="form-control input-sm" id="txt_cantminima" name="txt_cantminima" value="">
       	</div>
 		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label for="txt_cantmaxima">Cantidad M&aacute;xima:</label>
+      <label class="label label_blue_sky" for="txt_cantmaxima">Cantidad M&aacute;xima:</label>
       <input type="text" class="form-control input-sm" id="txt_cantmaxima" name="txt_cantmaxima" value="">
       	</div>
     </div>
     <div id="container_precio" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     	<div id="container_precio4" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-     		<label for="txt_p_4">Standard:</label>
+     		<label class="label label_blue_sky" for="txt_p_4">Standard:</label>
 			<input type="text" class="form-control input-sm" id="txt_p_4" name="txt_p_4" value="">
 	    </div>
     	<div id="container_precio5" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-     		<label for="txt_p_5">P. M&aacute;ximo:</label>
+     		<label class="label label_blue_sky" for="txt_p_5">P. M&aacute;ximo:</label>
 			<input type="text" class="form-control input-sm" id="txt_p_5" name="txt_p_5" value="">
 	    </div>
     	<div id="container_precio3" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-     		<label for="txt_p_3">Descuento #3:</label>
+     		<label class="label label_blue_sky" for="txt_p_3">Descuento #3:</label>
 			<input type="text" class="form-control input-sm" id="txt_p_3" name="txt_p_3"	value="">
 	    </div>
     	<div id="container_precio2" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-     		<label for="txt_p_2">Descuento #2:</label>
+     		<label class="label label_blue_sky" for="txt_p_2">Descuento #2:</label>
 			<input type="text" class="form-control input-sm" id="txt_p_2" name="txt_p_2"	value="">
 	    </div>
 			<div id="container_precio1" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-			<label for="txt_p_1">Descuento #1:</label>
+			<label class="label label_blue_sky" for="txt_p_1">Descuento #1:</label>
 			<input type="text" class="form-control input-sm" id="txt_p_1" name="txt_p_1"	value="">
 	    </div>
     </div>

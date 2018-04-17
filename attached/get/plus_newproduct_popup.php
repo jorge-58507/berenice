@@ -1,16 +1,12 @@
 <?php
 require '../../bh_conexion.php';
 $link = conexion();
-function edit_quote($str){
-$pat = array("\"", "'", "º", "laremun");
-$rep = array("''", "\'", "&deg;", "#");
-return $n_str = str_replace($pat, $rep, $str);
-}
 
 $codigo=$_GET['a'];
 $referencia=$_GET['b'];
 $letra=$_GET['i'];
-$value=edit_quote($_GET['c']);
+$value=$r_function->url_replace_special_character($_GET['c']);
+$value=$r_function->replace_regular_character($value);
 $medida=$_GET['d'];
 $cantidad=$_GET['e'];
 $minimo=$_GET['g'];
@@ -39,8 +35,10 @@ $fecha_actual=date('Y-m-d');
 		$rs_lastid = $qry_lastid->fetch_array();
 		$lastid = $rs_lastid[0];
 
-		$bh_insprecio="INSERT INTO bh_precio (precio_AI_producto_id, TX_precio_uno, TX_precio_dos, TX_precio_tres, TX_precio_cuatro, TX_precio_cinco, TX_precio_fecha) VALUES ('$lastid','$p_1','$p_2','$p_3','$p_4','$p_5','$fecha_actual')";
+		$bh_insprecio="INSERT INTO bh_precio (precio_AI_producto_id, precio_AI_medida_id, TX_precio_uno, TX_precio_dos, TX_precio_tres, TX_precio_cuatro, TX_precio_cinco, TX_precio_fecha) VALUES ('$lastid','$medida','$p_1','$p_2','$p_3','$p_4','$p_5','$fecha_actual')";
 		$link->query($bh_insprecio) or die($link->error);
+
+		$link->query("INSERT INTO rel_producto_medida (productomedida_AI_medida_id, productomedida_AI_producto_id, TX_rel_productomedida_cantidad) VALUES ('1','$lastid','1')")or die($link->error);
 
 		echo $lastid;
 	}else{

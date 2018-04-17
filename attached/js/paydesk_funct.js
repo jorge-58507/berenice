@@ -4,10 +4,9 @@ function prueba(str){
 }
 function upd_quantityonnewcollect(datoventa_id){
 var new_quantity=prompt("Ingrese la nueva cantidad:");
+	new_quantity = val_intw2dec(new_quantity);
 	ans = val_intwdec(new_quantity);
-	if(!ans){
-		return false;
-	}
+	if(!ans){	return false;	}
 	upd_quantityproduct2addcollect(datoventa_id,new_quantity,get("a"))
 }
 

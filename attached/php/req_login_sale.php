@@ -13,13 +13,10 @@ $tuser=$_COOKIE['coo_tuser'];
 $suser=$_COOKIE['coo_suser'];
 if($tuser == 3){
 	$access='true';
-/*		echo "<meta http-equiv='Refresh' content='1;url=index.php'>";*/
 }else if($tuser == 4){
 	$access='true';
-/*		echo "<meta http-equiv='Refresh' content='1;url=index.php'>";*/
 }else if($tuser == 5){
 	$access='true';
-/*		echo "<meta http-equiv='Refresh' content='1;url=index.php'>";*/
 }else{
 	$access='true';
 }
@@ -35,15 +32,12 @@ if(!is_object($link)){
 if($nr_checklogin > 0){
 	if($rs_checklogin['TX_user_type']!=$tuser){
 		$access='false';
-/*		echo "<meta http-equiv='Refresh' content='1;url=index.php'>";*/
 	}
 	if($rs_checklogin['TX_user_seudonimo']!=$suser){
 		$access='false';
-/*		echo "<meta http-equiv='Refresh' content='1;url=index.php'>";*/
 	}
 }else{
 	$access='false';
-/*		echo "<meta http-equiv='Refresh' content='1;url=index.php'>";*/
 }
 if($access == 'false'){
 	header('Location: index.php');

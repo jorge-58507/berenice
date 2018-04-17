@@ -20,6 +20,7 @@ $ip   = ObtenerIP();
 $cliente = gethostbyaddr($ip);
 
 $facturaf_id = $_GET['b'];
+$facturaf_id -= 1;
 
 $qry_facturaf = $link->query("SELECT TX_facturaf_numero FROM bh_facturaf WHERE AI_facturaf_id = '$facturaf_id'")or die($link->error);
 $rs_facturaf = $qry_facturaf->fetch_array();
@@ -30,10 +31,10 @@ $row_impresora=$qry_impresora->fetch_array();
 
 $retorno = $row_impresora['TX_impresora_retorno'];
 
-$file = fopen($retorno."FACTI".substr($ff_numero,-7).".txt", "r");
+$file = fopen($retorno."FACTI".substr($ff_numero,-7).".TXT", "r");
 $content = fgets($file);
 fclose($file);
 $raw_content = explode("\t",$content);
-$ticket = substr("00000000".$raw_content[7],-8);
-
+$ticket = substr($raw_content[7]);
+echo $content;
 $link->query("UPDATE bh_facturaf SET TX_facturaf_serial = '$raw_content[6]', TX_facturaf_ticket = '$ticket' WHERE AI_facturaf_id = '$facturaf_id'")or die($link->error);

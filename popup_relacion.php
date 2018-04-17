@@ -31,7 +31,7 @@ $rs_product=mysql_fetch_array(mysql_query("SELECT TX_producto_value, TX_producto
 <script type="text/javascript">
 
 $(document).ready(function() {
-	
+
 	$('#btn_cancel').click(function(){
 		self.close();
 	});
@@ -56,7 +56,7 @@ $( function() {
 	.on( "change", function() {
 		from.datepicker( "option", "maxDate", getDate( this ) );
 	});
-	
+
 	function getDate( element ) {
 		var date;
 		try {
@@ -69,9 +69,9 @@ $( function() {
 });
 
 $("#btn_calculate").on("click",function(){
-	 // ############   RELACION COMPRA/VENTA   
+	 // ############   RELACION COMPRA/VENTA
 	$.ajax({	data: {'a': $("#txt_datei").val(), 'b': $("#txt_datef").val(), 'c': <?php echo $_GET['a']; ?>},	type: "GET",	dataType: "text",	url: "attached/get/get_relation.php", })
-	 .done(function( data, textStatus, jqXHR ) {	
+	 .done(function( data, textStatus, jqXHR ) {
 	 console.log(data);
 	 var raw_data = JSON.parse(data);
 //	 console.log(raw_data);
@@ -80,9 +80,9 @@ $("#btn_calculate").on("click",function(){
 	 $("#span_relation").html( raw_data[2]+"%"	);
 	})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
-	 // ############      ROTACIONES   
+	 // ############      ROTACIONES
 	$.ajax({	data: {'a': $("#txt_datei").val(), 'b': $("#txt_datef").val(), 'c': <?php echo $_GET['a']; ?>},	type: "GET",	dataType: "text",	url: "attached/get/get_rotation.php", })
-	 .done(function( data, textStatus, jqXHR ) {	
+	 .done(function( data, textStatus, jqXHR ) {
 	 console.log(data);
 	 var raw_data = JSON.parse(data.toString());
 	 $("#span_average").html( raw_data[3]	);
@@ -116,7 +116,7 @@ $("#btn_print").on("click",function(){
 </div>
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <?php $date_i=date('d-m-Y',strtotime('-4 week')); $date_f=date('d-m-Y'); ?>
+    <?php $date_i=date('d-m-Y',strtotime('-4 week')); $date_f=date('d-m-Y',strtotime('+1 day')); ?>
     <div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
         <div id="container_spanproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
 	    	<label for="span_product" class="label label-info">Nombre</label>

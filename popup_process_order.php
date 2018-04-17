@@ -1,8 +1,7 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 $order_id=$_GET['a'];
 
 $qry_datopedido = $link->query("SELECT bh_producto.TX_producto_value, bh_datopedido.TX_datopedido_cantidad, bh_datopedido.TX_datopedido_precio, bh_datopedido.AI_datopedido_id FROM (bh_datopedido

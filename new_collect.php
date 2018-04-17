@@ -27,7 +27,7 @@ $rs_client=$qry_client->fetch_array();
 $txt_facturaventa="SELECT
 bh_facturaventa.AI_facturaventa_id, bh_facturaventa.facturaventa_AI_cliente_id, bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.TX_facturaventa_numero,
 bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono,
-bh_datoventa.AI_datoventa_id, bh_datoventa.datoventa_AI_producto_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_datoventa.datoventa_AI_user_id, bh_datoventa.TX_datoventa_descripcion,
+bh_datoventa.AI_datoventa_id, bh_datoventa.datoventa_AI_producto_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_datoventa.datoventa_AI_user_id, bh_datoventa.TX_datoventa_descripcion, bh_datoventa.TX_datoventa_medida,
 bh_producto.TX_producto_value, bh_producto.TX_producto_codigo, bh_producto.TX_producto_medida, bh_producto.TX_producto_exento
 FROM ((((bh_facturaventa
        INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
@@ -48,13 +48,16 @@ foreach ($arr_factid as $key => $value) {
 }
 $qry_facturaventa=$link->query($txt_facturaventa);
 $nr_facturaventa=$qry_facturaventa->num_rows;
-if($nr_facturaventa<1){
-	echo "<meta http-equiv='Refresh' content='1;url=paydesk.php'>";
-}
-
+if($nr_facturaventa<1){	echo "<meta http-equiv='Refresh' content='1;url=paydesk.php'>"; }
 $raw_facturaventa=array();
 while ($rs_facturaventa=$qry_facturaventa->fetch_array()) {
 	$raw_facturaventa[]=$rs_facturaventa;
+}
+
+$qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
+$raw_medida = array();
+while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
+  $raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
 }
 
 $txt_pago="SELECT bh_pago.AI_pago_id, bh_pago.TX_pago_fecha, bh_pago.TX_pago_monto, bh_pago.TX_pago_numero, bh_metododepago.TX_metododepago_value FROM (bh_pago INNER JOIN bh_metododepago ON bh_pago.pago_AI_metododepago_id = bh_metododepago.AI_metododepago_id) WHERE pago_AI_user_id = '{$_COOKIE['coo_iuser']}'";
@@ -201,7 +204,26 @@ $("#btn_process").click(function(){
 	 	})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 });
-
+$("#btn_generate").click(function(){
+  $.ajax({	data: "",type: "GET",dataType: "json",url: "attached/get/get_session_admin.php",	})
+	 .done(function( data, textStatus, jqXHR ) { console.log( "GOOD " + textStatus);
+	  if(data[0][0] != ""){
+      console.log(data[0][0]);
+      $.ajax({	data: {"a" : '<?php echo $str_factid; ?>'},	type: "GET",	dataType: "text",	url: "attached/get/get_payment.php", })
+        .done(function( data, textStatus, jqXHR ) {
+      	   if(data === '1'){  if($("#txt_filterclient").prop("alt") === ""){  $("#txt_filterclient").focus;  alert("Debe Agregar al Cliente Primero");  return false; }
+      		   generate_facturaf('<?php echo $str_factid ?>');
+      		 }
+      	})
+      	.fail(function( jqXHR, textStatus, errorThrown ) {		});
+      }else{
+        popup = window.open("popup_loginadmin.php?z=start_admin.php", "popup_loginadmin", 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=no,width=425,height=420');
+      }
+    })
+  .fail(function( jqXHR, textStatus, errorThrown ) {
+    if ( console && console.log ) {	 console.log( "La solicitud a fallado: " +  textStatus); }
+  })
+});
 $("#txt_filterproduct").on("keyup",function(e){
 	if(e.which == 13){
 		setTimeout( function(){ $("#tbl_product tbody tr:first").click(); },250);
@@ -281,12 +303,10 @@ function open_product2addpaycollect(product_id,str_factid){
    	</div>
 
 	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
-    	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        Bienvenido: <label class="bg-primary">
-         <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
-        </label>
-        </div>
-		<div id="navigation" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+  	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+      Bienvenido: <label class="bg-primary"><?php echo $rs_checklogin['TX_user_seudonimo']; ?></label>
+    </div>
+	  <div id="navigation" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
 <?php
 switch ($_COOKIE['coo_tuser']){
 	case '1':
@@ -308,25 +328,22 @@ switch ($_COOKIE['coo_tuser']){
 ?>
 		</div>
 	</div>
-
 </div>
 
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form id="form_new_collect" action="print_f_fiscal.php" method="post">
 <input type="hidden" name="n_ff" value="<?php echo $_SESSION['numero_ff']; ?>" />
-<span id="span_ff">
-<?php echo $_SESSION['numero_ff'];?>
-</span>
+<span id="span_ff"><?php echo $_SESSION['numero_ff'];?></span>
 <div id="container_client" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtfilterclient" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-  	<label for="txt_filterclient">Cliente:</label>
+  	<label class="label label_blue_sky" for="txt_filterclient">Cliente:</label>
     <input type="text" class="form-control" alt="<?php echo $raw_facturaventa[0]['facturaventa_AI_cliente_id']; ?>" id="txt_filterclient" name="txt_filterclient" value="<?php echo $raw_facturaventa[0]['TX_cliente_nombre']; ?>" onkeyup="unset_filterclient(event)" />
   </div>
-	<div id="container_btnaddclient" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+	<div id="container_btnaddclient" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
 		<button type="button" id="btn_addclient" class="btn btn-success"><strong>+</strong></button>
 	</div>
   <div id="container_spannumeroff" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-  	<label for="span_numeroff">Nº</label>
+  	<label class="label label_blue_sky" for="span_numeroff">Nº</label>
   	<span id="span_numeroff" class="form-control bg-disabled"><?php echo $_SESSION['numero_ff']; ?></span>
   </div>
 	<div id="container_client_recall" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -335,85 +352,64 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="container_product2sell">
 	<div id="container_tblproduct2sale"  class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-
-<table id="tbl_product2sell" class="table table-bordered table-condensed table-striped table-hover">
-<thead class="bg-primary">
-<tr>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Codigo</th>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Coti. Nº</th>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-3">Producto</th>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Medida</th>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Cantidad</th>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Precio</th>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Imp.%</th>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Desc.%</th>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">SubTotal</th>
-  <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">  </th>
-</tr>
-</thead>
-<tbody>
-	<?php
-	$sub_total= 0;
-	$total_itbm = 0;
-	$total_descuento = 0;
-
-	foreach ($raw_facturaventa as $key => $value) {
-		$descuento = (($value['TX_datoventa_descuento']*$value['TX_datoventa_precio'])/100);
-	  $precio_descuento = ($value['TX_datoventa_precio']-$descuento);
-		$impuesto = (($value['TX_datoventa_impuesto']*$precio_descuento)/100);
-		$precio_total = ($value['TX_datoventa_cantidad']*($precio_descuento+$impuesto));
-?>
-<tr ondblclick="open_popup('popup_loginadmin.php?a=<?php echo $str_factid ?>&b=<?php echo $_GET['b'] ?>&z=admin_datoventa.php','popup_loginadmin','425','420');">
-	<td><?php echo $value['TX_producto_codigo']; ?> </td>
-	<td><?php echo $value['TX_facturaventa_numero']; ?></td>
-	<td><?php echo $r_function->replace_special_character($value['TX_datoventa_descripcion']); ?></td>
-	<td><?php echo $value['TX_producto_medida']; ?></td>
-	<td onclick="upd_quantityonnewcollect('<?php echo $value['AI_datoventa_id']; ?>');"><?php echo $value['TX_datoventa_cantidad']; ?></td>
-	<td><?php echo number_format($value['TX_datoventa_precio'],2); ?></td>
-	<td><?php echo number_format($impuesto,2).' ('.$value['TX_datoventa_impuesto'].'%)'; ?></td>
-	<td><?php echo number_format($descuento,2).' ('.$value['TX_datoventa_descuento'].'%)'; ?></td>
-	<td><?php
-		echo number_format($precio_total,2);
-		$total_descuento+=$value['TX_datoventa_cantidad']*$descuento;
-		$total_itbm+=$value['TX_datoventa_cantidad']*$impuesto;
-		$sub_total+=$value['TX_datoventa_cantidad']*$value['TX_datoventa_precio'];
-		$total_ff = ($sub_total-$total_descuento)+$total_itbm;
-		$total_ff = round($total_ff,2);
-	?></td>
-	<td>
-    <center>
-<?php if($value['datoventa_AI_user_id'] != $_COOKIE['coo_iuser']){
-	 			if($_COOKIE['coo_tuser'] < 3 && !empty($_SESSION['admin'])){ ?>
-					<button type="button" name="<?php echo $value['datoventa_AI_producto_id']; ?>" id="btn_delproduct" class="btn btn-danger btn-xs btn_del_product" onclick="del_product2addcollect(this.name,'<?php echo $value['AI_facturaventa_id']; ?>','<?php echo $str_factid ?>','<?php echo $_GET['b']  ?>');"><strong>X</strong></button>
-<?php 	}
- 			}else{ ?>
-    		<button type="button" name="<?php echo $value['datoventa_AI_producto_id']; ?>" id="btn_delproduct" class="btn btn-danger btn-xs btn_del_product" onclick="del_product2addcollect(this.name,'<?php echo $value['AI_facturaventa_id']; ?>','<?php echo $str_factid ?>','<?php echo $_GET['b']  ?>');"><strong>X</strong></button>
+    <table id="tbl_product2sell" class="table table-bordered table-condensed table-striped table-hover">
+      <thead class="bg-primary">
+        <tr>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Codigo</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Coti. Nº</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-3">Producto</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Medida</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Cantidad</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Precio</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Imp.%</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Desc.%</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">SubTotal</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">  </th>
+        </tr>
+      </thead>
+      <tbody>
+<?php $sub_total= 0; $total_itbm = 0;  $total_descuento = 0;
+    	foreach ($raw_facturaventa as $key => $value) {
+    		$descuento = (($value['TX_datoventa_descuento']*$value['TX_datoventa_precio'])/100);  $precio_descuento = ($value['TX_datoventa_precio']-$descuento);
+    		$impuesto = (($value['TX_datoventa_impuesto']*$precio_descuento)/100);                $precio_total = ($value['TX_datoventa_cantidad']*($precio_descuento+$impuesto)); ?>
+        <tr ondblclick="open_popup('popup_loginadmin.php?a=<?php echo $str_factid ?>&b=<?php echo $_GET['b'] ?>&z=admin_datoventa.php','popup_loginadmin','425','420');">
+        	<td><?php echo $value['TX_producto_codigo']; ?> </td>
+        	<td><?php echo $value['TX_facturaventa_numero']; ?></td>
+        	<td><?php echo $r_function->replace_special_character($value['TX_datoventa_descripcion']); ?></td>
+        	<td><?php echo $raw_medida[$value['TX_datoventa_medida']]; ?></td>
+        	<td onclick="upd_quantityonnewcollect('<?php echo $value['AI_datoventa_id']; ?>');"><?php echo $value['TX_datoventa_cantidad']; ?></td>
+        	<td><?php echo number_format($value['TX_datoventa_precio'],2); ?></td>
+        	<td><?php echo number_format($impuesto,2).' ('.$value['TX_datoventa_impuesto'].'%)'; ?></td>
+        	<td><?php echo number_format($descuento,2).' ('.$value['TX_datoventa_descuento'].'%)'; ?></td>
+<?php 		$total_descuento+=$value['TX_datoventa_cantidad']*$descuento;
+		      $total_itbm+=$value['TX_datoventa_cantidad']*$impuesto;
+		      $sub_total+=$value['TX_datoventa_cantidad']*$value['TX_datoventa_precio'];
+		      $total_ff = ($sub_total-$total_descuento)+$total_itbm;
+		      $total_ff = round($total_ff,2); ?>
+        	<td><?php echo number_format($precio_total,2);	?></td>
+	        <td class="al_center"><?php
+            if($value['datoventa_AI_user_id'] != $_COOKIE['coo_iuser']){
+              if($_COOKIE['coo_tuser'] < 3 && !empty($_SESSION['admin'])){ ?>
+                <button type="button" name="" id="btn_delproduct" class="btn btn-danger btn-xs btn_del_product" onclick="del_product2addcollect('<?php echo $value['datoventa_AI_producto_id']; ?>','<?php echo $value['AI_facturaventa_id']; ?>','<?php echo $str_factid ?>');"><strong>X</strong></button>
+<?php 	      }
+ 			      }else{ ?>
+    		      <button type="button" name="" id="btn_delproduct" class="btn btn-danger btn-xs btn_del_product" onclick="del_product2addcollect('<?php echo $value['datoventa_AI_producto_id']; ?>','<?php echo $value['AI_facturaventa_id']; ?>','<?php echo $str_factid ?>');"><strong>X</strong></button>
+<?php       } ?>
+          </td>
+        </tr>
 <?php } ?>
-    </center>
-  </td>
-</tr>
-<?php
-	}
-	?>
-</tbody>
-<tfoot class="bg-primary">
-	<td></td><td></td><td></td><td></td><td></td>
-    <td>
-    <span id="span_nettotal"><?php echo $sub_total; ?></span>
-    </td>
-    <td>
-	<strong>Imp: </strong> <br />B/ <span id="span_itbm"><?php echo number_format($total_itbm,2); ?></span>
-	</td>
-    <td>
-	<strong>Desc: </strong> <br />B/ <span id="span_discount"><?php echo number_format($total_descuento,2); ?></span>
-    </td>
-    <td>
-	<strong>Total: </strong> <br />B/ <span id="span_total"><?php echo number_format($total_ff,2); ?></span>
-    </td>
-    <td></td>
-</tfoot>
-</table>
-
+      </tbody>
+      <tfoot class="bg-primary">
+        <tr>
+      	  <td colspan="5"></td>
+          <td><span id="span_nettotal"><?php echo $sub_total; ?></span></td>
+          <td><strong>Imp: </strong> <br />B/ <span id="span_itbm"><?php echo number_format($total_itbm,2); ?></span></td>
+          <td><strong>Desc: </strong> <br />B/ <span id="span_discount"><?php echo number_format($total_descuento,2); ?></span></td>
+          <td><strong>Total: </strong> <br />B/ <span id="span_total"><?php echo number_format($total_ff,2); ?></span></td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
 	</div>
 </div>
 <div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -451,11 +447,11 @@ switch ($_COOKIE['coo_tuser']){
         </div>
     </div>
     <div id="container_txtnumber" class="col-xs-12 col-sm-6 col-md-4 col-lg-4">
-        <label for="txt_number">Numero de Control</label>
+        <label class="label label_blue_sky" for="txt_number">Numero de Control</label>
         <input type="text" id="txt_number" name="txt_number" class="form-control" />
     </div>
     <div id="container_txtamount" class="col-xs-11 col-sm-6 col-md-4 col-lg-4">
-        <label for="txt_amount">Monto</label>
+        <label class="label label_blue_sky" for="txt_amount">Monto</label>
         <input type="text" id="txt_amount" name="txt_amount" class="form-control"  />
     </div>
     <div id="container_btnamount" class="col-xs-2 col-sm-2 col-md-1 col-lg-1">
@@ -542,12 +538,14 @@ switch ($_COOKIE['coo_tuser']){
 	    <button type="button" id="btn_process" class="btn btn-success">Procesar</button>
 			&nbsp;
 			<button type="button" id="btn_cancelpaymentmethod" class="btn btn-warning">Cancelar</button>
+      &nbsp;&nbsp;&nbsp;
+      <button type="button" id="btn_generate" class="btn btn-default">Generar</button>
 		</div>
 </div>
 
 <div id="container_product_list" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_filterproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<label for="txt_filterproduct">Buscar:</label>
+	<label class="label label_blue_sky" for="txt_filterproduct">Buscar:</label>
     <input type="text" class="form-control" id="txt_filterproduct" name="txt_filterproduct" onkeyup="filter_product_collect(this,'<?php echo $str_factid; ?>');" />
 	</div>
 	<div id="container_selproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">

@@ -1,7 +1,6 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-
 require 'attached/php/req_login_sale.php';
 
 $facturaventa_id=$_GET['a'];
@@ -13,7 +12,6 @@ while($rs_opcion=$qry_opcion->fetch_array()){
 }
 
 $txt_checkuser_bill="SELECT AI_facturaventa_id FROM bh_facturaventa WHERE AI_facturaventa_id = '$facturaventa_id'";
-
 $qry_checkuser_bill=$link->query($txt_checkuser_bill)or die($link->error);
 $nr_checkuser_bill=$qry_checkuser_bill->num_rows;
 
@@ -21,7 +19,7 @@ if($nr_checkuser_bill < 1){
 	echo "<meta http-equiv='Refresh' content='1;url=stock.php'>";
 }
 
-$qry_facturaventa=$link->query("SELECT bh_facturaventa.AI_facturaventa_id, bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.TX_facturaventa_observacion, bh_facturaventa.facturaventa_AI_cliente_id, bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono, bh_datoventa.datoventa_AI_producto_id, bh_producto.TX_producto_value, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_codigo, bh_user.TX_user_seudonimo, bh_datoventa.TX_datoventa_descripcion
+$qry_facturaventa=$link->query("SELECT bh_facturaventa.AI_facturaventa_id, bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.TX_facturaventa_observacion, bh_facturaventa.facturaventa_AI_cliente_id, bh_facturaventa.facturaventa_AI_user_id, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono, bh_datoventa.datoventa_AI_producto_id, bh_producto.TX_producto_value, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_codigo, bh_user.TX_user_seudonimo, bh_datoventa.TX_datoventa_descripcion, bh_datoventa.TX_datoventa_medida
 FROM ((((bh_facturaventa
        INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
        INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
@@ -29,6 +27,12 @@ FROM ((((bh_facturaventa
        INNER JOIN bh_user ON bh_facturaventa.facturaventa_AI_user_id = bh_user.AI_user_id)
 WHERE AI_facturaventa_id = '$facturaventa_id'")or die($link->error);
 $rs_facturaventa=$qry_facturaventa->fetch_array();
+
+$qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
+$raw_medida = array();
+while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
+	$raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
+}
 
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -45,7 +49,7 @@ function cap_fl(str){
 // setTimeout('self.close()',15000);
 </script>
 
-<body style="font-family:Arial<?php /* echo $RS_medinfo['TX_fuente_medico']; */?>" onLoad="window.print()">
+<body style="font-family:Arial" onLoad="window.print()">
 
 <?php
 $dias = array('','Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','Sabado');
@@ -124,6 +128,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		    	<tr>
 		        <th>Codigo</th>
 		        <th>Detalle</th>
+						<th>Medida</th>
 		        <th>Cant.</th>
 		        <th>Precio</th>
 		        <th>Desc.</th>
@@ -160,6 +165,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		    	<tr>
 		        <th>Codigo</th>
 		        <th>Detalle</th>
+						<th>Medida</th>
 		        <th>Cant.</th>
 		        <th>Precio</th>
 		        <th>Desc.</th>
@@ -191,6 +197,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		    	<tr>
 		        <th>Codigo</th>
 		        <th>Detalle</th>
+						<th>Medida</th>
 		        <th>Cant.</th>
 		        <th>Precio</th>
 		        <th>Desc.</th>
@@ -212,11 +219,12 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		    	<tr  style="height:41px;">
 		        <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_producto_codigo']; 				?></td>
 		        <td style="vertical-align: middle;"><?php echo substr($r_function->replace_special_character($rs_facturaventa['TX_datoventa_descripcion']),0,96); 	?></td>
-		        <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
-		        <td style="vertical-align: middle;"><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
-		        <td style="vertical-align: middle;"><?php echo number_format($descuento,4); 			?></td>
-		        <td style="vertical-align: middle;"><?php echo number_format($itbm,4); 						?></td>
-		        <td style="vertical-align: middle;"><?php echo number_format($precio_total,4); 		?></td>
+						<td style="vertical-align: middle;" class="al_center"><?php echo $raw_medida[$rs_facturaventa['TX_datoventa_medida']]; ?></td>
+						<td style="vertical-align: middle;" class="al_center"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
+		        <td style="vertical-align: middle;" class="al_center"><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
+		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($descuento,4); 			?></td>
+		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($itbm,4); 						?></td>
+		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($precio_total,4); 		?></td>
 					</tr>
 	<?php
 				$totalitbm += $itbm;

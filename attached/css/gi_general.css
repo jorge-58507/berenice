@@ -23,6 +23,14 @@
 	width: 34px;
 	padding: 0px;
 }
+.side-btn-md-label{
+	padding-top: 14px;
+}
+.side-btn-md-label>button{
+	height: 34px;
+	width: 34px;
+	padding: 0px;
+}
 
 #btn_start{
 	cursor:pointer;
@@ -180,6 +188,7 @@ h1{
 #clear_date_final, #clear_date_initial{
 	font-size:9px;
 }
+
 .input_invalid{
 	border: 2px outset #F00;
 }
@@ -223,4 +232,30 @@ h1{
 }
 .btn{
 	border-radius: 3px;
+}
+.label{
+	font-size: 100%;
+}
+.bad_field{
+	box-shadow: inset 0px 0px 5px #fb0e0e;
+}
+.clear_date{
+	font-size:18px;
+}
+.table>thead>tr>th{
+	text-transform: uppercase;
+	text-align: center;
+}
+.btn-md-fa{
+	font-size: 20px;
+}
+.label_blue_sky{
+	background-color: #7892cf;
+}
+.padding-v-10{
+	padding-top: 10px;
+	padding-bottom: 10px;
+}
+.font_bolder{
+	font-weight: bolder;
 }

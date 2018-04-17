@@ -50,9 +50,16 @@ $("#btn_navpaydesk").click(function(){
 $("#btn_navadmin").click(function(){
 	window.location="start_admin.php";
 });
+$("#btn_start").click(function(){
+	window.location="start.php";
+});
+$("#btn_exit").click(function(){
+	location.href="index.php";
+})
 $(window).on('beforeunload', function(){
 	cerrarPopup();
 });
+
 $( function() {
 	var dateFormat = "dd-mm-yy",
 		from = $( "#txt_date_initial" )
@@ -99,6 +106,23 @@ $("#btn_printcompra").on("click",function(){
 
 });
 
+function transform_facturacompra(facturacompra_id){
+  $.ajax({	data: "",type: "GET",dataType: "json",url: "attached/get/get_session_admin.php",	})
+	 .done(function( data, textStatus, jqXHR ) { console.log( "GOOD " + textStatus);
+		  if(data[0][0] != ""){
+	      $.ajax({	data: {"a" : facturacompra_id, "b" : $("#txt_filterfacturacompra").val()	},	type: "GET",	dataType: "text",	url: "attached/get/get_facturacompra.php", })
+	      .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+					if (data) {	window.location.href="purchase.php";	}
+	      })
+	      .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+	    }else{
+	      popup = window.open("popup_loginadmin.php?z=start_admin.php", "popup_loginadmin", 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=no,width=425,height=420');
+	    }
+    })
+  .fail(function( jqXHR, textStatus, errorThrown ) {
+    if ( console && console.log ) {	 console.log( "La solicitud a fallado: " +  textStatus); }
+  })
+}
 
 
 </script>
@@ -190,7 +214,7 @@ switch ($_COOKIE['coo_tuser']){
         ?>
     <tr onclick="filter_purchasebyproduct('<?php echo $rs_product['AI_producto_id']; ?>');">
         <td><?php echo $rs_product['TX_producto_codigo'] ?></td>
-        <td><?php echo $rs_product['TX_producto_value'] ?></td>
+        <td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
         <td>
         <?php
         if($rs_product['TX_producto_cantidad'] >= $rs_product['TX_producto_maximo']){

@@ -18,6 +18,11 @@
 .table-print td{
 	font-size:12px;
 }
+.table-print>thead>tr>th{
+	padding: 0 2px;
+	vertical-align: middle;
+	height: 41px
+}
 #tbl_observation{
 	margin-top:5px;
 }
@@ -108,4 +113,7 @@ tfoot{
 #tbl_datoventa > tbody > tr > td{
 	padding: 2px;
 	vertical-align: middle;
+}
+.al_center{
+	text-align: center;
 }

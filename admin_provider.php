@@ -15,7 +15,10 @@ $qry_expired_cpp = $link->query("SELECT bh_cpp.AI_cpp_id,bh_cpp.TX_cpp_saldo,bh_
 $qry_cpp_facturacompra = $link->prepare("SELECT AI_facturacompra_id,TX_facturacompra_numero FROM (bh_facturacompra INNER JOIN bh_cpp ON bh_facturacompra.AI_facturacompra_id = bh_cpp.cpp_AI_facturacompra_id) WHERE AI_cpp_id = ?");
 $qry_cpp_pedido = $link->prepare("SELECT AI_pedido_id,TX_pedido_numero FROM (bh_pedido INNER JOIN bh_cpp ON bh_pedido.AI_pedido_id = bh_cpp.cpp_AI_pedido_id) WHERE AI_cpp_id = ?");
 
-$qry_cheque = $link->query("SELECT bh_cheque.AI_cheque_id, bh_cheque.TX_cheque_fecha, bh_proveedor.TX_proveedor_nombre, bh_cheque.cheque_AI_cpp_id, bh_cheque.TX_cheque_numero, bh_cheque.TX_cheque_monto, bh_cheque.TX_cheque_observacion, bh_cpp.cpp_AI_proveedor_id FROM ((bh_cheque INNER JOIN bh_cpp ON bh_cpp.AI_cpp_id = bh_cheque.cheque_AI_cpp_id) INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = bh_cpp.cpp_AI_proveedor_id) ORDER BY TX_cheque_fecha LIMIT 10;")or die($link->error);
+$qry_cheque = $link->query("SELECT bh_cheque.AI_cheque_id, bh_cheque.TX_cheque_fecha, bh_proveedor.TX_proveedor_nombre, bh_cheque.cheque_AI_cpp_id, bh_cheque.TX_cheque_numero, bh_cheque.TX_cheque_monto, bh_cheque.TX_cheque_observacion, bh_cheque.cheque_AI_proveedor_id
+	FROM (bh_cheque
+		INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = bh_cheque.cheque_AI_proveedor_id)
+		ORDER BY TX_cheque_fecha LIMIT 10;")or die($link->error);
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -66,7 +69,7 @@ $("#btn_exit").click(function(){
 })
 
 $("#btn_add_provider").on("click", function(){
-	open_popup('popup_addprovider.php','_popup','420','463');
+	open_popup(`popup_addprovider.php?a=${$("#txt_filterprovider").val()}`,'_popup','420','473');
 })
 
 $("#txt_filterprovider").on("keyup", function(){
@@ -317,10 +320,8 @@ switch ($_COOKIE['coo_tuser']){
 									$doc_counter++;
 									$last_doc=$rs_saldo['AI_cpp_id'];
 								}
-
 								$saldo_total += $rs_saldo['TX_cpp_saldo'];
 							}
-
 			?>
 				    <tr>
 			        <td><?php echo $rs_proveedor['TX_proveedor_nombre']; ?></td>
@@ -378,8 +379,9 @@ switch ($_COOKIE['coo_tuser']){
 				<?php while($rs_cheque = $qry_cheque->fetch_array()){ ?>
 							<tr>
 								<td><?php echo date('d-m-Y',strtotime($rs_cheque['TX_cheque_fecha'])); ?></td>
-								<td><button type="button" class="btn btn-link" onclick="document.location='provider_info.php?a=<?php echo $rs_cheque['cpp_AI_proveedor_id']; ?>'"><?php echo $rs_cheque['TX_proveedor_nombre']; ?></button></td>
-								<td class="al_center"><button type="button" class="btn btn-link" onclick="document.location='admin_pay_cpp.php?a=<?php echo $rs_cheque['cheque_AI_cpp_id']; ?>'"><?php echo substr("0000000".$rs_cheque['cheque_AI_cpp_id'],-8); ?></button></td>
+								<td><button type="button" class="btn btn-link" onclick="document.location='provider_info.php?a=<?php echo $rs_cheque['cheque_AI_proveedor_id']; ?>'"><?php echo $rs_cheque['TX_proveedor_nombre']; ?></button></td>
+								<?php $href_cpp = (!empty($rs_cheque['cheque_AI_cpp_id'])) ? "admin_pay_cpp.php?a=".$rs_cheque['cheque_AI_cpp_id'] : ''; ?>
+								<td class="al_center"><button type="button" class="btn btn-link" onclick="document.location='<?php echo $href_cpp; ?>'"><?php echo substr("0000000".$rs_cheque['cheque_AI_cpp_id'],-8); ?></button></td>
 								<td><?php echo $rs_cheque['TX_cheque_numero']; ?></td>
 								<td><?php echo $rs_cheque['TX_cheque_monto']; ?></td>
 								<td><?php echo $rs_cheque['TX_cheque_observacion']; ?></td>

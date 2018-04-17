@@ -3,7 +3,7 @@ require '../../bh_conexion.php';
 $link = conexion();
 
 $nuevaventa_id=$_GET['a'];
-$new_descripcion=$_GET['b'];
+$new_descripcion=$r_function->replace_regular_character($_GET['b']);
 
 $link->query("UPDATE bh_nuevaventa SET TX_nuevaventa_descripcion = '$new_descripcion' WHERE AI_nuevaventa_id = '$nuevaventa_id'")or die($link->error);
 
@@ -12,6 +12,13 @@ FROM (bh_producto
 INNER JOIN bh_nuevaventa ON bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id)
 WHERE bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
 $nr_nuevaventa=$qry_nuevaventa->num_rows;
+
+$qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
+$raw_medida = array();
+while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
+	$raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
+}
+
 ?>
 <table id="tbl_product2sell" class="table table-bordered table-hover ">
 <caption>Lista de Productos para la Venta</caption>
@@ -51,8 +58,8 @@ $nr_nuevaventa=$qry_nuevaventa->num_rows;
 
 			<tr>
 				<td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
-				<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['TX_nuevaventa_descripcion']);?>')"><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
-				<td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
+				<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>,'<?php echo $r_function->replace_special_character($rs_nuevaventa['TX_nuevaventa_descripcion']);?>')"><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
+				<td><?php echo $raw_medida[$rs_nuevaventa['TX_producto_medida']]; ?></td>
 				<td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
 				<?php echo $rs_nuevaventa['TX_nuevaventa_unidades']; ?>
 				<span id="stock_quantity"><?php echo $rs_nuevaventa['TX_producto_cantidad']; ?></span>

@@ -1,6 +1,7 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
+date_default_timezone_set('America/Panama');
 
 $uid=$_COOKIE['coo_iuser'];
 $tipo=$_GET['a'];
@@ -24,13 +25,13 @@ return($ip);
 
 $host_ip=ObtenerIP();
 $host_name=gethostbyaddr($host_ip);
-$rs_impresoraid=mysql_fetch_assoc(mysql_query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'"));
+$qry_impresoraid = $link->query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);
+$rs_impresoraid = $qry_impresoraid->fetch_array();
 
-		mysql_query("INSERT INTO bh_efectivo (efectivo_AI_user_id, efectivo_AI_impresora_id, TX_efectivo_tipo, TX_efectivo_motivo, TX_efectivo_monto, TX_efectivo_fecha, TX_efectivo_status)
-	VALUES ('$uid', '{$rs_impresoraid['AI_impresora_id']}', '$tipo', '$motivo', '$monto', '$fecha_actual', 'ACTIVA')");
-		$qry_lastid=mysql_query("SELECT LAST_INSERT_ID();");
-		$rs_lastid = mysql_fetch_row($qry_lastid);
+		$link->query("INSERT INTO bh_efectivo (efectivo_AI_user_id, efectivo_AI_impresora_id, TX_efectivo_tipo, TX_efectivo_motivo, TX_efectivo_monto, TX_efectivo_fecha, TX_efectivo_status)
+	VALUES ('$uid', '{$rs_impresoraid['AI_impresora_id']}', '$tipo', '$motivo', '$monto', '$fecha_actual', 'ACTIVA')")or die($link->error);
+		$qry_lastid=$link->query("SELECT LAST_INSERT_ID();");
+		$rs_lastid = $qry_lastid->fetch_array();
 		$last_id = trim($rs_lastid[0]);
 session_start();
 		$_SESSION['efectivo_id']=$last_id;
-

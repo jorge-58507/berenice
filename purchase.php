@@ -173,88 +173,87 @@ switch ($_COOKIE['coo_tuser']){
 
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form method="post" name="form_purchase"  id="form_purchase" onsubmit="return false;">
+	<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<button type="button" id="btn_back" class="btn btn-default btn-lg" onclick="window.location.href='new_purchase.php';">Nueva compra</button>
+		&nbsp;
+		<button type="button" name="btn_qry_entry" id="btn_qry_entry" class="btn btn-primary btn-lg" >Buscar Compra</button>
+	</div>
 
-<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<button type="button" id="btn_back" class="btn btn-default btn-lg" onclick="window.location.href='new_purchase.php';">Nueva compra</button>
-	&nbsp;
-	<button type="button" name="btn_qry_entry" id="btn_qry_entry" class="btn btn-primary btn-lg" >Buscar Compra</button>
-</div>
-
-<div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-  <div id="container_filterpurchase" class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
-	  <label for="txt_filterpurchase">Buscar:</label>
-	  <input type="text" class="form-control" id="txt_filterfacturacompra" name="txt_filterfacturacompra" placeholder="Buscar Proveedor, Orden de Compra o Numero Factura"/>
-  </div>
-  <div id="container_filterpurchase" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-    <label for="rd_filterpurchase">Mostrar:</label><br />
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="" /> Todas</label>
-	</div>
-	<div id="container_date" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-		<div id="container_txtdateinitial" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label for="txt_date_initial">F. Inicio</label>
-			<input type="text" id="txt_date_initial" class="form-control" readonly="readonly" value="<?php echo $fecha_inicial; ?>" />
+	<div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	  <div id="container_filterpurchase" class="col-xs-12 col-sm-12 col-md-5 col-lg-5">
+		  <label class="label label_blue_sky" for="txt_filterpurchase">Buscar:</label>
+		  <input type="text" class="form-control" id="txt_filterfacturacompra" name="txt_filterfacturacompra" placeholder="Buscar Proveedor, Orden de Compra o Numero Factura"/>
+	  </div>
+	  <div id="container_show_filterpurchase" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+	    <label class="label label_blue_sky" for="rd_filterpurchase">Mostrar:</label><br />
+			<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
+			<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
+			<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="" /> Todas</label>
 		</div>
-		<div id="container_txtdatefinal" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label for="txt_date_final">F. Final</label>
-			<input type="text" id="txt_date_final" class="form-control" readonly="readonly" value="<?php echo $fecha_actual; ?>" />
+		<div id="container_date" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+			<div id="container_txtdateinitial" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+				<label class="label label_blue_sky" for="txt_date_initial">F. Inicio</label>
+				<input type="text" id="txt_date_initial" class="form-control" readonly="readonly" value="<?php echo $fecha_inicial; ?>" />
+			</div>
+			<div id="container_txtdatefinal" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+				<label class="label label_blue_sky" for="txt_date_final">F. Final</label>
+				<input type="text" id="txt_date_final" class="form-control" readonly="readonly" value="<?php echo $fecha_actual; ?>" />
+			</div>
 		</div>
-	</div>
-	<div id="container_btnfiltercompra" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-		<button type="button" id="btn_filtercompra" class="btn btn-success btn-search">
-			<i class="fa fa-search" aria-hidden="true"></i>
-		</button>
-	</div>
-	<div id="container_tblpurchase" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-		<table id="tbl_purchase" class="table table-bordered table-condensed table-hover">
-			<thead class="bg-primary">
-				<tr>
-					<th class="col-xs-1 col-md-1 col-lg-1 col-xl-1 al_center">Elaboracion</th>
-					<th class="col-xs-1 col-md-1 col-lg-1 col-xl-1 al_center">Fecha</th>
-					<th class="col-xs-2 col-md-2 col-lg-2 col-xl-2 al_center">N&deg; de Factura</th>
-					<th class="col-xs-6 col-md-6 col-lg-6 col-xl-6 al_center">Proveedor</th>
-					<th class="col-xs-1 col-md-1 col-lg-1 col-xl-1 al_center"></th>
-				</tr>
-			</thead>
-			<tfoot class="bg-primary"><tr><td colspan="5"></td></tr></tfoot>
-			<tbody>
-<?php  	if ($qry_facturacompra->num_rows > 0) {
-					while ($rs_facturacompra=$qry_facturacompra->fetch_array()) {	?>
-						<tr>
-							<td><?php echo $rs_facturacompra['TX_facturacompra_elaboracion']; ?></td>
-							<td><?php echo $rs_facturacompra['TX_facturacompra_fecha']; ?></td>
-							<td><?php echo $rs_facturacompra['TX_facturacompra_numero']; ?></td>
-							<td><?php echo $rs_facturacompra['TX_proveedor_nombre']; ?></td>
-							<td class="al_center">
-								<button class="btn btn-warning btn-sm" id="btn_modificar" onclick="mod_facturacompra(<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>)"><i class="fa fa-wrench"></i></button>
-								&nbsp;
-								<button class="btn btn-danger btn-sm" id="btn_modificar" onclick="del_facturacompra(<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>)"><i class="fa fa-times"></i></button>
-							</td>
-						</tr>
-<?php			}
-				}else{ ?>
+		<div id="container_btnfiltercompra" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
+			<button type="button" id="btn_filtercompra" class="btn btn-success btn-search">
+				<i class="fa fa-search" aria-hidden="true"></i>
+			</button>
+		</div>
+		<div id="container_tblpurchase" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<table id="tbl_purchase" class="table table-bordered table-condensed table-hover">
+				<thead class="bg-primary">
 					<tr>
-						<td colspan="4">&nbsp;</td>
+						<th class="col-xs-1 col-md-1 col-lg-1 col-xl-1 al_center">Elaboracion</th>
+						<th class="col-xs-1 col-md-1 col-lg-1 col-xl-1 al_center">Fecha</th>
+						<th class="col-xs-2 col-md-2 col-lg-2 col-xl-2 al_center">N&deg; de Factura</th>
+						<th class="col-xs-6 col-md-6 col-lg-6 col-xl-6 al_center">Proveedor</th>
+						<th class="col-xs-1 col-md-1 col-lg-1 col-xl-1 al_center"></th>
 					</tr>
-<?php		}	?>
-			</tbody>
-		</table>
+				</thead>
+				<tfoot class="bg-primary"><tr><td colspan="5"></td></tr></tfoot>
+				<tbody>
+<?php  		if ($qry_facturacompra->num_rows > 0) {
+						while ($rs_facturacompra=$qry_facturacompra->fetch_array()) {	?>
+							<tr>
+								<td><?php echo $rs_facturacompra['TX_facturacompra_elaboracion']; ?></td>
+								<td><?php echo $rs_facturacompra['TX_facturacompra_fecha']; ?></td>
+								<td><?php echo $rs_facturacompra['TX_facturacompra_numero']; ?></td>
+								<td><?php echo $rs_facturacompra['TX_proveedor_nombre']; ?></td>
+								<td class="al_center">
+									<button class="btn btn-warning btn-sm" id="btn_modificar" onclick="mod_facturacompra(<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>)"><i class="fa fa-wrench"></i></button>
+									&nbsp;
+									<button class="btn btn-danger btn-sm" id="btn_modificar" onclick="del_facturacompra(<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>)"><i class="fa fa-times"></i></button>
+								</td>
+							</tr>
+<?php				}
+					}else{ ?>
+						<tr>
+							<td colspan="4">&nbsp;</td>
+						</tr>
+<?php			}	?>
+				</tbody>
+			</table>
+		</div>
 	</div>
-</div>
-<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<button type="button" id="btn_back" class="btn btn-warning" onclick="window.location.href='stock.php';">Volver</button>
-</div>
+	<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<button type="button" id="btn_back" class="btn btn-warning" onclick="window.location.href='stock.php';">Volver</button>
+	</div>
 </form>
 </div>
-<div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
-	<div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-    	<button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-    </div>
+	<div id="footer">
+		<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
+			&copy; Derechos Reservados a: Trilli, S.A. 2017
+			<label id="container_btnexit">
+	    	<button type="button" class="btn btn-danger" id="btn_exit">Salir</button>
+			</label>
+		</div>
 	</div>
-</div>
 </div>
 
 </body>

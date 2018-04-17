@@ -5,10 +5,10 @@ $link = conexion();
 $uid=$_COOKIE['coo_iuser'];
 $id=$_GET['a'];
 $cantidad=$_GET['b'];
-$precio=$_GET['c'];
-$precio=round($precio,2);
+$precio=round($_GET['c'],2);
 $impuesto=$_GET['e'];
 $descuento=$_GET['d'];
+$medida=$_GET['f'];
 
 	$qry_product = $link->query("SELECT TX_producto_value FROM bh_producto WHERE AI_producto_id = '$id'")or die($link->error);
 	$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
@@ -17,12 +17,17 @@ $descuento=$_GET['d'];
 	$qry_chkproduct=$link->query("SELECT AI_nuevaventa_id FROM bh_nuevaventa WHERE nuevaventa_AI_producto_id = '$id' AND nuevaventa_AI_user_id = '$uid'");
 	$nr_chkproduct=$qry_chkproduct->num_rows;
 	if($nr_chkproduct < 1){
-		// $descripcion = str_replace("'","",$descripcion);
-		$link->query("INSERT INTO bh_nuevaventa (nuevaventa_AI_user_id, nuevaventa_AI_producto_id, TX_nuevaventa_unidades, TX_nuevaventa_precio, TX_nuevaventa_itbm, TX_nuevaventa_descuento, TX_nuevaventa_descripcion)
-	VALUES ('$uid', '$id', '$cantidad', '$precio', '$impuesto', '$descuento', '$descripcion')");
-}
+		$link->query("INSERT INTO bh_nuevaventa (nuevaventa_AI_user_id, nuevaventa_AI_producto_id, TX_nuevaventa_unidades, TX_nuevaventa_precio, TX_nuevaventa_itbm, TX_nuevaventa_descuento, TX_nuevaventa_descripcion, TX_nuevaventa_medida) VALUES ('$uid', '$id', '$cantidad', '$precio', '$impuesto', '$descuento', '$descripcion', '$medida')")or die($link->error);
+	}
 
-$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id, bh_nuevaventa.TX_nuevaventa_descripcion, bh_nuevaventa.AI_nuevaventa_id
+
+//  ##############################        ANSWER
+$qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
+$raw_medida = array();
+while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
+	$raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
+}
+$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id, bh_nuevaventa.TX_nuevaventa_descripcion, bh_nuevaventa.AI_nuevaventa_id, bh_nuevaventa.TX_nuevaventa_medida
 	 FROM (bh_producto
 	 INNER JOIN bh_nuevaventa ON bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id)
 	 WHERE bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
@@ -67,12 +72,9 @@ $nr_nuevaventa=$qry_nuevaventa->num_rows;
 			      		<tr>
 			            <td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
 			            <td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>)"><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
-			            <td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
-			            <td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);"><?php
-			      			echo $rs_nuevaventa['TX_nuevaventa_unidades'];
-			      			?></td>
-			      			<td onclick="upd_precionuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
-			      				<?php echo number_format($rs_nuevaventa['TX_nuevaventa_precio'],2); ?></td>
+			            <td><?php echo $raw_medida[$rs_nuevaventa['TX_nuevaventa_medida']]; ?></td>
+			            <td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);"><?php echo $rs_nuevaventa['TX_nuevaventa_unidades']; ?></td>
+			      			<td onclick="upd_precionuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);"><?php echo number_format($rs_nuevaventa['TX_nuevaventa_precio'],2); ?></td>
 			            <td><?php echo number_format($impuesto,2); ?></td>
 			            <td><?php echo number_format($descuento,2); ?></td>
 			      			<td><?php echo number_format($p_unitario,2); ?></td>

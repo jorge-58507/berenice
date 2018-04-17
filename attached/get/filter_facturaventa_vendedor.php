@@ -6,9 +6,6 @@ $user_id=$_GET['a'];
 $date_i=$_GET['b'];
 $date_f=$_GET['c'];
 
-if(!empty($_GET['d'])){
-	$line_order=" ORDER BY ".$_GET['d']." DESC";
-}
 	$pre_datei=strtotime($date_i);
 	$date_i = date('Y-m-d',$pre_datei);
 	$pre_datef=strtotime($date_f);
@@ -21,7 +18,7 @@ FROM ((bh_facturaf
 WHERE
 bh_facturaf.TX_facturaf_fecha >= '$date_i' AND
 bh_facturaf.TX_facturaf_fecha <= '$date_f' AND
-bh_facturaventa.facturaventa_AI_user_id = '$user_id' ORDER BY AI_facturaf_id DESC";
+bh_facturaventa.facturaventa_AI_user_id = '$user_id' ORDER BY TX_facturaventa_numero DESC";
 
 $prep_facturaf = $link->prepare($txt_facturaf)or die($link->error);
 $prep_facturaf->execute(); $qry_facturaf= $prep_facturaf->get_result();
@@ -81,6 +78,7 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 		$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
 		if($qry_facturaf->num_rows > 0){
 			$raw_facturaf_credito=array(); $ite=0;
+			$raw_facturaf_readed=array();
 	while($rs_facturaf=$qry_facturaf->fetch_array(MYSQLI_ASSOC)){
 		$ite++;
 	?>
@@ -94,21 +92,23 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
         <td><?php echo $rs_facturaf['TX_facturaf_numero']; ?></td>
 				<td><?php
 $qry_datopago->bind_param("i", $rs_facturaf['AI_facturaf_id']); $qry_datopago->execute(); $result=$qry_datopago->get_result();
-$raw_monto=array();
-$i=0;
-while($rs_datopago=$result->fetch_array(MYSQLI_ASSOC)){
-	switch($rs_datopago['datopago_AI_metododepago_id']){
-		case '1':	$color='#67b847';	$total_efectivo += $rs_datopago['TX_datopago_monto'];	break;
-		case '2':	$color='#57afdb';	$total_cheque += $rs_datopago['TX_datopago_monto'];	break;
-		case '3':	$color='#e9ca2f';	$total_tarjeta_credito += $rs_datopago['TX_datopago_monto']; break;
-		case '4':	$color='#f04006';	$total_tarjeta_debito += $rs_datopago['TX_datopago_monto'];	break;
-		case '5':	$color='#b54a4a';	$total_credito += $rs_datopago['TX_datopago_monto'];	$raw_facturaf_credito[$ite]=$rs_facturaf['AI_facturaf_id']; break;
-		case '7':	$color='#EFA63F';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
+$raw_monto=array(); $i=0;
+if (!in_array($rs_facturaf['AI_facturaf_id'],$raw_facturaf_readed)) {
+	while($rs_datopago=$result->fetch_array(MYSQLI_ASSOC)){
+		switch($rs_datopago['datopago_AI_metododepago_id']){
+			case '1':	$color='#67b847';	$total_efectivo += $rs_datopago['TX_datopago_monto'];	break;
+			case '2':	$color='#57afdb';	$total_cheque += $rs_datopago['TX_datopago_monto'];	break;
+			case '3':	$color='#e9ca2f';	$total_tarjeta_credito += $rs_datopago['TX_datopago_monto']; break;
+			case '4':	$color='#f04006';	$total_tarjeta_debito += $rs_datopago['TX_datopago_monto'];	break;
+			case '5':	$color='#b54a4a';	$total_credito += $rs_datopago['TX_datopago_monto'];	$raw_facturaf_credito[$ite]=$rs_facturaf['AI_facturaf_id']; break;
+			case '7':	$color='#EFA63F';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
+		}
+		echo "<font color='{$color}'>".$rs_datopago['TX_metododepago_value']."</font><br />";
+		$raw_monto[$i]=$rs_datopago['TX_datopago_monto'];
+		$i++;
 	}
-	echo "<font color='{$color}'>".$rs_datopago['TX_metododepago_value']."</font><br />";
-	$raw_monto[$i]=$rs_datopago['TX_datopago_monto'];
-	$i++;
 }
+$raw_facturaf_readed[]=$rs_facturaf['AI_facturaf_id'];
 ?>
 				</td>
 				<td>

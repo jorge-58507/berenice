@@ -2,10 +2,16 @@
 require '../../bh_conexion.php';
 $link=conexion();
 
-$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id, bh_nuevaventa.AI_nuevaventa_id, bh_nuevaventa.TX_nuevaventa_descripcion
+$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id, bh_nuevaventa.AI_nuevaventa_id, bh_nuevaventa.TX_nuevaventa_descripcion, bh_producto.TX_producto_cantidad
   FROM (bh_producto INNER JOIN bh_nuevaventa ON bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id)
   WHERE bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
 $nr_nuevaventa=$qry_nuevaventa->num_rows;
+
+$qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
+$raw_medida = array();
+while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
+	$raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
+}
 
 ?>
 
@@ -48,8 +54,8 @@ $nr_nuevaventa=$qry_nuevaventa->num_rows;
 
       <tr>
         <td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
-        <td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>)"><?php echo $rs_nuevaventa['TX_nuevaventa_descripcion']; ?></td>
-        <td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
+        <td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id']; ?>,'<?php echo $r_function->replace_special_character($rs_nuevaventa['TX_nuevaventa_descripcion']);?>')"><?php echo $r_function->replace_special_character($rs_nuevaventa['TX_nuevaventa_descripcion']); ?></td>
+        <td><?php echo $raw_medida[$rs_nuevaventa['TX_producto_medida']]; ?></td>
         <td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
         <?php echo $rs_nuevaventa['TX_nuevaventa_unidades']; ?>
         <span id="stock_quantity"><?php echo $rs_nuevaventa['TX_producto_cantidad']; ?></span>

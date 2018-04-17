@@ -1,8 +1,8 @@
 <?php
 require '../../bh_conexion.php';
 $link = conexion();
-
-$value=$r_function->replace_regular_character($_GET['a']);
+$value=$r_function->url_replace_special_character($_GET['a']);
+$value=$r_function->replace_regular_character($value);
 $line_limit = "";
 if(!empty($_GET['b']) && $_GET['b'] != 'undefined'){
 	$line_limit = "LIMIT ".$_GET['b'];
@@ -52,7 +52,7 @@ while ($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)) {
 ?>
 			    <tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);">
 	        	<td title="<?php echo $rs_product['AI_producto_id']; ?>"><?php echo $rs_product['TX_producto_codigo']; ?></td>
-	        	<td><?php echo $rs_product['TX_producto_value']; ?></td>
+	        	<td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
 	        	<td><?php echo $rs_product['TX_producto_cantidad']; ?></td>
 						<td><?php echo $rs_product['precio']; ?></td>
 						<td><?php echo $rs_product['letra']; ?></td>

@@ -42,26 +42,22 @@ margin-top: 24px;
 	padding:0;
 }
 #ta_observation{
-	width: 602px;
+	width: 387px;
 	height: 294px;
 }
-#container_btnfiltercompra{
-	padding-top: 24px;
-}
 #container_btnprintcompra{
-	padding-top: 24px;
-}
-#container_btnaddproduct{
 	padding-top: 24px;
 }
 #container_filterproduct{
 	padding: 0;
 }
-#container_product{
-	max-height: 300px;
-	overflow-y: auto;
-}
 #container_facturacompra{
 	max-height: 300px;
 	overflow-y: auto;
+}
+#container_product{
+	padding-top: 10px;
+}
+#container_show_filterpurchase>.radio-inline{
+	padding-top: 8px;
 }

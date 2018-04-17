@@ -1,14 +1,10 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-date_default_timezone_set('America/Panama');
-?>
-<?php
 require 'attached/php/req_login_admin.php';
-?>
-<?php
-$qry_seller=mysql_query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user");
-$rs_seller=mysql_fetch_assoc($qry_seller);
+
+$qry_seller=$link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user");
+$rs_seller=$qry_seller->fetch_array();
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -76,7 +72,7 @@ $("#btn_exit").click(function(){
       .on( "change", function() {
         from.datepicker( "option", "maxDate", getDate( this ) );
       });
- 
+
     function getDate( element ) {
       var date;
       try {
@@ -84,15 +80,15 @@ $("#btn_exit").click(function(){
       } catch( error ) {
         date = null;
       }
- 
+
       return date;
     }
   });
   $("#clear_date_initial").click(function(){
-	 $("#txt_date_initial").val(""); 
+	 $("#txt_date_initial").val("");
   });
   $("#clear_date_final").click(function(){
-	 $("#txt_date_final").val(""); 
+	 $("#txt_date_final").val("");
   });
 	$("#btn_search").click(function(){
 		if($("#sel_vendedor").val() == ""){
@@ -107,11 +103,11 @@ $("#btn_exit").click(function(){
 			$("#txt_date_final").addClass("input_invalid");
 			return false;
 		}	$("#txt_date_final").removeClass("input_invalid");
-	
+
 		filter_facturaventa_vendedor('datopago_AI_metododepago_id');
 	});
-	
-	
+
+
 $("#btn_back").click(function(){
 	history.back(1);
 });
@@ -130,7 +126,7 @@ $("#btn_back").click(function(){
     	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
   	<div id="logo" ></div>
    	</div>
-	
+
 	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
     	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
         Bienvenido: <label class="bg-primary">
@@ -171,11 +167,11 @@ switch ($_COOKIE['coo_tuser']){
             <option value=""></option>
 <?php	do{ ?>
 		<option value="<?php echo $rs_seller['AI_user_id']; ?>"><?php echo $rs_seller['TX_user_seudonimo']; ?></option>
-<?php	}while($rs_seller=mysql_fetch_assoc($qry_seller)); ?>
+<?php	}while($rs_seller=$qry_seller->fetch_array()); ?>
 		</select>
 	</div>
 	<div id="container_txtdateinitial" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-        <label for="txt_date_initial">F. Inicio 
+        <label for="txt_date_initial">F. Inicio
         <button type="button" id="clear_date_initial" class="btn btn-danger btn-xs"><strong>!</strong></button></label>
         <input type="text" id="txt_date_initial" class="form-control" readonly="readonly" value="<?php echo date('d-m-Y',strtotime('-1 week')); ?>" />
     </div>

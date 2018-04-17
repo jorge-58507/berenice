@@ -1,45 +1,46 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
 require 'attached/php/req_login_sale.php';
-?>
-<?php
-$date_i=date('Y-m',strtotime($_GET['a']));
-$date_i=date('Y-m-d',strtotime($date_i));
-$date_f=date('Y-m',strtotime($_GET['b']));
-$date_f=date('Y-m-d',strtotime($date_f));
-$product_id=$_GET['c'];
-echo $date_i." ".$date_f;
-$qry_opcion=mysql_query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion");
+
+function cal_month($date_i, $date_f){
+	$datetime1=new DateTime($date_i);
+	$datetime2=new DateTime($date_f);
+	$interval=$datetime2->diff($datetime1);
+	$intervalMeses=$interval->format("%m");
+	$intervalAnos = $interval->format("%y")*12;
+	$meses = $intervalMeses+$intervalAnos;
+	$raw_fecha=array();
+	$fecha_sumada=$date_i;
+	for($i=0;$i<$meses;$i++){
+		$fecha_sumada = date('Y-m-d',strtotime('+1 month',strtotime($fecha_sumada)));
+		$raw_fecha[$i]=$fecha_sumada;
+	}
+	return $raw_fecha;
+}
+$prep_purchase=$link->prepare("SELECT SUM(TX_datocompra_cantidad) AS cantidad FROM (bh_datocompra INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id) WHERE bh_facturacompra.TX_facturacompra_fecha >= ? AND  bh_facturacompra.TX_facturacompra_fecha < ? AND bh_datocompra.datocompra_AI_producto_id = ?")or die($link->error);
+$prep_sold=$link->prepare("SELECT SUM(TX_datoventa_cantidad) AS venta	FROM ((bh_datoventa	INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)	INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)	WHERE bh_facturaf.TX_facturaf_fecha >= ? AND bh_facturaf.TX_facturaf_fecha < ? AND bh_datoventa.datoventa_AI_producto_id = ?");
+
+
+$qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
-while($rs_opcion=mysql_fetch_array($qry_opcion)){
+while($rs_opcion=$qry_opcion->fetch_array()){
 	$raw_opcion[$rs_opcion['TX_opcion_titulo']]=$rs_opcion['TX_opcion_value'];
 }
-?>
-<?php
-$qry_product=mysql_query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_referencia, TX_producto_value, TX_producto_minimo, TX_producto_maximo FROM bh_producto WHERE AI_producto_id = '$product_id'");
-$rs_product=mysql_fetch_array($qry_product);
-?>
-<?php
-$datetime1=new DateTime($date_i);
-$datetime2=new DateTime($date_f);
-$interval=$datetime2->diff($datetime1);
-$intervalMeses=$interval->format("%m");
-$intervalAnos = $interval->format("%y")*12;
-$meses = $intervalMeses+$intervalAnos;
-$raw_fecha=array();
-$fecha_sumada=$date_i;
-for($i=0;$i<$meses;$i++){
-	$fecha_sumada = date('Y-m-d',strtotime('+1 month',strtotime($fecha_sumada)));
-	$raw_fecha[$i]=$fecha_sumada;
-}
-	$qry_json=mysql_query("SELECT TX_rotacion_json FROM bh_rotacion WHERE rotacion_AI_producto_id = '$product_id'")or die(mysql_error());
-	$array_merged=array();
-	while($rs_json=mysql_fetch_array($qry_json)){
-		$decoded=json_decode($rs_json['TX_rotacion_json'],true);
 
+	$date_i=date('Y-m',strtotime($_GET['a']));	$date_i=date('Y-m-d',strtotime($date_i));
+	$date_f=date('Y-m',strtotime($_GET['b']));	$date_f=date('Y-m-d',strtotime($date_f));
+	$product_id=$_GET['c'];
+	echo $date_i." ".$date_f;
+
+	$raw_fecha = cal_month($date_i,$date_f);
+// echo json_encode($raw_fecha);
+	$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_referencia, TX_producto_value, TX_producto_minimo, TX_producto_maximo FROM bh_producto WHERE AI_producto_id = '$product_id'")or die($link->error);
+	$rs_product=$qry_product->fetch_array();
+
+	$qry_json=$link->query("SELECT TX_rotacion_json FROM bh_rotacion WHERE rotacion_AI_producto_id = '$product_id'")or die($link->error);
+	$array_merged=array();
+	while($rs_json=$qry_json->fetch_array()){
 		$year=date('Y',strtotime($rs_json['TX_rotacion_json']));
 		$array_merged=array_merge($array_merged,json_decode($rs_json['TX_rotacion_json'],true));
 	}
@@ -49,36 +50,48 @@ $raw_stock=array();
 $counter=0;
 $raw_date_finded=array();
 foreach($raw_fecha as $fecha){
-	for($it=0;$it<count($array_merged);$it++){
-		if(isset($array_merged[$it][$fecha])){
-			$stock+=$array_merged[$it][$fecha];
-			$raw_date_finded[$counter]=$fecha;
-			$counter++;
-			$raw_stock[$ite]=$array_merged[$it][$fecha];
-			$ite++;
+	$fecha_mes = date('Y-m',strtotime($fecha));
+	foreach ($array_merged as $key => $ciclo) {
+		foreach ($ciclo as $fecha_merged => $stock_merged) {
+			$fecha_mes_merged=date('Y-m',strtotime($fecha_merged));
+			if ($fecha_mes === $fecha_mes_merged) {
+				$stock+=$ciclo[$fecha_merged];
+				$raw_date_finded[$counter]=$fecha_merged;
+				$raw_stock[$ite]=$ciclo[$fecha_merged];
+				$counter++;
+				$ite++;
+			}
 		}
 	}
+
+	// for($it=0;$it<count($array_merged);$it++){
+	// 	if(isset($array_merged[$it][$fecha])){
+  //
+	// 		$stock+=$array_merged[$it][$fecha];
+	// 		$raw_date_finded[$counter]=$fecha;
+	// 		$counter++;
+	// 		$raw_stock[$ite]=$array_merged[$it][$fecha];
+	// 		$ite++;
+  //
+	// 	}
+	// }
 }
 //print_r($raw_date_finded);
-$raw_purchase=array();
-$iter=0;
-$raw_sold=array();
-$itera=0;
+//############### compras y ventas por intervalo
+$raw_purchase=array();	$iter=0;
+$raw_sold=array();	$itera=0;
 foreach($raw_date_finded as $finded){
+	$date_initial=$finded;
 	if($finded != end($raw_date_finded)){
-		$date_initial=$finded;
-		$date_final=date('Y-m-d',strtotime('+1 month',strtotime($finded)));
+		$date_final=date('Y-m',strtotime('+1 month',strtotime($finded)));	$date_final=date('Y-m-d',strtotime($date_final));
 	}else{
-		$date_initial=$finded;
 		$date_final=date('Y-m-d',strtotime($_GET['b']));
 	}
-
-	$txt_purchase="SELECT TX_datocompra_cantidad FROM (bh_datocompra INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
-	WHERE bh_facturacompra.TX_facturacompra_fecha >= '$date_initial' AND  bh_facturacompra.TX_facturacompra_fecha <= '$date_final' AND bh_datocompra.datocompra_AI_producto_id = '$product_id'";
-	$qry_purchase=mysql_query($txt_purchase)or die(mysql_error());
-	$rs_purchase=mysql_fetch_array($qry_purchase);
-	if(isset($rs_purchase['TX_datocompra_cantidad'])){
-		$raw_purchase[$iter]=$rs_purchase['TX_datocompra_cantidad'];
+	$prep_purchase->bind_param("ssi",$date_initial,$date_final,$product_id); $prep_purchase->execute(); $qry_purchase=$prep_purchase->get_result();
+	$rs_purchase=$qry_purchase->fetch_array();
+	// echo "desde:".$date_initial." hasta: ".$date_final." cantidad: ".$rs_purchase['cantidad']."<br />";
+	if(isset($rs_purchase['cantidad'])){
+		$raw_purchase[$iter]=$rs_purchase['cantidad'];
 	}else{
 		$raw_purchase[$iter]=0;
 	}
@@ -86,19 +99,13 @@ foreach($raw_date_finded as $finded){
 	$raw_date_interval[$iter][1]=$date_final;
 	$iter++;
 
-	$txt_sold="SELECT TX_datoventa_cantidad
-	FROM ((bh_datoventa
-	INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
-	INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
-	WHERE bh_facturaf.TX_facturaf_fecha >= '$date_initial' AND bh_facturaf.TX_facturaf_fecha <= '$date_final' AND bh_datoventa.datoventa_AI_producto_id = '$product_id'";
-	$qry_sold=mysql_query($txt_sold);
-	$rs_sold=mysql_fetch_array($qry_sold);
-	if(isset($rs_sold['TX_datoventa_cantidad'])){
-		$raw_sold[$itera]=$rs_sold['TX_datoventa_cantidad'];
+	$prep_sold->bind_param("ssi",$date_initial,$date_final,$product_id); $prep_sold->execute(); $qry_sold=$prep_sold->get_result();
+	$rs_sold=$qry_sold->fetch_array();
+	if(isset($rs_sold['venta'])){
+		$raw_sold[$itera]=$rs_sold['venta'];
 	}else{
 		$raw_sold[$itera]=0;
 	}
-
 		$itera++;
 }
 
@@ -124,6 +131,7 @@ $d_number=date('w',strtotime($fecha_actual));
 $fecha_dia = $dias[$d_number];
 $fecha = date('d-m-Y',strtotime($fecha_actual));
 ?>
+
 <table cellpadding="0" cellspacing="0" border="0" style="height:975px; width:720px; font-size:12px; margin:0 auto">
 <tr style="height:6px">
 <td width="10%"></td>
@@ -142,22 +150,19 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
     </td>
 
    	<td valign="top" colspan="6" style="text-align:center">
-<img width="200px" height="75px" src="attached/image/logo_factura.png">
-<br />
-<font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
-<font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
-<font style="font-size:10px"><?php echo $raw_opcion['TELEFONO']." "
-.$raw_opcion['FAX']."<br />"; ?></font>
-<font style="font-size:10px"><?php echo $raw_opcion['EMAIL']."<br />"; ?></font>
+			<img width="200px" height="75px" src="attached/image/logo_factura.png">
+			<br />
+			<font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
+			<font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
+			<font style="font-size:10px"><?php echo $raw_opcion['TELEFONO']." ".$raw_opcion['FAX']."<br />"; ?></font>
+			<font style="font-size:10px"><?php echo $raw_opcion['EMAIL']."<br />"; ?></font>
     </td>
-
     <td valign="top" colspan="2" class="optmayuscula">
-<?php echo $fecha_dia."&nbsp;-&nbsp;"; ?><?php echo $fecha; ?>
+			<?php echo $fecha_dia."&nbsp;-&nbsp;".$fecha; ?>
     </td>
 </tr>
 <tr style="height:21px" align="center">
-	<td valign="top" colspan="10">
-    </td>
+	<td valign="top" colspan="10"></td>
 </tr>
 <tr style="height:60px">
 	<td valign="top" colspan="10">
@@ -212,21 +217,21 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 	        <td colspan="4" style="text-align:left;">
             	<strong>Desde: </strong><?php echo date('d-m-Y',strtotime($raw_date_interval[$iterac][0])); ?>
             	<strong>Hasta: </strong><?php echo date('d-m-Y',strtotime($raw_date_interval[$iterac][1])); ?>
-            </td>
+          </td>
         </tr>
         <tr style="border-bottom: solid 2px; ">
         	<td valign="top">
             <?php echo $raw_stock[$iterac]; ?>
-            </td>
+          </td>
         	<td valign="top">
             <?php echo $raw_purchase[$iterac]; ?>
-            </td>
-            <td valign="top">
+          </td>
+          <td valign="top">
             <?php echo $raw_sold[$iterac]; ?>
-            </td>
-            <td valign="top">
+          </td>
+          <td valign="top">
             <?php echo round($relation,1)."%"; ?>
-            </td>
+          </td>
         </tr>
         <?php
 				$total_stock+=$raw_stock[$iterac];

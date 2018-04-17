@@ -181,7 +181,7 @@ transform: rotate(-3deg);
 
 #content-sidebar_popup{
 	background:#FFFFFF;
-	padding:0px;
+	padding:10px 0px;
 	float:left;
 	min-height: 315px;
 	padding-bottom: 20px;

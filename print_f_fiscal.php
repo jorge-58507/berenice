@@ -1,10 +1,32 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-
 require 'attached/php/req_login_paydesk.php';
-
 $facturaf_id=$_SESSION["facturaf_id"];
+
+function upd_return(){
+  $link=conexion();
+  $ip   = ObtenerIP();
+  $cliente = gethostbyaddr($ip);
+  $facturaf_id=$_SESSION["facturaf_id"];
+  $facturaf_id -= 1;
+
+  $qry_facturaf = $link->query("SELECT TX_facturaf_numero FROM bh_facturaf WHERE AI_facturaf_id = '$facturaf_id'")or die($link->error);
+  $rs_facturaf = $qry_facturaf->fetch_array();
+  $ff_numero = $rs_facturaf['TX_facturaf_numero'];
+
+  $qry_impresora=$link->query("SELECT AI_impresora_id, TX_impresora_recipiente, TX_impresora_retorno, TX_impresora_cliente, TX_impresora_serial FROM bh_impresora WHERE TX_impresora_cliente = '$cliente'");
+  $row_impresora=$qry_impresora->fetch_array();
+  $retorno = $row_impresora['TX_impresora_retorno'];
+
+  $file = fopen($retorno."FACTI".substr("0000000".$ff_numero,-7).".TXT", "r");
+  $content = fgets($file);
+  fclose($file);
+  $raw_content = explode("\t",$content);
+  $ticket = $raw_content[7];
+  $link->query("UPDATE bh_facturaf SET TX_facturaf_serial = '$raw_content[6]', TX_facturaf_ticket = '$ticket' WHERE AI_facturaf_id = '$facturaf_id'")or die($link->error);
+}
+upd_return();
 
 function ObtenerIP(){
 if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
@@ -101,17 +123,8 @@ $("#btn_exit").click(function(){
 
 setTimeout(function(){ print_html("print_client_facturaf.php?a=<?php echo $facturaf_id; ?>"); },2500);
 
-setTimeout(function(){ upd_return('<?php echo $facturaf_id; ?>'); },2500);
 
 });
-
-function upd_return(facturaf_id){
-	$.ajax({	data: {"b" : facturaf_id},	type: "GET",	dataType: "text",	url: "attached/get/upd_return.php", })
-	 .done(function( data, textStatus, jqXHR ) {
-		 console.log("GOOD " + textStatus);
-	 })
-	 .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD " + textStatus );	});
-}
 </script>
 
 </head>
@@ -183,16 +196,8 @@ fclose($file);
 /* ####################### ENCABEZADO  ###################### */
 /* ####################### ARTICULOS  ###################### */
 
-// $txt_datoventa="SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_descripcion,
-// (bh_datoventa.TX_datoventa_precio-((bh_datoventa.TX_datoventa_precio*bh_datoventa.TX_datoventa_descuento)/100)) AS precio, bh_datoventa.TX_datoventa_impuesto
-// FROM (((bh_facturaf
-// INNER JOIN bh_facturaventa ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
-// INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
-// INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
-// WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'";
-
 $txt_datoventa="SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_descripcion,
-bh_datoventa.TX_datoventa_precio AS precio, bh_datoventa.TX_datoventa_impuesto
+bh_datoventa.TX_datoventa_precio AS precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_medida
 FROM (((bh_facturaf
 INNER JOIN bh_facturaventa ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
 INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
@@ -201,15 +206,20 @@ WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'";
 $qry_datoventa=$link->query($txt_datoventa)or die($link->error);
 $rs_datoventa=$qry_datoventa->fetch_array();
 
-$file = fopen($recipiente."FACMV".substr($rs_facturaf['TX_facturaf_numero'],-7).".txt", "w");
+$qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
+$raw_medida = array();
+while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
+  $raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
+}
 
+$file = fopen($recipiente."FACMV".substr($rs_facturaf['TX_facturaf_numero'],-7).".txt", "w");
 if ($qry_datoventa->num_rows > 3) {
   do{
-  fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,35).chr(9).$rs_datoventa['TX_producto_medida'].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,31).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }else{
   do{
-  fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,65).chr(9).$rs_datoventa['TX_producto_medida'].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,61).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }
 

@@ -1,13 +1,10 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
-function edit_quote($str){
-$pat = array("\"", "'", "º", "laremun");
-$rep = array("''", "\'", "&deg;", "#");
-return $n_str = str_replace($pat, $rep, $str);
-}
+
 $codigo=$_GET['a'];
-$value=edit_quote($_GET['b']);
+$value=$r_function->url_replace_special_character($_GET['b']);
+$value=$r_function->replace_regular_character($value);
 $medida=$_GET['c'];
 $impuesto=$_GET['l'];
 $cantidad=$_GET['d'];
@@ -17,36 +14,28 @@ $alarm=$_GET['m'];
 $activo=$_GET['n'];
 $reference=$_GET['o'];
 $letra=$_GET['p'];
+$descontable=$_GET['s'];
 
 $product_id=$_GET['q'];
 
-$p1=$_GET['g'];
-$p2=$_GET['h'];
-$p3=$_GET['i'];
-$p4=$_GET['j'];
-$p5=$_GET['k'];
-
 $fecha_actual=date('Y-m-d');
 
-	$qry_checkproduct=mysql_query("SELECT * FROM bh_producto WHERE AI_producto_id = '$product_id'")or die(mysql_error());
-	$nr_checkproduct=mysql_num_rows($qry_checkproduct);
+	$qry_checkproduct=$link->query("SELECT AI_producto_id FROM bh_producto WHERE AI_producto_id = '$product_id'")or die($link->error);
+	$nr_checkproduct=$qry_checkproduct->num_rows;
 	if($nr_checkproduct > 0){
-		$rs_checkproduct=mysql_fetch_assoc($qry_checkproduct);
+		$rs_checkproduct=$qry_checkproduct->fetch_array();
 		$id=$rs_checkproduct['AI_producto_id'];
-		$bh_update="UPDATE bh_producto SET TX_producto_value='$value', TX_producto_medida='$medida', TX_producto_cantidad='$cantidad', TX_producto_minimo='$minimo', TX_producto_maximo='$maximo', TX_producto_exento='$impuesto', TX_producto_alarma='$alarm', TX_producto_activo = '$activo', TX_producto_referencia = '$reference', producto_AI_letra_id= '$letra', TX_producto_codigo = '$codigo' WHERE AI_producto_id = '$id'";
-		mysql_query($bh_update, $link) or die (mysql_error());
-
-		$qry_precio = mysql_query("SELECT AI_precio_id FROM bh_precio WHERE precio_AI_producto_id = '$id' AND TX_precio_uno = '$p1' AND TX_precio_dos = '$p2' AND TX_precio_tres = '$p3' AND TX_precio_cuatro = '$p4' AND TX_precio_cinco = '$p5'AND TX_precio_inactivo = '0' ")or die(mysql_error());
-		if($nr_precio = mysql_num_rows($qry_precio) < 1){
-			mysql_query("UPDATE bh_precio SET TX_precio_inactivo='1' WHERE precio_AI_producto_id = '$product_id'")or die(mysql_error());
-			$txt_insert_precio="INSERT INTO bh_precio (precio_AI_producto_id, TX_precio_uno, TX_precio_dos, TX_precio_tres, TX_precio_cuatro, TX_precio_cinco, TX_precio_fecha ) VALUES ('$product_id','$p1','$p2','$p3','$p4','$p5','$fecha_actual')";
-			mysql_query($txt_insert_precio)or die(mysql_error());
-		}
-
+		$bh_update="UPDATE bh_producto SET TX_producto_value='$value', TX_producto_medida='$medida', TX_producto_cantidad='$cantidad', TX_producto_minimo='$minimo', TX_producto_maximo='$maximo', TX_producto_exento='$impuesto', TX_producto_alarma='$alarm', TX_producto_activo = '$activo', TX_producto_referencia = '$reference', producto_AI_letra_id= '$letra', TX_producto_codigo = '$codigo', TX_producto_descontable = '$descontable' WHERE AI_producto_id = '$id'";
+		$link->query($bh_update) or die ($link->error);
 }
 
 //   ###########################    ANSWER     ##########################
-$value=edit_quote($_GET['r']);
+$value=$r_function->url_replace_special_character($_GET['r']);
+$value=$r_function->replace_regular_character($value);
+
+$prep_precio=$link->prepare("SELECT AI_precio_id, TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0' ORDER BY TX_precio_fecha DESC LIMIT 1")or die($link->error);
+$prep_checkfacturaventa=$link->prepare("SELECT bh_facturaventa.AI_facturaventa_id FROM (bh_datoventa INNER JOIN bh_facturaventa ON bh_datoventa.datoventa_AI_facturaventa_id = bh_facturaventa.AI_facturaventa_id) WHERE bh_datoventa.datoventa_AI_producto_id = ?")or die($link->error);
+$prep_facturacompra=$link->prepare("SELECT bh_facturacompra.AI_facturacompra_id FROM (bh_datocompra INNER JOIN bh_facturacompra ON bh_datocompra.datocompra_AI_facturacompra_id = bh_facturacompra.AI_facturacompra_id) WHERE bh_datocompra.datocompra_AI_producto_id = ?")or die($link->error);
 
 $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
@@ -78,15 +67,10 @@ $txt_product=$txt_product."TX_producto_referencia LIKE '%{$arr_value[$it]}%'";
 $txt_product=$txt_product."TX_producto_referencia LIKE '%{$arr_value[$it]}%' AND ";
 	}
 }
-
-
-$qry_product=mysql_query($txt_product." ORDER BY TX_producto_value ASC LIMIT 50");
-$rs_product=mysql_fetch_assoc($qry_product);
-
-$nr_product=mysql_num_rows($qry_product);
-
+$qry_product=$link->query($txt_product." ORDER BY TX_producto_value ASC LIMIT 50");
+$rs_product=$qry_product->fetch_array();
+$nr_product=$qry_product->num_rows;
 ?>
-
 <table id="tbl_product" border="0" class="table table-bordered table-hover table-condensed table-striped">
 <thead class="bg-primary">
 <tr>
@@ -101,57 +85,41 @@ $nr_product=mysql_num_rows($qry_product);
 </tr>
 </thead>
 <tfoot class="bg-primary">
-	<tr><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+	<tr><td colspan="8"></td></tr>
 </tfoot>
 <tbody>
 <?php
 	do{
-			?>
-	<tr ondblclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');">
+		$font_color='#000'; $title='';
+		if ($rs_product['TX_producto_activo'] === '1'){ $font_color = '#fb1414'; $title='INACTIVO'; } ?>
+		<tr ondblclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');"  style="color:<?php echo $font_color ?>" title="<?php echo $title; ?>">
 			<td><?php echo $rs_product['TX_producto_codigo'] ?></td>
 			<td><?php echo $rs_product['TX_producto_referencia'] ?></td>
-			<td><?php echo $rs_product['TX_producto_value'] ?></td>
+			<td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
+			<?php	$style='style="color:#000000"';
+			if($rs_product['TX_producto_cantidad'] >= $rs_product['TX_producto_maximo']){	$style='style="color:#51AA51"';	}elseif($rs_product['TX_producto_cantidad'] <= $rs_product['TX_producto_minimo']){	$style='style="color:#C63632"';	}			?>
+			<td <?php echo $style; ?>>
+				<?php echo $rs_product['TX_producto_cantidad'] ?>
+			</td>
+<?php $prep_precio->bind_param("i", $rs_product['AI_producto_id']); $prep_precio->execute(); $qry_precio=$prep_precio->get_result();
+			$rs_precio=$qry_precio->fetch_array(); ?>
+			<td><?php	echo $rs_precio['TX_precio_cuatro'];	?></td>
 			<td>
-			<?php
-			if($rs_product['TX_producto_cantidad'] >= $rs_product['TX_producto_maximo']){
-					echo '<font style="color:#51AA51">'.$rs_product['TX_producto_cantidad'].'</font>';
-			}elseif($rs_product['TX_producto_cantidad'] <= $rs_product['TX_producto_minimo']){
-					echo '<font style="color:#C63632">'.$rs_product['TX_producto_cantidad'].'</font>';
-			}else{
-					echo '<font style="color:#000000">'.$rs_product['TX_producto_cantidad'].'</font>';
-			}
-			?>
+				<button type="button" class="btn btn-success" onclick="open_popup('popup_relacion.php?a=<?php echo $rs_product['AI_producto_id'] ?>','popup_relacion','500','491')"><i class="fa fa-rotate-right" aria-hidden="true"></i><?php echo $rs_product['TX_producto_rotacion']; ?></button>
 			</td>
 			<td>
-				<?php
-				$qry_precio=mysql_query("SELECT * FROM bh_precio WHERE precio_AI_producto_id = '{$rs_product['AI_producto_id']}' AND TX_precio_inactivo = '0' ORDER BY TX_precio_fecha DESC LIMIT 1", $link);
-				$rs_precio=mysql_fetch_assoc($qry_precio);
-				echo $rs_precio['TX_precio_cuatro'];
-				?>
-
+				<button type="button" name="btn_upd_product" id="btn_upd_product" class="btn btn-warning btn-sm" onclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');">Modificar</button>
 			</td>
-			<td>
-			<button type="button" class="btn btn-success" onclick="open_popup('popup_relacion.php?a=<?php echo $rs_product['AI_producto_id'] ?>','popup_relacion','500','491')">
-	<i class="fa fa-rotate-right" aria-hidden="true"></i>
-	<?php echo $rs_product['TX_producto_rotacion']; ?></button>
-			</td>
-			<td>
-<button type="button" name="btn_upd_product" id="btn_upd_product" class="btn btn-warning btn-sm" onclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');">
-			Modificar</button>
-			</td>
-			<td>
-			<?php
-	$qry_checkfacturaventa=mysql_query("SELECT bh_facturaventa.AI_facturaventa_id FROM (bh_datoventa INNER JOIN bh_facturaventa ON bh_datoventa.datoventa_AI_facturaventa_id = bh_facturaventa.AI_facturaventa_id) WHERE bh_datoventa.datoventa_AI_producto_id = '{$rs_product['AI_producto_id']}'");
-	$nr_checkfacturaventa=mysql_num_rows($qry_checkfacturaventa);
-	if($nr_checkfacturaventa < 1){
-	 ?>
-<button type="button" name="btn_del_product" id="btn_del_product" class="btn btn-danger btn-sm" onclick="del_product('<?php echo $rs_product['AI_producto_id'] ?>');">
-			Eliminar</button>
-			<?php } ?>
+			<td><?php
+				$prep_checkfacturaventa->bind_param("i",$rs_product['AI_producto_id']); $prep_checkfacturaventa->execute(); $qry_checkfacturaventa = $prep_checkfacturaventa->get_result();
+				if($qry_checkfacturaventa->num_rows < 1){
+					$prep_facturacompra->bind_param("i", $rs_product['AI_producto_id']); $prep_facturacompra->execute(); $qry_facturacompra=$prep_facturacompra->get_result();
+					if ($qry_facturacompra->num_rows < 1) { echo $qry_facturacompra->num_rows; ?>
+						<button type="button" name="btn_del_product" id="btn_del_product" class="btn btn-danger btn-sm" onclick="del_product('<?php echo $rs_product['AI_producto_id'] ?>');">Eliminar</button>
+<?php			}
+				} ?>
 			</td>
 	</tr>
-			<?php
-	}while($rs_product=mysql_fetch_assoc($qry_product));
-	?>
+<?php }while($rs_product=$qry_product->fetch_array());	?>
 	</tbody>
 	</table>

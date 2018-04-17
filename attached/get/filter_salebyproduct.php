@@ -19,7 +19,7 @@ INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturave
 INNER JOIN bh_cliente ON bh_cliente.AI_cliente_id = bh_facturaf.facturaf_AI_cliente_id)
 INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaf.facturaf_AI_user_id)
 WHERE bh_datoventa.datoventa_AI_producto_id = '$product_id'".$line_date."
-ORDER BY TX_facturaf_fecha DESC, TX_facturaf_numero ASC".$line_limit;
+ORDER BY TX_facturaf_fecha DESC, TX_facturaf_numero DESC".$line_limit;
 
 $qry_facturaf=$link->query($txt_facturaf)or die($link->error);
 

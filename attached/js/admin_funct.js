@@ -33,21 +33,22 @@ function make_nc(facturaf_id){
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
-function new_return(field){
-	var cantidad = prompt("Ingrese la cantidad.");
-	retirable = field.id;
-	ans = val_intw2dec(cantidad);
-	if(!ans){
-		return false;
-	}
-	if(parseFloat(cantidad) === 0){
-		return false;
-	}
-	if(parseFloat(cantidad) > parseFloat(retirable)){
-		return false;
-	}
-	$("#btn_anulate").attr("disabled", true);
-	plus_return(field.name,cantidad);
+function new_return(datoventa_id, cantidad_retirada){
+	open_popup(`popup_product2newdevolution.php?a=${datoventa_id}&b=${cantidad_retirada}`,"_popup",'420','420');
+	// var cantidad = prompt("Ingrese la cantidad.");
+	// retirable = field.id;
+	// ans = val_intw2dec(cantidad);
+	// if(!ans){
+	// 	return false;
+	// }
+	// if(parseFloat(cantidad) === 0){
+	// 	return false;
+	// }
+	// if(parseFloat(cantidad) > parseFloat(retirable)){
+	// 	return false;
+	// }
+	// $("#btn_anulate").attr("disabled", true);
+	// plus_return(field.name,cantidad);
 }
 
 function change_paymentmethod(pm_id){

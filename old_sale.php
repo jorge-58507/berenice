@@ -1,13 +1,18 @@
 ﻿<?php
 require 'bh_conexion.php';
 $link=conexion();
-date_default_timezone_set('America/Panama');
 
 require 'attached/php/req_login_sale.php';
 
 $facturaventa_id=$_GET['a'];
 $qry_product=$link->query("SELECT AI_producto_id, TX_producto_value, TX_producto_codigo, TX_producto_medida, TX_producto_cantidad, producto_AI_letra_id FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 10")or die($link->error);
 $rs_product=$qry_product->fetch_array();
+
+$qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
+$raw_medida = array();
+while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
+	$raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
+}
 
 /* #####################  FACTURA VENTA QUERY   #####################*/
 
@@ -25,7 +30,7 @@ $rs_facturaventa=$qry_facturaventa->fetch_array();
 $qry_vendor=$link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$rs_facturaventa['facturaventa_AI_user_id']}'");
 $rs_vendor=$qry_vendor->fetch_array();
 
-$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_facturaventa_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '$facturaventa_id' ORDER BY AI_datoventa_id ASC")or die($link->error);
+$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_facturaventa_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion, TX_datoventa_medida FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '$facturaventa_id' ORDER BY AI_datoventa_id ASC")or die($link->error);
 
 $bh_del="DELETE FROM bh_nuevaventa WHERE nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}'";
 $link->query($bh_del) or die($link->error);
@@ -35,20 +40,20 @@ $prep_producto_value=$link->prepare("SELECT TX_producto_value FROM bh_producto W
 while($rs_datoventa=$qry_datoventa->fetch_array()){
 	$prep_producto_value->bind_param("i",$rs_datoventa['datoventa_AI_producto_id']); $prep_producto_value->execute();$qry_producto_value=$prep_producto_value->get_result();
 	$rs_producto_value=$qry_producto_value->fetch_array();
-	ins_nuevaventa($rs_datoventa['datoventa_AI_producto_id'],$rs_datoventa['TX_datoventa_cantidad'],$rs_datoventa['TX_datoventa_precio'],$rs_datoventa['TX_datoventa_impuesto'],$rs_datoventa['TX_datoventa_descuento'],(!empty($rs_datoventa['TX_datoventa_descripcion']))?$rs_datoventa['TX_datoventa_descripcion']:$rs_producto_value['TX_producto_value']);
+	ins_nuevaventa($rs_datoventa['datoventa_AI_producto_id'],$rs_datoventa['TX_datoventa_cantidad'],$rs_datoventa['TX_datoventa_precio'],$rs_datoventa['TX_datoventa_impuesto'],$rs_datoventa['TX_datoventa_descuento'],(!empty($rs_datoventa['TX_datoventa_descripcion']))?$rs_datoventa['TX_datoventa_descripcion']:$rs_producto_value['TX_producto_value'],$rs_datoventa['TX_datoventa_medida']);
 };
 
-function ins_nuevaventa($product,$cantidad,$precio,$itbm,$descuento,$descripcion){
+function ins_nuevaventa($product,$cantidad,$precio,$itbm,$descuento,$descripcion,$medida){
 	$link = conexion();	$r_function = new recurrent_function();
  	$descripcion = $r_function->replace_regular_character($descripcion);
-	$link->query("INSERT INTO bh_nuevaventa (nuevaventa_AI_user_id, nuevaventa_AI_producto_id, TX_nuevaventa_unidades, TX_nuevaventa_precio, TX_nuevaventa_itbm, TX_nuevaventa_descuento, TX_nuevaventa_descripcion)
-	VALUES ('{$_COOKIE['coo_iuser']}','$product','$cantidad','$precio','$itbm','$descuento','$descripcion')");
+	$link->query("INSERT INTO bh_nuevaventa (nuevaventa_AI_user_id, nuevaventa_AI_producto_id, TX_nuevaventa_unidades, TX_nuevaventa_precio, TX_nuevaventa_itbm, TX_nuevaventa_descuento, TX_nuevaventa_descripcion, TX_nuevaventa_medida)
+	VALUES ('{$_COOKIE['coo_iuser']}','$product','$cantidad','$precio','$itbm','$descuento','$descripcion','$medida')");
 }
 
-$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_cantidad, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id, bh_nuevaventa.TX_nuevaventa_descripcion, bh_nuevaventa.AI_nuevaventa_id
+$qry_nuevaventa=$link->query("SELECT bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_cantidad, bh_nuevaventa.TX_nuevaventa_unidades, bh_nuevaventa.TX_nuevaventa_precio, bh_nuevaventa.TX_nuevaventa_itbm, bh_nuevaventa.TX_nuevaventa_descuento, bh_nuevaventa.nuevaventa_AI_producto_id, bh_nuevaventa.TX_nuevaventa_descripcion, bh_nuevaventa.AI_nuevaventa_id, bh_nuevaventa.TX_nuevaventa_medida
 	FROM (bh_producto
 	INNER JOIN bh_nuevaventa ON bh_producto.AI_producto_id = bh_nuevaventa.nuevaventa_AI_producto_id)
-	WHERE bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC");
+	WHERE bh_nuevaventa.nuevaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_nuevaventa_id ASC")or die($link->error);
 $nr_nuevaventa=$qry_nuevaventa->num_rows;
 
 ?>
@@ -199,7 +204,7 @@ var upd_nuevaventa_descripcion = function(nuevaventa_id, old_descripcion){
 				alert("La descripcion en muy larga");
 				upd_nuevaventa_descripcion(nuevaventa_id,old_descripcion);
 			}else{
-				n_description = replace_regular_character(n_description);
+				n_description = url_replace_regular_character(n_description);
 				n_description = n_description.toUpperCase();
 				$.ajax({	data: {"a" : nuevaventa_id, "b" : n_description }, type: "GET", dataType: "text", url: "attached/get/upd_nuevaventa_descripcion.php",	})
 				.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
@@ -335,19 +340,19 @@ switch ($_COOKIE['coo_tuser']){
 <div class="container-fluid" > <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 bg_red" id="div_title"><h2>Modificar Cotizaci&oacute;n</h2></div></div>
 <div id="container_complementary" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtdate" class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
-    	<label for="txt_date">Fecha:</label>
+    	<label class="label label_blue_sky" for="txt_date">Fecha:</label>
 	    <input type="text" class="form-control" id="txt_date" name="txt_date" readonly="readonly"
         value="<?php
 		$pre_date=strtotime($rs_facturaventa['TX_facturaventa_fecha']);
 		echo $date=date('m/d/Y',$pre_date); ?>" />
     </div>
 	<div id="container_txtnumero" class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
-    	<label for="txt_numero">Numero:</label>
+    	<label class="label label_blue_sky" for="txt_numero">Numero:</label>
 	    <input type="text" class="form-control" id="txt_numero" name="txt_numero" readonly="readonly"
         value="<?php echo $rs_facturaventa['TX_facturaventa_numero']; ?>" />
     </div>
 	<div id="container_txtvendedor" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-    	<label for="txt_vendedor">Vendedor:</label>
+    	<label class="label label_blue_sky" for="txt_vendedor">Vendedor:</label>
         <?php if($_COOKIE['coo_tuser'] > 2){ ?>
 	    <input type="text" class="form-control" alt="<?php echo $rs_vendor['AI_user_id']; ?>" id="txt_vendedor" name="txt_vendedor" readonly="readonly"
         value="<?php echo $rs_vendor['TX_user_seudonimo']; ?>" />
@@ -374,17 +379,17 @@ switch ($_COOKIE['coo_tuser']){
 		?>
     </div>
 	<div id="container_txtvendedor" class="col-xs-3 col-sm-3 col-md-2 col-lg-2">
-    	<label for="txt_vendedor">Status:</label>
+    	<label class="label label_blue_sky" for="txt_vendedor">Status:</label>
 	    <input type="text" class="form-control" id="txt_status" name="txt_status" readonly="readonly"
         value="<?php echo $rs_facturaventa['TX_facturaventa_status']; ?>" />
     </div>
 </div>
 <div id="container_client" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtfilterclient" class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
-    	<label for="txt_filterclient">Cliente:</label>
+    	<label class="label label_blue_sky" for="txt_filterclient">Cliente:</label>
 	    <input type="text" class="form-control" alt="<?php echo $rs_facturaventa['facturaventa_AI_cliente_id']; ?>" id="txt_filterclient" name="txt_filterclient" onkeyup="unset_filterclient_oldsale(event)" value="<?php echo $rs_facturaventa['TX_cliente_nombre']; ?>" />
     </div>
-	<div id="container_btnaddclient" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+	<div id="container_btnaddclient" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
 		<button type="button" id="btn_addclient" class="btn btn-success"><strong><i class="fa fa-wrench" aria-hidden="true"></i></strong></button>
 	</div>
 	<div id="container_client_recall" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -392,10 +397,10 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtobservation" class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
-		<label for="txt_observation">Observaciones:</label>
+		<label class="label label_blue_sky" for="txt_observation">Observaciones:</label>
 		<input type="text" class="form-control" id="txt_observation" name="txt_observation" value="<?php echo $rs_facturaventa['TX_facturaventa_observacion']; ?>" />
 	</div>
-	<div id="container_btnrefreshtblproduct2sale" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+	<div id="container_btnrefreshtblproduct2sale" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
 			<button type="button" id="btn_refresh_tblproduct2sale" class="btn btn-info btn-md" title="Refrescar Tabla">
 	    <strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></span></strong>
 	    </button>
@@ -443,8 +448,8 @@ switch ($_COOKIE['coo_tuser']){
 
 					<tr>
 						<td><?php echo $rs_nuevaventa['TX_producto_codigo']; ?></td>
-						<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id'];?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['TX_nuevaventa_descripcion']);?>')"><?php echo $r_function->replace_special_character($rs_nuevaventa['TX_nuevaventa_descripcion']); ?></td>
-						<td><?php echo $rs_nuevaventa['TX_producto_medida']; ?></td>
+						<td onclick="upd_nuevaventa_descripcion(<?php echo $rs_nuevaventa['AI_nuevaventa_id'];?>,'<?php echo $r_function->replace_special_character($rs_nuevaventa['TX_nuevaventa_descripcion']);?>')"><?php echo $r_function->replace_special_character($rs_nuevaventa['TX_nuevaventa_descripcion']); ?></td>
+						<td><?php echo $raw_medida[$rs_nuevaventa['TX_nuevaventa_medida']]; ?></td>
 						<td onclick="upd_unidadesnuevaventa(<?php echo $rs_nuevaventa['nuevaventa_AI_producto_id']; ?>);">
 						<?php echo $rs_nuevaventa['TX_nuevaventa_unidades']; ?>
 						<span id="stock_quantity"><?php echo $rs_nuevaventa['TX_producto_cantidad']; ?></span>
@@ -512,11 +517,11 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="container_product_list" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_filterproduct" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-		<label for="txt_filterproduct">Buscar:</label>
+		<label class="label label_blue_sky" for="txt_filterproduct">Buscar:</label>
     <input type="text" class="form-control" id="txt_filterproduct" name="txt_filterproduct" autocomplete="off" onkeyup="filter_product_sell(this);" />
 	</div>
 	<div id="container_limit" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-		<label for="txt_rlimit">Mostrar:</label><br />
+		<label class="label label_blue_sky" for="txt_rlimit">Mostrar:</label><br />
 		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
 		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
 		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="100" /> 100</label>

@@ -1,9 +1,8 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 
-$name=$_GET['a'];
-$name = str_replace("ampersand","&",$name);
+$name=$r_function->url_replace_special_character($_GET['a']);
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -31,6 +30,7 @@ $(document).ready(function() {
 	$("#txt_clientname").focus();
 
 $('#btn_acept').click(function(){
+	$(this).attr("disabled", true);
 	$("#txt_clientname").val($("#txt_clientname").val().toUpperCase());
 	if ($("#txt_clientname").val() === ""){ $("#txt_clientname").focus(); return false; }
 	if($("#txt_cif").val() != "" && $("#txt_cif").val().length < '7'){
@@ -67,19 +67,19 @@ $('#txt_cif').validCampoFranz('0123456789 -abcdefghijklmnopqrstuvwxyz:');
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form method="post" name="form_addprovider">
 <div id="container_name" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<label for="txt_providername">Nombre:</label>
-    <input type="text" name="txt_clientname" id="txt_clientname" class="form-control" onkeyup="chk_clientname(this)" value="<?php echo $name; ?>" />
+	<label class="label label_blue_sky" for="txt_providername">Nombre:</label>
+  <input type="text" name="txt_clientname" id="txt_clientname" class="form-control" onkeyup="chk_clientname(this)" value="<?php echo $name; ?>" />
 </div>
 <div id="container_cif" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
-	<label for="txt_cif">RUC:</label>
+	<label class="label label_blue_sky" for="txt_cif">RUC:</label>
     <input type="text" name="txt_cif" id="txt_cif" class="form-control" onkeyup="chk_cif(this)" />
 </div>
 <div id="container_telephone" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
-    <label for="txt_telephone">Tel&eacute;fono:</label>
+    <label class="label label_blue_sky" for="txt_telephone">Tel&eacute;fono:</label>
     <input type="text" name="txt_telephone" id="txt_telephone" class="form-control" onkeyup="chk_telephone(this)" />
 </div>
 <div id="container_direction" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<label for="txt_direction">Direcci&oacute;n:</label>
+	<label class="label label_blue_sky" for="txt_direction">Direcci&oacute;n:</label>
     <textarea name="txt_direction" id="txt_direction" class="form-control" onkeyup="chk_direction(this)"></textarea>
 </div>
 

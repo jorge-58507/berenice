@@ -33,28 +33,11 @@ function val_intwdec(str){
 	ans = pat.test(str);
 	return ans;
 }
-// function val_intw2dec(str){
-// 	pat = new RegExp('^[0-9]+([.][0-9]{1,2})?$')
-// 	ans = pat.exec(str);
-// 	str_splited = str.split(".");
-// 	console.log(str_splited);
-// 	if(ans){
-// 		if(str_splited[1].length == '1'){
-// 			str=str_splited[0]+"."+str_splited[1]+"0";
-// 			console.log(str);
-// 		}
-// 	}
-// 	if(str_splited[1].length >= '2'){
-// 			str=str_splited[0]+"."+str_splited[1].substr(0,2);
-// 			console.log(str);
-// 	}
-// return str;
-// }
 function val_intw2dec (str) {
   var pat = new RegExp('^[0-9]+([.][0-9]{1,2})?$')
   var ans = pat.exec(str)
   var str_splited = str.split('.')
-  console.log(str_splited)
+  // console.log(str_splited)
 //  if (!ans) {	return str;	}
   if(str_splited.length > '1') {
 
@@ -681,29 +664,54 @@ return false;
 		}
 	}
 })(jQuery);
-//http://somehost.com/folder/?id=xx&other=param
-//
-//var a = $.get("id");
-//var b = $.get("other");
 
 function close_popup(){
 	popup.close();
 }
 
 function replace_regular_character(str){
-	var special_char = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\\'","&deg;","&ntilde;"];
-	var replace = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ"];
-	for (var x in replace) {
-		str = str.replace(replace[x],special_char[x]);
-		// console.log(x+": remplaza("+replace[x]+")por("+special_char[x]+") "+str);
+	var replacement = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\\'","&deg;","&ntilde;","ampersand;"];
+	var to_replace = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ","&"];
+	for (var x in to_replace) {
+		patt = RegExp(to_replace[x],'g');
+		str = str.replace(patt,replacement[x]);
 	}
 	return str;
 }
 function replace_special_character(str){
-	var replace = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\\\'","&deg;","&ntilde;"];
-	var regular_char = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ"];
-	for (var x in replace) {
-		str = str.replace(replace[x],regular_char[x]);
+	var replacement = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ","&"];
+	var to_replace = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\\\'","&deg;","&ntilde;","ampersand;"];
+	for (var x in to_replace) {
+		patt = RegExp(to_replace[x],'g');
+		str = str.replace(patt,replacement[x]);
 	}
 	return str;
+}
+function url_replace_regular_character(str){
+	var replacement = ["Aacute;","Eacute;","Iacute;","Oacute;","Uacute;","Ntilde;","aacute;","eacute;","iacute;","oacute;","uacute;","laremun;","nolger;","\\'","deg;","ntilde;","ampersand;"];
+	var to_replace = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ","&"];
+	for (var x in to_replace) {
+		patt = RegExp(to_replace[x],'g');
+		str = str.replace(patt,replacement[x]);
+	}
+	return str;
+}
+function url_replace_special_character(str){
+	var replacement = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ","&"];
+	var to_replace = ["Aacute;","Eacute;","Iacute;","Oacute;","Uacute;","Ntilde;","aacute;","eacute;","iacute;","oacute;","uacute;","laremun;","nolger;","\\\'","deg;","ntilde;","ampersand;"];
+	for (var x in to_replace) {
+		patt = RegExp(to_replace[x],'g');
+		str = str.replace(patt,replacement[x]);
+	}
+	return str;
+}
+function set_good_field(id){
+	$("#"+id).removeClass("bad_field");
+}
+function set_bad_field(id){
+	$("#"+id).addClass("bad_field");
+}
+function convertir_formato_fecha(string) {
+  var fecha = string.split('-');
+  return fecha[2] + '-' + fecha[1] + '-' + fecha[0];
 }

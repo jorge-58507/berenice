@@ -1,7 +1,6 @@
 ﻿<?php
 require 'bh_conexion.php';
 $link=conexion();
-
 require 'attached/php/req_login_admin.php';
 
 $facturaf_id=$_GET['a'];
@@ -10,7 +9,7 @@ $link->query("DELETE FROM bh_nuevadevolucion WHERE nuevadevolucion_AI_user_id = 
 
 $qry_facturaf=$link->query("SELECT bh_facturaventa.AI_facturaventa_id, bh_facturaventa.TX_facturaventa_fecha,
 bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_deficit,
-bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,bh_datoventa.datoventa_AI_producto_id,bh_datoventa.TX_datoventa_descripcion,
+bh_datoventa.AI_datoventa_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento,bh_datoventa.datoventa_AI_producto_id,bh_datoventa.TX_datoventa_descripcion,bh_datoventa.TX_datoventa_medida,
 bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.AI_producto_id, bh_producto.TX_producto_medida,
 bh_cliente.TX_cliente_nombre
 FROM ((((bh_facturaf
@@ -47,14 +46,23 @@ while ($rs_datopago=$qry_datopago->fetch_array()) {
   }
 }
 
-$qry_datodevolucion=$link->prepare("SELECT bh_datodevolucion.TX_datodevolucion_cantidad, bh_datodevolucion.datodevolucion_AI_producto_id
+$qry_datodevolucion=$link->prepare("SELECT bh_datodevolucion.TX_datodevolucion_cantidad, bh_datodevolucion.datodevolucion_AI_producto_id, bh_datodevolucion.TX_datodevolucion_medida
   FROM ((((bh_datodevolucion
     INNER JOIN bh_notadecredito ON bh_notadecredito.AI_notadecredito_id = bh_datodevolucion.datodevolucion_AI_notadecredito_id)
     INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id)
     INNER JOIN bh_facturaventa ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
     INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
-WHERE bh_datoventa.AI_datoventa_id = ?
+WHERE bh_datodevolucion.datodevolucion_AI_datoventa_id = ?
+AND bh_datoventa.AI_datoventa_id = ?
 AND bh_datodevolucion.datodevolucion_AI_producto_id = ? ")or die($link->error);
+
+$qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
+$raw_medida = array();
+while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
+	$raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
+}
+
+$prep_producto_medida = $link->prepare("SELECT AI_rel_productomedida_id, TX_rel_productomedida_cantidad FROM rel_producto_medida WHERE productomedida_AI_producto_id = ? AND productomedida_AI_medida_id = ?")or die($link->error);
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -111,20 +119,17 @@ $("#txt_motivonc").keyup(function(){
 
 
 $("#btn_save").click(function(){
-	if(parseFloat($("#span_totalnc").text()) < 0.01 ){
-		return false;
-	}
+	if(parseFloat($("#span_totalnc").text()) < 0.01 ){ return false;	}
 	if($("#txt_motivonc").val() === "" ){
-		$("#txt_motivonc").css("border", "2px outset #F00");
+		set_bad_field("txt_motivonc");
 		$("#txt_motivonc").focus();
 		return false;
-	}		$("#txt_motivonc").css("border", "2px inset #797b7e80");
-	if($("#sel_destinonc").val() == ""){
-		$("#sel_destinonc").css("border", "2px outset #F00");
+	}  set_good_field("txt_motivonc");
+	if($("#sel_destinonc").val() === ""){
+		set_bad_field("sel_destinonc");
 		$("#sel_destinonc").focus();
 		return false;
-	}
-    $("#sel_destinonc").css("border", "1px solid #ccc");
+	}  set_good_field("sel_destinonc");
     $("#btn_save, #btn_anulate").attr("disabled", true);
     plus_creditnote(0);
 });
@@ -134,9 +139,9 @@ $("#btn_cancel").click(function(){
 });
 
 $("#btn_anulate").on("click", function(){
-  $("#btn_save, #btn_anulate").attr("disabled", true);
   res = confirm('¿Confirma la anulacion de la factura?');
   if (!res) { return false; }
+  $("#btn_save, #btn_anulate").attr("disabled", true);
   $.ajax({	data: {"a" : '<?php echo $facturaf_id; ?>' },	type: "GET",	dataType: "text",	url: "attached/get/get_datoventabyfacturaf_nc.php", })
    .done(function( data, textStatus, jqXHR ) { console.log("GOOD " + textStatus);
    $("#txt_motivonc").val("ANULACION");
@@ -150,11 +155,10 @@ $("#btn_anulate").on("click", function(){
 
 function plus_creditnote(anulated_index){
   $.ajax({	data: {"a" : $("#txt_motivonc").val(), "b" : $("#sel_destinonc").val(), "c" : $("#txt_debito").val(), "d" : anulated_index },	type: "GET",	dataType: "text",	url: "attached/get/plus_creditnote.php", })
-   .done(function( data, textStatus, jqXHR ) {
-     console.log("GOOD " + textStatus);
+  .done(function( data, textStatus, jqXHR ) { console.log("GOOD " + textStatus);
      setTimeout("window.location='print_creditnote.php'",250);
-   })
-   .fail(function( jqXHR, textStatus, errorThrown ) {	     console.log("BAD " + textStatus);	});
+  })
+  .fail(function( jqXHR, textStatus, errorThrown ) {	     console.log("BAD " + textStatus);	});
 }
 </script>
 
@@ -163,16 +167,13 @@ function plus_creditnote(anulated_index){
 <body>
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
+  <div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
   	<div id="logo" ></div>
-   	</div>
-
+  </div>
 	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10 hidden-md">
-    	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        Bienvenido: <label class="bg-primary">
-         <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
-        </label>
-        </div>
+  	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+      Bienvenido: <label class="bg-primary"><?php echo $rs_checklogin['TX_user_seudonimo']; ?></label>
+    </div>
 		<div id="navigation" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
 <?php
 switch ($_COOKIE['coo_tuser']){
@@ -195,39 +196,37 @@ switch ($_COOKIE['coo_tuser']){
 ?>
 		</div>
 	</div>
-
 </div>
-
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="login.php" method="post" name="form_login"  id="form_login">
+
 <div id="container_client" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_name" class="col-xs-12 col-sm-7 col-md-5 col-lg-5">
-    <label for="span_clientenombre">Nombre</label>
-	   <span id="span_clientenombre" class="form-control bg-disabled"><?php echo $rs_facturaf['TX_cliente_nombre']; ?>
-     </span>
-    </div>
+    <label class="label label_blue_sky" for="span_clientenombre">Nombre</label>
+	  <span id="span_clientenombre" class="form-control bg-disabled"><?php echo $rs_facturaf['TX_cliente_nombre']; ?></span>
+  </div>
 	<div id="container_numeroff" class="col-xs-12 col-sm-5 col-md-3 col-lg-2">
-    	<label for="span_numeroff">Numero de Factura</label>
+    	<label class="label label_blue_sky" for="span_numeroff">Numero de Factura</label>
 		<span id="span_numeroff" class="form-control bg-disabled"><?php echo $rs_facturaf['TX_facturaf_numero']; ?>
     </span>
     </div>
 	<div id="container_deficit" class="col-xs-12 col-sm-5 col-md-2 col-lg-2">
     	<?php if($rs_facturaf['TX_facturaf_deficit'] > 0){?>
         <script type="text/javascript">alert("Esta factura posee deficit")</script>
-        <label for="span_deficit">Deficit</label>
+        <label class="label label_blue_sky" for="span_deficit">Deficit</label>
 	<span id="span_deficit" class="form-control"><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></span>
     	<?php } ?>
     </div>
     <div id="container_motivo"  class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-        <label for="txt_motivonc">Motivo</label>
+        <label class="label label_blue_sky" for="txt_motivonc">Motivo</label>
         <input type="text" id="txt_motivonc" class="form-control" />
     </div>
     <div id="container_debito"  class="col-xs-2 col-sm-2 col-md-2 col-lg-1">
-        <label for="txt_debito">Retener %</label>
+        <label class="label label_blue_sky" for="txt_debito">Retener %</label>
         <input type="text" id="txt_debito" class="form-control" value="0" />
     </div>
     <div id="container_destino"  class="col-xs-10 col-sm-10 col-md-4 col-lg-5">
-        <label for="sel_destinonc">Destino</label>
+        <label class="label label_blue_sky" for="sel_destinonc">Destino</label>
         <select id="sel_destinonc" class="form-control" >
         	<option value="">Seleccione</option>
             <option value="SALDO">Saldo a Favor</option>
@@ -270,27 +269,34 @@ switch ($_COOKIE['coo_tuser']){
 <?php do{ ?>
     	<tr>
         <td><?php echo $rs_facturaf['TX_producto_codigo']; ?></td>
-        <td><?php echo $rs_facturaf['TX_datoventa_descripcion']; ?></td>
-        <td><?php echo $rs_facturaf['TX_producto_medida']; ?></td>
-        <td><?php
-          $descuento = ($rs_facturaf['TX_datoventa_precio']*$rs_facturaf['TX_datoventa_descuento'])/100;
+        <td><?php echo $r_function->replace_special_character($rs_facturaf['TX_datoventa_descripcion']); ?></td>
+        <td><?php echo $raw_medida[$rs_facturaf['TX_datoventa_medida']]; ?></td>
+<?php     $descuento = ($rs_facturaf['TX_datoventa_precio']*$rs_facturaf['TX_datoventa_descuento'])/100;
           $precio_descuento = $rs_facturaf['TX_datoventa_precio']-$descuento;
-          $impuesto = ($rs_facturaf['TX_datoventa_precio']*$rs_facturaf['TX_datoventa_impuesto'])/100;
-          $precio_total = $precio_descuento+$impuesto;
-          echo number_format($precio_total,2)
-			?></td>
+          $impuesto = ($precio_descuento*$rs_facturaf['TX_datoventa_impuesto'])/100;
+          $precio_total = $precio_descuento+$impuesto;  ?>
+        <td><?php echo number_format($precio_total,2);  ?></td>
         <td><?php echo $rs_facturaf['TX_datoventa_cantidad']; ?></td>
         <td><?php
-          $qry_datodevolucion->bind_param("ii",$rs_facturaf['AI_datoventa_id'],$rs_facturaf['datoventa_AI_producto_id']); $qry_datodevolucion->execute(); $result=$qry_datodevolucion->get_result();
+          $qry_datodevolucion->bind_param("iii",$rs_facturaf['AI_datoventa_id'],$rs_facturaf['AI_datoventa_id'],$rs_facturaf['datoventa_AI_producto_id']); $qry_datodevolucion->execute(); $result=$qry_datodevolucion->get_result();
           $rs_datodevolucion=$result->fetch_array();
   			  $total_devuelto=0;
-  			  do{
-      			$total_devuelto += $rs_datodevolucion['TX_datodevolucion_cantidad'];
-          }while($rs_datodevolucion=$result->fetch_array());
-  			  echo $retired_quantity = $rs_facturaf['TX_datoventa_cantidad']-$total_devuelto;
+          if ($result->num_rows > 0) {
+    			  do{
+              $prep_producto_medida->bind_param("ii", $rs_facturaf['datoventa_AI_producto_id'], $rs_datodevolucion['TX_datodevolucion_medida']); $prep_producto_medida->execute(); $qry_producto_medida = $prep_producto_medida->get_result();
+              $rs_producto_medida = $qry_producto_medida->fetch_array();
+              $rel_devuelto = $rs_producto_medida['TX_rel_productomedida_cantidad'];
+              $prep_producto_medida->bind_param("ii", $rs_facturaf['datoventa_AI_producto_id'], $rs_facturaf['TX_datoventa_medida']); $prep_producto_medida->execute(); $qry_producto_medida = $prep_producto_medida->get_result();
+              $rs_producto_medida = $qry_producto_medida->fetch_array();
+              $rel_datoventa = $rs_producto_medida['TX_rel_productomedida_cantidad'];
+              $cantidad_devuelta = $rs_datodevolucion['TX_datodevolucion_cantidad']*($rel_devuelto/$rel_datoventa);
+        			$total_devuelto += $cantidad_devuelta;
+            }while($rs_datodevolucion=$result->fetch_array());
+          }
+  			  echo $retired_quantity = round($rs_facturaf['TX_datoventa_cantidad']-$total_devuelto,3);
       ?></td>
         <td>
-          <button type="button" id="<?php echo $retired_quantity ?>" name="<?php echo $rs_facturaf['AI_datoventa_id'];?>"  class="btn btn-warning btn-xs btn-fa" onclick="new_return(this)"><strong><i class="fa fa-recycle" aria-hidden="true"></i></strong></button>
+          <button type="button" class="btn btn-warning btn-xs btn-fa" onclick="new_return('<?php echo $rs_facturaf['AI_datoventa_id'];?>','<?php echo $retired_quantity ?>')"><strong><i class="fa fa-recycle" aria-hidden="true"></i></strong></button>
         </td>
   	</tr>
 <?php }while($rs_facturaf=$qry_facturaf->fetch_array()); ?>
@@ -301,28 +307,27 @@ switch ($_COOKIE['coo_tuser']){
 	<table id="tbl_return" class="table table-bordered table-striped table-condensed">
     <caption>Productos a Reingresar</caption>
     <thead class="bg-success">
-    <tr>
-    	<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Codigo</th>
+      <tr>
+      	<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Codigo</th>
         <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Producto</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Medida</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cantidad</th>
         <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Precio</th>
-        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">ITBM%</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">IMP%</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
-    </tr>
+      </tr>
     </thead>
     <tbody>
-<?php $total_precio = 0; ?>
-<?php $total_impuesto = 0; ?>
-<?php do{ ?>
+<?php $total_precio = 0;  $total_impuesto = 0;
+    do{ ?>
     <tr>
     	<td><?php echo $rs_nuevadevolucion['TX_producto_codigo']; ?></td>
-        <td><?php echo $rs_nuevadevolucion['TX_datoventa_descripcion']; ?></td>
-        <td><?php echo $rs_nuevadevolucion['TX_producto_medida']; ?></td>
-        <td><?php echo $rs_nuevadevolucion['TX_nuevadevolucion_cantidad']; ?></td>
-        <td><?php ?></td>
-        <td><?php ?></td>
-        <td>        </td>
+      <td><?php echo $r_function->replace_special_character($rs_nuevadevolucion['TX_datoventa_descripcion']); ?></td>
+      <td><?php echo $rs_nuevadevolucion['TX_producto_medida']; ?></td>
+      <td><?php echo $rs_nuevadevolucion['TX_nuevadevolucion_cantidad']; ?></td>
+      <td></td>
+      <td></td>
+      <td></td>
     </tr>
 <?php }while($rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array()); ?>
     </tbody>
@@ -354,12 +359,11 @@ switch ($_COOKIE['coo_tuser']){
     <tr>
       <th>Nombre</th>
       <th>Monto Total</th>
-      <th>Saldo</th>
       <th>Fecha</th>
     </tr>
     </thead>
     <tfoot class="bg-danger">
-    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td colspan="3"></td></tr>
     </tfoot>
     <tbody>
     <?php if($nr_creditnote > '0'){ ?>
@@ -367,16 +371,12 @@ switch ($_COOKIE['coo_tuser']){
     <tr>
     	<td><?php echo $rs_creditnote['TX_cliente_nombre']; ?></td>
   		<td><?php echo number_format($total = $rs_creditnote['TX_notadecredito_monto']+$rs_creditnote['TX_notadecredito_impuesto'],2); ?></td>
-     	<td><?php echo number_format($rs_creditnote['TX_notadecredito_exedente'],2); ?></td>
       <td><?php echo $fecha = date('d-m-Y',strtotime($rs_creditnote['TX_notadecredito_fecha'])); ?></td>
     </tr>
   <?php }while($rs_creditnote=$qry_creditnote->fetch_array()); ?>
 <?php }else{ ?>
     <tr>
-    	<td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+    	<td colspan="4"></td>
     </tr>
 <?php } ?>
     </tbody>
@@ -388,18 +388,18 @@ switch ($_COOKIE['coo_tuser']){
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-        <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        </div>
-        <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
-        </div>
-        <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-        </div>
-        <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            <button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-        </div>
-	</div>
+    <div id="container_txtcopyright" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+      &copy; Derechos Reservados a: Trilli, S.A. 2017
+    </div>
+    <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+    	<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
+    </div>
+    <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+      <button type="button" class="btn btn-danger" id="btn_exit">Salir</button>
+    </div>
+  </div>
+</div>
+
 </div>
 </div>
 

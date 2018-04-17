@@ -3,7 +3,6 @@ require '../../bh_conexion.php';
 $link = conexion();
 date_default_timezone_set('America/Panama');
 
-// $time=strtotime($_GET['a']);
 $client_id=$_GET['b'];
 $client=$_GET['c'];
 $date=date('Y-m-d',strtotime($_GET['a']));
@@ -12,9 +11,7 @@ $observation=$_GET['g'];
 $status=$_GET['h'];
 $activo=$_GET['i'];
 
-$qry_ins_datoventa = $link->prepare("INSERT INTO bh_datoventa (datoventa_AI_facturaventa_id, datoventa_AI_user_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion, TX_datoventa_stock) VALUES (?,?,?,?,?,?,?,?,?)")or die($link->error);
-
-// $prep_product = $link->prepare("SELECT TX_producto_value FROM bh_producto WHERE AI_producto_id = ?")or die($link->error);
+$qry_ins_datoventa = $link->prepare("INSERT INTO bh_datoventa (datoventa_AI_facturaventa_id, datoventa_AI_user_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion, TX_datoventa_stock, TX_datoventa_medida) VALUES (?,?,?,?,?,?,?,?,?,?)")or die($link->error);
 
 // ######################## FUNCIONES  ###########################
 function checkfacturaventa($numero){
@@ -69,6 +66,7 @@ foreach ($raw_contenido as $key => $line_nuevaventa) {
 	}
 	$raw_nuevaventa[$i]['descripcion']=$line_nuevaventa['descripcion'];
 	$raw_nuevaventa[$i]['stock']=$line_nuevaventa['stock'];
+	$raw_nuevaventa[$i]['medida']=$line_nuevaventa['medida'];
 
 	$i++;
 }
@@ -82,7 +80,7 @@ $last_facturaventaid = trim($rs_lastid[0]);
 
 foreach ($raw_nuevaventa as $key => $value) {
 	$value['descripcion'] = $r_function->replace_regular_character($value['descripcion']);
-	$qry_ins_datoventa->bind_param("iisddddss",$last_facturaventaid,$_COOKIE['coo_iuser'],$value['producto'],$value['cantidad'],$value['precio'],$value['impuesto'],$value['descuento'],$value['descripcion'],$value['stock']);
+	$qry_ins_datoventa->bind_param("iisddddssi",$last_facturaventaid,$_COOKIE['coo_iuser'],$value['producto'],$value['cantidad'],$value['precio'],$value['impuesto'],$value['descuento'],$value['descripcion'],$value['stock'],$value['medida']);
 	$qry_ins_datoventa->execute();
 }
 echo $last_facturaventaid;

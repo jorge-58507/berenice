@@ -159,19 +159,16 @@ $(document).ready(function() {
 		if($rs_facturaf['TX_metododepago_value'] !=  'Cr&eacute;dito'){
 		$total_pago += $rs_facturaf['TX_datopago_monto'];
 		}
-		?>
-
-  <?php }while($rs_facturaf=$qry_facturaf->fetch_array()); ?>
+		 }while($rs_facturaf=$qry_facturaf->fetch_array()); ?>
         </tbody>
-        <tfoot class="bg-primary"><tr><td></td><td></td><td></td>
-        <td>$ <?php echo number_format($total_pago,2); ?></td>
-        </tr></tfoot>
-        </table>
-
-
+        <tfoot class="bg-primary">
+          <tr><td colspan="3"></td>
+            <td><?php echo number_format($total_pago,2); ?></td>
+          </tr>
+        </tfoot>
+      </table>
     </div>
-	<div id="container_tbldebit" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-
+	  <div id="container_tbldebit" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
         <table id="tbl_debit" class="table table-bordered table-condensed table-striped">
         <caption>Abonos Asociados</caption>
@@ -184,8 +181,7 @@ $(document).ready(function() {
         </tr>
         </thead>
         <tbody>
-        <?php $total_abono=0; ?>
-        <?php
+        <?php $total_abono=0;
 		if($nr_notadebito=$qry_notadebito->num_rows > 0){
 		do{ ?>
         <tr title="<?php echo $rs_notadebito['TX_user_seudonimo']; ?>">
@@ -206,12 +202,12 @@ $(document).ready(function() {
         </tr>
         <?php } ?>
         </tbody>
-        <tfoot class="bg-info"><tr><td></td><td></td><td></td>
-        <td>
-        $ <?php echo number_format($total = $total_pago+$total_abono,2); ?>
-        </td>
-        </tr></tfoot>
-        </table>
+        <tfoot class="bg-info">
+          <tr><td colspan="3"></td>
+            <td><?php echo number_format($total = $total_pago+$total_abono,2); ?></td>
+          </tr>
+        </tfoot>
+      </table>
 	</div>
 </div>
 <div id="container_datoventa" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
@@ -241,11 +237,11 @@ $(document).ready(function() {
       <?php }while($rs_datoventa = $qry_datoventa->fetch_array()); ?>
         </tbody>
         <tfoot class="bg_green">
-		<tr>
-        	<th></th><th></th><th><strong>$ <?php echo number_format($total,2); ?></strong></th>
-        </tr>
+          <tr>
+        	   <td colspan="2"></td><td><strong><?php echo number_format($total,2); ?></strong></td>
+           </tr>
         </tfoot>
-        </table>
+      </table>
     </div>
 </div>
 

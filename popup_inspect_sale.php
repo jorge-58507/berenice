@@ -1,10 +1,12 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-
 require 'attached/php/req_login_sale.php';
 
 $fecha_actual=date('Y-m-d');
+$fecha_i = date('d-m-Y',strtotime(date('Y-m-d',strtotime('-1 week'))));
+$fecha_f = date('d-m-Y',strtotime($fecha_actual));
+
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status,
 bh_facturaf.TX_facturaf_numero, bh_facturaf.AI_facturaf_id
 FROM ((bh_facturaventa
@@ -144,11 +146,11 @@ function duplicate_datoventa(facturaventa_id){
 <form action="sale.php" method="post" name="form_sell"  id="form_sell">
 
     <div id="container_filterfacturaventa" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-        <label for="txt_filterfacturaventa">Buscar</label>
+        <label class="label label_blue_sky" class="label label_blue_sky" for="txt_filterfacturaventa">Buscar</label>
         <input type="text" id="txt_filterfacturaventa" class="form-control" />
     </div>
     <div id="container_filterfacturaventa" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <label for="sel_filterfacturaventa">Status</label>
+        <label class="label label_blue_sky" for="sel_filterfacturaventa">Status</label>
         <select id="sel_filterfacturaventa" class="form-control">
         	<option value="">SELECCIONAR</option>
             <option value="ACTIVA">ACTIVA</option>
@@ -157,17 +159,14 @@ function duplicate_datoventa(facturaventa_id){
         </select>
     </div>
     <div id="container_txtdateinitial" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-        <label for="txt_date_initial">F. Inicio
-        <button type="button" id="clear_date_initial" class="btn btn-danger btn-xs"><strong>!</strong></button></label>
-        <input type="text" id="txt_date_initial" class="form-control" readonly="readonly" />
+      <label class="label label_blue_sky" for="txt_date_initial">F. Inicio</label>
+      <input type="text" id="txt_date_initial" class="form-control" readonly="readonly" value="<?php echo $fecha_i; ?>" />
     </div>
     <div id="container_txtdatefinal" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-        <label for="txt_date_final">F. Final
-        <button type="button" id="clear_date_final" class="btn btn-danger btn-xs"><strong>!</strong></button></label>
-        <input type="text" id="txt_date_final" class="form-control" readonly="readonly" />
+      <label class="label label_blue_sky" for="txt_date_final">F. Final</label>
+      <input type="text" id="txt_date_final" class="form-control" readonly="readonly" value="<?php echo $fecha_f; ?>" />
     </div>
 	<div id="container_tblfacturaventa" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-
 <table id="tbl_facturaventa" class="table table-bordered table-striped">
 	<thead class="bg-primary">
     	<tr>

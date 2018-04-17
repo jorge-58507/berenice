@@ -59,44 +59,37 @@ $nr_facturacompra=$qry_facturacompra->num_rows;
 
     	<table id="tbl_facturacompra" class="table table-bordered table-condensed table-striped">
         <thead>
-        <tr class="bg-info">
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Nº de Fact.</th>
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Nº de Orden</th>
-					<th class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Proveedor</th>
-					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Almacen</th>
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
-        </tr>
-	    </thead>
-        <tfoot class="bg-info"><tr><td></td><td></td><td></td><td></td><td></td><td></td></tr></tfoot>
+	        <tr class="bg-info">
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Nº de Fact.</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Orden</th>
+						<th class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Proveedor</th>
+						<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Almacen</th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+	        </tr>
+		    </thead>
+        <tfoot class="bg-info"><tr><td colspan="6"></td></tr></tfoot>
         <tbody>
         <?php
-		if($nr_facturacompra > 0){
-		do{ ?>
-        <tr onclick="filter_productbypurchase('<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>');">
-        <td><?php
-		$prefecha=strtotime($rs_facturacompra['TX_facturacompra_fecha']);
-		echo $fecha = date('d-m-Y',$prefecha);
-		 ?></td>
-        <td><?php echo $rs_facturacompra['TX_facturacompra_numero']; ?></td>
-        <td><?php echo $rs_facturacompra['TX_facturacompra_ordendecompra']; ?></td>
-        <td><?php echo $rs_facturacompra['TX_proveedor_nombre']; ?></td>
-        <td><?php echo $rs_facturacompra['TX_almacen_value']; ?></td>
-				<td>
-					<button type="button" id="btn_print" class="btn btn-info btn-sm" name="" onclick="print_html('print_purchase_html.php?a=<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>')">
-						<i class="fa fa-print" aria-hidden="true"></i>
-					</button>
-				</td>
-        </tr>
-			<?php }while($rs_facturacompra=$qry_facturacompra->fetch_array(MYSQLI_ASSOC));
-		}else{?>
-        <tr>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-        </tr>
-        <?php } ?>
-        </tbody>
-        </table>
+				if($nr_facturacompra > 0){
+					do{ ?>
+		        <tr onclick="filter_productbypurchase('<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>');">
+		        	<td><?php 	echo $fecha = date('d-m-Y',strtotime($rs_facturacompra['TX_facturacompra_fecha']));		 			?></td>
+			        <td><?php echo $rs_facturacompra['TX_facturacompra_numero']; ?></td>
+			        <td><?php echo $rs_facturacompra['TX_facturacompra_ordendecompra']; ?></td>
+			        <td><?php echo $rs_facturacompra['TX_proveedor_nombre']; ?></td>
+			        <td><?php echo $rs_facturacompra['TX_almacen_value']; ?></td>
+							<td>
+								<button type="button" id="btn_delete" class="btn btn-danger btn-sm" name="" onclick="transform_facturacompra('<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>')"><i class="fa fa-times" aria-hidden="true"></i></button>
+								&nbsp;
+								<button type="button" id="btn_print" class="btn btn-info btn-sm" name="" onclick="print_html('print_purchase_html.php?a=<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>')"><i class="fa fa-print" aria-hidden="true"></i></button>
+							</td>
+		        </tr>
+		<?php }while($rs_facturacompra=$qry_facturacompra->fetch_array(MYSQLI_ASSOC));
+				}else{?>
+	        <tr>
+		        <td colspan="5"></td>
+	        </tr>
+<?php 	} ?>
+      </tbody>
+    </table>
