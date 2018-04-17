@@ -167,8 +167,9 @@ function  unset_filterclient(e){
 							var n_val = ui.item.value;
 								raw_n_val = n_val.split(" | Dir:");
 								ui.item.value = raw_n_val[0];
-				$("#txt_filterclient_"+activo).prop('alt', ui.item.id);
-				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
+								$("#txt_filterclient_"+activo).prop('alt', ui.item.id);
+								$("#txt_filterclient_"+activo).prop('title', 'Completa las ventas '+ui.item.asiduo+" de las veces");
+				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20)+' <strong>Asiduo.</strong> '+ui.item.asiduo;
 				fire_recall('container_client_recall_'+activo, content)
 				generate_tbl_favorito(ui.item.json_favorito,activo);
 			}

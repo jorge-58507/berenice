@@ -53,7 +53,6 @@ $raw_promocion=array();	$i=0;
 while ($rs_descuento=$qry_descuento->fetch_array(MYSQLI_ASSOC)) {
 	$prep_precio_medida->bind_param("i",$rs_descuento['AI_producto_id']); $prep_precio_medida->execute(); $qry_precio_medida = $prep_precio_medida->get_result();
 	$rs_precio_medida=$qry_precio_medida->fetch_array(MYSQLI_ASSOC);
-	// if ($qry_precio_medida->num_rows > 0) {
 		$raw_promocion[$i]['promo_titulo'] = $rs_descuento['TX_producto_value'];
 		$raw_promocion[$i]['promo_contenido'] = "Descuento de ".$rs_descuento['TX_producto_descuento']."%";
 		$raw_promocion[$i]['promo_producto'] = json_encode([0=>$rs_descuento['AI_producto_id']]);
@@ -63,7 +62,6 @@ while ($rs_descuento=$qry_descuento->fetch_array(MYSQLI_ASSOC)) {
 		$raw_promocion[$i]['promo_impuesto'] = json_encode([0=>$rs_descuento['TX_producto_exento']]);
 		$raw_promocion[$i]['promo_descuento'] = json_encode([0=>$rs_descuento['TX_producto_descuento']]);
 		$i++;
-	// }
 }
 
 

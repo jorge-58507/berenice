@@ -1,1 +1,1 @@
-{"5":[],"1":{"first_sale":{"'5961'":{"cantidad":"1","precio":"10.50","impuesto":"7","descuento":"50","descripcion":" BOLSA CEMENTO GRIS","codigo":"0000000707084","medida":"1","stock":"1083"}}},"6":{"first_sale":[]}}
+{"5":[],"1":{"first_sale":[]},"6":{"first_sale":[]}}
