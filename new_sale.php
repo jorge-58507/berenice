@@ -16,12 +16,13 @@ function checkfacturaventa($numero){
 function sumarfacturaventa($numero){
 		return checkfacturaventa($numero+1);
 }
-$qry_precio = $link->prepare("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0'")or die($link->error);
-$qry_letra = $link->prepare("SELECT bh_letra.TX_letra_value FROM (bh_letra INNER JOIN bh_producto ON bh_letra.AI_letra_id = bh_producto.producto_AI_letra_id) WHERE bh_producto.AI_producto_id = ? ")or die($link->error);
 $qry_facturaventa_numero=$link->query("SELECT AI_facturaventa_id, TX_facturaventa_numero FROM bh_facturaventa ORDER BY AI_facturaventa_id DESC LIMIT 1")or die($link->error);
 $rs_facturaventa_numero=$qry_facturaventa_numero->fetch_array();
 $number = $rs_facturaventa_numero['TX_facturaventa_numero'];
 $number=checkfacturaventa($number);
+
+$qry_precio = $link->prepare("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0'")or die($link->error);
+$qry_letra = $link->prepare("SELECT bh_letra.TX_letra_value FROM (bh_letra INNER JOIN bh_producto ON bh_letra.AI_letra_id = bh_producto.producto_AI_letra_id) WHERE bh_producto.AI_producto_id = ? ")or die($link->error);
 $qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_cantidad FROM bh_producto WHERE TX_producto_activo = '0' ORDER BY TX_producto_value ASC LIMIT 10");
 $raw_producto=array(); $i=0;
 while ($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)) {
@@ -36,9 +37,15 @@ while ($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)) {
 };
 $qry_vendor=$link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'");
 $rs_vendor=$qry_vendor->fetch_array(MYSQLI_ASSOC);
-$file = fopen("nva_venta.txt", "r");
-$contenido = fgets($file);
-fclose($file);
+
+// $file = fopen("nva_venta.txt", "r");
+// $contenido = fgets($file);
+// fclose($file);
+
+$qry_nuevaventa = $link->query("SELECT TX_rel_nuevaventa_compuesto FROM rel_nuevaventa WHERE AI_rel_nuevaventa_id = 1")or die($link->error);
+$rs_nuevaventa = $qry_nuevaventa->fetch_array();
+$contenido = $rs_nuevaventa['TX_rel_nuevaventa_compuesto'];
+
 $raw_nuevaventa = json_decode($contenido, true);
 
 $qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
@@ -47,24 +54,31 @@ while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
 	$raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
 }
 
-$prep_precio_medida = $link->prepare("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND precio_AI_medida_id = '1' ORDER BY AI_precio_id DESC LIMIT 1")or die($link->error);
-$qry_descuento = $link->query("SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_value, bh_producto.TX_producto_descuento, bh_producto.TX_producto_exento FROM bh_producto WHERE TX_producto_descuento > 0 ORDER BY TX_producto_descuento DESC")or die($link->error);
-$raw_promocion=array();	$i=0;
-while ($rs_descuento=$qry_descuento->fetch_array(MYSQLI_ASSOC)) {
-	$prep_precio_medida->bind_param("i",$rs_descuento['AI_producto_id']); $prep_precio_medida->execute(); $qry_precio_medida = $prep_precio_medida->get_result();
-	$rs_precio_medida=$qry_precio_medida->fetch_array(MYSQLI_ASSOC);
-		$raw_promocion[$i]['promo_titulo'] = $rs_descuento['TX_producto_value'];
-		$raw_promocion[$i]['promo_contenido'] = "Descuento de ".$rs_descuento['TX_producto_descuento']."%";
-		$raw_promocion[$i]['promo_producto'] = json_encode([0=>$rs_descuento['AI_producto_id']]);
-		$raw_promocion[$i]['promo_medida'] = json_encode([0=>'1']);
-		$raw_promocion[$i]['promo_cantidad'] = json_encode([0=>'1']);
-		$raw_promocion[$i]['promo_precio'] = json_encode([0=>$rs_precio_medida['TX_precio_cuatro']]);
-		$raw_promocion[$i]['promo_impuesto'] = json_encode([0=>$rs_descuento['TX_producto_exento']]);
-		$raw_promocion[$i]['promo_descuento'] = json_encode([0=>$rs_descuento['TX_producto_descuento']]);
+	$qry_promocion = $link->query("SELECT AI_promocion_id, TX_promocion_descripcion, TX_promocion_componente, TX_promocion_tipo, TX_promocion_titulo FROM bh_promocion")or die($link->error);
+ 	$raw_promocion=array();	$i=0;
+	while($rs_promocion = $qry_promocion->fetch_array(MYSQLI_ASSOC)){
+		$raw_componente = json_decode($rs_promocion['TX_promocion_componente'], true);
+		$raw_producto_id = array();	$raw_medida_id = array();	$raw_cantidad = array();
+		$raw_precio = array();	$raw_impuesto = array();	$raw_descuento = array();
+		foreach ($raw_componente as $key => $componente) {
+			$raw_producto_id[]=$key;
+			$raw_medida_id[] = $componente['medida']*1;
+			$raw_cantidad[] = $componente['cantidad'];
+			$raw_precio[] = $componente['precio'];
+			$raw_impuesto[] = $componente['impuesto'];
+			$raw_descuento[] = $componente['descuento'];
+		}
+		$raw_promocion[$i]['promo_titulo'] = $rs_promocion['TX_promocion_titulo'];
+		$raw_promocion[$i]['promo_contenido'] = $rs_promocion['TX_promocion_descripcion'];
+		$raw_promocion[$i]['promo_producto'] = json_encode($raw_producto_id);
+		$raw_promocion[$i]['promo_medida'] = json_encode($raw_medida_id);
+		$raw_promocion[$i]['promo_cantidad'] = json_encode($raw_cantidad);
+		$raw_promocion[$i]['promo_precio'] = json_encode($raw_precio);
+		$raw_promocion[$i]['promo_impuesto'] = json_encode($raw_impuesto);
+		$raw_promocion[$i]['promo_descuento'] = json_encode($raw_descuento);
+		$raw_promocion[$i]['promo_tipo'] = $rs_promocion['TX_promocion_tipo'];
 		$i++;
-}
-
-
+	}
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -180,8 +194,9 @@ function generate_tbl_nuevaventa(data,activo){
 			total_itbm += impuesto*nuevaventa[x]['cantidad'];
 			total_descuento += descuento*nuevaventa[x]['cantidad'];
 			total += subtotal;
-
-			content=content+'<tr><td>'+nuevaventa[x]['codigo']+'</td><td onclick="upd_descripcion_nuevaventa('+x+',\''+replace_regular_character(nuevaventa[x]['descripcion'])+'\')">'+replace_special_character(nuevaventa[x]['descripcion'])+'</td><td>'+array_medida[nuevaventa[x]['medida']]+'</td><td onclick="upd_unidades_nuevaventa('+x+');">'+nuevaventa[x]['cantidad']+'</td><td  onclick="upd_precio_nuevaventa('+x+');">'+nuevaventa[x]['precio']+'</td><td>'+descuento.toFixed(2)+'</td><td>'+impuesto.toFixed(2)+'</td><td>'+precio_unitario.toFixed(2)+'</td><td>'+subtotal.toFixed(2)+'</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_nuevaventa('+x+');"><strong>X</strong></button></td></tr>';
+			style_promotion = (nuevaventa[x]['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
+			fire_promotion = (nuevaventa[x]['promocion'] > 0 ) ? '<i class="fa fa-free-code-camp"> </i> ' : '';
+			content += '<tr '+style_promotion+'><td>'+nuevaventa[x]['codigo']+'</td><td onclick="upd_descripcion_nuevaventa('+x+',\''+replace_regular_character(nuevaventa[x]['descripcion'])+'\')">'+fire_promotion+replace_special_character(nuevaventa[x]['descripcion'])+'</td><td>'+array_medida[nuevaventa[x]['medida']]+'</td><td onclick="upd_unidades_nuevaventa('+x+');">'+nuevaventa[x]['cantidad']+'</td><td  onclick="upd_precio_nuevaventa('+x+');">'+nuevaventa[x]['precio']+'</td><td>'+descuento.toFixed(2)+'</td><td>'+impuesto.toFixed(2)+'</td><td>'+precio_unitario.toFixed(2)+'</td><td>'+subtotal.toFixed(2)+'</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_nuevaventa('+x+');"><strong>X</strong></button></td></tr>';
 		}
 		activo = activo.replace("_sale","");
 
@@ -190,7 +205,7 @@ function generate_tbl_nuevaventa(data,activo){
 		$("#span_itbm_"+activo).html(total_itbm.toFixed(2));
 		$("#span_total_"+activo).html(total.toFixed(2));
 	}else{
-		content=content+'<tr><td colspan="9"> </td></tr>';
+		content=content+'<tr><td colspan="10">&nbsp;</td></tr>';
 		activo = activo.replace("_sale","");
 		$("#tbl_product2sell_"+activo+" tbody").html(content);
 		$("#span_discount_"+activo).html(total_descuento.toFixed(2));
@@ -212,13 +227,24 @@ function generate_tbl_favorito(data,activo){
 	$("#tbl_product_favorite tbody").html(content);
 }
 
-function insert_multiple_product2sell(raw_producto,raw_medida,raw_cantidad,raw_precio,raw_impuesto,raw_descuento){
+function insert_multiple_product2sell(raw_producto,raw_medida,raw_cantidad,raw_precio,raw_impuesto,raw_descuento,promotion_type){
 	var activo = $(".tab-pane.active").attr("id");
-	for (var x in raw_producto) {
-		if(raw_precio[x] > 0.00){
-			plus_product2nuevaventa(raw_producto[x],raw_precio[x],raw_descuento[x],raw_impuesto[x],activo,raw_cantidad[x],raw_medida[x])
-		}
-	}
+	var multiplo = prompt("Introduzca la cantidad");
+	multiplo = val_intw2dec(multiplo);
+	if(!val_intwdec(multiplo)){ return false; }
+	if(raw_precio.indexOf(0.00)){
+		$.ajax({	data: {"a" : raw_producto, "b" : raw_precio, "c" : raw_descuento, "d" : raw_impuesto, "e" : activo, "f" : raw_cantidad, "g" : raw_medida, "h" : promotion_type, "i" : multiplo, "z" : 'plus_multiple' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+		.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+			if(data){
+				data = JSON.parse(data);
+				generate_tbl_nuevaventa(data,activo);
+				activo=activo.replace("_sale","");
+				$("#btn_guardar, #btn_facturar").css("display","initial");
+				$("#txt_filterproduct").focus();
+			}
+		})
+		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+ 	}
 }
 
 
@@ -271,8 +297,8 @@ switch ($_COOKIE['coo_tuser']){
 	<div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 bg-success" id="div_title"><h2>Nueva Cotizaci&oacute;n</h2></div>
 </div>
 <ul class="nav nav-tabs">
-  <li class="active"><a data-toggle="tab" href="#first_sale">1&deg;</a></li>
-  <li><a data-toggle="tab" href="#second_sale">2&deg;</a></li>
+  <li class="active"><a data-toggle="tab" href="#first_sale">1<sup>ero</sup></a></li>
+  <li><a data-toggle="tab" href="#second_sale">2<sup>do</sup></a></li>
 </ul>
 
 <div class="tab-content">
@@ -288,7 +314,7 @@ switch ($_COOKIE['coo_tuser']){
 	    <span class="form-control bg-disabled"><?php echo $number; ?></span>
 	    <input type="hidden" class="form-control" alt="" id="txt_numero" name="txt_numero" readonly="readonly" value="" />
 	  </div>
-		<div id="container_txtvendedor" class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+		<div id="container_txtvendedor" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
 	  	<label class="label label_blue_sky" for="txt_vendedor">Vendedor:</label>
 	    <input type="text" class="form-control" alt="<?php echo $rs_vendor['AI_user_id']; ?>" id="txt_vendedor" name="txt_vendedor" readonly="readonly"  value="<?php echo $rs_vendor['TX_user_seudonimo']; ?>" />
 	  </div>
@@ -319,18 +345,18 @@ switch ($_COOKIE['coo_tuser']){
         <table id="tbl_product2sell_first" class="table table-bordered table-hover ">
 	        <caption>Lista de Productos para la Venta</caption>
 	        <thead class="bg_green">
-	            <tr>
-	                <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Codigo</th>
-	                <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Producto</th>
-	                <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Medida</th>
-	                <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cantidad</th>
-	                <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Precio</th>
-									<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Desc</th>
-	                <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Imp.</th>
-									<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">P. Uni.</th>
-	                <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">SubTotal</th>
-	                <th></th>
-	            </tr>
+            <tr>
+              <th>Codigo</th>
+              <th>Producto</th>
+              <th>Medida</th>
+              <th>Cantidad</th>
+              <th>Precio</th>
+							<th>Desc</th>
+              <th>Imp.</th>
+							<th>P. Uni.</th>
+              <th>SubTotal</th>
+              <th></th>
+            </tr>
 	        </thead>
 					<tbody>
 <?php 			$total_itbm = 0;	$total_descuento = 0;	$sub_total = 0;
@@ -346,10 +372,13 @@ switch ($_COOKIE['coo_tuser']){
 								$total_itbm += $rs_nuevaventa['cantidad']*$impuesto;
 								$total_descuento += $rs_nuevaventa['cantidad']*$descuento;
 								$sub_total += $rs_nuevaventa['cantidad']*$rs_nuevaventa['precio'];
+
+								$style_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
+								$fire_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? '<i class="fa fa-free-code-camp"> </i> ' : '';
 ?>
-									<tr>
+									<tr <?php echo $style_promotion; ?> >
 				            <td><?php echo $rs_nuevaventa['codigo']; ?></td>
-				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['descripcion']);?>')"><?php echo $r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
+				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['descripcion']);?>')"><?php echo $fire_promotion.$r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
 				            <td><?php echo $raw_medida[$rs_nuevaventa['medida']]; ?></td>
 				            <td onclick="upd_unidades_nuevaventa(<?php echo $key ?>);"><?php echo $rs_nuevaventa['cantidad']; ?></td>
 				            <td onclick="upd_precio_nuevaventa(<?php echo $key; ?>);"><?php echo number_format($rs_nuevaventa['precio'],2); ?></td>
@@ -363,9 +392,9 @@ switch ($_COOKIE['coo_tuser']){
 									</tr>
 <?php 							}
 						 			}else{ ?>
-									<tr>
-				            <td colspan="10"></td>
-									</tr>
+										<tr>
+					            <td colspan="10">&nbsp;</td>
+										</tr>
 <?php 						}
 							$total=($sub_total-$total_descuento)+$total_itbm;
 							?>
@@ -407,7 +436,7 @@ switch ($_COOKIE['coo_tuser']){
 	    <span class="form-control bg-disabled"><?php echo $number; ?></span>
 	    <input type="hidden" class="form-control" alt="" id="txt_numero" name="txt_numero" readonly="readonly" value="" />
 	  </div>
-		<div id="container_txtvendedor" class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+		<div id="container_txtvendedor" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
 	  	<label class="label label_blue_sky" for="txt_vendedor">Vendedor:</label>
 	    <input type="text" class="form-control" alt="<?php echo $rs_vendor['AI_user_id']; ?>" id="txt_vendedor" name="txt_vendedor" readonly="readonly"  value="<?php echo $rs_vendor['TX_user_seudonimo']; ?>" />
 	  </div>
@@ -466,11 +495,14 @@ switch ($_COOKIE['coo_tuser']){
 								$total_itbm += $rs_nuevaventa['cantidad']*$impuesto;
 								$total_descuento += $rs_nuevaventa['cantidad']*$descuento;
 								$sub_total += $rs_nuevaventa['cantidad']*$rs_nuevaventa['precio'];
+
+								$style_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
+								$fire_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? '<i class="fa fa-free-code-camp"> </i> ' : '';
 ?>
-									<tr>
+									<tr <?php echo $style_promotion; ?> >
 				            <td><?php echo $rs_nuevaventa['codigo']; ?></td>
-				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['descripcion']);?>')"><?php echo $r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
-				            <td><?php echo $rs_nuevaventa['medida']; ?></td>
+				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['descripcion']);?>')"><?php echo $fire_promotion.$r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
+				            <td><?php echo $raw_medida[$rs_nuevaventa['medida']]; ?></td>
 				            <td onclick="upd_unidades_nuevaventa(<?php echo $key ?>);"><?php echo $rs_nuevaventa['cantidad']; ?></td>
 				            <td onclick="upd_precio_nuevaventa(<?php echo $key; ?>);"><?php echo number_format($rs_nuevaventa['precio'],2); ?></td>
 										<td><?php echo number_format($descuento,2); ?></td>
@@ -556,7 +588,7 @@ switch ($_COOKIE['coo_tuser']){
 ?>
 			    <tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);">
 	        	<td title="<?php echo $rs_product['AI_producto_id']; ?>"><?php echo $rs_product['TX_producto_codigo']; ?></td>
-	        	<td><?php echo $rs_product['TX_producto_value']; ?></td>
+	        	<td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
 	        	<td><?php echo $rs_product['TX_producto_cantidad']; ?></td>
 						<td><?php echo $rs_product['precio']; ?></td>
 						<td><?php echo $rs_product['letra']; ?></td>
@@ -588,7 +620,7 @@ switch ($_COOKIE['coo_tuser']){
 	 				<tbody>
 	<?php 		if(count($raw_promocion) > 0){
 							foreach ($raw_promocion as $key => $value) {?>
-	 							<tr onclick='insert_multiple_product2sell(<?php echo $value['promo_producto'].",".$value['promo_medida'].",".$value['promo_cantidad'].",".$value['promo_precio'].",".$value['promo_impuesto'].",".$value['promo_descuento']; ?>)'><td style="font-weight:bolder; cursor:pointer;"><?php echo $value['promo_titulo'];?></td></tr>
+	 							<tr onclick='insert_multiple_product2sell(<?php echo $value['promo_producto'].",".$value['promo_medida'].",".$value['promo_cantidad'].",".$value['promo_precio'].",".$value['promo_impuesto'].",".$value['promo_descuento'].",".$value['promo_tipo']; ?>)'><td style="font-weight:bolder; cursor:pointer;"><?php echo $value['promo_titulo'];?></td></tr>
 								<tr><td>-<?php echo $value['promo_contenido'];?></td></tr>
 	<?php 			}
 						}else{ ?>

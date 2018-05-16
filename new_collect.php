@@ -117,15 +117,8 @@ $("#btn_exit").click(function(){
 	location.href="index.php";
 })
 
-$("#sel_client").css('display','none');
-$("#container_limitalert").css('display','none');
-$("#container_termalert").css('display','none');
 $("#txt_filterproduct").focus();
 var posicion = $("#container_client").offset().top;
-$("html, body").animate({	scrollTop: posicion	}, 200);
-
-$("#sel_paymentmethod").val("");
-$("#container_paymentinfo").css('display','none');
 
 $("#btn_addclient").click(function(){
 	var name = $("#txt_filterclient").val();
@@ -236,17 +229,21 @@ $("#btn_discount").on("click", function(){
 	$("#tbl_product2sell tbody tr:first").dblclick();
 })
 
-$( function() {
-	$( "#txt_filterclient").autocomplete({
-		source: "attached/get/filter_client_sell.php",
-		minLength: 2,
-		select: function( event, ui ) {
-			$("#txt_filterclient").prop('alt', ui.item.id);
-			content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
-			fire_recall('container_client_recall', content)
-		}
-	});
-});
+// $( function() {
+// 	$( "#txt_filterclient").autocomplete({
+// 		source: "attached/get/filter_client_sell.php",
+// 		minLength: 2,
+// 		select: function( event, ui ) {
+//       var n_val = ui.item.value;
+//       raw_n_val = n_val.split(" | Dir:");
+//       ui.item.value = raw_n_val[0];
+//       console.log(ui.item.value);
+// 			$("#txt_filterclient").prop('alt', ui.item.id);
+// 			content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
+// 			fire_recall('container_client_recall', content)
+// 		}
+// 	});
+// });
 
 $("#1, #2, #3, #4, #7").on("click", function(){
 	plus_payment($(this).prop("id"), '<?php echo $str_factid; ?>');
@@ -257,13 +254,24 @@ $("#5").on("click", function(){
 	 .done(function( data, textStatus, jqXHR ) {
 			console.log( "GOOD " + textStatus);
 			if(data[0][0] != ""){
-			console.log(data[0][0]);
-				$.ajax({	data: {"a" : client_id},	type: "GET",	dataType: "text",	url: "attached/get/get_credit_client.php", })
-				 .done(function( data, textStatus, jqXHR ) {
-           $("#container_alertcredit").html(data)
-           plus_payment($("#5").prop("id"), '<?php echo $str_factid; ?>');
-         })
-				 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+        if(data[0][0] != 2 && data[0][0] != 1){
+  				$.ajax({	data: {"a" : client_id, "b" : $("#txt_amount").val() },	type: "GET",	dataType: "text",	url: "attached/get/get_credit_client.php", })
+  				.done(function( data, textStatus, jqXHR ) {
+             $("#container_alertcredit").html(data)
+             if ($("#credit_time_limit, #credit_amount_limit").hasClass('alert-danger')){
+               return false;
+             }
+             plus_payment($("#5").prop("id"), '<?php echo $str_factid; ?>');
+           })
+  				.fail(function( jqXHR, textStatus, errorThrown ) {		});
+        }else{
+          $.ajax({	data: {"a" : client_id, "b" : $("#txt_amount").val() },	type: "GET",	dataType: "text",	url: "attached/get/get_credit_client.php", })
+          .done(function( data, textStatus, jqXHR ) {
+            $("#container_alertcredit").html(data)
+            plus_payment($("#5").prop("id"), '<?php echo $str_factid; ?>');
+          })
+          .fail(function( jqXHR, textStatus, errorThrown ) {		});
+        }
 			}else{
         popup = window.open("popup_loginadmin.php?z=start_admin.php", "popup_loginadmin", 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=no,width=425,height=420');
       }
@@ -277,9 +285,8 @@ $("#btn_refresh_tblproduct2sell").on("click",function(){
   location.reload();
 });
 
-
 $('#txt_amount').validCampoFranz('0123456789.');
-$("#container_client_recall").css("display","none");
+// $("#container_client_recall").css("display","none");
 });
 
 
@@ -346,7 +353,7 @@ switch ($_COOKIE['coo_tuser']){
   	<label class="label label_blue_sky" for="span_numeroff">Nº</label>
   	<span id="span_numeroff" class="form-control bg-disabled"><?php echo $_SESSION['numero_ff']; ?></span>
   </div>
-	<div id="container_client_recall" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<div id="container_client_recall" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 display_none">
 
 	</div>
 </div>
@@ -423,16 +430,16 @@ switch ($_COOKIE['coo_tuser']){
   <strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></span></strong>
   </button>
 </div>
-<div id="container_paymentinfo" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+<div id="container_paymentinfo" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 display_none">
     <div id="container_paymentinfotitle" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     	<span id="paymentinfo_title">Informaci&oacute;n de Pago</span>
     </div>
     <div id="container_payment" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div id="container_alertcredit" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-            <div id="container_termalert" class="alert alert-danger">
+            <div id="container_termalert" class="alert alert-danger  display_none">
             plazo
             </div>
-            <div id="container_limitalert" class="alert alert-danger">
+            <div id="container_limitalert" class="alert alert-danger display_none">
             limite
             </div>
         </div>
@@ -454,7 +461,7 @@ switch ($_COOKIE['coo_tuser']){
         <label class="label label_blue_sky" for="txt_amount">Monto</label>
         <input type="text" id="txt_amount" name="txt_amount" class="form-control"  />
     </div>
-    <div id="container_btnamount" class="col-xs-2 col-sm-2 col-md-1 col-lg-1">
+    <div id="container_btnamount" class="col-xs-2 col-sm-2 col-md-1 col-lg-1 side-btn-md-label">
       <button type="button" id="btn_amount" title="Todo" class="btn btn-success"><i class="fa fa-money" aria-hidden="true"></i></button>
     </div>
     <div id="container_tblpaymentlist" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -551,51 +558,29 @@ switch ($_COOKIE['coo_tuser']){
 	<div id="container_selproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     <table id="tbl_product" class="table table-bordered table-hover table-striped">
     <caption>Lista de Productos:</caption>
-    <thead>
-    	<tr class="bg-info">
-				<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-          	Codigo
-        </th>
-        <th class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-          	Nombre
-        </th>
-      	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-          	Cantidad
-        </th>
-      	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-          	Precio
-        </th>
-      	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-          	Letra
-        </th>
+    <thead  class="bg-info">
+    	<tr>
+				<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Codigo</th>
+        <th class="col-xs-8 col-sm-8 col-md-8 col-lg-8">Nombre</th>
+      	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cantidad</th>
+      	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Precio</th>
+      	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Letra</th>
       </tr>
     </thead>
     <tfoot>
 	    <tr class="bg-info">
-    		<td>  </td>
-    		<td>  </td>
-    		<td>  </td>
-    		<td>  </td>
-    		<td>  </td>
+    		<td colspan="5">  </td>
     	</tr>
     </tfoot>
 	<tbody>
-
-    <?php
+<?php
 	if($nr_product=$qry_product->num_rows > 0){
 	do{ ?>
     	<tr onclick="open_product2addpaycollect('<?php echo $rs_product['AI_producto_id']; ?>','<?php echo $str_factid; ?>');">
-        	<td>
-            <?php echo $rs_product['TX_producto_codigo']; ?>
-            </td>
-        	<td>
-            <?php echo $rs_product['TX_producto_value']; ?>
-            </td>
-        	<td>
-            <?php echo $rs_product['TX_producto_cantidad']; ?>
-            </td>
-        	<td>
-            <?php
+        	<td><?php echo $rs_product['TX_producto_codigo']; ?></td>
+        	<td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
+        	<td><?php echo $rs_product['TX_producto_cantidad']; ?></td>
+        	<td><?php
 			$qry_precio=$link->query("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = '{$rs_product['AI_producto_id']}'")or die($link->error);
 			if($nr_precio=$qry_precio->num_rows > 0){
 				$rs_precio=$qry_precio->fetch_array();

@@ -1,6 +1,8 @@
 <?php
 require '../../bh_conexion.php';
 $link = conexion();
+date_default_timezone_set('America/Panama');
+
 $fecha_actual = date('Y-m-d');
 $product_id = $_GET['a'];
 $medida_id = $_GET['b'];
@@ -15,6 +17,15 @@ if($qry_precio->num_rows < 1){
 	$link->query("UPDATE bh_precio SET TX_precio_inactivo='1' WHERE precio_AI_producto_id = '$product_id' AND precio_AI_medida_id = '$medida_id'")or die($link->error);
 	$txt_insert_precio="INSERT INTO bh_precio (precio_AI_producto_id, precio_AI_medida_id, TX_precio_uno, TX_precio_dos, TX_precio_tres, TX_precio_cuatro, TX_precio_cinco, TX_precio_fecha ) VALUES ('$product_id','$medida_id','$precio1','$precio2','$precio3','$precio4','$precio5','$fecha_actual')";
 	$link->query($txt_insert_precio)or die($link->error);
+
+	$qry_producto=$link->query("SELECT TX_producto_value FROM bh_producto WHERE AI_producto_id = '$product_id'")or die($link->error);
+	$rs_producto=$qry_producto->fetch_array(MYSQLI_ASSOC);
+	$qry_medida=$link->query("SELECT TX_medida_value FROM bh_medida WHERE AI_medida_id = '$medida_id'")or die($link->error);
+	$rs_medida=$qry_medida->fetch_array(MYSQLI_ASSOC);
+	$file = fopen("../../precio_log.txt", "a");
+	fwrite($file, date('d-m-Y H:i:s')." ".$rs_producto['TX_producto_value']." (".$product_id.")"." - ".$rs_medida['TX_medida_value']." - ".$_COOKIE['coo_suser'].PHP_EOL );
+	fclose($file);
+
 }
 
 

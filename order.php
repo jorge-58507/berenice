@@ -182,7 +182,7 @@ function add_rawproduct(product_id, product_codigo, product_nombre, cantidad, pr
 	}else{
 		raw_product[i] = tr_product;
 		$("#hd_product_id, #hd_product_codigo, #hd_product_nombre, #hd_product_impuesto, #txt_quantity, #txt_price").val("");
-}
+	}
 	// console.log(raw_product);
 	print_rawproduct(raw_product);
 }

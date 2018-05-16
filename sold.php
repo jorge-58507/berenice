@@ -1,15 +1,10 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
 require 'attached/php/req_login_stock.php';
-?>
-<?php
-session_destroy();
 
-	$qry_product=mysql_query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 5 ", $link);
-	$rs_product=mysql_fetch_assoc($qry_product);
+	$qry_product=$link->query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 5 ")or die($link->error);
+	$rs_product=$qry_product->fetch_array();
 
 $fecha_actual = date('d-m-Y');
 $month_year = date('m-Y',strtotime($fecha_actual));
@@ -119,7 +114,12 @@ $("#btn_printfacturaf").on("click",function(){
 	var href = "print_venta_html.php?a="+value+"&b="+limit+"&c="+date_i+"&d="+date_f;
 	print_html(href);
 })
-
+$("#btn_printfacturaf_total").on("click",function(){
+	var date_i = $("#txt_date_initial").val();
+	var date_f = $("#txt_date_final").val();
+	var href = "print_venta_total_html.php?c="+date_i+"&d="+date_f;
+	print_html(href);
+})
 });
 function filter_salebyproduct(product_id){
 	var limit = ($("input[name=r_limit]:checked").val());
@@ -181,31 +181,31 @@ switch ($_COOKIE['coo_tuser']){
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form method="post" name="form_purchase"  id="form_purchase" onsubmit="return false;">
 
-<div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+<div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 pt_7">
   <div id="container_filterproduct" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    <label for="txt_filterproduct">Buscar por Producto:</label>
-    <input type="text" alt="table" class="form-control" id="txt_filterproduct" name="txt_filterproduct" />
+    <label class="label label_blue_sky"  for="txt_filterproduct">Buscar por Producto:</label>
+    <input type="text" alt="table" class="form-control" id="txt_filterproduct" name="txt_filterproduct" placeholder="Nombre o C&oacute;digo de producto" />
   </div>
   <div id="container_rlimit" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-    <label for="r_limit">Mostrar:</label><br />
-<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
-<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
-<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="" /> Todas</label>
+    <label class="label label_blue_sky"  for="r_limit">Mostrar:</label><br />
+<label class="radio-inline pt_7"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
+<label class="radio-inline pt_7"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
+<label class="radio-inline pt_7"><input type="radio" name="r_limit" id="r_limit" value="" /> Todas</label>
 	</div>
 	<div id="container_date" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 		<div id="container_txtdateinitial" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-				<label for="txt_date_initial">F. Inicio</label>
+				<label class="label label_blue_sky"  for="txt_date_initial">F. Inicio</label>
 				<input type="text" id="txt_date_initial" class="form-control" readonly="readonly" value="<?php echo $fecha_inicial; ?>" />
 		</div>
 		<div id="container_txtdatefinal" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-				<label for="txt_date_final">F. Final</label>
+				<label class="label label_blue_sky"  for="txt_date_final">F. Final</label>
 				<input type="text" id="txt_date_final" class="form-control" readonly="readonly" value="<?php echo $fecha_actual; ?>" />
 		</div>
 	</div>
 	<div id="container_tblproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
         <?php
-		if($nr_product=mysql_num_rows($qry_product) != '0'){
+		if($nr_product=$qry_product->num_rows != '0'){
 			?>
 	<table id="tbl_product" border="0" class="table table-bordered table-hover table-condensed">
 	<thead class="bg-primary">
@@ -225,7 +225,7 @@ switch ($_COOKIE['coo_tuser']){
         ?>
     <tr onclick="filter_salebyproduct('<?php echo $rs_product['AI_producto_id']; ?>');">
         <td><?php echo $rs_product['TX_producto_codigo'] ?></td>
-        <td><?php echo $rs_product['TX_producto_value'] ?></td>
+        <td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
         <td>
         <?php
         if($rs_product['TX_producto_cantidad'] >= $rs_product['TX_producto_maximo']){
@@ -239,7 +239,7 @@ switch ($_COOKIE['coo_tuser']){
         </td>
     </tr>
         <?php
-    }while($rs_product=mysql_fetch_assoc($qry_product));
+    }while($rs_product=$qry_product->fetch_array());
     ?>
     </tbody>
     </table>
@@ -249,19 +249,17 @@ switch ($_COOKIE['coo_tuser']){
 		?>
 	</div>
 </div>
-<div id="container_facturaf" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+<div id="container_facturaf" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 pt_7">
     <div id="container_filterfacturaf" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-        <label for="txt_filterfacturaf">Buscar por Factura:</label>
-        <input type="text" class="form-control" id="txt_filterfacturaf" name="txt_filterfacturaf" />
+        <label class="label label_blue_sky"  for="txt_filterfacturaf">Buscar por Factura:</label>
+        <input type="text" class="form-control" id="txt_filterfacturaf" name="txt_filterfacturaf" placeholder="Numero de Factura o Nombre de Cliente" />
     </div>
-		<div id="container_btnfilterfacturaf" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-			<button type="button" id="btn_filterfacturaf" class="btn btn-success btn-search">
-				<i class="fa fa-search" aria-hidden="true"></i>
-			</button>
+		<div id="container_btnfilterfacturaf" class="col-xs-4 col-sm-4 col-md-4 col-lg-4 pt_14">
+			<button type="button" id="btn_filterfacturaf" class="btn btn-success btn-search"><i class="fa fa-search" aria-hidden="true"></i></button>
 			&nbsp;&nbsp;
-			<button type="button" id="btn_printfacturaf" class="btn btn-info">
-				<i class="fa fa-print" aria-hidden="true">&nbsp;</i>Imprimir
-			</button>
+			<button type="button" id="btn_printfacturaf" class="btn btn-success"><i class="fa fa-print" aria-hidden="true">&nbsp;</i>Imprimir Consulta</button>
+			&nbsp;&nbsp;
+			<button type="button" id="btn_printfacturaf_total" class="btn btn-info"><i class="fa fa-print" aria-hidden="true">&nbsp;</i>Imprimir Totales</button>
 		</div>
 	<div id="container_tblfacturaf" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     	<table id="tbl_facturaf" class="table table-bordered table-condensed table-striped">

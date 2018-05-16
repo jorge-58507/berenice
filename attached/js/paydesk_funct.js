@@ -21,9 +21,13 @@ function  unset_filterclient(e){
 			source: "attached/get/filter_client_sell.php",
 			minLength: 2,
 			select: function( event, ui ) {
+	      var n_val = ui.item.value;
+	      raw_n_val = n_val.split(" | Dir:");
+	      ui.item.value = raw_n_val[0];
 				$("#txt_filterclient").prop('alt', ui.item.id);
 				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
 				fire_recall('container_client_recall', content)
+				clean_payment($.get('a'),$.get('b'));
 			}
 		});
 	});

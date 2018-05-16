@@ -330,3 +330,27 @@ th{
 div:has(> #container_measure_selected) {
   padding: 10px 15px;
 }
+#sel_filterfacturaventa{
+	padding: 0 5px;
+}
+label.radio-inline{
+	padding-top: 7px;
+}
+ul.nav>li>a{
+	padding: 3px 5px;
+	font-weight: bold;
+}
+#container_updproduct_description>div{
+	margin-top: 7px;
+}
+#container_tinybox{
+	margin: 0 auto;
+	float: initial;
+	padding: 0;
+}
+#container_tinybox>div{
+	margin-top: 7px;
+}
+#container_cashregister_filter>div{
+	margin-top: 7px;
+}

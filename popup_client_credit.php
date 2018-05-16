@@ -1,17 +1,14 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
 require 'attached/php/req_login_paydesk.php';
-?>
-<?php
+
 $client_id=$_GET['a'];
-$qry_credit=mysql_query("SELECT TX_cliente_limitecredito, TX_cliente_plazocredito, TX_cliente_saldo FROM bh_cliente WHERE AI_cliente_id = '$client_id'");
-$rs_credit=mysql_fetch_assoc($qry_credit);
-$qry_client=mysql_query("SELECT TX_cliente_nombre, TX_cliente_cif, TX_cliente_telefono, TX_cliente_direccion FROM bh_cliente WHERE AI_cliente_id = '$client_id'");
-$rs_client=mysql_fetch_array($qry_client);
-$client_name=$rs_client[0];
+$qry_credit=$link->query("SELECT TX_cliente_limitecredito, TX_cliente_plazocredito, TX_cliente_saldo FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die($link->error);
+$rs_credit=$qry_credit->fetch_array(MYSQLI_ASSOC);
+$qry_client=$link->query("SELECT TX_cliente_nombre, TX_cliente_cif, TX_cliente_telefono, TX_cliente_direccion FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die($link->error);
+$rs_client=$qry_client->fetch_array(MYSQLI_ASSOC);
+$client_name=$rs_client['TX_cliente_nombre'];
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -25,7 +22,6 @@ $client_name=$rs_client[0];
 <link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/popup_css.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="attached/js/jquery.js"></script>
@@ -60,8 +56,8 @@ $("#btn_save").click(function(){
 	data: {"a" : "<?php echo $client_id ?>", "b": $("#txt_limitcredit").val(), "c": $("#txt_credit_term").val()},
 		type: "GET",	dataType: "text",	url: "attached/get/upd_client_credit.php",
 	})
-	 .done(function( data, textStatus, jqXHR ) {	})
-	 .fail(function( jqXHR, textStatus, errorThrown ) {	});
+	.done(function( data, textStatus, jqXHR ) {	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	});
 	setTimeout("self.close()",250);
 });
 
@@ -233,8 +229,8 @@ $("#btn_addsaldo").on("click",function(){
 $("#txt_credit_term").on("focus", function(){
 	$.ajax({ data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
 	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD " + textStatus);
-		if (data[0][0] === "") {
-			$("#txt_credit_term").blur();
+		if (data[0][0] != "") {
+			$("#txt_credit_term").removeAttr("readonly");
 		}
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
@@ -242,8 +238,8 @@ $("#txt_credit_term").on("focus", function(){
 $("#txt_limitcredit").on("focus", function(){
 	$.ajax({ data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
 	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD " + textStatus);
-		if (data[0][0] === "") {
-			$("#txt_limitcredit").blur();
+		if (data[0][0] != "") {
+			$("#txt_limitcredit").removeAttr("readonly");
 		}
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
@@ -300,31 +296,29 @@ function open_newdebit(client_id){
 <div id="container_client" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_spanname" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
     	<label for="span_name">Nombre:</label>
-    	<span id="span_name" class="form-control bg-disabled"><?php echo $rs_client[0]; ?></span>
+    	<span id="span_name" class="form-control bg-disabled"><?php echo $rs_client['TX_cliente_nombre']; ?></span>
     </div>
 	<div id="container_spanruc" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
     	<label for="span_ruc">RUC:</label>
-    	<span id="span_ruc" class="form-control bg-disabled"><?php echo $rs_client[1]; ?></span>
+    	<span id="span_ruc" class="form-control bg-disabled"><?php echo $rs_client['TX_cliente_cif']; ?></span>
     </div>
 	<div id="container_spantelephone" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
     	<label for="span_telephone">Tel&eacute;fono:</label>
-    	<span id="span_telephone" class="form-control bg-disabled"><?php echo $rs_client[2]; ?></span>
+    	<span id="span_telephone" class="form-control bg-disabled"><?php echo $rs_client['TX_cliente_telefono']; ?></span>
     </div>
 		<div id="container_spandirection" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<label for="span_direction">Direcci&oacute;n:</label>
-			<span id="span_direction" class="form-control bg-disabled"><?php echo $rs_client[3]; ?></span>
+			<span id="span_direction" class="form-control bg-disabled"><?php echo $rs_client['TX_cliente_direccion']; ?></span>
 		</div>
 </div>
 <div id="container_credit" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_limit" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        <label for="txt_limitcredit">Limite de credito</label>
-        <input type="text" id="txt_limitcredit" name="txt_limitcredit" class="form-control"
-        	value="<?php echo $rs_credit['TX_cliente_limitecredito']; ?>" />
+    <label for="txt_limitcredit">Limite de credito</label>
+    <input type="text" id="txt_limitcredit" name="txt_limitcredit" class="form-control"	value="<?php echo $rs_credit['TX_cliente_limitecredito']; ?>" readonly="readonly" />
   </div>
 	<div id="container_plazo" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        <label for="txt_credit_term">Plazo en semanas</label>
-        <input type="text" id="txt_credit_term" name="txt_credit_term" class="form-control"
-        	value="<?php echo $rs_credit['TX_cliente_plazocredito']; ?>" />
+    <label for="txt_credit_term">Plazo en semanas</label>
+    <input type="text" id="txt_credit_term" name="txt_credit_term" class="form-control"	value="<?php echo $rs_credit['TX_cliente_plazocredito']; ?>" readonly="readonly" />
   </div>
 	<div id="container_saldo" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 		<div id="container_txtsaldo" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">

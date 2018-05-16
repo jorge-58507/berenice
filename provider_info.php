@@ -265,23 +265,23 @@ switch ($_COOKIE['coo_tuser']){
 <form method="post" name="form_editdatoventa" action="">
 	<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
 		<div id="container_proveedor" class="col-xs-12 col-sm-7 col-md-7 col-lg-7">
-			<label for="txt_proveedor">Nombre: </label>
+			<label class="label label_blue_sky"  for="txt_proveedor">Nombre: </label>
 		  <input type="text" name="txt_proveedor" id="txt_proveedor" alt="<?php echo $rs_proveedor['AI_proveedor_id'] ?>" class="form-control" value="<?php echo $rs_proveedor['TX_proveedor_nombre'] ?>" />
 		</div>
 		<div id="container_cif" class="col-xs-6 col-sm-3 col-md-3 col-lg-3">
-			<label for="txt_cif">RUC:</label>
+			<label class="label label_blue_sky"  for="txt_cif">RUC:</label>
 		  <input name="txt_cif" id="txt_cif" class="form-control" value="<?php echo $rs_proveedor['TX_proveedor_cif']; ?>" />
 		</div>
 		<div id="container_dv" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-			<label for="txt_dv">DV:</label>
+			<label class="label label_blue_sky"  for="txt_dv">DV:</label>
 		  <input type="text" name="txt_dv" id="txt_dv" class="form-control" value="<?php echo $rs_proveedor['TX_proveedor_dv'] ?>" />
 		</div>
 		<div id="container_telephone" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-			<label for="txt_telephone">Tel&eacute;fono:</label>
+			<label class="label label_blue_sky"  for="txt_telephone">Tel&eacute;fono:</label>
 		  <input type="text" name="txt_telephone" id="txt_telephone" class="form-control" value="<?php echo $rs_proveedor['TX_proveedor_telefono'] ?>" />
 		</div>
 		<div id="container_direction" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-		  <label for="txt_direction">Direcci&oacute;n:</label>
+		  <label class="label label_blue_sky"  for="txt_direction">Direcci&oacute;n:</label>
 		  <textarea name="txt_direction" id="txt_direction" class="form-control"><?php echo $rs_proveedor['TX_proveedor_direccion']; ?></textarea>
 		</div>
 		<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -325,15 +325,15 @@ switch ($_COOKIE['coo_tuser']){
 
 	<div id="container_txtfilterbill" class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 		<div id="container_txtfilterbill" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label for="txt_filterbill">Buscar</label>
+			<label class="label label_blue_sky"  for="txt_filterbill">Buscar</label>
 			<input type="text" class="form-control" id="txt_filterbill">
 		</div>
 		<div id="container_txtfcfechai" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-			<label for="txt_fc_fecha_i">Inicio</label>
+			<label class="label label_blue_sky"  for="txt_fc_fecha_i">Inicio</label>
 			<input type="text" class="form-control" id="txt_fc_fecha_i" readonly="readonly" value="<?php echo date('d-m-Y',strtotime(date('Y-m-d', strtotime('-1 week')))); ?>">
 		</div>
 		<div id="container_txtfcfechaf" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-			<label for="txt_fc_fecha_f">Final</label>
+			<label class="label label_blue_sky"  for="txt_fc_fecha_f">Final</label>
 			<input type="text" class="form-control" id="txt_fc_fecha_f" readonly="readonly" value="<?php echo date('d-m-Y'); ?>">
 		</div>
 		<div id="container_tblbill" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -380,11 +380,11 @@ switch ($_COOKIE['coo_tuser']){
 	</div>
 	<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
 		<div id="container_txtfiltercpp" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-			<label for="txt_filtercpp">Buscar</label>
+			<label class="label label_blue_sky"  for="txt_filtercpp">Buscar</label>
 			<input type="text" class="form-control" id="txt_filtercpp">
 		</div>
 		<div id="container_txtfechai" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-			<label for="txt_fecha_i">Fecha</label>
+			<label class="label label_blue_sky"  for="txt_fecha_i">Fecha</label>
 			<input type="text" class="form-control" id="txt_fecha_i" readonly="readonly" value="<?php echo date('d-m-Y'); ?>">
 		</div>
 		<div id="container_btnaddcpp" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 side-btn-md">

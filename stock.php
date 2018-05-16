@@ -78,7 +78,7 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 })
 
 	setTimeout("upd_btn_report()",60000)
-	$("#container_create_product").css("display","none");
+	// $("#container_create_product").css("display","none");
 
 	$('#btn_save_product').click(function(){
 		if($("#txt_codigo, #txt_cantidad, #txt_medida, #txt_cantminima, #txt_cantmaxima") === ""){
@@ -105,7 +105,7 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 
 
 	$("#btn_qry_entry").click(function(){
-		window.location='purchased.php';
+		window.location='filter_byproduct.php';
 	});
 	$("#btn_reg_entry").click(function(){
 		window.location='order.php';
@@ -113,9 +113,6 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 	$("#btn_purchase").on("click",function(){
 		window.location='purchase.php';
 	})
-	$("#btn_qry_sale").click(function(){
-		window.location='sold.php';
-	});
 	$("#btn_admincuentaxpagar").on("click",function(){
 		window.location='admin_provider.php';
 	});
@@ -142,7 +139,7 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 		.fail(function(data, textStatus, errorThrown){	});
 	});
 
-	$("#container_filterbutton").css("display","none");
+	// $("#container_filterbutton").css("display","none");
 
 	$("#div_expand_filterbutton").click(function(){
 		$("#container_filterbutton").toggle(500);
@@ -185,8 +182,6 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 	$("#btn_qry_report").on("click",function(){
 		open_popup('popup_stock_report.php','popup_stock_report','600','425');
 	});
-
-
 
 });
 	function upd_btn_report(){
@@ -242,7 +237,7 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form name="form_inventory" id="form_inventory" method="post">
-<div id="container_create_product" class="col-xs-12 col-sm-12 col-md-8 col-lg-8" >
+<div id="container_create_product" class="col-xs-12 col-sm-12 col-md-8 col-lg-8 display_none" >
 
     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -329,9 +324,7 @@ switch ($_COOKIE['coo_tuser']){
 &nbsp;
 <button type="button" name="btn_reg_entry" id="btn_reg_entry" class="btn btn-info btn-lg" >Pedidos</button>
 &nbsp;
-<button type="button" name="btn_qry_entry" id="btn_qry_entry" class="btn btn-primary btn-lg" >Buscar Compra</button>
-&nbsp;
-<button type="button" name="btn_qry_sale" id="btn_qry_sale" class="btn btn-primary btn-lg" >Buscar Venta</button>
+<button type="button" name="btn_qry_entry" id="btn_qry_entry" class="btn btn-primary btn-lg" >Filtrar por Producto</button>
 &nbsp;
 <button type="button" name="btn_qry_report" id="btn_qry_report" class="btn btn-warning btn-lg" ><?php echo $value_button; ?></button>
 &nbsp;
@@ -350,7 +343,7 @@ switch ($_COOKIE['coo_tuser']){
   <input type="text" autofocus class="form-control" id="txt_filterproduct" name="txt_filterproduct" autocomplete="off" />
 </div>
 
-<div id="container_filterbutton" class="col-xs-10 col-sm-10 col-md-5 col-lg-5">
+<div id="container_filterbutton" class="col-xs-10 col-sm-10 col-md-5 col-lg-5 display_none">
 	<label class="label label_blue_sky"  class="col-xs-12 col-sm-12 col-md-12 col-lg-12">Ver:</label>
 	<button type="button" id="btn_alarm_off" name="btn_alarm_off" class="btn btn-warning btn-xs">Alarma Off</button>
     &nbsp;&nbsp;
@@ -383,7 +376,7 @@ switch ($_COOKIE['coo_tuser']){
 					<tr ondblclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');">
 						<td><?php echo $rs_product['TX_producto_codigo'] ?></td>
 						<td><?php echo $rs_product['TX_producto_referencia'] ?></td>
-						<td><?php echo $rs_product['TX_producto_value'] ?></td>
+						<td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
 						<td>
 <?php						if($rs_product['TX_producto_cantidad'] >= $rs_product['TX_producto_maximo']){
 								echo '<font style="color:#51AA51">'.$rs_product['TX_producto_cantidad'].'</font>';

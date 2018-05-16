@@ -1,13 +1,13 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 $cambio = 0;
 $numero_correlativo = 0;
 if (!empty($_GET['a'])) {
 	$last_ff = $_GET['a'];
 
-	$qry_ff = mysql_query("SELECT TX_facturaf_cambio, TX_facturaf_numero FROM bh_facturaf WHERE AI_facturaf_id = '$last_ff'")or die (mysql_error());
-	$rs_last_ff = mysql_fetch_assoc($qry_ff);
+	$qry_ff = $link->query("SELECT TX_facturaf_cambio, TX_facturaf_numero FROM bh_facturaf WHERE AI_facturaf_id = '$last_ff'")or die ($link->error);
+	$rs_last_ff = $qry_ff->fetch_array();
 	if (!empty($rs_last_ff['TX_facturaf_cambio'])) { $cambio=round($rs_last_ff['TX_facturaf_cambio'],2); }else{  $cambio = 0 ;}
 	$numero_correlativo = $rs_last_ff['TX_facturaf_numero'];
 }
@@ -17,14 +17,14 @@ session_destroy();
 
 ?>
 <?php
-$qry_product=mysql_query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 10");
-$rs_product=mysql_fetch_assoc($qry_product);
+$qry_product=$link->query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 10")or die($link->error);
+$rs_product=$qry_product->fetch_array();
 
-$qry_client=mysql_query("SELECT * FROM bh_cliente ORDER BY TX_cliente_nombre ASC");
-$rs_client=mysql_fetch_assoc($qry_client);
+$qry_client=$link->query("SELECT * FROM bh_cliente ORDER BY TX_cliente_nombre ASC")or die($link->error);
+$rs_client=$qry_client->fetch_array();
 
-$rs = mysql_query("SELECT MAX(AI_facturaventa_id) AS id FROM bh_facturaventa");
-if ($row = mysql_fetch_row($rs)) {
+$rs = $link->query("SELECT MAX(AI_facturaventa_id) AS id FROM bh_facturaventa")or die($link->error);
+if ($row = $rs->fetch_array()) {
 	$last_id = trim($row[0]);
 	$next_id = $last_id+'1';
 }
@@ -36,8 +36,8 @@ WHERE bh_facturaventa.TX_facturaventa_status != 'INACTIVA' AND
 bh_facturaventa.TX_facturaventa_status != 'CANCELADA'
  ORDER BY AI_facturaventa_id DESC LIMIT 10";
 
-$qry_facturaventa=mysql_query($txt_facturaventa);
-$rs_facturaventa=mysql_fetch_assoc($qry_facturaventa);
+$qry_facturaventa=$link->query($txt_facturaventa)or die($link->error);
+$rs_facturaventa=$qry_facturaventa->fetch_array();
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -124,6 +124,14 @@ $("#btn_client").on("click", function(){
 	document.location.href="admin_account_receivable.php";
 })
 
+$("#btn_refresh").on("click",function(){
+	$.ajax({	data: "",	type: "GET",	dataType: "text",	url: "attached/get/get_paydesk_facturaventa.php", })
+	.done(function( data, textStatus, jqXHR ) { console.log("GOOD " + textStatus);
+		$("#tbl_facturaventa tbody").html(data);
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	     console.log("BAD " + textStatus);	});
+})
+
 
 });
 
@@ -183,8 +191,7 @@ switch ($_COOKIE['coo_tuser']){
         &nbsp;&nbsp;
 				<button type="button" id="btn_facturaf" class="btn btn-info"><strong>Factura F.</strong></button>
 				&nbsp;&nbsp;
-				<button type="button" id="btn_refresh" class="btn btn-success btn-md" onclick="document.location.reload();"><strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i>
-<span class="sr-only"></strong></button>
+				<button type="button" id="btn_refresh" class="btn btn-success btn-md btn_squared_md"><strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></strong></button>
 				&nbsp;&nbsp;
 				<button type="button" id="btn_creditnote" class="btn btn-info"><strong>Notas de C.</strong></button>
         &nbsp;&nbsp;
@@ -196,7 +203,7 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="container_facturaventa" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     <div id="container_txtfilterpaydesk" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-		<label for="txt_filterpaydesk">Buscar</label>
+		<label for="txt_filterpaydesk" class="label label_blue_sky">Buscar</label>
         <input type="text" id="txt_filterpaydesk" class="form-control" />
     </div>
 		<div  class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
@@ -222,19 +229,12 @@ switch ($_COOKIE['coo_tuser']){
     </thead>
     <tfoot class="bg-info">
     	<tr>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
+        	<td colspan="8"> </td>
 		</tr>
     </tfoot>
     <tbody>
 <?php
-			if($nr_facturaventa=mysql_num_rows($qry_facturaventa)>0){
+			if($nr_facturaventa=$qry_facturaventa->num_rows > 0){
 			do{
 ?>
     <tr ondblclick="open_newcollect('<?php echo $rs_facturaventa['facturaventa_AI_cliente_id']?>','<?php echo $rs_facturaventa['facturaventa_AI_user_id']?>');">
@@ -245,47 +245,36 @@ switch ($_COOKIE['coo_tuser']){
     	<td><?php echo $rs_facturaventa['TX_user_seudonimo']; ?></td>
         <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?> <br/> <font style="font-size:10px; font-weight:bolder;"><?php echo $rs_facturaventa['TX_cliente_direccion']; ?></font></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
-        <td><?php echo number_format($rs_facturaventa['TX_facturaventa_total'],4); ?></td>
+        <td>B/ <?php echo number_format($rs_facturaventa['TX_facturaventa_total'],2); ?></td>
         <td>
 <?php
-		switch($rs_facturaventa['TX_facturaventa_status']){
-			case "ACTIVA":	$font='#00CC00';	break;
-			case "FACTURADA":	$font='#0033FF';	break;
-			default:	$font='#990000';
-		}
-?>
-        <font color="<?php echo $font ?>" style="font-weight:bold">
-<?php 	echo $rs_facturaventa['TX_facturaventa_status']; 		?>
-        </font>
+					switch($rs_facturaventa['TX_facturaventa_status']){
+						case "ACTIVA":	$font='#00CC00';	break;
+						case "FACTURADA":	$font='#0033FF';	break;
+						default:	$font='#990000';
+					}
+?>        <font color="<?php echo $font ?>" style="font-weight:bold"><?php 		echo $rs_facturaventa['TX_facturaventa_status']; 		?></font>
         </td>
         <td style="text-align:center;">
-        <?php if($rs_facturaventa['TX_facturaventa_status'] == "ACTIVA"){ ?>
-        	<button type="button" id="btn_editfacturaventa" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-warning" onclick="javascript:window.location='old_sale.php?a='+this.name">Abrir</button>
-        <?php }else{ ?>
-        	<button type="button" id="btn_editfacturaventa" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-warning" onclick="javascript:window.location='new_paydesk.php?a='+this.name">Abrir</button>
-        <?php } ?>
+<?php 		if($rs_facturaventa['TX_facturaventa_status'] == "ACTIVA"){ ?>
+        		<button type="button" id="btn_editfacturaventa" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-warning" onclick="javascript:window.location='old_sale.php?a='+this.name">Abrir</button>
+<?php 		}else{ ?>
+        		<button type="button" id="btn_editfacturaventa" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-warning" onclick="javascript:window.location='new_paydesk.php?a='+this.name">Abrir</button>
+<?php 		} ?>
         </td>
         <td style="text-align:center;">
-        <?php if($rs_facturaventa['TX_facturaventa_status'] == "ACTIVA" || $rs_facturaventa['TX_facturaventa_status'] == "FACTURADA"){ ?>
+<?php 		if($rs_facturaventa['TX_facturaventa_status'] == "ACTIVA" || $rs_facturaventa['TX_facturaventa_status'] == "FACTURADA"){ ?>
         	<button type="button" id="btn_newcollect" name="<?php echo $rs_facturaventa['facturaventa_AI_cliente_id'] ?>" class="btn btn-success" onclick="open_newcollect(this.name,'<?php echo $rs_facturaventa['facturaventa_AI_user_id']?>');">Cobrar</button>
-        <?php }else{ ?>
-<!--NADA PARA MOSTRAR -->
-        <?php } ?>
+<?php 		}	?>
         </td>
-    </tr>
-    <?php
-	}while($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa));
-    ?>
-    <?php }else{ ?>
-    <tr>
-        <td> </td>
-        <td></td>
-        <td></td>
-        <td></td>
-        <td></td>
-    </tr>
-    <?php } ?>
-    </tbody>
+    	</tr><?php
+		}while($rs_facturaventa=$qry_facturaventa->fetch_array());
+ 	}else{ ?>
+  	<tr>
+    	<td colspan="5"> </td>
+    </tr><?php
+	} ?>
+</tbody>
 </table>
 
 	</div>

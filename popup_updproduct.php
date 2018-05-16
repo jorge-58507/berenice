@@ -37,7 +37,6 @@ WHERE bh_producto.AI_producto_id = '$product_id' AND TX_datocompra_medida = '{$r
 <link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/popup_css.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 
@@ -169,16 +168,17 @@ function get_medida_precio(medida_id){
 </div>
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<form name="form_inventory" id="form_inventory" method="post">
 	<ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#descripcion">Descripcion</a></li>
-    <li><a data-toggle="tab" href="#precio">Agrupados y Precios</a></li>
+    <li class="active"><a data-toggle="tab" href="#descripcion" onclick="setFocus('txt_nombre')">Descripcion</a></li>
+    <li><a data-toggle="tab" href="#precio" onclick="setFocus('txt_precio4')">Agrupados y Precios</a></li>
   </ul>
 	<div class="tab-content">
     <div id="descripcion" class="tab-pane fade in active">
 	    <div id="container_updproduct_description" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 		      <label class="label label_blue_sky"  for="txt_nombre">Nombre:</label>
-		      <input type="text" class="form-control input-sm" id="txt_nombre" name="txt_nombre" title="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" value="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>">
+		      <input type="text" class="form-control input-sm" id="txt_nombre" name="txt_nombre" title="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" value="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" tabindex="1" autofocus>
 	      </div>
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 		      <label class="label label_blue_sky"  for="txt_codigo">Codigo:</label>
@@ -186,7 +186,7 @@ function get_medida_precio(medida_id){
 	    	</div>
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 					<label class="label label_blue_sky"  for="sel_medida_descripcion">Medida:</label>
-					<select  class="form-control" id="sel_medida_descripcion" name="sel_medida_descripcion">
+					<select  class="form-control" id="sel_medida_descripcion" name="sel_medida_descripcion" tabindex="3">
 <?php				foreach ($raw_producto_medida as $key => $rs_medida) {
 							if($rs_medida['AI_medida_id']===$rs_product['TX_producto_medida']){
 								$measure_selected=$rs_medida['TX_medida_value'];
@@ -199,7 +199,7 @@ function get_medida_precio(medida_id){
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 		      <label class="label label_blue_sky"  for="txt_cantidad">Cantidad:</label>
-		      <input type="text" class="form-control input-sm" id="txt_cantidad" name="txt_cantidad" value="<?php echo $rs_product['TX_producto_cantidad']; ?>">
+		      <input type="text" class="form-control input-sm" id="txt_cantidad" name="txt_cantidad" value="<?php echo $rs_product['TX_producto_cantidad']; ?>" tabindex="4"/>
 	    	</div>
 				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 					<div class=""  id="container_alarm">
@@ -211,11 +211,11 @@ function get_medida_precio(medida_id){
 				</div>
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 		      <label class="label label_blue_sky"  for="txt_reference">Referencia:</label>
-					<input type="text" id="txt_reference" name="txt_reference" class="form-control input-sm" value="<?php echo $rs_product['TX_producto_referencia']; ?>"/>
+					<input type="text" id="txt_reference" name="txt_reference" class="form-control input-sm" value="<?php echo $rs_product['TX_producto_referencia']; ?>" tabindex="5"/>
 	    	</div>
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 					<label class="label label_blue_sky"  for="sel_letter">Letra:</label>
-					<select  class="form-control input-sm" id="sel_letter" name="sel_letter">
+					<select  class="form-control input-sm" id="sel_letter" name="sel_letter" tabindex="6">
 	<?php  	$percent = 0;
 					while($rs_letra=$qry_letra->fetch_array(MYSQLI_ASSOC)){
 						if($rs_letra['AI_letra_id']===$rs_product['producto_AI_letra_id']){
@@ -227,10 +227,18 @@ function get_medida_precio(medida_id){
 					}
 	?>      </select>
 				</div>
-				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 		      <label class="label label_blue_sky"  for="txt_impuesto">Impuesto:</label>
 		      <input type="text" class="form-control input-sm" id="txt_impuesto" name="txt_impuesto" value="<?php echo $rs_product['TX_producto_exento']; ?>" readonly="readonly">
 	    	</div>
+				<div id="container_btnpercent" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+					<label class="label label_blue_sky"  for="btn_percent">Descuento %:</label>
+<?php 		if($_COOKIE['coo_tuser'] == 1 || $_COOKIE['coo_tuser'] == 2 || isset($_SESSION['admin'])){ ?>
+						<button type="button" id="btn_discount" class="btn btn-default form-control input-sm"><?php echo $rs_product['TX_producto_descuento']; ?></button>
+<?php 		}else{	?>
+						<button type="button" id="" class="btn btn-default form-control input-sm" disabled="disabled"><?php echo $rs_product['TX_producto_descuento']; ?></button>
+<?php			}	?>
+		    </div>
 	<?php if($rs_product['TX_producto_activo'] == '0'){	$checked_0="checked='checked'";	$checked_1="";	$color = "#333";	}else{	$checked_0="";	$checked_1="checked='checked'";	$color = "#F00";	} ?>
 				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 container_radio">
 					<div class="" id="container_activo">
@@ -240,21 +248,14 @@ function get_medida_precio(medida_id){
 					</div>
 				</div>
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-		      <label class="label label_blue_sky"  for="txt_cantminima">C M&iacute;nima:</label>
-		      <input type="text" class="form-control input-sm" id="txt_cantminima" name="txt_cantminima" value="<?php echo $rs_product['TX_producto_minimo']; ?>">
+		      <label class="label label_blue_sky"  for="txt_cantminima">Cantidad M&iacute;nima:</label>
+		      <input type="text" class="form-control input-sm" id="txt_cantminima" name="txt_cantminima" value="<?php echo $rs_product['TX_producto_minimo']; ?>" tabindex="7">
 	    	</div>
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-		      <label class="label label_blue_sky"  for="txt_cantmaxima">C M&aacute;xima:</label>
-		      <input type="text" class="form-control input-sm" id="txt_cantmaxima" name="txt_cantmaxima" value="<?php echo $rs_product['TX_producto_maximo']; ?>">
+		      <label class="label label_blue_sky"  for="txt_cantmaxima">Cantidad M&aacute;xima:</label>
+		      <input type="text" class="form-control input-sm" id="txt_cantmaxima" name="txt_cantmaxima" value="<?php echo $rs_product['TX_producto_maximo']; ?>" tabindex="8">
 	    	</div>
-				<div id="container_btnpercent" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-					<label class="label label_blue_sky"  for="btn_percent">Descuento %:</label>
-		<?php 	if($_COOKIE['coo_tuser'] == 1 || $_COOKIE['coo_tuser'] == 2 || isset($_SESSION['admin'])){ ?>
-						<button type="button" id="btn_discount" class="btn btn-default form-control input-sm"><?php echo $rs_product['TX_producto_descuento']; ?></button>
-		<?php 	}else{	?>
-						<button type="button" id="" class="btn btn-default form-control input-sm" disabled="disabled"><?php echo $rs_product['TX_producto_descuento']; ?></button>
-		<?php		}	?>
-		    </div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">&nbsp;</div>
 				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 					<div class=""  id="container_discountable">
 						<label for="r_discountable" style="margin:0" >Descontable:</label>
@@ -264,7 +265,7 @@ function get_medida_precio(medida_id){
 					</div>
 				</div>
 				<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-					<button type="button" name="btn_save_product" id="btn_save_product" class="btn btn-success" tabindex="3">Guardar</button>
+					<button type="button" name="btn_save_product" id="btn_save_product" class="btn btn-success">Guardar</button>
 					&nbsp;
 					<button type="button" name="btn_cancel_product" id="btn_cancel_product" class="btn btn-warning">Cancelar</button>
 				</div>
@@ -324,7 +325,7 @@ function get_medida_precio(medida_id){
 				</div>
 				<div id="container_precio4" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 					<label class="label label_blue_sky"  for="txt_precio4">Standard:</label>
-					<input type="text" class="form-control input-sm" id="txt_precio4" name="txt_precio4" value="<?php echo $rs_precio['TX_precio_cuatro']; ?>" tabindex="1">
+					<input type="text" class="form-control input-sm" id="txt_precio4" name="txt_precio4" value="<?php echo $rs_precio['TX_precio_cuatro']; ?>">
 				</div>
 				<div id="container_precio5" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 					<label class="label label_blue_sky"  for="txt_precio5">P. M&aacute;ximo:</label>
@@ -432,11 +433,12 @@ function get_medida_precio(medida_id){
 </div>
 
 
-<div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+	<div id="footer">
+		<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
+	&copy; Derechos Reservados a: Trilli, S.A. 2017
+		</div>
 	</div>
-</div>
+	</form>
 </div>
 
 </body>

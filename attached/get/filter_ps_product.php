@@ -1,9 +1,7 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
-
 $value=$_GET['a'];
-
 if(!empty($_GET['b'])){
 	$line_limit=" LIMIT ".$_GET['b'];
 }else{
@@ -30,11 +28,11 @@ $txt_product=$txt_product."TX_producto_codigo LIKE '%{$arr_value[$it]}%'";
 $txt_product=$txt_product."TX_producto_codigo LIKE '%{$arr_value[$it]}%' AND ";
 	}
 }
-echo $txt_product.=" ORDER BY TX_producto_value ASC".$line_limit;
-$qry_product=mysql_query($txt_product) or die(mysql_error());
-$rs_product=mysql_fetch_assoc($qry_product);
+$txt_product.=" ORDER BY TX_producto_value ASC".$line_limit;
+$qry_product=$link->query($txt_product) or die($link->error);
+$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
 
-$nr_product=mysql_num_rows($qry_product);
+$nr_product=$qry_product->num_rows;
 
 
 
@@ -43,27 +41,21 @@ $nr_product=mysql_num_rows($qry_product);
 
 	<?php
 	if($nr_product > 0){
-    do{
-        ?>
-    <tr onclick="filter_salebyproduct('<?php echo $rs_product['AI_producto_id']; ?>');">
+    do{        ?>
+    	<tr onclick="filter_psbyproduct('<?php echo $rs_product['AI_producto_id']; ?>');">
         <td><?php echo $rs_product['TX_producto_codigo'] ?></td>
-        <td><?php echo $rs_product['TX_producto_value'] ?></td>
+        <td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
         <td>
-        <?php
-        if($rs_product['TX_producto_cantidad'] >= $rs_product['TX_producto_maximo']){
+<?php 		if($rs_product['TX_producto_cantidad'] >= $rs_product['TX_producto_maximo']){
             echo '<font style="color:#51AA51">'.$rs_product['TX_producto_cantidad'].'</font>';
-        }elseif($rs_product['TX_producto_cantidad'] <= $rs_product['TX_producto_minimo']){
+        	}elseif($rs_product['TX_producto_cantidad'] <= $rs_product['TX_producto_minimo']){
             echo '<font style="color:#C63632">'.$rs_product['TX_producto_cantidad'].'</font>';
-        }else{
+        	}else{
             echo '<font style="color:#000000">'.$rs_product['TX_producto_cantidad'].'</font>';
-        }
-        ?>
+        	}  ?>
         </td>
-    </tr>
-	<?php
-    }while($rs_product=mysql_fetch_assoc($qry_product));
+    	</tr><?php
+		}while($rs_product=$qry_product->fetch_array());
 	}else{
-	?>
-	<tr>	<td></td><td></td><td></td>	</tr>
-	<?php
-	}?>
+?>	<tr><td colspan="3"></td></tr><?php
+	} 	?>

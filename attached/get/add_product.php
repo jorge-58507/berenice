@@ -23,6 +23,9 @@ $letra=$_GET['n'];
 
 $fecha_actual=date('Y-m-d');
 
+$returnValue=(empty($value) || $value === ' ') ? 0 : preg_match('/\D/', $value, $matches);
+if($returnValue === 0){ return false; }
+
 $qry_checkproduct=$link->query("SELECT AI_producto_id FROM bh_producto WHERE TX_producto_codigo = '$codigo'");
 $nr_checkproduct=$qry_checkproduct->num_rows;
 if($nr_checkproduct < 1){

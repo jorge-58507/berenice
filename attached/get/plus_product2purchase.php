@@ -34,10 +34,10 @@ VALUES ('{$_COOKIE['coo_iuser']}','$id', '$cantidad', '$precio', '$impuesto', '$
 ?>
 		<tr>
     	<td><?php echo $rs_newpurchase['TX_producto_codigo'] ?></td>
-      <td><?php echo $rs_newpurchase['TX_producto_value'] ?></td>
+      <td><?php echo $r_function->replace_special_character($rs_newpurchase['TX_producto_value']) ?></td>
       <td><?php echo $raw_medida[$rs_newpurchase['TX_nuevacompra_medida']]; ?></td>
 			<td onclick="upd_quantitynewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_unidades']; ?></td>
-      <td><?php echo $rs_newpurchase['TX_nuevacompra_precio'] ?></td>
+      <td onclick="upd_pricenewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_precio'] ?></td>
       <td><?php echo $rs_newpurchase['TX_nuevacompra_descuento']."% = ".number_format($descuento,4);	?></td>
       <td><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".number_format($impuesto,4); ?></td>
       <td><?php	echo number_format($precio_total,4);	?></td>

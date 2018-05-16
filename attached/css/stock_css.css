@@ -56,14 +56,13 @@
 }
 #container_filterbutton{
 	text-align:left;
-/*	padding:29px 0 0 0;*/
 }
 #container_div_expand_filterbutton{
 	text-align:center;
 	font-size:30px;
 	color:#7892CF;
 	cursor:pointer;
-	padding:20px 0 0 0;
+	padding:15px 0 0 0;
 }
 #container_neworder{
 	padding-bottom: 15px;
@@ -121,13 +120,36 @@
 .border-top{
 	border-top: solid 2px #7892CF;
 }
-#container_tblfacturaf{
+#container_tblfacturaf, #container_tblfacturacompra{
 	padding: 15px 15px 0 15px;
 }
 #tbl_facturaf, #tbl_facturaf th{
 	text-align: center;
 	cursor: pointer;
 }
+#tbl_facturacompra, #tbl_facturacompra th{
+	text-align:center;
+	cursor:pointer;
+}
+#tbl_nc, #tbl_nc th{
+	text-align:center;
+	cursor:pointer;
+}
+#tbl_datofacturaf, #tbl_datofacturaf th{
+	text-align:center;
+	cursor:pointer;
+}
+#tbl_datofacturacompra, #tbl_datofacturacompra th{
+	text-align:center;
+	cursor:pointer;
+}
 #container_btnfilterfacturaf{
-	padding-top:24px;
+	/* padding-top:24px; */
+}
+#container_tabs{
+	padding-left: 30px;
+}
+.nav-tabs > li > a {
+    font-size: 20px;
+    padding: 0 5px;
 }

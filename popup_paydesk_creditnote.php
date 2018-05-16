@@ -1,9 +1,7 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-
 require 'attached/php/req_login_paydesk.php';
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -32,7 +30,6 @@ require 'attached/php/req_login_paydesk.php';
 $(document).ready(function() {
 
 $('#txt_filter_creditnote').validCampoFranz('0123456789');
-
 $("#btn_cancel").click(function(){
 	self.close()
 });
@@ -97,19 +94,19 @@ function getDate( element ) {
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtfiltercreditnote" class="col-xs-12 col-sm-8 col-md-5 col-lg-5">
-  	<label for="txt_filter_creditnote">Buscar</label>
-		<input type="text" id="txt_filter_creditnote" value="" class="form-control" autofocus>
+  	<label for="txt_filter_creditnote" class="label label_blue_sky">Buscar</label>
+		<input type="text" id="txt_filter_creditnote" value="" class="form-control" placeholder="Numero de Nota de Credito" autofocus>
   </div>
 	<div id="container_txtdatei" class="col-xs-12 col-sm-6 col-md-2 col-lg-2">
-  	<label for="txt_datei">Fecha Inicial</label>
+  	<label for="txt_datei" class="label label_blue_sky">Fecha Inicial</label>
 		<input type="text" id="txt_datei" value="<?php echo date('d-m-Y',strtotime(date('Y-m-d',strtotime('-1 week')))) ?>" class="form-control" readonly>
   </div>
 	<div id="container_txtdatef" class="col-xs-12 col-sm-6 col-md-2 col-lg-2">
-  	<label for="txt_datef">Fecha Final</label>
+  	<label for="txt_datef" class="label label_blue_sky">Fecha Final</label>
 		<input type="text" id="txt_datef" value="<?php echo date('d-m-Y') ?>" class="form-control" readonly>
   </div>
 	<div class="col-xs-12 col-sm-6 col-md-2 col-lg-2 container_btn_md">
-		<button type="button" id="btn_search" class="btn btn-success btn-md" name="button"><i class="fa fa-search fa-2x"></i></button>
+		<button type="button" id="btn_search" class="btn btn-success btn-md btn_squared_md" name="button"><i class="fa fa-search"></i></button>
 	</div>
 	<div id="container_tblcreditnote" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding:5px 15px;">
 		<table id="tbl_paydesk_creditnote" class="table table-bordered table-condensed table-striped">
@@ -127,7 +124,7 @@ function getDate( element ) {
 			</thead>
 			<tbody>
 				<tr>
-					<td> </td><td> </td><td> </td><td> </td><td> </td><td> </td><td> </td>
+					<td colspan="7"> </td>
 				</tr>
 			</tbody>
 			<tfoot class="bg-primary">

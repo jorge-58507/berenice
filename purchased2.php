@@ -173,22 +173,22 @@ switch ($_COOKIE['coo_tuser']){
 
 <div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
   <div id="container_filterproduct" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	  <label for="txt_filterproduct">Buscar por Producto:</label>
+	  <label class="label label_blue_sky"for="txt_filterproduct">Buscar por Producto:</label>
 	  <input type="text" alt="table" class="form-control" id="txt_filterproduct" name="txt_filterproduct" onkeyup="filter_product_purchase(this);" />
   </div>
   <div id="container_filterproduct" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-    <label for="txt_filterproduct">Mostrar:</label><br />
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="" /> Todas</label>
+    <label class="label label_blue_sky"for="txt_filterproduct">Mostrar:</label><br />
+		<label class="radio-inline pt_7"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
+		<label class="radio-inline pt_7"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
+		<label class="radio-inline pt_7"><input type="radio" name="r_limit" id="r_limit" value="" /> Todas</label>
 	</div>
 	<div id="container_date" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 		<div id="container_txtdateinitial" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label for="txt_date_initial">F. Inicio</label>
+			<label class="label label_blue_sky" for="txt_date_initial">F. Inicio</label>
 			<input type="text" id="txt_date_initial" class="form-control" readonly="readonly" value="<?php echo $fecha_inicial; ?>" />
 		</div>
 		<div id="container_txtdatefinal" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label for="txt_date_final">F. Final</label>
+			<label class="label label_blue_sky" for="txt_date_final">F. Final</label>
 			<input type="text" id="txt_date_final" class="form-control" readonly="readonly" value="<?php echo $fecha_actual; ?>" />
 		</div>
 	</div>
@@ -238,12 +238,12 @@ switch ($_COOKIE['coo_tuser']){
 		?>
 	</div>
 </div>
-<div id="container_facturacompra" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+<div id="container_facturacompra" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 pt_7">
     <div id="container_filterfacturacompra" class="col-xs-9 col-sm-9 col-md-6 col-lg-6 no_padding">
-        <label for="txt_filterfacturacompra">Buscar por Factura:</label>
+        <label class="label label_blue_sky" for="txt_filterfacturacompra">Buscar por Factura:</label>
         <input type="text" class="form-control" id="txt_filterfacturacompra" name="txt_filterfacturacompra" onkeyup="filter_facturacompra(this);" />
     </div>
-		<div id="container_btnfiltercompra" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+		<div id="container_btnfiltercompra" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pt_14">
 			<button type="button" id="btn_filtercompra" class="btn btn-success btn-search">
 				<i class="fa fa-search" aria-hidden="true"></i>
 			</button>

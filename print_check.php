@@ -81,7 +81,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 <tr style="height:188px">
 	<td valign="top" colspan="10">
 		<div style="width:193px; float:left; text-align:right; letter-spacing: 5px;"><?php echo date('d-M-y',strtotime($fecha_actual)); ?></div>
-		<div style="width:629px; float:left; letter-spacing: 5px;">&nbsp;&nbsp;&nbsp;<?php echo $rs_cheque['TX_cheque_observacion']; ?></div>
+		<div style="width:629px; float:left; letter-spacing: 5px; padding:0 28px;"><?php echo str_replace("&nolger;","<br />",$rs_cheque['TX_cheque_observacion']); ?></div>
 		<div style="width:163px; float:left;">&nbsp;</div>
 		<div style="width:181px; float:left; letter-spacing: 5px; text-align:right;"><?php echo $rs_cheque['TX_cheque_monto']; ?>&nbsp;&nbsp;</div>
   </td>

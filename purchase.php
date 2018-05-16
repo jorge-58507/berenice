@@ -57,7 +57,7 @@ $(window).on('beforeunload', function(){
 });
 
 $("#btn_qry_entry").click(function(){
-	window.location='purchased.php';
+	window.location='filter_byproduct.php';
 });
 
 
@@ -201,12 +201,11 @@ switch ($_COOKIE['coo_tuser']){
 			</div>
 		</div>
 		<div id="container_btnfiltercompra" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
-			<button type="button" id="btn_filtercompra" class="btn btn-success btn-search">
-				<i class="fa fa-search" aria-hidden="true"></i>
-			</button>
+			<button type="button" id="btn_filtercompra" class="btn btn-success btn-search"><i class="fa fa-search" aria-hidden="true"></i></button>
 		</div>
 		<div id="container_tblpurchase" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<table id="tbl_purchase" class="table table-bordered table-condensed table-hover">
+				<caption class="caption">Facturas no procesadas</caption>
 				<thead class="bg-primary">
 					<tr>
 						<th class="col-xs-1 col-md-1 col-lg-1 col-xl-1 al_center">Elaboracion</th>

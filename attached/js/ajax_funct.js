@@ -132,6 +132,23 @@ function upd_quantitynewpurchase(nuevacompra_id){
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 };
+
+function upd_pricenewpurchase(nuevacompra_id){
+	var new_quantity=prompt("Ingrese la cantidad");
+	new_quantity=val_intw4dec(new_quantity);
+	if (new_quantity ===	'NaN') {
+		return false;
+	}
+	$.ajax({	data: { "a" : nuevacompra_id, "b" : new_quantity },	type: "GET",	dataType: "text",	url: "attached/get/upd_pricenewpurchase.php", })
+	.done(function( data, textStatus, jqXHR ) {
+		console.log("GOOD" + textStatus);
+		if(data){
+			$("#tbl_newentry tbody").html(data);
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {		});
+};
+
 function upd_newpurchase_price(f){
 	id = f.id;
 	new_price = prompt("Ingrese la Nueva Cantidad:");
@@ -207,17 +224,17 @@ function filter_product2purchase(field){
 		}
 		xmlhttp.open("GET","attached/get/filter_product2purchase.php?a="+value+"&b="+type,true);	xmlhttp.send();
 }
-function filter_product_purchase(field) {
-	var value = field.value;
-	var limit = ($("input[name=r_limit]:checked").val());
-	if (window.XMLHttpRequest){
-		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-		document.getElementById("container_tblproduct").innerHTML=xmlhttp.responseText;
-		}
-	}
-	xmlhttp.open("GET","attached/get/filter_product_purchase.php?a="+value+"&b="+limit,true);	xmlhttp.send();
-}
+// function filter_product_purchase(field) {
+// 	var value = field.value;
+// 	var limit = ($("input[name=r_limit]:checked").val());
+// 	if (window.XMLHttpRequest){
+// 		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
+// 		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
+// 		document.getElementById("container_tblproduct").innerHTML=xmlhttp.responseText;
+// 		}
+// 	}
+// 	xmlhttp.open("GET","attached/get/filter_product_purchase.php?a="+value+"&b="+limit,true);	xmlhttp.send();
+// }
 
 function filter_product_sell(field){
 	var value = url_replace_regular_character(field.value);
@@ -239,53 +256,53 @@ function filter_product_collect(field,fact_id){
 		}
 		xmlhttp.open("GET","attached/get/filter_product_collect.php?a="+value+"&b="+fact_id,true);	xmlhttp.send();
 }
-function plus_product2sell(id){
-	var	cantidad = $("#txt_quantity").val();
-		if(cantidad === ""){cantidad='1'}
-		precio = $("#input_price").val();
-		descuento = $("#txt_discount").val();
-		itbm = $("#txt_itbm").val();
-		medida = $("#sel_medida").val();
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-				window.opener.document.getElementById("container_tblproduct2sale").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/plus_product2sell.php?a="+id+"&b="+cantidad+"&c="+precio+"&d="+descuento+"&e="+itbm+"&f="+medida,true);	xmlhttp.send();
-		window.opener.document.getElementById("btn_guardar").style="display:initial";
-		window.opener.document.getElementById("btn_facturar").style="display:initial";
-		window.opener.document.getElementById("txt_filterproduct").focus();
-		window.opener.document.getElementById("tbl_product2sell").scrollIntoView(true);
-
-		setTimeout("self.close()",300);
-}
-function del_product2sell(field){
-		var id = field.name;
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("container_tblproduct2sale").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/del_product2sell.php?a="+id,true);	xmlhttp.send();
-		//alert("Elemento modificado exitosamente");
-		//location.reload();
-}
-function del_product2oldsell(field){
-		var id = field.name;
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("container_tblproduct2sale").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/del_product2oldsell.php?a="+id,true);	xmlhttp.send();
-		//alert("Elemento modificado exitosamente");
-		//location.reload();
-}
-
-// function filter_client_sell(e,field){
+// function plus_product2sell(id){
+// 	var	cantidad = $("#txt_quantity").val();
+// 		if(cantidad === ""){cantidad='1'}
+// 		precio = $("#input_price").val();
+// 		descuento = $("#txt_discount").val();
+// 		itbm = $("#txt_itbm").val();
+// 		medida = $("#sel_medida").val();
+// 		if (window.XMLHttpRequest){
+// 			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
+// 			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
+// 				window.opener.document.getElementById("container_tblproduct2sale").innerHTML=xmlhttp.responseText;
+// 			}
+// 		}
+// 		xmlhttp.open("GET","attached/get/plus_product2sell.php?a="+id+"&b="+cantidad+"&c="+precio+"&d="+descuento+"&e="+itbm+"&f="+medida,true);	xmlhttp.send();
+// 		window.opener.document.getElementById("btn_guardar").style="display:initial";
+// 		window.opener.document.getElementById("btn_facturar").style="display:initial";
+// 		window.opener.document.getElementById("txt_filterproduct").focus();
+// 		window.opener.document.getElementById("tbl_product2sell").scrollIntoView(true);
+//
+// 		setTimeout("self.close()",300);
+// }
+// function del_product2sell(field){
+// 		var id = field.name;
+// 		if (window.XMLHttpRequest){
+// 			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
+// 			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
+// 			document.getElementById("container_tblproduct2sale").innerHTML=xmlhttp.responseText;
+// 			}
+// 		}
+// 		xmlhttp.open("GET","attached/get/del_product2sell.php?a="+id,true);	xmlhttp.send();
+// 		//alert("Elemento modificado exitosamente");
+// 		//location.reload();
+// }
+// function del_product2oldsell(field){
+// 		var id = field.name;
+// 		if (window.XMLHttpRequest){
+// 			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
+// 			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
+// 			document.getElementById("container_tblproduct2sale").innerHTML=xmlhttp.responseText;
+// 			}
+// 		}
+// 		xmlhttp.open("GET","attached/get/del_product2oldsell.php?a="+id,true);	xmlhttp.send();
+// 		//alert("Elemento modificado exitosamente");
+// 		//location.reload();
+// }
+//
+// // function filter_client_sell(e,field){
 // 	if(window.event)keyCode=window.event.keyCode;
 // 	else if(e) keyCode=e.which;
 // 	if(keyCode === 13){
@@ -326,39 +343,31 @@ function save_sale(status){
 	 		refresh_tblproduct2sale();
 			$("#txt_filterclient_"+activo).prop("alt",'1');
 			$("#txt_filterclient_"+activo).val('');
-
 		 var ans = confirm("¿Desea Imprimir el documento?");
-		 if (ans) {
-		 	print_html('print_sale_html.php?a='+data);
-		 }
-		 if(tuser === '4'){
-			 open_popup_w_scroll('popup_newcollect.php?a='+client_id+'&b='+vendor_id, 'popup_newcollect','525','425');
-		 }
+		 if (ans) { print_html('print_sale_html.php?a='+data);	}
+		 if(tuser === '4'){	open_popup_w_scroll('popup_newcollect.php?a='+client_id+'&b='+vendor_id, 'popup_newcollect','525','425');	}
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
 
 function save_old_sale(){
-	var	date = document.getElementById("txt_date").value;
-		client_id = document.getElementById("txt_filterclient").alt;
-		client = document.getElementById("txt_filterclient").value;
-		vendor_id = document.getElementById("txt_vendedor").alt;
-		number = document.getElementById("txt_numero").value;
-		observation = document.getElementById("txt_observation").value;
-		total = document.getElementById("span_total").innerHTML;
-		total = total.replace(",","");
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-				if (xmlhttp.responseText === 'denied') {
-					alert("Esta cotizacion se encuentra cobrada.")
-					setTimeout("history.back(1)",250);
-				} else {
-					setTimeout("history.back(1)",250);
-				}
-			}
+	var	date = $("#txt_date").val();
+	client_id = $("#txt_filterclient").prop("alt");
+	client = $("#txt_filterclient").val();
+	vendor_id = $("#txt_vendedor").val();
+	number = $("#txt_numero").val();
+	observation = $("#txt_observation").val();
+	facturaventa_id = get('a');
+	total = $("#span_total").html();
+	total = total.replace(",","");
+	$.ajax({	data: {"a" : date, "b" : client_id, "c" : facturaventa_id, "d" : observation },	type: "GET",	dataType: "text",	url: "attached/get/save_old_sale.php", })
+	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+		if (data === 'denied') {
+			alert("Esta cotizacion se encuentra cobrada.");
 		}
-		xmlhttp.open("GET","attached/get/save_old_sale.php?a="+date+"&b="+client_id+"&c="+client+"&d="+vendor_id+"&e="+number+"&f="+total+"&g="+observation,true);	xmlhttp.send();
+		// setTimeout("history.back(1)",250);
+	})
+ 	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
 
 // function save_sale2bill(){
@@ -548,14 +557,12 @@ function upd_discount(facturaventa_id,percent){
 		setTimeout("window.location.reload()",250);
 }
 
-function clean_payment(){
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("response").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/clean_payment.php",true);	xmlhttp.send();
+function clean_payment(str_factid, client_id){
+	$.ajax({	data: {"a" : str_factid, "b" : client_id},	type: "GET",	dataType: "text",	url: "attached/get/clean_payment.php", })
+	.done(function( data, textStatus, jqXHR ) { console.log("GOOD " + textStatus);
+		$("#container_tblpaymentlist").html(data);
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	     console.log("BAD " + textStatus);	});
 }
 
 function get_credit_client(client_id){
@@ -683,17 +690,38 @@ function plus_debit(str_factid){
 
 }
 function filter_facturaventa(){
-var	value = $("#txt_filterfacturaventa").val();
+	var	value = $("#txt_filterfacturaventa").val();
 	status = $("#sel_filterfacturaventa").val();
 	date_i = $("#txt_date_initial").val();
 	date_f = $("#txt_date_final").val();
-	if (window.XMLHttpRequest){
-		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-		document.getElementById("container_tblfacturaventa").innerHTML=xmlhttp.responseText;
-		}
+	r_user = ($("input[name=r_user]:checked").val());
+	if(status === ''){ return false; }
+	$("#container_tblfacturaventa").html(`<div class="container-fluid al_center"><img src="attached/image/Eclipse-2.1s-200px.gif" alt="" width="100px"></div>`);
+	if(r_user === 'propio'){
+		$.ajax({	data: {"a" : value, "b" : status, "c" : date_i, "d" : date_f },	type: "GET",	dataType: "text",	url: "attached/get/filter_facturaventa_usuario.php", })
+		 .done(function( data, textStatus, jqXHR ) {
+			 if(data){
+				 $("#container_tblfacturaventa").html(data);
+			 }
+		 })
+		 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+	}else{
+		$.ajax({	data: {"a" : value, "b" : status, "c" : date_i, "d" : date_f },	type: "GET",	dataType: "text",	url: "attached/get/filter_facturaventa.php", })
+		 .done(function( data, textStatus, jqXHR ) {
+			 if(data){
+				 $("#container_tblfacturaventa").html(data);
+			 }
+		 })
+		 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 	}
-	xmlhttp.open("GET","attached/get/filter_facturaventa.php?a="+value+"&b="+status+"&c="+date_i+"&d="+date_f,true);	xmlhttp.send();
+
+	// if (window.XMLHttpRequest){
+	// 	xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
+	// 	xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
+	// 	document.getElementById("container_tblfacturaventa").innerHTML=xmlhttp.responseText;
+	// 	}
+	// }
+	// xmlhttp.open("GET","attached/get/filter_facturaventa.php?a="+value+"&b="+status+"&c="+date_i+"&d="+date_f,true);	xmlhttp.send();
 }
 
 function filter_paydesk(){
@@ -754,16 +782,13 @@ function upd_statusbill(facturaventa_id){
 }
 
 function filter_sale(value){
-var status = $("#sel_status").val()
+	var status = $("#sel_status").val()
 	date = $("#txt_date").val();
-		if (window.XMLHttpRequest){
-		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-		document.getElementById("container_tblfacturaventa").innerHTML=xmlhttp.responseText;
-		}
-	}
-	xmlhttp.open("GET","attached/get/filter_sale.php?a="+value+"&b="+status+"&c="+date,true);	xmlhttp.send();
-//	setTimeout("window.location='sale.php'",250);
+	$.ajax({	data: {"a" : value, "b" : status, "c" : date},	type: "GET",	dataType: "text",	url: "attached/get/filter_sale.php", })
+	.done(function( data, textStatus, jqXHR ) {
+		$("#tbl_facturaventa tbody").html(data);
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
 function filter_adminfacturaventa(value){
 var status = $("#sel_status").val()
@@ -775,7 +800,6 @@ var status = $("#sel_status").val()
 		}
 	}
 	xmlhttp.open("GET","attached/get/filter_adminfacturaventa.php?a="+value+"&b="+status+"&c="+date,true);	xmlhttp.send();
-//	setTimeout("window.location='sale.php'",250);
 }
 
 function filter_oldquotation(date_limit){
@@ -788,19 +812,67 @@ function filter_oldquotation(date_limit){
 	xmlhttp.open("GET","attached/get/filter_oldquotation.php?a="+date_limit,true);	xmlhttp.send();
 //	setTimeout("window.location='sale.php'",250);
 }
-
-function filter_purchasebyproduct(product_id,tr){
+function filter_psbyproduct(product_id){
 	var limit = ($("input[name=r_limit]:checked").val());
 	var date_i = $("#txt_date_initial").val();
 	var date_f = $("#txt_date_final").val();
-	if (window.XMLHttpRequest){
-		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-		document.getElementById("container_tblfacturacompra").innerHTML=xmlhttp.responseText;
-		}
-	}
-	xmlhttp.open("GET","attached/get/filter_purchasebyproduct.php?a="+product_id+"&b="+limit+"&c="+date_i+"&d="+date_f,true);	xmlhttp.send();
+	$.ajax({data: {"a" : product_id, "b" : limit, "c" : date_i, "d" : date_f }, type: "GET", dataType: "text", url: "attached/get/filter_ps_byproduct.php",})
+	.done(function( data, textStatus, jqXHR ) {
+		data = JSON.parse(data);
+//  #############################    COMPRA    ###################
+		var raw_facturacompra=data[0];
+		content_facturacompra = '';
+		if(Object.keys(raw_facturacompra).length > 0){
+			for (var x in raw_facturacompra) {
+				content_facturacompra += `<tr onclick="filter_productbypurchase(${raw_facturacompra[x]['AI_facturacompra_id']})"><td>${convertir_formato_fecha(raw_facturacompra[x]['TX_facturacompra_fecha'])}</td><td>${raw_facturacompra[x]['TX_facturacompra_numero']}</td><td>${raw_facturacompra[x]['TX_facturacompra_ordendecompra']}</td><td>${raw_facturacompra[x]['TX_proveedor_nombre']}</td><td>${raw_facturacompra[x]['TX_almacen_value']}</td><td><button type="button" id="btn_delete" class="btn btn-danger btn-sm" onclick="transform_facturacompra('${raw_facturacompra[x]['AI_facturacompra_id']}')"><i class="fa fa-times"></i></button>&nbsp;<button type="button" id="btn_print" class="btn btn-info btn-sm" name="" onclick="print_html(\'print_purchase_html.php?a=${raw_facturacompra[x]['AI_facturacompra_id']}\')"><i class="fa fa-print"></i></button></td></tr>`;
+			}
+		}else{	content_facturacompra = '<tr><td colspan="5"></td></tr>';	}
+		//  #############################    VENTA    ###################
+		var raw_facturaf=data[1];
+		content_facturaf = '';
+		var total_cantidad=0;
+		if(Object.keys(raw_facturaf).length > 0){
+			for (var x in raw_facturaf) {
+				total_cantidad = total_cantidad+parseFloat(raw_facturaf[x]['TX_datoventa_cantidad']);
+				descuento4product = (raw_facturaf[x]['TX_datoventa_descuento']*raw_facturaf[x]['TX_datoventa_precio'])/100;
+				precio_descuento = raw_facturaf[x]['TX_datoventa_precio']-descuento4product;
+				impuesto4product = (raw_facturaf[x]['TX_datoventa_impuesto']*precio_descuento)/100;
+				precio_impuesto = precio_descuento+impuesto4product;
+				content_facturaf += `<tr onclick="filter_productbysale(${raw_facturaf[x]['AI_facturaf_id']})"><td>${convertir_formato_fecha(raw_facturaf[x]['TX_facturaf_fecha'])}</td><td>${raw_facturaf[x]['TX_facturaf_numero']}</td><td>${raw_facturaf[x]['TX_cliente_nombre']}</td><td>${raw_facturaf[x]['TX_datoventa_cantidad']}</td><td>${precio_impuesto.toFixed(2)}</td></tr>`;
+			}
+		}else{	content_facturaf = '<tr><td colspan="5"></td></tr>';	}
+		//  #############################    NOTA DE CREDITO    ###################
+		var raw_nc=data[2];
+		content_nc = ''; total_devuelto=0;
+		if(Object.keys(raw_nc).length > 0){
+			for (var x in raw_nc) {
+				total_devuelto += parseFloat(raw_nc[x]['TX_datodevolucion_cantidad']);
+				var anulado = (raw_nc[x]['TX_notadecredito_anulado'] > 0) ? 'ANULADA' : 'NO ANULADA';
+				content_nc += `<tr><td>${convertir_formato_fecha(raw_nc[x]['TX_notadecredito_fecha'])}</td><td>${raw_nc[x]['TX_notadecredito_numero']}</td><td>${raw_nc[x]['TX_cliente_nombre']}</td><td>${raw_nc[x]['TX_datodevolucion_cantidad']}</td><td>${anulado}</td></tr>`;
+			}
+		}else{	content_nc = '<tr><td colspan="5"></td></tr>';	}
+
+		$("#tbl_facturacompra tbody").html(content_facturacompra);
+		$("#tbl_facturaf tbody").html(content_facturaf);
+		$("#span_ttl_sold").html('<strong>Total Vendido:</strong> <br/>'+total_cantidad);
+		$("#tbl_nc tbody").html(content_nc);
+		$("#span_ttl_nc").html('<strong>Total Devuelto:</strong> <br/>'+total_devuelto);
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
+
+// function filter_purchasebyproduct(product_id,tr){
+// 	var limit = ($("input[name=r_limit]:checked").val());
+// 	var date_i = $("#txt_date_initial").val();
+// 	var date_f = $("#txt_date_final").val();
+// 	if (window.XMLHttpRequest){
+// 		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
+// 		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
+// 		document.getElementById("container_tblfacturacompra").innerHTML=xmlhttp.responseText;
+// 		}
+// 	}
+// 	xmlhttp.open("GET","attached/get/filter_purchasebyproduct.php?a="+product_id+"&b="+limit+"&c="+date_i+"&d="+date_f,true);	xmlhttp.send();
+// }
 
 function filter_facturacompra(field){
 	var value = field.value;
@@ -817,14 +889,21 @@ function filter_facturacompra(field){
 }
 
 function filter_productbypurchase(facturacompra_id){
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("container_tblproduct").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/filter_productbypurchase.php?a="+facturacompra_id,true);	xmlhttp.send();
+	$.ajax({data: {"a" : facturacompra_id }, type: "GET", dataType: "text", url: "attached/get/filter_productbypurchase.php",})
+	.done(function( data, textStatus, jqXHR ) {
+		// data = JSON.parse(data);
+		$("#container_datofacturacompra").html(data);
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
+function filter_productbysale(facturaf_id){
+	$.ajax({	data: { "a" : facturaf_id },	type: "GET",	dataType: "text",	url: "attached/get/filter_productbysale.php", })
+	 .done(function( data, textStatus, jqXHR ) {
+		 $("#container_datofacturaf").html(data);
+	 })
+	 .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD" + textStatus);});
+}
+
 
 function filter_beneath(){
 	var ans = confirm("¿Desea Visualizarlo(s)?");
@@ -853,7 +932,7 @@ function plus_cashmovement(){
 		setTimeout("self.close()",300);
 }
 
-function filter_facturaventa_vendedor(db_field){
+function filter_facturaventa_vendedor(){
 	var	vendedor_id = $("#sel_vendedor").val();
 		date_i = $("#txt_date_initial").val();
 		date_f = $("#txt_date_final").val();
@@ -863,9 +942,7 @@ function filter_facturaventa_vendedor(db_field){
 			document.getElementById("container_tblfacturaventa").innerHTML=xmlhttp.responseText;
 			}
 		}
-		xmlhttp.open("GET","attached/get/filter_facturaventa_vendedor.php?a="+vendedor_id+"&b="+date_i+"&c="+date_f+"&d="+db_field,true);	xmlhttp.send();
-//		setTimeout("window.opener.location='print_cashmovement.php'",250);
-//		setTimeout("self.close()",300);
+		xmlhttp.open("GET","attached/get/filter_facturaventa_vendedor.php?a="+vendedor_id+"&b="+date_i+"&c="+date_f,true);	xmlhttp.send();
 }
 
 function filter_adminclient(value){
@@ -923,7 +1000,6 @@ function filter_cashmovement(str){
 }
 
 function plus_cashregister(){
-//	alert("pppp");
 		if (window.XMLHttpRequest){
 			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
 			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{

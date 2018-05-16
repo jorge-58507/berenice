@@ -26,13 +26,12 @@ if(!empty($status)){
 $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
 
-$text=1;
-
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre, bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status,
-bh_facturaf.TX_facturaf_numero, bh_facturaf.AI_facturaf_id
-FROM ((bh_facturaventa
+bh_facturaf.TX_facturaf_numero, bh_facturaf.AI_facturaf_id, bh_user.TX_user_seudonimo
+FROM (((bh_facturaventa
 INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
 INNER JOIN bh_facturaf ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
+INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
 WHERE";
 
 for($it=0;$it<$size_value;$it++){
@@ -43,44 +42,14 @@ $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." TX_cliente_nombre 
 	}
 }
 
-switch ($_COOKIE['coo_tuser']) {
-case "1":
-$txt_facturaventa=$txt_facturaventa;
-break;
-case "2":
-$txt_facturaventa=$txt_facturaventa;
-break;
-case "4":
-$txt_facturaventa=$txt_facturaventa;
-break;
-default:
-$txt_facturaventa=$txt_facturaventa." AND bh_facturaventa.facturaventa_AI_user_id = '{$_COOKIE['coo_iuser']}'";
-break;
-}
-
 $txt_facturaventa=$txt_facturaventa." OR ";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturaventa=$txt_facturaventa.$line_status.$line_date." TX_facturaventa_numero LIKE '%{$arr_value[$it]}%'";
+$txt_facturaventa=$txt_facturaventa.$line_status.$line_date." TX_facturaventa_numero LIKE '%{$arr_value[$it]}%' ORDER BY TX_facturaf_fecha DESC, TX_facturaventa_numero DESC";
 	}else{
 $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." TX_facturaventa_numero LIKE '%{$arr_value[$it]}%' AND";
 	}
-}
-switch ($_COOKIE['coo_tuser']) {
-case "1":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaf_fecha DESC, TX_facturaventa_numero DESC";
-break;
-case "2":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaf_fecha DESC, TX_facturaventa_numero  DESC";
-break;
-case "4":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaf_fecha DESC, TX_facturaventa_numero  DESC";
-break;
-default:
-$txt_facturaventa=$txt_facturaventa." AND
-bh_facturaventa.facturaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY TX_facturaventa_status, TX_facturaventa_numero DESC";
-break;
 }
 
 if($status != 'CANCELADA'){
@@ -99,9 +68,10 @@ if(!empty($date_i) && !empty($date_f)){
 $line_status= " bh_facturaventa.TX_facturaventa_status = '{$status}' AND";
 
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre,
- bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status
- FROM (bh_facturaventa
+ bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_user.TX_user_seudonimo
+ FROM ((bh_facturaventa
  INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
+ INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
  WHERE ";
 
 for($it=0;$it<$size_value;$it++){
@@ -112,50 +82,17 @@ $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_cliente.TX_clie
 	}
 }
 
-switch ($_COOKIE['coo_tuser']) {
-case "1":
-$txt_facturaventa=$txt_facturaventa;
-break;
-case "2":
-$txt_facturaventa=$txt_facturaventa;
-break;
-case "4":
-$txt_facturaventa=$txt_facturaventa;
-break;
-default:
-$txt_facturaventa=$txt_facturaventa." AND bh_facturaventa.facturaventa_AI_user_id = '{$_COOKIE['coo_iuser']}'";
-break;
-}
-
 $txt_facturaventa=$txt_facturaventa." OR ";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_facturaventa.TX_facturaventa_numero LIKE '%{$arr_value[$it]}%'";
+$txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_facturaventa.TX_facturaventa_numero LIKE '%{$arr_value[$it]}%' ORDER BY TX_facturaventa_fecha DESC, TX_facturaventa_numero  DESC";
 	}else{
 $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_facturaventa.TX_facturaventa_numero LIKE '%{$arr_value[$it]}%' AND";
 	}
 }
-switch ($_COOKIE['coo_tuser']) {
-case "1":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha DESC, TX_facturaventa_numero DESC";
-break;
-case "2":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha DESC, TX_facturaventa_numero  DESC";
-break;
-case "4":
-$txt_facturaventa=$txt_facturaventa." ORDER BY TX_facturaventa_fecha DESC, TX_facturaventa_numero  DESC";
-break;
-default:
-$txt_facturaventa=$txt_facturaventa." AND
-bh_facturaventa.facturaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY TX_facturaventa_status, TX_facturaventa_numero DESC";
-break;
-}
-//echo $txt_facturaventa;
-
 }
 
-// echo $txt_facturaventa;
 $qry_facturaventa = $link->query($txt_facturaventa)or die($link->error);
 $rs_facturaventa = $qry_facturaventa->fetch_array(MYSQLI_ASSOC);
 
@@ -177,28 +114,29 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 </script>
 <table id="tbl_facturaventa" class="table table-bordered table-striped">
 	<thead class="bg-primary">
-    	<tr>
-        	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
-            <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Cliente</th>
-            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Nº Cotizacion</th>
-            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
-            <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Factura Asociada</th>
-            <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Metodo de P.</th>
-            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Monto</th>
-        </tr>
-    </thead>
-    <tbody>
-    <?php if($qry_facturaventa->num_rows > 0){ ?>
-    <?php
-	$raw_facturaf=array();
-	$total_total=0;
-	$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
-	do{
+  	<tr>
+    	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
+      <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Cliente</th>
+      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cotizacion</th>
+      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Vendedor</th>
+			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
+      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Factura</th>
+      <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Metodo</th>
+      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Monto</th>
+    </tr>
+  </thead>
+  <tbody>
+<?php if($qry_facturaventa->num_rows > 0){
+		$raw_facturaf=array();
+		$total_total=0;
+		$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
+		do{
 	?>
     <tr onclick="toogle_tr_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)">
         <td><?php $time=strtotime($rs_facturaventa['TX_facturaventa_fecha']); echo $date=date('d-m-Y',$time); ?></td>
         <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
+				<td><?php echo $rs_facturaventa['TX_user_seudonimo']; ?></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_total']; ?></td>
         <td><?php if(isset($rs_facturaventa['TX_facturaf_numero'])){ echo $rs_facturaventa['TX_facturaf_numero']; } ?></td>
         <td>

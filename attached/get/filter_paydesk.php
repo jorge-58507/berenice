@@ -6,22 +6,8 @@ $value=$_GET['a'];
 $status=$_GET['b'];
 $date_i=$_GET['c'];
 $date_f=$_GET['d'];
-//if(!empty($date_i) && !empty($date_f)){
-//	$pre_datei=strtotime($date_i);
-//	$date_i = date('Y-m-d',$pre_datei);
-//	$pre_datef=strtotime($date_f);
-//	$date_f = date('Y-m-d',$pre_datef);
-//
-//	$line_date=" bh_facturaventa.TX_facturaventa_fecha >= '$date_i' AND  bh_facturaventa.TX_facturaventa_fecha <= '$date_f' AND";
-//}else{
 	$line_date="";
-//}
-
-//if(!empty($status)){
-//	$line_status = " bh_facturaventa.TX_facturaventa_status = '$status' AND";
-//}else{
 	$line_status = "";
-//}
 
 $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
@@ -87,15 +73,8 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
     </thead>
     <tfoot class="bg-info">
     	<tr>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-		</tr>
+      	<td colspan="8"> </td>
+			</tr>
     </tfoot>
     <tbody>
     <?php if($nr_facturaventa=mysql_num_rows($qry_facturaventa)>0){ ?>
@@ -110,7 +89,7 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
     	<td><?php echo $rs_facturaventa['TX_user_seudonimo']; ?></td>
         <td><?php echo $rs_facturaventa['TX_cliente_nombre']; ?><br /><font style="font-size:10px; font-weight:bolder;"><?php echo $rs_facturaventa['TX_cliente_direccion']; ?></font></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
-        <td><?php echo number_format($rs_facturaventa['TX_facturaventa_total'],2); ?></td>
+        <td>B/ <?php echo number_format($rs_facturaventa['TX_facturaventa_total'],2); ?></td>
         <td>
         <?php
 		switch($rs_facturaventa['TX_facturaventa_status']){

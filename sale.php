@@ -73,7 +73,7 @@ $(document).ready(function() {
 
 	$("#btn_newsale").click(function(){	window.location.href="new_sale.php";	});
 	$("#btn_inspectsale").click(function(){
-		open_popup_w_scroll('popup_inspect_sale.php','inspectsale','840','420');
+		open_popup_w_scroll('popup_inspect_sale.php','inspectsale','1040','420');
 	});
 	$("#txt_filterfacturaventa").on("keyup",function(){
 		filter_sale(this.value);

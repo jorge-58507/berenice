@@ -221,15 +221,15 @@ switch ($_COOKIE['coo_tuser']){
     <div id="cpp" class="tab-pane fade in active">
 			<div id="container_cpp" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 				<div id="container_filtercpp" class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-					<label for="txt_filtercpp">Buscar</label>
+					<label for="txt_filtercpp" class="label label_blue_sky" >Buscar</label>
 					<input type="text" id="txt_filtercpp" placeholder="Buscar Cuentas por Pagar" autocomplete="off" class="form-control">
 				</div>
 				<div id="container_fechai" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-					<label for="txt_cpp_fechai">Fecha Inicial</label>
+					<label for="txt_cpp_fechai" class="label label_blue_sky" >Fecha Inicial</label>
 					<input type="text" id="txt_cpp_fechai" class="form-control" readonly="readonly" value="<?php  $month_year=date('Y-m',strtotime($fecha_actual)); echo date('d-m-Y',strtotime($month_year)); ?>">
 				</div>
 				<div id="container_fechaf" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-					<label for="txt_cpp_fechaf">Fecha Final</label>
+					<label for="txt_cpp_fechaf" class="label label_blue_sky" >Fecha Final</label>
 					<input type="text" id="txt_cpp_fechaf" class="form-control" readonly="readonly"value="<?php  echo date('d-m-Y',strtotime($fecha_actual)); ?>">
 				</div>
 
@@ -283,7 +283,7 @@ switch ($_COOKIE['coo_tuser']){
     <div id="proveedor" class="tab-pane fade">
 			<div id="container_provider" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 				<div id="container_filterprovider" class="col-xs-10 col-sm-11 col-md-11 col-lg-11">
-					<label for="txt_filterprovider">Buscar</label>
+					<label for="txt_filterprovider" class="label label_blue_sky" >Buscar</label>
 					<input type="text" id="txt_filterprovider" placeholder="Buscar Proveedor" autocomplete="off" class="form-control">
 				</div>
 				<div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 side-btn-md">
@@ -346,23 +346,26 @@ switch ($_COOKIE['coo_tuser']){
     </div>
     <div id="cheque" class="tab-pane fade">
 			<div id="container_cheque" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-				<div id="container_filtercheque" class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
-					<label for="txt_filtercheque">Buscar</label>
+				<div id="container_filtercheque" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+					<label for="txt_filtercheque" class="label label_blue_sky" >Buscar</label>
 					<input type="text" id="txt_filtercheque" placeholder="Buscar N&deg; de Cheque" autocomplete="off" class="form-control">
 				</div>
+				<div id="container_nvo_cheque" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+					<button type="button" id="btn_add_check" class="btn btn-info btn-sm" onclick="window.location='make_check.php'"><i class="fa fa-money" aria-hidden="true"></i> Nvo. Cheque</button>
+				</div>
 				<div id="container_fechai" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-					<label for="txt_check_fechai">Fecha Inicial</label>
+					<label for="txt_check_fechai" class="label label_blue_sky" >Fecha Inicial</label>
 					<input type="text" id="txt_check_fechai" class="form-control" readonly="readonly" value="<?php  $month_year=date('Y-m',strtotime($fecha_actual)); echo date('d-m-Y',strtotime($month_year)); ?>">
 				</div>
 				<div id="container_fechaf" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-					<label for="txt_check_fechaf">Fecha Final</label>
+					<label for="txt_check_fechaf"  class="label label_blue_sky" >Fecha Final</label>
 					<input type="text" id="txt_check_fechaf" class="form-control" readonly="readonly"value="<?php  echo date('d-m-Y',strtotime($fecha_actual)); ?>">
 				</div>
 
 
 				<div id="container_tblcheque" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-						<table id="tbl_cheque" class="table table-bordered table-condensed table-striped">
-							<caption>Cheques Guardados</caption>
+					<table id="tbl_cheque" class="table table-bordered table-condensed table-striped">
+						<caption>Cheques Guardados</caption>
 						<thead class="bg_green">
 							<tr>
 								<th>FECHA</th>
@@ -376,20 +379,24 @@ switch ($_COOKIE['coo_tuser']){
 						</thead>
 						<tfoot class="bg_green"><tr><td colspan="7"></td></tr></tfoot>
 						<tbody>
-				<?php while($rs_cheque = $qry_cheque->fetch_array()){ ?>
-							<tr>
-								<td><?php echo date('d-m-Y',strtotime($rs_cheque['TX_cheque_fecha'])); ?></td>
-								<td><button type="button" class="btn btn-link" onclick="document.location='provider_info.php?a=<?php echo $rs_cheque['cheque_AI_proveedor_id']; ?>'"><?php echo $rs_cheque['TX_proveedor_nombre']; ?></button></td>
-								<?php $href_cpp = (!empty($rs_cheque['cheque_AI_cpp_id'])) ? "admin_pay_cpp.php?a=".$rs_cheque['cheque_AI_cpp_id'] : ''; ?>
-								<td class="al_center"><button type="button" class="btn btn-link" onclick="document.location='<?php echo $href_cpp; ?>'"><?php echo substr("0000000".$rs_cheque['cheque_AI_cpp_id'],-8); ?></button></td>
-								<td><?php echo $rs_cheque['TX_cheque_numero']; ?></td>
-								<td><?php echo $rs_cheque['TX_cheque_monto']; ?></td>
-								<td><?php echo $rs_cheque['TX_cheque_observacion']; ?></td>
-								<td class="al_center"><button type="button" class="btn btn-info btn-sm" onclick="print_html('print_check.php?a=<?php echo $rs_cheque['AI_cheque_id']; ?>')"><i class="fa fa-search"></i></button></td>
-							</tr>
-				<?php } ?>
+<?php 				if ($qry_cheque->num_rows > 0) {
+								while($rs_cheque = $qry_cheque->fetch_array()){ ?>
+									<tr>
+										<td><?php echo date('d-m-Y',strtotime($rs_cheque['TX_cheque_fecha'])); ?></td>
+										<td><button type="button" class="btn btn-link" onclick="document.location='provider_info.php?a=<?php echo $rs_cheque['cheque_AI_proveedor_id']; ?>'"><?php echo $rs_cheque['TX_proveedor_nombre']; ?></button></td>
+										<?php $href_cpp = (!empty($rs_cheque['cheque_AI_cpp_id'])) ? "admin_pay_cpp.php?a=".$rs_cheque['cheque_AI_cpp_id'] : ''; ?>
+										<td class="al_center"><button type="button" class="btn btn-link" onclick="document.location='<?php echo $href_cpp; ?>'"><?php echo substr("0000000".$rs_cheque['cheque_AI_cpp_id'],-8); ?></button></td>
+										<td><?php echo $rs_cheque['TX_cheque_numero']; ?></td>
+										<td>B/ <?php echo number_format($rs_cheque['TX_cheque_monto'],2); ?></td>
+										<td><?php echo $r_function->replace_special_character($rs_cheque['TX_cheque_observacion']); ?></td>
+										<td class="al_center"><button type="button" class="btn btn-info btn-sm" onclick="print_html('print_check.php?a=<?php echo $rs_cheque['AI_cheque_id']; ?>')"><i class="fa fa-search"></i></button></td>
+									</tr>
+<?php 					}
+							} else {	?>
+								<tr><td colspan="7"></td></tr>
+<?php 				} 	?>
 						</tbody>
-						</table>
+					</table>
 				</div>
 			</div>
 		</div>

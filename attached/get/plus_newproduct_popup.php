@@ -19,6 +19,9 @@ $p_3=$_GET['l'];
 $p_2=$_GET['k'];
 $p_1=$_GET['j'];
 
+$returnValue = preg_match('/\D/', $value, $matches);
+echo $returnValue;
+return false;
 
 $fecha_actual=date('Y-m-d');
 

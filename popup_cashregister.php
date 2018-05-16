@@ -1,12 +1,15 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-
+require 'attached/php/req_login_paydesk.php';
 $qry_datopago=$link->prepare("SELECT bh_datopago.AI_datopago_id, bh_datopago.datopago_AI_metododepago_id, bh_datopago.TX_datopago_monto
 FROM ((bh_notadecredito
 INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id)
 INNER JOIN bh_datopago ON bh_facturaf.AI_facturaf_id = bh_datopago.datopago_AI_facturaf_id)
 WHERE bh_notadecredito.AI_notadecredito_id = ?")or die($link->error);
+
+$fecha_actual=date('Y-m-d');
+$qry_arqueo=$link->query("SELECT bh_arqueo.AI_arqueo_id, bh_arqueo.TX_arqueo_fecha, bh_arqueo.TX_arqueo_hora, bh_user.TX_user_seudonimo FROM (bh_arqueo INNER JOIN bh_user ON bh_user.AI_user_id = bh_arqueo.arqueo_AI_user_id) WHERE bh_arqueo.TX_arqueo_fecha = '$fecha_actual'")or die($link->error);
 
 function ObtenerIP(){
 if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
@@ -54,7 +57,8 @@ $('#btn_cancel').click(function(){
 	self.close();
 })
 $("#txt_filterarqueo").on("keyup",function(){
-  $.ajax({	data: {"a" : this.value, "b" : $("#txt_filterfecha").val() },	type: "GET",	dataType: "text",	url: "attached/get/filter_arqueo.php", })
+	var value = url_replace_regular_character(this.value);
+  $.ajax({	data: {"a" : value, "b" : $("#txt_filterfecha").val() },	type: "GET",	dataType: "text",	url: "attached/get/filter_arqueo.php", })
    .done(function( data, textStatus, jqXHR ) {	$("#tbl_cashregister tbody").html( data );	})
    .fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
@@ -93,15 +97,17 @@ $("#btn_pluscashregister").on("click",function(){
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form method="post" name="form_addprovider">
 <div id="container_btnpluscashregister" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-  <button type="button" id="btn_pluscashregister" class="btn btn-danger">Arquear Caja</button>
+  <button type="button" id="btn_pluscashregister" class="btn btn-danger btn-lg">Arquear Caja</button>
 </div>
-<div id="container_txtfilterarqueo" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-	<label for="txt_filterarqueo">Buscar:</label>
-  <input type="text" name="txt_filterarqueo" id="txt_filterarqueo" class="form-control" />
-</div>
-<div id="container_txtfilterarqueo" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-	<label for="txt_filterfecha">Fecha:</label>
-  <input type="text" name="txt_filterfecha" id="txt_filterfecha" class="form-control" value="<?php echo date('d-m-Y'); ?>" readonly="readonly" />
+<div id="container_cashregister_filter" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<div id="container_filter_buscar" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+		<label class="label label_blue_sky" for="txt_filterarqueo">Buscar:</label>
+	  <input type="text" name="txt_filterarqueo" id="txt_filterarqueo" class="form-control" />
+	</div>
+	<div id="container_filter_fecha" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+		<label class="label label_blue_sky" for="txt_filterfecha">Fecha:</label>
+	  <input type="text" name="txt_filterfecha" id="txt_filterfecha" class="form-control" value="<?php echo date('d-m-Y'); ?>" readonly="readonly" />
+	</div>
 </div>
 <div id="container_tblcashregister" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
   <table id="tbl_cashregister" class="table table-bordered table-condensed table-hover">
@@ -109,24 +115,29 @@ $("#btn_pluscashregister").on("click",function(){
   <tr class="bg-primary">
     <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Fecha</th>
     <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Hora</th>
-    <th class="col-xs-5 col-sm-5 col-md-5 col-lg-5">Operador</th>
-    <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+    <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Operador</th>
+    <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"></th>
   </tr>
   </thead>
-  <tbody>
-  <tr>
-    <td>&nbsp;</td>
-    <td></td>
-    <td></td>
-    <td></td>
-  </tr>
+  <tbody><?php
+		if ($qry_arqueo->num_rows > 0) {
+			while ($rs_cashregister = $qry_arqueo->fetch_array()) {		?>
+				<tr>
+					<td><?php echo $rs_cashregister['TX_arqueo_fecha'];?></td>
+					<td><?php echo $rs_cashregister['TX_arqueo_hora']; ?></td>
+					<td><?php echo $rs_cashregister['TX_user_seudonimo']; ?></td>
+					<td class="al_center">
+						<button type="button" id="btn_print" onclick="print_html('print_cashregister.php?a=<?php echo $rs_cashregister['AI_arqueo_id']; ?>')" class="btn btn-info btn-sm" ><i class="fa fa-print" aria-hidden="true"></i></button>
+						&nbsp;
+						<button type="button" id="btn_query_cashregister" onclick="print_html('print_cashregister_detail.php?a=<?php echo $rs_cashregister['AI_arqueo_id']; ?>')" class="btn btn-primary btn-sm"><i class="fa fa-search"></i></button>
+					</td>
+				</tr><?php
+			}
+		}else{ echo '<tr><td colspan="4"></td></tr>'; }		?>
   </tbody>
   <tfoot class="bg-primary">
   <tr>
-    <td></td>
-    <td></td>
-    <td></td>
-    <td></td>
+		<td colspan="4"></td>
   </tr>
   </tfoot>
   </table>

@@ -37,43 +37,28 @@ function val_intw2dec (str) {
   var pat = new RegExp('^[0-9]+([.][0-9]{1,2})?$')
   var ans = pat.exec(str)
   var str_splited = str.split('.')
-  // console.log(str_splited)
-//  if (!ans) {	return str;	}
   if(str_splited.length > '1') {
-
 		if(str_splited.length > '2') {
 			str_splited.splice(2);
-			// console.log("ya hizo splice: "+str_splited);
 		}
 		if (str_splited[0].length === 0) {
 			str_splited[0]='0';
-			//str = '0' + '.' + str_splited[1];
-			//str_splited = str.split('.')
-			// console.log("primero vacio: " + str);
 		}
 		if (str_splited[1].length === 0) {
 			str_splited[1]='00';
-    //  str = str_splited[0] + '.' + '00';
-      // console.log("segundo vacio: " + str);
     }
 		if (str_splited[1].length === 1) {
 			str_splited[1] = str_splited[1] + '0';
-      //str = str_splited[0] + '.' + str_splited[1] + '0';
-      // console.log("segundo corto: " + str);
     }
 		if (str_splited[1].length > 2) {
 			str_splited[1] = str_splited[1].substr(0, 2);
-//      str = str_splited[0] + '.' + str_splited[1].substr(0, 2);
-// 			console.log("segundo alargado: " + str);
     }
 		str = str_splited[0] + '.' + str_splited[1];
-		// console.log("retorno: "+str);
 		str = parseFloat(str).toFixed(2);
 		return str;
   } else {
 		if(str != ""){
     	str = str_splited[0] + '.00'
-    	// console.log("llllolll "+str)
 			str = parseFloat(str).toFixed(2);
 			return str;
   	}else{
@@ -670,8 +655,8 @@ function close_popup(){
 }
 
 function replace_regular_character(str){
-	var replacement = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\\'","&deg;","&ntilde;","ampersand;"];
-	var to_replace = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ","&"];
+	var replacement = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","&squote;","°","&deg;","&ntilde;"];
+	var to_replace = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","°","ñ"];
 	for (var x in to_replace) {
 		patt = RegExp(to_replace[x],'g');
 		str = str.replace(patt,replacement[x]);
@@ -679,8 +664,8 @@ function replace_regular_character(str){
 	return str;
 }
 function replace_special_character(str){
-	var replacement = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ","&"];
-	var to_replace = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","\\\'","&deg;","&ntilde;","ampersand;"];
+	var replacement = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","°","º","ñ"];
+	var to_replace = ["&Aacute;","&Eacute;","&Iacute;","&Oacute;","&Uacute;","&Ntilde;","&aacute;","&eacute;","&iacute;","&oacute;","&uacute;","&laremun;","&nolger;","&squote;","&deg;","°","&ntilde;"];
 	for (var x in to_replace) {
 		patt = RegExp(to_replace[x],'g');
 		str = str.replace(patt,replacement[x]);
@@ -688,8 +673,8 @@ function replace_special_character(str){
 	return str;
 }
 function url_replace_regular_character(str){
-	var replacement = ["Aacute;","Eacute;","Iacute;","Oacute;","Uacute;","Ntilde;","aacute;","eacute;","iacute;","oacute;","uacute;","laremun;","nolger;","\\'","deg;","ntilde;","ampersand;"];
-	var to_replace = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ","&"];
+	var replacement = ["Aacute;","Eacute;","Iacute;","Oacute;","Uacute;","Ntilde;","aacute;","eacute;","iacute;","oacute;","uacute;","laremun;","nolger;","squote;","°","deg;","ntilde;","ampersand;"];
+	var to_replace = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","°","ñ","&"];
 	for (var x in to_replace) {
 		patt = RegExp(to_replace[x],'g');
 		str = str.replace(patt,replacement[x]);
@@ -697,8 +682,8 @@ function url_replace_regular_character(str){
 	return str;
 }
 function url_replace_special_character(str){
-	var replacement = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","º","ñ","&"];
-	var to_replace = ["Aacute;","Eacute;","Iacute;","Oacute;","Uacute;","Ntilde;","aacute;","eacute;","iacute;","oacute;","uacute;","laremun;","nolger;","\\\'","deg;","ntilde;","ampersand;"];
+	var replacement = ["Á","É","Í","Ó","Ú","Ñ","á","é","í","ó","ú","#","\n","'","°","º","ñ","&"];
+	var to_replace = ["Aacute;","Eacute;","Iacute;","Oacute;","Uacute;","Ntilde;","aacute;","eacute;","iacute;","oacute;","uacute;","laremun;","nolger;","squote;","deg;","°","ntilde;","ampersand;"];
 	for (var x in to_replace) {
 		patt = RegExp(to_replace[x],'g');
 		str = str.replace(patt,replacement[x]);

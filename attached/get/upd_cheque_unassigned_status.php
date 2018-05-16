@@ -13,6 +13,8 @@ $qry_cheque = $link->query("SELECT AI_cheque_id, TX_cheque_numero, TX_cheque_mon
 		WHERE bh_cpp.AI_cpp_id = '$cpp_id'")or die($link->error);
 
   $raw_cheque = array();
+	$raw_cheque[0]=array();
+	$raw_cheque[1]=array();
  	while($rs_cheque = $qry_cheque->fetch_array(MYSQLI_ASSOC)){
     $raw_cheque[0][]=$rs_cheque;
   }

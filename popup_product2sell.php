@@ -67,13 +67,10 @@ $("#input_price").on("blur",function(){
 
 $('#btn_acept').click(function(){
 	var id = $("#txt_product").attr("alt");
-	var input_price = document.forms[0]['input_price'].name;
-	var txt_quantity = document.forms[0]['txt_quantity'].name;
-	var txt_itbm = document.forms[0]['txt_itbm'].name;
-	var txt_discount = document.forms[0]['txt_discount'].name;
-	if (id === ""||isEmpty(input_price)||isEmpty(txt_itbm)||isEmpty(txt_discount)){
+	if(id === '' || $("#input_price").val() === '' || $("#txt_itbm").val() === '' || $("#txt_discount").val() === '' ){
 		return false;
 	}
+
 	var ans = val_intwdec($("#input_price").val());
 	if(!ans){	set_bad_field("input_price");	return false;	}	set_good_field("input_price");
 	var url = window.opener.location;
@@ -81,12 +78,15 @@ $('#btn_acept').click(function(){
 	ans = patt.test(url)
 	var activo = window.opener.$(".tab-pane.active").attr("id");
 	if (ans) {
-		plus_product2sell(id);
+		var	cantidad = $("#txt_quantity").val();
+		if(cantidad === ""){cantidad='1.00'}
+		precio = $("#input_price").val();	descuento = $("#txt_discount").val();	itbm = $("#txt_itbm").val(); medida = $("#sel_medida").val();
+		window.opener.plus_product2viejaventa(id,precio,descuento,itbm,cantidad,medida,'0');
 	}else{
 		var	cantidad = $("#txt_quantity").val();
 		if(cantidad === ""){cantidad='1.00'}
 		precio = $("#input_price").val();	descuento = $("#txt_discount").val();	itbm = $("#txt_itbm").val(); medida = $("#sel_medida").val();
-		window.opener.plus_product2nuevaventa(id,precio,descuento,itbm,activo,cantidad,medida);
+		window.opener.plus_product2nuevaventa(id,precio,descuento,itbm,activo,cantidad,medida,'0');
 	}
 })
 
@@ -135,7 +135,7 @@ function get_product2sell_price(medida_id){
 <form action="pop_form.php" method="post" name="form_product2sell" id="form_product2sell">
 <div id="container_product" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
 	<label class="label label_blue_sky"  for="txt_product">Producto: </label>
-    <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_value'] ?>" />
+    <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" />
 </div>
 <div id="container_measure" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 	<label class="label label_blue_sky"  for="txt_measure">Codigo:</label>

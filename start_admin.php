@@ -87,8 +87,9 @@ $("#btn_configuration").on("click",function(){
 $("#btn_adminaccount").on("click",function(){
 	window.location='admin_account.php';
 })
-
-
+$("#btn_adminapp").on("click",function(){
+	window.location='admin_application.php';
+})
 
 });
 
@@ -158,6 +159,8 @@ switch ($_COOKIE['coo_tuser']){
 <button type="button" id="btn_configuration" class="btn btn-default btn-lg"><strong>Configuraci&oacute;n</strong></button>
 &nbsp;&nbsp;
 <button type="button" id="btn_adminaccount" class="btn btn-info btn-lg"><strong>Usuarios</strong></button>
+&nbsp;&nbsp;
+<button type="button" id="btn_adminapp" class="btn btn-default btn-lg"><strong>Herramientas</strong></button>
 </p>
 </div>
 

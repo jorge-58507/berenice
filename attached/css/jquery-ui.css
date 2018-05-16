@@ -320,6 +320,7 @@ button.ui-button::-moz-focus-inner {
 .ui-datepicker .ui-datepicker-header {
 	position: relative;
 	padding: .2em 0;
+	background-color: #fff;
 }
 .ui-datepicker .ui-datepicker-prev,
 .ui-datepicker .ui-datepicker-next {
@@ -365,6 +366,8 @@ button.ui-button::-moz-focus-inner {
 .ui-datepicker select.ui-datepicker-month,
 .ui-datepicker select.ui-datepicker-year {
 	width: 45%;
+	border-radius: 3px;
+	border: solid 1px #ccc;
 }
 .ui-datepicker table {
 	width: 100%;
@@ -930,9 +933,10 @@ works properly when clicked or hovered */
 html .ui-button.ui-state-disabled:hover,
 html .ui-button.ui-state-disabled:active {
 	border: 1px solid #c5c5c5;
-	background: #f6f6f6;
+	background: #ffffff;
 	font-weight: normal;
 	color: #454545;
+	text-align: center;
 }
 .ui-state-default a,
 .ui-state-default a:link,
@@ -1002,9 +1006,10 @@ a.ui-button:active,
 .ui-state-highlight,
 .ui-widget-content .ui-state-highlight,
 .ui-widget-header .ui-state-highlight {
-	border: 1px solid #dad55e;
-	background: #fffa90;
-	color: #777620;
+	border: 1px solid #59ae5d;
+	background: #7ef083b3;
+	color: #000;
+	font-weight: bolder;
 }
 .ui-state-checked {
 	border: 1px solid #dad55e;
@@ -1309,4 +1314,8 @@ a.ui-button:active,
 .ui-widget-shadow {
 	-webkit-box-shadow: 0px 0px 5px #666666;
 	box-shadow: 0px 0px 5px #666666;
+}
+/* table.ui-datepicker-calendar>tbody>tr>td>a{ */
+.ui-state-default{
+	border-radius: 3px;
 }

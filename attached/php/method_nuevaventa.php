@@ -3,22 +3,37 @@ require '../../bh_conexion.php';
 $link=conexion();
 
 function read_nuevaventa_content(){
-	$file = fopen("../../nva_venta.txt", "r");
-	$contenido = fgets($file);
-	fclose($file);
+	$link=conexion();
+	$qry_nuevaventa = $link->query("SELECT TX_rel_nuevaventa_compuesto FROM rel_nuevaventa WHERE AI_rel_nuevaventa_id = 1")or die($link->error);
+	$rs_nuevaventa = $qry_nuevaventa->fetch_array();
+	$contenido = $rs_nuevaventa['TX_rel_nuevaventa_compuesto'];
+	if (empty($contenido)) {
+		$contenido =	'{"'.$_COOKIE['coo_iuser'].'":{}}';
+	}
+	return $contenido;
+}
+function read_nuevaventa_rel(){
+	$link=conexion();
+	$qry_nuevaventa = $link->query("SELECT TX_rel_nuevaventa_compuesto FROM rel_nuevaventa WHERE AI_rel_nuevaventa_id = 2")or die($link->error);
+	$rs_nuevaventa = $qry_nuevaventa->fetch_array();
+	$contenido = $rs_nuevaventa['TX_rel_nuevaventa_compuesto'];
 	if (empty($contenido)) {
 		$contenido =	'{"'.$_COOKIE['coo_iuser'].'":{}}';
 	}
 	return $contenido;
 }
 function write_nuevaventa_content($contenido){
-	$file = fopen("../../nva_venta.txt", "w+");
-		fwrite($file, $contenido);
-	fclose($file);
+	$link=conexion(); $r_function = new recurrent_function();
+	// $contenido = $r_function->replace_regular_character($contenido);
+	$qry_nuevaventa = $link->query("UPDATE rel_nuevaventa SET TX_rel_nuevaventa_compuesto = '$contenido' WHERE AI_rel_nuevaventa_id = 1")or die($link->error);
+}
+function write_nuevaventa_rel($contenido){
+	$link=conexion(); $r_function = new recurrent_function();
+	// $contenido = $r_function->replace_regular_character($contenido);
+	$qry_nuevaventa = $link->query("UPDATE rel_nuevaventa SET TX_rel_nuevaventa_compuesto = '$contenido' WHERE AI_rel_nuevaventa_id = 2")or die($link->error);
 }
 function plus_nuevaventa(){
 	$link=conexion();	$r_function = new recurrent_function();
-
 	$product_id=$_GET['a'];
 	$precio=$_GET['b'];
 	$descuento=$_GET['c'];
@@ -26,6 +41,7 @@ function plus_nuevaventa(){
 	$activo=$_GET['e'];
 	$cantidad=$_GET['f'];
 	$medida=$_GET['g'];
+	$promocion=$_GET['h'];
 
 	$qry_product = $link->query("SELECT TX_producto_value, TX_producto_codigo, TX_producto_medida, TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = '$product_id'")or die($link->error);
 	$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
@@ -39,48 +55,165 @@ function plus_nuevaventa(){
 	if (!array_key_exists($activo, $raw_decode[$_COOKIE['coo_iuser']])) {
 		$raw_decode[$_COOKIE['coo_iuser']][$activo]= array();
 	}
-	if (!array_key_exists($product_id, $raw_decode[$_COOKIE['coo_iuser']][$activo])) {
-		$raw_decode[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"]['cantidad'] = $cantidad;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"]['precio'] = $precio;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"]['impuesto'] = $itbm;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"]['descuento'] = $descuento;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"]['descripcion'] = $descripcion;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"]['codigo'] = $rs_product['TX_producto_codigo'];
-		$raw_decode[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"]['medida'] = $medida;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"]['stock'] = $rs_product['TX_producto_cantidad'];
+	// ###################### restrictor por repeticion POR HACER
+	$raw_nuevaventa = $raw_decode[$_COOKIE['coo_iuser']][$activo];
+	$add = 1;
+	foreach ($raw_nuevaventa as $key => $value) {
+		if ($value['producto_id'] === $product_id && $value['promocion'] === $promocion) {
+			$add = 0;
+			break;
+		}
 	}
-		$contenido = json_encode($raw_decode);
+	// ########################## NEXT index
+	if ($add === 1) {
+		for($i=0;$i <= count($raw_nuevaventa);$i++) {
+			if(!array_key_exists($i,$raw_nuevaventa)){
+				$indice_vacio=$i;
+			}
+		}
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['producto_id'] = $product_id;
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['cantidad'] = $cantidad;
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['precio'] = $precio;
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['impuesto'] = $itbm;
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descuento'] = $descuento;
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descripcion'] = $r_function->replace_regular_character($descripcion);
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['codigo'] = $rs_product['TX_producto_codigo'];
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['medida'] = $medida;
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['stock'] = $rs_product['TX_producto_cantidad'];
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['promocion'] = $promocion;
+	}
+	$contenido = json_encode($raw_decode);
 	write_nuevaventa_content($contenido);
 	echo $contenido;
+}
+
+function plus_multiple_nuevaventa(){
+	$link=conexion();	$r_function = new recurrent_function();
+	$raw_product_id=$_GET['a'];	$raw_precio=$_GET['b'];
+	$raw_descuento=$_GET['c'];	$raw_impuesto=$_GET['d'];
+	$activo=$_GET['e'];					$raw_cantidad=$_GET['f'];
+	$raw_medida=$_GET['g'];			$promocion_tipo=$_GET['h'];
+	$multiplo=$_GET['i'];
+
+	$contenido=read_nuevaventa_content();
+	$raw_decode=json_decode($contenido, true);
+	if (!array_key_exists($_COOKIE['coo_iuser'], $raw_decode)) {
+		$raw_decode[$_COOKIE['coo_iuser']]= array();
+	}
+	if (!array_key_exists($activo, $raw_decode[$_COOKIE['coo_iuser']])) {
+		$raw_decode[$_COOKIE['coo_iuser']][$activo]= array();
+	}
+
+// ################ INICIO DEL CICLO DE INSERCION
+	$rel_nuevaventa='';
+	foreach ($raw_product_id as $indice => $raw_product_id) {
+
+		$qry_product = $link->query("SELECT TX_producto_value, TX_producto_codigo, TX_producto_medida, TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = '$raw_product_id'")or die($link->error);
+		$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
+		$descripcion = $rs_product['TX_producto_value'];
+
+		// ###################### RESTRICTOR por repeticion
+		$raw_nuevaventa = $raw_decode[$_COOKIE['coo_iuser']][$activo];
+		$add = 1;
+		foreach ($raw_nuevaventa as $key => $value) {
+			if ($value['producto_id'] === $raw_product_id && $value['promocion'] === $promocion_tipo) {
+				$add = 0;
+				break;
+			}
+		}
+		// ########################## NEXT index
+		for($i=0;$i <= count($raw_nuevaventa);$i++) {
+			if(!array_key_exists($i,$raw_nuevaventa)){
+				$indice_vacio=$i;
+			}
+		}
+		if ($add === 1) {
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['producto_id'] = $raw_product_id;
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['cantidad'] = round($raw_cantidad[$indice]*$multiplo,2);
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['precio'] = $raw_precio[$indice];
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['impuesto'] = $raw_impuesto[$indice];
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descuento'] = $raw_descuento[$indice];
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descripcion'] = $descripcion;
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['codigo'] = $rs_product['TX_producto_codigo'];
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['medida'] = $raw_medida[$indice];
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['stock'] = $rs_product['TX_producto_cantidad'];
+			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['promocion'] = $promocion_tipo;
+
+			$rel_nuevaventa .= ($rel_nuevaventa != '') ? ','.$indice_vacio : $indice_vacio;
+		}
+	}
+	$contenido = json_encode($raw_decode);
+	write_nuevaventa_content($contenido);
+	echo $contenido;
+
+	if (!empty($rel_nuevaventa)) {
+		$contenido_nuevaventarel = read_nuevaventa_rel();
+		$raw_contenido_nuevaventarel = json_decode($contenido_nuevaventarel, true);
+		$raw_contenido_nuevaventarel[$_COOKIE['coo_iuser']][$activo][]=$rel_nuevaventa;
+		$contenido_nuevaventarel = json_encode($raw_contenido_nuevaventarel);
+		write_nuevaventa_rel($contenido_nuevaventarel);
+	}
 }
 
 function upd_nuevaventa(){
 	$link=conexion();	$r_function = new recurrent_function();
-	$product_id=$_GET['a'];
+	$key_nuevaventa=$_GET['a'];
 	$value=$_GET['b'];
 	$activo=$_GET['c'];
 	$campo=$_GET['d'];
-
 	$contenido=read_nuevaventa_content();
 	$raw_nuevaventa=json_decode($contenido, true);
-	$raw_nuevaventa[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"][$campo] = $r_function->replace_special_character($value);
-	$contenido = json_encode($raw_nuevaventa);
 
+	if($campo === 'descripcion'){
+		$value = $r_function->url_replace_special_character($value);
+		$value = $r_function->replace_regular_character($value);
+	}else{ echo "<br />NO ES IGUAL"; }
+	if ($raw_nuevaventa[$_COOKIE['coo_iuser']][$activo][$key_nuevaventa]['promocion'] < 1) {
+		$raw_nuevaventa[$_COOKIE['coo_iuser']][$activo][$key_nuevaventa][$campo] = $value;
+		$contenido = json_encode($raw_nuevaventa);
+	}
 	write_nuevaventa_content($contenido);
 	echo $contenido;
 }
+
 function del_nuevaventa(){
 	$link=conexion();	$r_function = new recurrent_function();
-	$product_id=$_GET['a'];
+	$key_nuevaventa=$_GET['a'];
 	$activo=$_GET['b'];
 
+	$contenido_nuevaventarel=read_nuevaventa_rel();
+	$raw_contenido_nuevaventarel=json_decode($contenido_nuevaventarel, true);
+	$raw_2delete = array();	$rel_2delete = '';
+	if (!empty($raw_contenido_nuevaventarel[$_COOKIE['coo_iuser']][$activo])) {
+		foreach ($raw_contenido_nuevaventarel[$_COOKIE['coo_iuser']][$activo] as $key => $value) {
+			$raw_value = explode(",",$value);
+			if (in_array($key_nuevaventa,$raw_value)) {
+				$raw_2delete=$raw_value;
+				$rel_2delete=$key;
+				break;
+			}
+		}
+	}
+	if (count($raw_2delete) === 0) {
+		$raw_2delete[] = $key_nuevaventa;
+	}
 	$contenido=read_nuevaventa_content();
 	$raw_nuevaventa=json_decode($contenido, true);
-	unset($raw_nuevaventa[$_COOKIE['coo_iuser']][$activo]["'".$product_id."'"]);
-	$contenido = json_encode($raw_nuevaventa, true);
 
+	foreach ($raw_2delete as $key => $key_nuevaventa) {
+		unset($raw_nuevaventa[$_COOKIE['coo_iuser']][$activo][$key_nuevaventa]);
+	}
+	$contenido = json_encode($raw_nuevaventa, true);
 	write_nuevaventa_content($contenido);
 	echo $contenido;
+
+	if ($rel_2delete >= 0) {
+		$contenido_nuevaventarel = read_nuevaventa_rel();
+		$raw_contenido_nuevaventarel = json_decode($contenido_nuevaventarel, true);
+		unset($raw_contenido_nuevaventarel[$_COOKIE['coo_iuser']][$activo][$rel_2delete]);
+		$contenido_nuevaventarel = json_encode($raw_contenido_nuevaventarel);
+		write_nuevaventa_rel($contenido_nuevaventarel);
+	}
 }
 function reload_nuevaventa(){
 	$link=conexion();	$r_function = new recurrent_function();
@@ -110,19 +243,24 @@ function duplicate_datoventa(){
 
 	unset($raw_decode[$_COOKIE['coo_iuser']]['first_sale']);
 
-	$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_facturaventa_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion, TX_datoventa_medida FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '$facturaventa_id'")or die($link->error);
+	$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_facturaventa_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion, TX_datoventa_medida, TX_datoventa_promocion FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '$facturaventa_id'")or die($link->error);
+	$i=0;
 	while ($rs_datoventa=$qry_datoventa->fetch_array(MYSQLI_ASSOC)) {
 		$qry_product = $link->query("SELECT TX_producto_value, TX_producto_codigo, TX_producto_medida, TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = '{$rs_datoventa['datoventa_AI_producto_id']}'")or die($link->error);
 		$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
-
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['cantidad'] = $rs_datoventa['TX_datoventa_cantidad'];
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['precio'] = $rs_datoventa['TX_datoventa_precio'];
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['impuesto'] = $rs_datoventa['TX_datoventa_impuesto'];
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['descuento'] = $rs_datoventa['TX_datoventa_descuento'];
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['descripcion'] = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']);
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['codigo'] = $rs_product['TX_producto_codigo'];
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['medida'] = $rs_datoventa['TX_datoventa_medida'];
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale']["'".$rs_datoventa['datoventa_AI_producto_id']."'"]['stock'] = $rs_product['TX_producto_cantidad'];
+		if ($rs_datoventa['TX_datoventa_promocion'] < 1) {
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['producto_id'] = $rs_datoventa['TX_datoventa_cantidad'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['cantidad'] = $rs_datoventa['TX_datoventa_cantidad'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['precio'] = $rs_datoventa['TX_datoventa_precio'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['impuesto'] = $rs_datoventa['TX_datoventa_impuesto'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['descuento'] = $rs_datoventa['TX_datoventa_descuento'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['descripcion'] = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']);
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['codigo'] = $rs_product['TX_producto_codigo'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['medida'] = $rs_datoventa['TX_datoventa_medida'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['stock'] = $rs_product['TX_producto_cantidad'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['promocion'] = $rs_datoventa['TX_datoventa_promocion'];
+		}
+		$i++;
 	}
 
 	$contenido=json_encode($raw_decode);
@@ -134,6 +272,9 @@ $funct=$_GET['z'];
 switch ($funct) {
 	case 'plus':
 		plus_nuevaventa();
+		break;
+	case 'plus_multiple' :
+		plus_multiple_nuevaventa();
 		break;
 	case 'upd':
 		upd_nuevaventa();

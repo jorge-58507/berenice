@@ -109,7 +109,6 @@ var raw_payment=[];
 i=0;
 var abonado = 0;
 function add_payment_cpp(method, amount, number, cpp_id, date){
-	// console.log("abriendo: "+abonado);
 	var tr_payment = new Object();
 			tr_payment['fecha'] = date;
 			tr_payment['metodo'] = method;
@@ -122,15 +121,11 @@ function add_payment_cpp(method, amount, number, cpp_id, date){
 		var monto = parseFloat(tr_payment['monto']);
 		var saldo = $("#span_saldo").html().replace(",","");saldo = saldo.replace("B/ ","");
 		saldo_ab=saldo-abonado; saldo_ab = saldo_ab.toFixed(2); saldo_ab=parseFloat(saldo_ab);
-		// console.log("saldo_ab: "+saldo_ab);
 		if (monto > saldo_ab) {
-			// console.log("monto: "+monto+" > "+(saldo_ab));
 			return false;
 		}else{
-			// console.log("saldo: "+(saldo_ab)+" > "+monto);
 			raw_payment[i] = tr_payment;
 			abonado = abonado + monto;
-			// console.log("abonado: "+abonado);
 		}
 		print_payment_cpp(raw_payment);
 		if (method === '2') {
@@ -144,13 +139,11 @@ function add_payment_cpp(method, amount, number, cpp_id, date){
 }
 function remove_payment_cpp(index){
 	abonado = abonado-raw_payment[index]['monto']; abonado = abonado.toFixed(2);
-	// console.log("nvo. abonado: "+abonado);
 	raw_payment.splice(index,1);
 	print_payment_cpp(raw_payment);
 }
 function print_payment_cpp(raw_payment){
 	payment_method = ['','EFECTIVO','CHEQUE','T. DE CREDITO','T. CLAVE','','','NOTA DE CREDITO','OTRO'];
-	// console.log(raw_payment);
 	tbody="";
 	for (var property in raw_payment) {
 		var monto = parseFloat(raw_payment[property].monto);

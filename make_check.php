@@ -157,9 +157,9 @@ switch ($_COOKIE['coo_tuser']){
 
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="" >
-
+	<div id="container_cheque" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
   	<div id="container_provider" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    	<label for="span_provider">Beneficiario: </label>
+    	<label for="span_provider" class="label label_blue_sky">Beneficiario: </label>
       <input type="text" class="form-control" id="txt_filterprovider" placeholder="Proveedor" alt="<?php echo $proveedor_id; ?>" value="<?php echo $proveedor_nombre; ?>">
     </div>
     <div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 side-btn-md">
@@ -169,29 +169,29 @@ switch ($_COOKIE['coo_tuser']){
 
     </div>
   	<div id="container_number" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    	<label for="txt_number">Numero: </label>
+    	<label for="txt_number"  class="label label_blue_sky">Numero: </label>
   		<input type="text" id="txt_number" class="form-control" value="" />
     </div>
   	<div id="container_monto" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-    	<label for="txt_monto">Monto:</label>
+    	<label for="txt_monto"  class="label label_blue_sky">Monto:</label>
   		<input type="text" id="txt_monto" class="form-control" value="" />
     </div>
   	<div id="container_montoletras" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
-    	<label for="txt_montoletras">Monto en Letras:</label>
+    	<label for="txt_montoletras" class="label label_blue_sky">Monto en Letras:</label>
   		<input type="text" id="txt_montoletras" class="form-control" value="" />
     </div>
   	<div id="container_montoletras" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 side-btn-md">
   		<button type="button" class="btn btn-primary" id="btn_letter_amount" onclick="$('#txt_montoletras').val(nn($('#txt_monto').val()))"><i class="fa fa-refresh"></i></button>
     </div>
   	<div id="container_observation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<label for="txt_observation">Observaci&oacute;n: </label>
-  		<input type="text" id="txt_observation" class="form-control" value="<?php if(!empty($rs_facturacompra[0])){ echo "Factura: ".$rs_facturacompra[0]; }; if(!empty($rs_pedido[0])){ echo "Orden de Compra: ".$rs_pedido[0]; }; ?>" />
+    	<label for="txt_observation" class="label label_blue_sky">Observaci&oacute;n: </label>
+  		<textarea id="txt_observation" class="form-control"><?php if(!empty($rs_facturacompra[0])){ echo "Factura: ".$rs_facturacompra[0]; }; if(!empty($rs_pedido[0])){ echo "Orden de Compra: ".$rs_pedido[0]; }; ?></textarea>
     </div>
     <div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     	<button type="button" id="btn_print" class="btn btn-info"><span class="glyphicon glyphicon-print"></span> Imprimir</button>
       <button type="button" id="btn_cancel" class="btn btn-warning">Salir</button>
     </div>
-
+	</div>
 </form>
 </div>
 

@@ -27,10 +27,6 @@ margin-top: 24px;
 #container_tblfacturacompra{
 	padding:15px 0 0 0;
 }
-#tbl_facturacompra, #tbl_facturacompra th{
-	text-align:center;
-	cursor:pointer;
-}
 #tbl_product, #tbl_product th{
 	text-align:center;
 	cursor:pointer;

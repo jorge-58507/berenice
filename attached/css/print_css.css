@@ -117,3 +117,46 @@ tfoot{
 .al_center{
 	text-align: center;
 }
+.al_right{
+	text-align: right;
+}
+.print_line_header{
+	border: solid 1px #ccc;
+}
+.print_line_header>div{
+	padding: 0;
+	text-align: center;
+	text-transform: uppercase;
+	font-weight: bolder;
+	border-right: solid 1px #ccc;
+	min-height: 41px;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-direction: column;
+	background: #e6e6e6;
+}
+.print_line_body{
+	min-height: 41px;
+	border: solid 1px #ccc;
+}
+.print_line_body>div{
+	padding: 3px;
+}
+.print_line_caption{
+	color: #ccc;
+}
+#container_print_total{
+	border: solid 2px #ccc;
+	border-radius: 8px;
+	margin: 0 auto;
+	float: none;
+	min-height: 340px;
+}
+#container_print_total>div{
+	text-align: center;
+	font-size: 14px;
+}
+h4{
+	font-weight: bolder;
+}

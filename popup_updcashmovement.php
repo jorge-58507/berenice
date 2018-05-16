@@ -71,11 +71,11 @@ $(document).ready(function() {
 
 	<div id="container_cashmovement" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 		<div id="container_txtmotivo" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-			<label for="txt_motivo">Motivo</label>
+			<label for="txt_motivo" class="label label_blue_sky">Motivo</label>
 			<input type="text" id="txt_motivo" class="form-control" value="<?php echo $rs_cashmovement['TX_efectivo_motivo']; ?>"	/>
 		</div>
 		<div id="container_seltype" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-			<label for="sel_type">Tipo de Movimiento</label>
+			<label for="sel_type"  class="label label_blue_sky">Tipo de Movimiento</label>
 			<select id="sel_type" class="form-control" name="sel_type">
 <?php 	if ($rs_cashmovement['TX_efectivo_tipo'] === 'SALIDA'): ?>
 				<option value="SALIDA" selected="selected">Salida</option>

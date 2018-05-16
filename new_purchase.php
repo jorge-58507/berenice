@@ -295,7 +295,7 @@ switch ($_COOKIE['coo_tuser']){
 					$title = ($rs_product['TX_producto_activo'] === '1') ? 'INACTIVO' : '';
 ?>        <tr style="color:<?php echo $color; ?>" title="<?php echo $title; ?>">
             <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $rs_product['TX_producto_codigo'] ?></td>
-	        	<td class="col-xs-7 col-sm-7 col-md-7 col-lg-7" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $rs_product['TX_producto_value'] ?></td>
+	        	<td class="col-xs-7 col-sm-7 col-md-7 col-lg-7" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']) ?></td>
             <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $rs_product['TX_producto_cantidad'] ?></td>
 						<td class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><button type="button" class="btn btn-warning btn-xs" onclick="open_popup('popup_updproduct.php?a=<?php echo $rs_product['AI_producto_id'] ?>', '_popup','1010','654')"><i class="fa fa-wrench"></i></button></td>
 	        </tr>
@@ -343,7 +343,7 @@ switch ($_COOKIE['coo_tuser']){
 			      <td><?php echo $rs_newpurchase['TX_producto_value']; ?></td>
 			      <td><?php echo $raw_medida[$rs_newpurchase['TX_nuevacompra_medida']]; ?></td>
 			      <td onclick="upd_quantitynewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_unidades']; ?></td>
-			      <td><?php echo $rs_newpurchase['TX_nuevacompra_precio']; ?></td>
+			      <td onclick="upd_pricenewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_precio']; ?></td>
 			      <td><?php echo $rs_newpurchase['TX_nuevacompra_descuento']."% = ".number_format($descuento4product,4);?></td>
 			      <td><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".number_format($impuesto4product,4); ?></td>
 			      <td><?php echo number_format($total_desc_imp,4);	?></td>

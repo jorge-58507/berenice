@@ -31,37 +31,39 @@ function upd_precionuevaventa(product_id){
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
 //  #########################  FUNCIONES PARA LA EDICION DEL TEXT NUEVAVENTA ##################
-function plus_product2nuevaventa(product_id,precio,descuento,itbm,activo,cantidad,medida){
-	// close_popup();
-	$.ajax({	data: {"a" : product_id, "b" : precio, "c" : descuento, "d" : itbm, "e" : activo, "f" : cantidad, "g" : medida, "z" : 'plus' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+function plus_product2nuevaventa(product_id,precio,descuento,itbm,activo,cantidad,medida,promotion){
+	close_popup();
+	$.ajax({	data: {"a" : product_id, "b" : precio, "c" : descuento, "d" : itbm, "e" : activo, "f" : cantidad, "g" : medida, "h" : promotion, "z" : 'plus' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
 	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
 		if(data){
 			data = JSON.parse(data);
 			generate_tbl_nuevaventa(data,activo);
 			activo=activo.replace("_sale","");
 			$("#btn_guardar, #btn_facturar").css("display","initial");
-			$("#txt_filterproduct").focus();
+			$("#txt_filterproduct").select();
 		}
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 
 }
 
-function upd_descripcion_nuevaventa(product_id,description){
+function upd_descripcion_nuevaventa(key_nuevaventa,descripcion){
+	descripcion = replace_special_character(descripcion);
 	$.ajax({	data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
 	.done(function( data, textStatus, jqXHR ) {
 		if (data[0][0] === '') {
 			return false
 		}else{
-			var n_description = prompt("Introduzca la nueva descripcion",description);
+			var n_description = prompt("Introduzca la nueva descripcion",descripcion);
 			if (n_description.length > 100) {
 				alert("La descripcion en muy larga");
-				upd_descripcion_nuevaventa(product_id,description);
+				descripcion = replace_regular_character(descripcion);
+				upd_descripcion_nuevaventa(key_nuevaventa,descripcion);
 			}else{
 				var activo = $(".tab-pane.active").attr("id");
 				n_description = n_description.toUpperCase();
-				n_description = replace_regular_character(n_description);
-				$.ajax({	data: {"a" : product_id, "b" : n_description, "c" : activo, "d" : 'descripcion', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+				n_description = url_replace_regular_character(n_description);
+				$.ajax({	data: {"a" : key_nuevaventa, "b" : n_description, "c" : activo, "d" : 'descripcion', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
 				.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
 					if(data){
 					data = JSON.parse(data);
@@ -73,9 +75,9 @@ function upd_descripcion_nuevaventa(product_id,description){
 		}
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
-
 }
-function upd_precio_nuevaventa(product_id){
+
+function upd_precio_nuevaventa(key_nuevaventa){
 	$.ajax({ data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
 	.done(function( data, textStatus, jqXHR ) {	if(data[0][0] != ""){
 			var activo = $(".tab-pane.active").attr("id");
@@ -85,7 +87,7 @@ function upd_precio_nuevaventa(product_id){
 			}
 			new_price = val_intw2dec(new_price);
 			new_price = parseFloat(new_price);
-			$.ajax({	data: {"a" : product_id, "b" : new_price.toFixed(2), "c" : activo, "d" : 'precio', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+			$.ajax({	data: {"a" : key_nuevaventa, "b" : new_price.toFixed(2), "c" : activo, "d" : 'precio', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
 			.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
 				if(data){
 					data = JSON.parse(data);
@@ -97,15 +99,15 @@ function upd_precio_nuevaventa(product_id){
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 
 }
-function upd_unidades_nuevaventa(product_id){
+function upd_unidades_nuevaventa(key_nuevaventa){
 	var activo = $(".tab-pane.active").attr("id");
 	var new_quantity = prompt("Ingrese la cantidad:");
-	if (new_quantity === '' || isNaN(new_quantity)) {
+	if (new_quantity === '' || isNaN(new_quantity) || new_quantity == '0') {
 		return false;
 	}
 	new_quantity = val_intw2dec(new_quantity);
 	new_quantity = parseFloat(new_quantity);
-	$.ajax({	data: {"a" : product_id, "b" : new_quantity.toFixed(2), "c" : activo, "d" : 'cantidad', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+	$.ajax({	data: {"a" : key_nuevaventa, "b" : new_quantity.toFixed(2), "c" : activo, "d" : 'cantidad', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
 	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
 		if(data){
 			data = JSON.parse(data);
@@ -114,9 +116,9 @@ function upd_unidades_nuevaventa(product_id){
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
-function del_nuevaventa(product_id){
+function del_nuevaventa(key_nuevaventa){
 	var activo = $(".tab-pane.active").attr("id");
-	$.ajax({	data: {"a" : product_id, "b" : activo, "z" : 'del' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
+	$.ajax({	data: {"a" : key_nuevaventa, "b" : activo, "z" : 'del' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
 	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
 		if(data){
 			data = JSON.parse(data);
@@ -139,7 +141,9 @@ function refresh_tblproduct2sale(){
 
 
 function close_popup(){
-	popup.close();
+	if(popup){
+		popup.close();
+	}
 }
 
 /*########################## FUNCTIONS FOR NEW_PAYDESK   #############################*/
@@ -164,11 +168,11 @@ function  unset_filterclient(e){
 			source: "attached/get/filter_client_sell.php",
 			minLength: 2,
 			select: function( event, ui ) {
-							var n_val = ui.item.value;
-								raw_n_val = n_val.split(" | Dir:");
-								ui.item.value = raw_n_val[0];
-								$("#txt_filterclient_"+activo).prop('alt', ui.item.id);
-								$("#txt_filterclient_"+activo).prop('title', 'Completa las ventas '+ui.item.asiduo+" de las veces");
+				var n_val = ui.item.value;
+				raw_n_val = n_val.split(" | Dir:");
+				ui.item.value = raw_n_val[0];
+				$("#txt_filterclient_"+activo).prop('alt', ui.item.id);
+				$("#txt_filterclient_"+activo).prop('title', 'Completa las ventas '+ui.item.asiduo+" de las veces");
 				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20)+' <strong>Asiduo.</strong> '+ui.item.asiduo;
 				fire_recall('container_client_recall_'+activo, content)
 				generate_tbl_favorito(ui.item.json_favorito,activo);

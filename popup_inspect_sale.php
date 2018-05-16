@@ -64,7 +64,7 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 
 $(document).ready(function() {
 	$("#txt_filterfacturaventa").keyup(function(){
-		if($("#txt_date_initial,#txt_date_final").val() == ""){
+		if($("#txt_date_initial,#txt_date_final").val() === ""){
 			return false;
 		}
 		filter_facturaventa();
@@ -135,29 +135,33 @@ function duplicate_datoventa(facturaventa_id){
 <body>
 
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
-		<div id="logo" ></div>
+	<div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
+			<div id="logo" ></div>
+		</div>
 	</div>
-</div>
 
-<div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
-<form action="sale.php" method="post" name="form_sell"  id="form_sell">
-
-    <div id="container_filterfacturaventa" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-        <label class="label label_blue_sky" class="label label_blue_sky" for="txt_filterfacturaventa">Buscar</label>
-        <input type="text" id="txt_filterfacturaventa" class="form-control" />
-    </div>
-    <div id="container_filterfacturaventa" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <label class="label label_blue_sky" for="sel_filterfacturaventa">Status</label>
-        <select id="sel_filterfacturaventa" class="form-control">
-        	<option value="">SELECCIONAR</option>
-            <option value="ACTIVA">ACTIVA</option>
-        	<option value="FACTURADA">FACTURADA</option>
-        	<option value="CANCELADA">CANCELADA</option>
-        </select>
-    </div>
+		<form action="sale.php" method="post" name="form_sell"  id="form_sell">
+			<div id="container_filterfacturaventa" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+		    <label class="label label_blue_sky" class="label label_blue_sky" for="txt_filterfacturaventa">Buscar</label>
+		    <input type="text" id="txt_filterfacturaventa" class="form-control" placeholder="Nombre de Cliente o Numero de Factura" />
+		  </div>
+			<div id="container_user" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+				<label class="label label_blue_sky" for="txt_rlimit">Usuario:</label><br />
+				<label class="radio-inline"><input type="radio" name="r_user" id="r_user" value="propio"  checked="checked" /> Propio</label>
+				<label class="radio-inline"><input type="radio" name="r_user" id="r_user" value="todo" /> Todos</label>
+		  </div>
+	    <div id="container_filterfacturaventa" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+	      <label class="label label_blue_sky" for="sel_filterfacturaventa">Status</label>
+	      <select id="sel_filterfacturaventa" class="form-control">
+	      	<option value="">SELECCIONAR</option>
+	        <option value="ACTIVA">ACTIVA</option>
+	      	<option value="FACTURADA">FACTURADA</option>
+	      	<option value="CANCELADA">CANCELADA</option>
+	      </select>
+	    </div>
     <div id="container_txtdateinitial" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
       <label class="label label_blue_sky" for="txt_date_initial">F. Inicio</label>
       <input type="text" id="txt_date_initial" class="form-control" readonly="readonly" value="<?php echo $fecha_i; ?>" />
@@ -169,15 +173,15 @@ function duplicate_datoventa(facturaventa_id){
 	<div id="container_tblfacturaventa" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <table id="tbl_facturaventa" class="table table-bordered table-striped">
 	<thead class="bg-primary">
-    	<tr>
-    	  <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
-        <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Cliente</th>
-        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Nº Cotizacion</th>
-        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
-        <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Factura Asociada</th>
-        <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Metodo de P.</th>
-        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Monto</th>
-      </tr>
+  	<tr>
+  	  <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
+      <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Cliente</th>
+      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cotizacion</th>
+      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
+      <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Factura</th>
+      <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Metodo</th>
+      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Monto</th>
+    </tr>
     </thead>
     <tbody>
     <?php if($nr_facturaventa=$qry_facturaventa->num_rows > 0){ ?>

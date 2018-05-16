@@ -90,7 +90,7 @@ $("#btn_exit").click(function(){
   $("#clear_date_final").click(function(){
 	 $("#txt_date_final").val("");
   });
-	$("#btn_search").click(function(){
+	$("#btn_detail").click(function(){
 		if($("#sel_vendedor").val() == ""){
 			$("#sel_vendedor").addClass("input_invalid");
 			return false;
@@ -104,9 +104,18 @@ $("#btn_exit").click(function(){
 			return false;
 		}	$("#txt_date_final").removeClass("input_invalid");
 
-		filter_facturaventa_vendedor('datopago_AI_metododepago_id');
+		filter_facturaventa_vendedor();
 	});
-
+	$("#btn_total").click(function(){
+		if($("#sel_vendedor").val() === ""){ set_bad_field('sel_vendedor');	return false;	}	set_good_field("sel_vendedor");
+		if($("#txt_date_initial").val() === ""){ set_bad_field("txt_date_initial"); return false; } set_good_field("txt_date_initial");
+		if($("#txt_date_final").val() == ""){ set_bad_field("txt_date_final"); return false; } set_good_field("txt_date_final");
+		$.ajax({	data: {"a" : $("#sel_vendedor").val(), "b" : $("#txt_date_initial").val(), "c" : $("#txt_date_final").val() },	type: "GET",	dataType: "text",	url: "attached/get/get_salesman_total.php", })
+		.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+			$("#container_tblfacturaventa").html(data);
+		})
+		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+	});
 
 $("#btn_back").click(function(){
 	history.back(1);
@@ -180,10 +189,12 @@ switch ($_COOKIE['coo_tuser']){
         <button type="button" id="clear_date_final" class="btn btn-danger btn-xs"><strong>!</strong></button></label>
         <input type="text" id="txt_date_final" class="form-control" readonly="readonly" value="<?php echo date('d-m-Y'); ?>" />
     </div>
-    <div id="container_btnsearch" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-    	<button type="button" id="btn_search" class="btn btn-success">Buscar</button>
+    <div id="container_btnsearch" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+			<button type="button" id="btn_total" class="btn btn-info"><i class="fa fa-search"></i> Mostrar Totales</button>
+			&nbsp;&nbsp;
+			<button type="button" id="btn_detail" class="btn btn-success"><i class="fa fa-search"></i> Buscar Detalle</button>
     	&nbsp;&nbsp;
-        <button type="button" id="btn_back" class="btn btn-warning">Volver</button>
+      <button type="button" id="btn_back" class="btn btn-warning">Volver</button>
     </div>
 
 </div>

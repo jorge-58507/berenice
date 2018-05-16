@@ -43,9 +43,6 @@ while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
 <link href="attached/css/print_css.css" rel="stylesheet" type="text/css">
 </head>
 <script type="text/javascript">
-function cap_fl(str){
-	  return string.charAt(0).toUpperCase() + string.slice(1);
-}
 // setTimeout('self.close()',15000);
 </script>
 
@@ -121,7 +118,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 	    </table>
 	  </td>
 	</tr>
-	<tr style="height:570px;">
+	<tr style="height:545px;">
 		<td valign="top" colspan="10" style="padding-top:2px;">
 	    <table table id="tbl_product" class="table table-print table-bordered table-striped" >
 		    <thead style="border:solid">
@@ -149,16 +146,17 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 ?>
 				</tbody>
 			</table>
-
+			<tr style="height:25px; font-size:10px; border:none; padding: 0 5px;">
+				<td colspan="10"><strong>Condiciones: </strong><br />Precios sujetos a cambio sin previo aviso.</td>
+			</tr>
 			<tr style="height:38px; font-size:14px; border:solid; ">
 				<td colspan="10"></td>
 			</tr>
-
 		</td>
 	</tr>
 </table>
 <table cellpadding="0" cellspacing="0" border="0" style="height:975px; width:720px; font-size:12px; margin:0 auto; page-break-before: always">
-	<tr style="height:936px;">
+	<tr style="height:911px;">
 		<td valign="top" colspan="10" style="padding-top:2px;">
 			<table table id="tbl_product" class="table table-bordered table-striped table-print" >
 		    <thead style="border:solid">
@@ -183,6 +181,9 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 	?>
 				</tbody>
 			</table>
+			<tr style="height:25px; font-size:10px; border:none; padding: 0 5px;">
+				<td colspan="10"><strong>Condiciones: </strong><br />Precios sujetos a cambio sin previo aviso.</td>
+			</tr>
 			<tr style="height:38px; font-size:14px; border:solid; ">
 				<td colspan="10"></td>
 			</tr>
@@ -190,7 +191,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 	</tr>
 </table>
 <table cellpadding="0" cellspacing="0" border="0" style="height:975px; width:720px; font-size:12px; margin:0 auto; page-break-before: always">
-	<tr style="height:936px;">
+	<tr style="height:911px;">
 		<td valign="top" colspan="10" style="padding-top:2px;">
 			<table table id="tbl_product" class="table table-bordered table-striped table-print" >
 		    <thead style="border:solid">
@@ -222,9 +223,9 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 						<td style="vertical-align: middle;" class="al_center"><?php echo $raw_medida[$rs_facturaventa['TX_datoventa_medida']]; ?></td>
 						<td style="vertical-align: middle;" class="al_center"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
 		        <td style="vertical-align: middle;" class="al_center"><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
-		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($descuento,4); 			?></td>
-		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($itbm,4); 						?></td>
-		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($precio_total,4); 		?></td>
+		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($descuento/$rs_facturaventa['TX_datoventa_cantidad'],4); 			?></td>
+		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($itbm/$rs_facturaventa['TX_datoventa_cantidad'],4); 						?></td>
+		        <td style="vertical-align: middle;" class="al_right"><?php echo number_format($precio_total,4); 		?></td>
 					</tr>
 	<?php
 				$totalitbm += $itbm;
@@ -235,6 +236,9 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 	 			</tbody>
 			</table>
 		</td>
+	</tr>
+	<tr style="height:25px; font-size:10px; border:none; padding: 0 5px;">
+		<td colspan="10"><strong>Condiciones: </strong><br />Precios sujetos a cambio sin previo aviso.</td>
 	</tr>
 	<tr style="height:38px; font-size:14px; border:solid; ">
 		<td colspan="2"></td>

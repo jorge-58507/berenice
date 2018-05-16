@@ -9,11 +9,15 @@
 }
 #container_btn{
 	text-align:center;
+	#container_nvo
+
 	padding:15px;
 }
 #container_client{
 	padding:15px;
 }
+#container_nvo
+
 #tbl_return{
 	text-align:center;
 }
@@ -222,4 +226,45 @@ ul.nav-tabs > li{
 }
 .btn-sm > i{
 	font-size: 19px;
+}
+#container_btn_scroll{
+	padding: 5px;
+}
+#container_scroll{
+	padding: 3px 0;
+	height: 470px;
+	overflow-y: scroll;
+	border: solid 1px #ccc;
+	border-radius: 5px;
+}
+#container_product{
+	padding-top:5px;
+}
+#container_tbl_product{
+	height: 300px;
+	overflow-y: scroll;
+}
+#container_filterfacturaf{
+	padding: 7px 0 0 0;
+}
+#container_rlimit>label.radio-inline{
+	padding-top: 7px;
+}
+#container_nvo_cheque{
+	padding-top: 14px;
+}
+#container_cpp>div, #container_provider>div, #container_cheque>div{
+	margin-top:7px;
+}
+#tbl_cheque>tbody>tr>td{
+	vertical-align: middle;
+	text-align: center;
+}
+#total_comision{
+	width: -moz-fit-content;
+	padding: 10px 5px;
+	border: solid 2px #c63632;
+	border-radius: 3px;
+	margin: 0 auto;
+	font-size: 18px;
 }

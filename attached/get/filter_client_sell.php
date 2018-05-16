@@ -7,7 +7,7 @@ $value=$r_function->replace_regular_character($_GET['term']);
 $date_i = date('Y-m-d',strtotime('-12 week'));
 $date_f = date('Y-m-d');
 
-$prep_cliente_datoventa=$link->prepare("SELECT TX_datoventa_descripcion, SUM(TX_datoventa_cantidad) as conteo, datoventa_AI_producto_id, TX_datoventa_precio FROM bh_datoventa INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id WHERE facturaventa_AI_cliente_id = ? AND bh_facturaventa.TX_facturaventa_fecha >= ? AND bh_facturaventa.TX_facturaventa_fecha <= ? GROUP BY TX_datoventa_descripcion ORDER BY conteo DESC LIMIT 8");
+$prep_cliente_datoventa=$link->prepare("SELECT TX_datoventa_descripcion, count(TX_datoventa_descripcion) as conteo_descripcion, datoventa_AI_producto_id, TX_datoventa_precio FROM bh_datoventa INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id WHERE facturaventa_AI_cliente_id = ? AND bh_facturaventa.TX_facturaventa_fecha >= ? AND bh_facturaventa.TX_facturaventa_fecha <= ? GROUP BY TX_datoventa_descripcion ORDER BY conteo_descripcion DESC LIMIT 8");
 $prep_cliente_asiduo=$link->prepare("SELECT AI_facturaventa_id, facturaventa_AI_facturaf_id FROM bh_facturaventa WHERE facturaventa_AI_cliente_id = ?")or die($link->error);
 
 $arr_value = (explode(' ',$value));

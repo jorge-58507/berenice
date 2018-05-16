@@ -46,9 +46,9 @@
 #tbl_paymentlist, #tbl_paymentlist th{
 	text-align:center;
 }
-#container_btnamount{
+/* #container_btnamount{
 	margin-top:25px;
-}
+} */
 #span_nettotal{
 	display:none;
 }

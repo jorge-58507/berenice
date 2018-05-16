@@ -36,23 +36,16 @@ WHERE TX_efectivo_fecha = '$fecha_actual'");
 
 $(document).ready(function() {
 
-$("#txt_motivo").keyup(function(){
+$("#txt_motivo").on("blur",function(){
 	this.value = this.value.toUpperCase();
 });
 $('#btn_acept').click(function(){
-	var ans = val_intwdec($("#txt_monto").val());
-	if(!ans){
-		$("#txt_monto").focus();
-		return false;
-	}
-	if($("#txt_motivo").val() == ""){
-		$("#txt_motivo").focus();
-		return false;
-	}
+	if(!val_intwdec($("#txt_monto").val()) ){	set_bad_field('txt_monto');	$("#txt_monto").focus();	return false;	}
+	set_good_field('txt_monto');
+	if($("#txt_motivo").val() === ""){ set_bad_field('txt_motivo');	$("#txt_motivo").focus();	return false;	}
+	set_good_field('txt_motivo');
 	var res = confirm("¿Desea Continuar?");
-	if(!res){
-		return false;
-	}
+	if(!res){	return false;	}
 	plus_cashmovement();
 })
 $('#btn_cancel').click(function(){
@@ -96,7 +89,6 @@ var del_cashmovement = function(efectivo_id){
 		self.close();
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
-
 }
 
 </script>
@@ -115,33 +107,38 @@ var del_cashmovement = function(efectivo_id){
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form method="post" name="form_addprovider">
+<div id="container_tinybox" class="col-xs-8 col-sm-6 col-md-6 col-lg-6">
+	<div id="container_seltipo" class="col-xs-6 col-sm-12 col-md-12 col-lg-12">
+		<label for="sel_tipo" class="label label_blue_sky">Tipo:</label>
+		<select id="sel_tipo" name="sel_tipo" class="form-control">
+	  	<option value="SALIDA" selected="selected">Salida</option>
+		  <option value="ENTRADA">Entrada</option>
+	  </select>
+	</div>
+	<div id="container_txtmonto" class="col-xs-6 col-sm-12 col-md-12 col-lg-12">
+		<label for="txt_monto"  class="label label_blue_sky">Monto:</label>
+		<input type="text" name="txt_monto" id="txt_monto" class="form-control" onkeyup="chk_monto(this)" />
+	</div>
+	<div id="container_txtmotivo" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<label for="txt_motivo"  class="label label_blue_sky">Motivo:</label>
+	  <input type="text" name="txt_motivo" id="txt_motivo" class="form-control" onkeyup="chk_motivo(this)" />
+	</div>
 
-<div id="container_seltipo" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<label for="sel_tipo">Tipo:</label>
-	<select id="sel_tipo" name="sel_tipo" class="form-control">
-  	<option value="SALIDA" selected="selected">Salida</option>
-	  <option value="ENTRADA">Entrada</option>
-  </select>
-</div>
-<div id="container_txtmotivo" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<label for="txt_motivo">Motivo:</label>
-    <input type="text" name="txt_motivo" id="txt_motivo" class="form-control" onkeyup="chk_motivo(this)" />
-</div>
-<div id="container_txtmonto" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
-	<label for="txt_monto">Monto:</label>
-    <input type="text" name="txt_monto" id="txt_monto" class="form-control" onkeyup="chk_monto(this)" />
-</div>
-<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<button type="button" id="btn_acept" name="btn_acept" class="btn btn-success">Aceptar</button>
-	&nbsp;&nbsp;
-    <button type="button" id="btn_cancel" name="btn_cancel" class="btn btn-warning">Cancelar</button>
+	<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<button type="button" id="btn_acept" name="btn_acept" class="btn btn-success">Aceptar</button>
+		&nbsp;&nbsp;
+	  <button type="button" id="btn_cancel" name="btn_cancel" class="btn btn-warning">Cancelar</button>
+	</div>
 </div>
 <div id="container_filter_cashmovement" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<div id="container_txtfecha" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-	<label for="txt_fecha">Fecha:</label>
-    <button type="button" id="btn_clear_datei" class="btn btn-danger btn-xs"><strong>!</strong></button>
+	<div id="container_txtfecha" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+		<label for="txt_fecha" class="label label_blue_sky">Fecha:</label>
+    <button type="button" id="btn_clear_datei" class="btn btn-danger btn-xs btn_squared_xs"><i class="fa fa-exclamation"></i></button>
     <input type="text" id="txt_fecha" name="txt_fecha" class="form-control" value="<?php echo date('d-m-Y'); ?>" readonly="readonly" />
-</div>
+	</div>
+	<div id="container_btn" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+		<button type="button" id="btn_print_all" class="btn btn-info btn-lg" ><i class="fa fa-print"> Imprimir</i></button>
+	</div>
 </div>
 <div id="container_cashmovement" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<table id="tbl_cashmovement" class="table table-bordered table-condensed table-striped">
@@ -154,37 +151,33 @@ var del_cashmovement = function(efectivo_id){
       <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></th>
     </tr>
     </thead>
-    <tfoot class="bg-primary"><tr><td></td><td></td><td></td><td></td></tr></tfoot>
+    <tfoot class="bg-primary"><tr><td colspan="4"></td></tr></tfoot>
     <tbody>
-<?php 	while($rs_cashmovement = $qry_cashmovement->fetch_array(MYSQLI_ASSOC)){ ?>
-			<tr title="<?php echo $rs_cashmovement['TX_user_seudonimo']; ?>">
-				<td><?php echo $rs_cashmovement['TX_efectivo_tipo']; ?></td>
-				<td><?php echo $rs_cashmovement['TX_efectivo_motivo']; ?></td>
-				<td><?php echo substr($rs_cashmovement['TX_efectivo_monto'],0,20); ?></td>
-				<td>
-					<button type="button" class="btn btn-info btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="print_html('print_cashmovement.php?a='+this.name)" ><i class="fa fa-print fa-2x" aria-hidden="true"></i></button>
-					&nbsp;
-<?php if ($rs_cashmovement['efectivo_AI_arqueo_id'] === '0') { ?>
-					<button type="button" class="btn btn-warning btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="open_popup('popup_updcashmovement.php?a=<?php echo $rs_cashmovement['AI_efectivo_id'] ?>','_popup',420, 420)" ><i class="fa fa-wrench fa-2x" aria-hidden="true"></i></button>
-<?php } else {?>
-					<button type="button" class="btn btn-warning btn-xs" disabled><i class="fa fa-wrench fa-2x" aria-hidden="true"></i></button>
-<?php } ?>
-					&nbsp;
-<?php 		if ($rs_cashmovement['efectivo_AI_arqueo_id'] === '0' && $rs_cashmovement['TX_efectivo_tipo'] === 'SALIDA') { ?>
-					<button type="button" class="btn btn-danger btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="del_cashmovement(<?php echo $rs_cashmovement['AI_efectivo_id'] ?>)" ><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-<?php 		} else {?>
-					<button type="button" class="btn btn-danger btn-xs" disabled><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
-<?php 		} ?>
-				</td>
-			</tr>
-<?php } ?>
+<?php while($rs_cashmovement = $qry_cashmovement->fetch_array(MYSQLI_ASSOC)){ ?>
+				<tr title="<?php echo $rs_cashmovement['TX_user_seudonimo']; ?>">
+					<td><?php echo $rs_cashmovement['TX_efectivo_tipo']; ?></td>
+					<td><?php echo $rs_cashmovement['TX_efectivo_motivo']; ?></td>
+					<td><?php echo substr($rs_cashmovement['TX_efectivo_monto'],0,20); ?></td>
+					<td>
+						<button type="button" class="btn btn-info btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="print_html('print_cashmovement.php?a='+this.name)" ><i class="fa fa-print fa-2x" aria-hidden="true"></i></button>
+						&nbsp;
+<?php 			if ($rs_cashmovement['efectivo_AI_arqueo_id'] === '0') { ?>
+							<button type="button" class="btn btn-warning btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="open_popup('popup_updcashmovement.php?a=<?php echo $rs_cashmovement['AI_efectivo_id'] ?>','_popup',420, 420)" ><i class="fa fa-wrench fa-2x" aria-hidden="true"></i></button>
+<?php 			} else {	?>
+							<button type="button" class="btn btn-warning btn-xs" disabled><i class="fa fa-wrench fa-2x" aria-hidden="true"></i></button>
+<?php 			} 		?>
+						&nbsp;
+<?php 			if ($rs_cashmovement['efectivo_AI_arqueo_id'] === '0' && $rs_cashmovement['TX_efectivo_tipo'] === 'SALIDA') { ?>
+							<button type="button" class="btn btn-danger btn-xs" name="<?php echo $rs_cashmovement['AI_efectivo_id'] ?>" onclick="del_cashmovement(<?php echo $rs_cashmovement['AI_efectivo_id'] ?>)" ><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
+<?php 			} else {?>
+							<button type="button" class="btn btn-danger btn-xs" disabled><i class="fa fa-times fa-2x" aria-hidden="true"></i></button>
+<?php 			} 			?>
+					</td>
+				</tr>
+<?php } 						?>
     </tbody>
-    </table>
+  </table>
 </div>
-<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	        <button type="button" id="btn_print_all" class="btn btn-info" >Imprimir</button>
-</div>
-
 
 </form>
 </div>

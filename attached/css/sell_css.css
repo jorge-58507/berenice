@@ -165,3 +165,30 @@
 #container_tbl_product_favorite tbody{
 	cursor: pointer;
 }
+#tbl_product2sell_first>tbody>tr>td:nth-last-child(-n+7){
+	text-align: center;
+}
+#tbl_product2sell_first>thead>tr>th:nth-child(2){
+	width: 27.6%;
+}
+#tbl_product2sell_first>thead>tr>th:nth-child(1){
+	width: 10%;
+}
+#tbl_product2sell_first>thead>tr>th:nth-last-child(-n+8){
+	width: 8.3%;
+}
+#tbl_product2sell_first>thead>tr>th:nth-last-child(1){
+	width: 4.3%;
+}
+#tbl_product2sell_first>tbody>tr>td{
+	vertical-align: middle;
+	padding: 0 5px;
+}
+
+#container_complementary, #container_client, #container_observation{
+	padding-top: 5px;
+}
+
+#first_sale>div, #second_sale>div, #container_product_list>div{
+	margin-top: 7px;
+}

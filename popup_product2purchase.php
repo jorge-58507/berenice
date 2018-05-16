@@ -11,9 +11,6 @@ $qry_product_letter = $link->query("SELECT bh_letra.TX_letra_value, bh_letra.TX_
 $rs_product_letter = $qry_product_letter->fetch_array();
 $porcentaje = (!empty($rs_product_letter['TX_letra_porcentaje'])) ? $rs_product_letter['TX_letra_porcentaje'] : "0" ;
 
-// $qry_datocompra_listado = $link->query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_facturacompra.TX_facturacompra_numero,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
-// WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_facturacompra_fecha DESC LIMIT 3")or die($link->error);
-
 $qry_precio=$link->query("SELECT bh_datocompra.TX_datocompra_precio, bh_facturacompra.TX_facturacompra_fecha
 FROM (bh_datocompra
 INNER JOIN bh_facturacompra ON bh_datocompra.datocompra_AI_facturacompra_id = bh_facturacompra.AI_facturacompra_id)
@@ -28,7 +25,18 @@ $qry_precio_listado = $link->query("SELECT bh_precio.AI_precio_id, bh_precio.TX_
 
 $qry_datocompra_listado = $link->query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento,bh_datocompra.TX_datocompra_medida FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
 WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_facturacompra_fecha DESC, AI_facturacompra_id DESC")or die($link->error);
-
+$raw_datocompra_listado=array();
+if ($qry_datocompra_listado->num_rows > 0) {
+	while ($rs_datocompra_listado = $qry_datocompra_listado->fetch_array(MYSQLI_ASSOC)) {
+		$raw_datocompra_listado[]=$rs_datocompra_listado;
+	}
+	$ultimo_precio_compra = $raw_datocompra_listado[0]['TX_datocompra_precio'];
+}else{
+	$ultimo_precio_compra = '';
+}
+// while ($rs_datocompra_listado = $qry_datocompra_listado->fetch_array(MYSQLI_ASSOC)) {
+// 	$raw_datocompra_listado[]=$rs_datocompra_listado;
+// }
 $qry_producto_medida = $link->query("SELECT bh_medida.AI_medida_id, bh_medida.TX_medida_value, rel_producto_medida.AI_rel_productomedida_id, rel_producto_medida.TX_rel_productomedida_cantidad FROM (bh_medida INNER JOIN rel_producto_medida ON bh_medida.AI_medida_id = rel_producto_medida.productomedida_AI_medida_id) WHERE productomedida_AI_producto_id = '{$_GET['a']}'")or die($link->error);
 $raw_producto_medida=array();
 while ($rs_producto_medida = $qry_producto_medida->fetch_array(MYSQLI_ASSOC)) {
@@ -64,8 +72,6 @@ while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
 <script type="text/javascript">
 
 $(document).ready(function() {
-	// window.resizeTo("555", "670");
-
 	$("#form_product2purchase").on("keyup", function(e){
 		console.log(e.which);
 		if (e.which === 13) {
@@ -187,7 +193,7 @@ $("#txt_price").on("blur",function(){
 	<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding">
 		<div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 			<label class="label label_blue_sky" for="txt_product">Producto:</label>
-		  <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_value'] ?>" />
+		  <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" />
 		</div>
 		<div id="container_quantity" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 			<label class="label label_blue_sky" for="sel_letra">Letra:</label>
@@ -224,7 +230,7 @@ $("#txt_price").on("blur",function(){
 		</div>
 		<div id="container_price" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 	    <label class="label label_blue_sky" for="txt_price">Costo Base:</label>
-	    <input type="text" name="txt_price" id="txt_price" class="form-control" onkeyup="chk_price(this)"  />
+	    <input type="text" name="txt_price" id="txt_price" class="form-control" onkeyup="chk_price(this)" value="<?php echo $ultimo_precio_compra; ?>" />
 		</div>
 		<div id="container_regular" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 	    <label class="label label_blue_sky" for="txt_p_4">P. Venta/<?php echo $raw_medida[$producto_medida]; ?>:</label>
@@ -274,7 +280,7 @@ $("#txt_price").on("blur",function(){
 				</tfoot>
 				<tbody>
 		<?php
-					while ($rs_datocompra_listado = $qry_datocompra_listado->fetch_array(MYSQLI_ASSOC)) {
+					foreach ($raw_datocompra_listado as $key => $rs_datocompra_listado){
 						$descuento = ($rs_datocompra_listado['TX_datocompra_descuento']*$rs_datocompra_listado['TX_datocompra_precio'])/100;
 						$precio_descuento = $rs_datocompra_listado['TX_datocompra_precio']-$descuento;
 						$impuesto = ($rs_datocompra_listado['TX_datocompra_impuesto']*$precio_descuento)/100;
