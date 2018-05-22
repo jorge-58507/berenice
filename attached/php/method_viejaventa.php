@@ -147,13 +147,24 @@ function del_viejaventa($key_viejaventa){
 	$contenido_viejaventarel=read_viejaventa_rel();
 	$raw_contenido_viejaventarel=json_decode($contenido_viejaventarel, true);
 	$raw_2delete = array();	$rel_2delete = '';
-	if (!empty($raw_contenido_viejaventarel[$_COOKIE['coo_iuser']])) {
+	$raw_relminus=array();
+if (!empty($raw_contenido_viejaventarel[$_COOKIE['coo_iuser']])) {
 		foreach ($raw_contenido_viejaventarel[$_COOKIE['coo_iuser']] as $key => $value) {
 			$raw_value = explode(",",$value);
 			if (in_array($key_viejaventa,$raw_value)) {
 				$raw_2delete=$raw_value;
 				$rel_2delete=$key;
 				break;
+			}
+		}
+		foreach ($raw_contenido_viejaventarel[$_COOKIE['coo_iuser']] as $key => $value) {
+			$raw_value = explode(",",$value);
+			if ($key_viejaventa < $raw_value[0]) {
+				$str_aux='';
+				foreach ($raw_value as $Kkey => $value_tominus) {
+					$str_aux .= ($value_tominus === end($raw_value)) ? $value_tominus-1 : ($value_tominus-1).',';
+				}
+				$raw_relminus[$key]=$str_aux;
 			}
 		}
 	}
@@ -173,9 +184,14 @@ function del_viejaventa($key_viejaventa){
 		$contenido_viejaventarel = read_viejaventa_rel();
 		$raw_contenido_viejaventarel = json_decode($contenido_viejaventarel, true);
 		unset($raw_contenido_viejaventarel[$_COOKIE['coo_iuser']][$rel_2delete]);
-		$contenido_viejaventarel = json_encode($raw_contenido_viejaventarel);
-		write_viejaventa_rel($contenido_viejaventarel);
 	}
+	if (count($raw_relminus) > 0) {
+		foreach ($raw_relminus as $key => $value) {
+			$raw_contenido_viejaventarel[$_COOKIE['coo_iuser']][$key]=$value;
+		}
+	}
+	$contenido_viejaventarel = json_encode($raw_contenido_viejaventarel);
+	write_viejaventa_rel($contenido_viejaventarel);
 }
 
 function reload_viejaventa(){

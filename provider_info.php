@@ -263,7 +263,7 @@ switch ($_COOKIE['coo_tuser']){
 
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form method="post" name="form_editdatoventa" action="">
-	<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+	<div class="col-xs-12 col-sm-8 col-md-8 col-lg-8 pt_7">
 		<div id="container_proveedor" class="col-xs-12 col-sm-7 col-md-7 col-lg-7">
 			<label class="label label_blue_sky"  for="txt_proveedor">Nombre: </label>
 		  <input type="text" name="txt_proveedor" id="txt_proveedor" alt="<?php echo $rs_proveedor['AI_proveedor_id'] ?>" class="form-control" value="<?php echo $rs_proveedor['TX_proveedor_nombre'] ?>" />
@@ -276,11 +276,11 @@ switch ($_COOKIE['coo_tuser']){
 			<label class="label label_blue_sky"  for="txt_dv">DV:</label>
 		  <input type="text" name="txt_dv" id="txt_dv" class="form-control" value="<?php echo $rs_proveedor['TX_proveedor_dv'] ?>" />
 		</div>
-		<div id="container_telephone" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+		<div id="container_telephone" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 pt_7">
 			<label class="label label_blue_sky"  for="txt_telephone">Tel&eacute;fono:</label>
 		  <input type="text" name="txt_telephone" id="txt_telephone" class="form-control" value="<?php echo $rs_proveedor['TX_proveedor_telefono'] ?>" />
 		</div>
-		<div id="container_direction" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+		<div id="container_direction" class="col-xs-9 col-sm-9 col-md-9 col-lg-9 pt_7">
 		  <label class="label label_blue_sky"  for="txt_direction">Direcci&oacute;n:</label>
 		  <textarea name="txt_direction" id="txt_direction" class="form-control"><?php echo $rs_proveedor['TX_proveedor_direccion']; ?></textarea>
 		</div>
@@ -290,7 +290,7 @@ switch ($_COOKIE['coo_tuser']){
 			<button type="button" id="btn_cancel" class="btn btn-warning">Volver</button>
 		</div>
 	</div>
-	<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4">
+	<div class="col-xs-12 col-sm-4 col-md-4 col-lg-4 pt_7">
 		<table id="tbl_bankaccount" class="table table-bordered table-condensed table-striped">
 			<caption>Cuentas Bancarias</caption>
 		<thead class="bg_green">
@@ -323,7 +323,7 @@ switch ($_COOKIE['coo_tuser']){
 	</div>
 
 
-	<div id="container_txtfilterbill" class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+	<div id="container_txtfilterbill" class="col-xs-12 col-sm-6 col-md-6 col-lg-6 pt_7">
 		<div id="container_txtfilterbill" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 			<label class="label label_blue_sky"  for="txt_filterbill">Buscar</label>
 			<input type="text" class="form-control" id="txt_filterbill">
@@ -378,7 +378,7 @@ switch ($_COOKIE['coo_tuser']){
 			</table>
 		</div>
 	</div>
-	<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6">
+	<div class="col-xs-12 col-sm-6 col-md-6 col-lg-6 pt_7">
 		<div id="container_txtfiltercpp" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
 			<label class="label label_blue_sky"  for="txt_filtercpp">Buscar</label>
 			<input type="text" class="form-control" id="txt_filtercpp">

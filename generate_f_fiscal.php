@@ -17,12 +17,6 @@ function upd_return(){
 
   $qry_impresora=$link->query("SELECT AI_impresora_id, TX_impresora_recipiente, TX_impresora_retorno, TX_impresora_cliente, TX_impresora_serial FROM bh_impresora WHERE TX_impresora_cliente = '$cliente'");
   $row_impresora=$qry_impresora->fetch_array();
-  // echo $retorno = $row_impresora['TX_impresora_retorno'];
-  // $file = fopen($retorno."FACTI".substr("0000000".$ff_numero,-7).".TXT", "r");
-  // $content = fgets($file);
-  // fclose($file);
-  // $raw_content = explode("\t",$content);
-  // $ticket = $raw_content[7];
   $link->query("UPDATE bh_facturaf SET TX_facturaf_serial = '1111110', TX_facturaf_ticket = '0000001' WHERE AI_facturaf_id = '$facturaf_id'")or die($link->error);
 }
 upd_return();
@@ -73,6 +67,11 @@ if(array_key_exists(5,$raw_datopago)){
 }else{
 	$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit = '0', TX_facturaf_status = 'IMPRESA' WHERE AI_facturaf_id = '$facturaf_id'");
 }
+
+$qry_vendedor = $link->query("SELECT bh_user.TX_user_seudonimo FROM (bh_facturaventa INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id) WHERE facturaventa_AI_facturaf_id = '$facturaf_id' LIMIT 1")or die($link->error);
+$rs_vendedor = $qry_vendedor->fetch_array();
+$vendedor = $rs_vendedor['TX_user_seudonimo'];
+
 ?>
 
 
@@ -80,14 +79,13 @@ if(array_key_exists(5,$raw_datopago)){
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<!-- <meta http-equiv='Refresh' content='3;url=paydesk.php?a=<?php echo $facturaf_id; ?>' /> -->
+<meta http-equiv='Refresh' content='3;url=paydesk.php?a=<?php echo $facturaf_id; ?>' />
 <title>Trilli, S.A. - Todo en Materiales</title>
 
 <link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/sell_css.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 
@@ -148,7 +146,7 @@ $raw_facti=["documento" => "", "c_nombre" => "", "c_ruc" => "", "c_direccion" =>
 $raw_facti['documento']="FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7);
 $raw_facti['c_nombre']=$rs_facturaf['TX_cliente_nombre'];
 $raw_facti['c_ruc']=$rs_facturaf['TX_cliente_cif'];
-$raw_facti['c_direccion']=$rs_facturaf['TX_cliente_direccion'];
+$raw_facti['c_direccion']=substr($vendedor,0,3)."-".$rs_facturaf['TX_cliente_direccion'];
 if (!empty($rs_facturaf['TX_facturaf_descuento'])) { $raw_facti['total_descuento']=round($rs_facturaf['TX_facturaf_descuento'],2);  }else{ $raw_facti['total_descuento'] = '0.00'; }
 $raw_facti['total_pagado']=round($total_pagado,2);
 $raw_facti['total_final']=round($rs_facturaf['TX_facturaf_total'],2);

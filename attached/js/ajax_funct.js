@@ -332,6 +332,7 @@ function save_sale(status){
 	if($("#tbl_product2sell_"+activo+" tbody tr td")[0].innerHTML === " "){
 		return false;
 	}
+	$("#btn_guardar").attr("disabled", true);
 	var	date = $("#txt_date_"+activo).val();
 	client_id = $("#txt_filterclient_"+activo).prop("alt");
 	client = $("#txt_filterclient_"+activo).val();
@@ -365,7 +366,7 @@ function save_old_sale(){
 		if (data === 'denied') {
 			alert("Esta cotizacion se encuentra cobrada.");
 		}
-		// setTimeout("history.back(1)",250);
+		setTimeout("history.back(1)",250);
 	})
  	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
@@ -678,7 +679,6 @@ function del_paymentondebit(pago_id,str_factid){
 }
 function plus_debit(str_factid){
 		motivo = $("#txt_motivond").val();
-
 		$.ajax({	data: {"a" : motivo, "b" : str_factid },	type: "GET",	dataType: "text",	url: "attached/get/plus_debit.php", })
 		 .done(function( data, textStatus, jqXHR ) {
 			 if(data){
@@ -687,7 +687,6 @@ function plus_debit(str_factid){
 			 }
 		 })
 		 .fail(function( jqXHR, textStatus, errorThrown ) {		});
-
 }
 function filter_facturaventa(){
 	var	value = $("#txt_filterfacturaventa").val();
@@ -824,9 +823,9 @@ function filter_psbyproduct(product_id){
 		content_facturacompra = '';
 		if(Object.keys(raw_facturacompra).length > 0){
 			for (var x in raw_facturacompra) {
-				content_facturacompra += `<tr onclick="filter_productbypurchase(${raw_facturacompra[x]['AI_facturacompra_id']})"><td>${convertir_formato_fecha(raw_facturacompra[x]['TX_facturacompra_fecha'])}</td><td>${raw_facturacompra[x]['TX_facturacompra_numero']}</td><td>${raw_facturacompra[x]['TX_facturacompra_ordendecompra']}</td><td>${raw_facturacompra[x]['TX_proveedor_nombre']}</td><td>${raw_facturacompra[x]['TX_almacen_value']}</td><td><button type="button" id="btn_delete" class="btn btn-danger btn-sm" onclick="transform_facturacompra('${raw_facturacompra[x]['AI_facturacompra_id']}')"><i class="fa fa-times"></i></button>&nbsp;<button type="button" id="btn_print" class="btn btn-info btn-sm" name="" onclick="print_html(\'print_purchase_html.php?a=${raw_facturacompra[x]['AI_facturacompra_id']}\')"><i class="fa fa-print"></i></button></td></tr>`;
+				content_facturacompra += `<tr onclick="filter_productbypurchase(${raw_facturacompra[x]['AI_facturacompra_id']})" ><td>${convertir_formato_fecha(raw_facturacompra[x]['TX_facturacompra_fecha'])}</td><td>${raw_facturacompra[x]['TX_facturacompra_numero']}</td><td>${raw_facturacompra[x]['TX_facturacompra_ordendecompra']}</td><td>${raw_facturacompra[x]['TX_proveedor_nombre']}</td><td>${raw_facturacompra[x]['TX_almacen_value']}</td><td><button type="button" id="btn_delete" class="btn btn-danger btn-sm" onclick="transform_facturacompra('${raw_facturacompra[x]['AI_facturacompra_id']}')"><i class="fa fa-times"></i></button>&nbsp;<button type="button" id="btn_print" class="btn btn-info btn-sm" name="" onclick="print_html(\'print_purchase_html.php?a=${raw_facturacompra[x]['AI_facturacompra_id']}\')"><i class="fa fa-print"></i></button></td></tr>`;
 			}
-		}else{	content_facturacompra = '<tr><td colspan="5"></td></tr>';	}
+		}else{	content_facturacompra = '<tr><td colspan="5" class="al_center">Vacio</td></tr>';	}
 		//  #############################    VENTA    ###################
 		var raw_facturaf=data[1];
 		content_facturaf = '';
@@ -838,7 +837,7 @@ function filter_psbyproduct(product_id){
 				precio_descuento = raw_facturaf[x]['TX_datoventa_precio']-descuento4product;
 				impuesto4product = (raw_facturaf[x]['TX_datoventa_impuesto']*precio_descuento)/100;
 				precio_impuesto = precio_descuento+impuesto4product;
-				content_facturaf += `<tr onclick="filter_productbysale(${raw_facturaf[x]['AI_facturaf_id']})"><td>${convertir_formato_fecha(raw_facturaf[x]['TX_facturaf_fecha'])}</td><td>${raw_facturaf[x]['TX_facturaf_numero']}</td><td>${raw_facturaf[x]['TX_cliente_nombre']}</td><td>${raw_facturaf[x]['TX_datoventa_cantidad']}</td><td>${precio_impuesto.toFixed(2)}</td></tr>`;
+				content_facturaf += `<tr onclick="filter_productbysale(${raw_facturaf[x]['AI_facturaf_id']})" title="inStock: ${raw_facturaf[x]['TX_datoventa_stock']}"><td>${convertir_formato_fecha(raw_facturaf[x]['TX_facturaf_fecha'])}</td><td>${raw_facturaf[x]['TX_facturaf_numero']}</td><td>${raw_facturaf[x]['TX_cliente_nombre']}</td><td>${raw_facturaf[x]['TX_datoventa_cantidad']}</td><td>${precio_impuesto.toFixed(2)}</td></tr>`;
 			}
 		}else{	content_facturaf = '<tr><td colspan="5"></td></tr>';	}
 		//  #############################    NOTA DE CREDITO    ###################

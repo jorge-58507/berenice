@@ -38,10 +38,6 @@ while ($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)) {
 $qry_vendor=$link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'");
 $rs_vendor=$qry_vendor->fetch_array(MYSQLI_ASSOC);
 
-// $file = fopen("nva_venta.txt", "r");
-// $contenido = fgets($file);
-// fclose($file);
-
 $qry_nuevaventa = $link->query("SELECT TX_rel_nuevaventa_compuesto FROM rel_nuevaventa WHERE AI_rel_nuevaventa_id = 1")or die($link->error);
 $rs_nuevaventa = $qry_nuevaventa->fetch_array();
 $contenido = $rs_nuevaventa['TX_rel_nuevaventa_compuesto'];
@@ -174,7 +170,13 @@ $(document).ready(function() {
 		$("#lbl_user").text(rep_user);
 		$("#lbl_user").removeClass("zoomed");
 	}, 1000);
-
+	function removeAttr(){
+		setTimeout(function(){
+			$("#btn_guardar").removeAttr("disabled");
+			removeAttr();
+		}, 9000);
+	}
+	removeAttr();
 });
 
 function generate_tbl_nuevaventa(data,activo){
@@ -189,6 +191,7 @@ function generate_tbl_nuevaventa(data,activo){
 			var precio_descuento = nuevaventa[x]['precio']-descuento;
 			var impuesto = (precio_descuento*nuevaventa[x]['impuesto'])/100;
 			var precio_unitario = precio_descuento+impuesto;
+					precio_unitario = Math.round10(precio_unitario, -2);
 			var subtotal = nuevaventa[x]['cantidad']*precio_unitario;
 
 			total_itbm += impuesto*nuevaventa[x]['cantidad'];
@@ -654,11 +657,11 @@ switch ($_COOKIE['coo_tuser']){
 	</div>
 
 	<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	    <button type="button" id="btn_facturar" name="FACTURADA" onclick="save_sale(FACTURADA)" class="btn btn-success">Bloquear</button>
-	    &nbsp;&nbsp;&nbsp;
-	    <button type="button" id="btn_guardar" name="ACTIVA" onclick="save_sale('ACTIVA')"class="btn btn-primary">Guardar</button>
-	    &nbsp;&nbsp;&nbsp;
-	    <button type="button" id="btn_salir" class="btn btn-warning">Volver</button>
+    <button type="button" id="btn_facturar" name="FACTURADA" onclick="save_sale('FACTURADA')" class="btn btn-success">Bloquear</button>
+    &nbsp;&nbsp;&nbsp;
+    <button type="button" id="btn_guardar" name="ACTIVA" onclick="save_sale('ACTIVA')"class="btn btn-primary">Guardar</button>
+    &nbsp;&nbsp;&nbsp;
+    <button type="button" id="btn_salir" class="btn btn-warning">Volver</button>
 	</div>
 
 

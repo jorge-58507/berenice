@@ -81,12 +81,13 @@ while ($rs_facturaventa=$qry_facturaventa->fetch_array()) {
 			<tr ondblclick="open_popup('popup_loginadmin.php?a=<?php echo $str_factid ?>&b=<?php echo $client_id ?>&z=admin_datoventa.php','popup_loginadmin','425','420');">
 				<td><?php echo $value['TX_producto_codigo']; ?> </td>
 				<td><?php echo $value['TX_facturaventa_numero']; ?></td>
-				<td><?php echo $value['TX_producto_value']; ?></td>
+				<td><?php echo $r_function->replace_special_character($value['TX_datoventa_descripcion']); ?></td>
 				<td><?php echo $raw_medida[$value['TX_datoventa_medida']]; ?></td>
 				<td onclick="upd_quantityonnewcollect('<?php echo $value['AI_datoventa_id']; ?>');"><?php echo $value['TX_datoventa_cantidad']; ?></td>
 				<td><?php echo number_format($value['TX_datoventa_precio'],2); ?></td>
+				<td><?php echo number_format($descuento,2).' ('.$value['TX_datoventa_descuento'].'%)'; ?></td>
 				<td><?php echo number_format($impuesto,2).' ('.$value['TX_datoventa_impuesto'].'%)'; ?></td>
-				<td><?php echo number_format($descuento,2).' ('.$value['TX_datoventa_descuento'].'%)'; ?></td><?php
+				<?php
 					$total_descuento+=$value['TX_datoventa_cantidad']*$descuento;	$total_itbm+=$value['TX_datoventa_cantidad']*$impuesto;
 					$sub_total+=$value['TX_datoventa_cantidad']*$value['TX_datoventa_precio'];	$total = ($sub_total-$total_descuento)+$total_itbm;	?>
 				<td><?php	echo number_format($precio_total,2);	?></td>
@@ -107,9 +108,9 @@ while ($rs_facturaventa=$qry_facturaventa->fetch_array()) {
 	<tfoot class="bg-primary">
 		<tr>
 			<td colspan="5"></td>
-	    <td><span id="span_nettotal"><?php echo $sub_total; ?></span></td>
-	    <td><strong>Imp: </strong> <br />B/ <span id="span_itbm"><?php echo number_format($total_itbm,2); ?></span></td>
+			<td><span id="span_nettotal"><?php echo $sub_total; ?></span><strong>Neto: </strong> <br />B/ <?php echo $sub_total; ?></td>
 	    <td><strong>Desc: </strong> <br />B/ <span id="span_discount"><?php echo number_format($total_descuento,2); ?></span></td>
+	    <td><strong>Imp: </strong> <br />B/ <span id="span_itbm"><?php echo number_format($total_itbm,2); ?></span></td>
 	    <td><strong>Total: </strong> <br />B/ <span id="span_total"><?php echo number_format($total,2); ?></span></td>
 	    <td></td>
 		</tr>

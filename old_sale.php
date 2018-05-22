@@ -1,4 +1,4 @@
-﻿<?php 
+﻿<?php
 require 'bh_conexion.php';
 $link=conexion();
 require 'attached/php/req_login_sale.php';
@@ -325,6 +325,7 @@ function generate_tbl_viejaventa(data){
 			var precio_descuento = viejaventa[x]['precio']-descuento;
 			var impuesto = (precio_descuento*viejaventa[x]['impuesto'])/100;
 			var precio_unitario = precio_descuento+impuesto;
+					precio_unitario = Math.round10(precio_unitario, -4);
 			var subtotal = viejaventa[x]['cantidad']*precio_unitario;
 
 			total_itbm += impuesto*viejaventa[x]['cantidad'];
@@ -333,7 +334,7 @@ function generate_tbl_viejaventa(data){
 			style_promotion = (viejaventa[x]['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
 			fire_promotion = (viejaventa[x]['promocion'] > 0 ) ? '<i class="fa fa-free-code-camp"> </i> ' : '';
 
-			content += `<tr ${style_promotion}><td onclick="set_position_viejaventa(${x})"><span class="badge">${parseInt(x)+1}</span></td><td>${viejaventa[x]['codigo']}</td><td onclick="upd_descripcion_viejaventa(${x},\'${viejaventa[x]['descripcion']}\')">${fire_promotion+replace_special_character(viejaventa[x]['descripcion'])}</td><td>${array_medida[viejaventa[x]['medida']]}</td><td onclick="upd_unidades_viejaventa(${x});">${viejaventa[x]['cantidad']}</td><td onclick="upd_precio_viejaventa(${x})">${precio.toFixed(2)}</td><td>(${viejaventa[x]['descuento']}%) ${descuento.toFixed(2)}</td><td>(${viejaventa[x]['impuesto']}%) ${impuesto.toFixed(2)}</td><td>${precio_unitario.toFixed(2)}</td><td>${subtotal.toFixed(2)}</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_viejaventa(${x});"><strong>X</strong></button></td></tr>`;
+			content += `<tr ${style_promotion}><td onclick="set_position_viejaventa(${x})"><span class="badge">${parseInt(x)+1}</span></td><td>${viejaventa[x]['codigo']}</td><td onclick="upd_descripcion_viejaventa(${x},\'${viejaventa[x]['descripcion']}\')">${fire_promotion+replace_special_character(viejaventa[x]['descripcion'])}</td><td>${array_medida[viejaventa[x]['medida']]}</td><td onclick="upd_unidades_viejaventa(${x});">${viejaventa[x]['cantidad']}</td><td onclick="upd_precio_viejaventa(${x})">${precio.toFixed(2)}</td><td onclick="upd_descuento_viejaventa(${x})">(${viejaventa[x]['descuento']}%) ${descuento.toFixed(2)}</td><td>(${viejaventa[x]['impuesto']}%) ${impuesto.toFixed(2)}</td><td>${precio_unitario.toFixed(2)}</td><td>${subtotal.toFixed(2)}</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_viejaventa(${x});"><strong>X</strong></button></td></tr>`;
 		}
 
 		$("#tbl_product2sell tbody").html(content);
@@ -503,7 +504,7 @@ switch ($_COOKIE['coo_tuser']){
 					$descuento = (($rs_nuevaventa['descuento']*$rs_nuevaventa['precio'])/100);
 					$precio_descuento = ($rs_nuevaventa['precio']-$descuento);
 					$impuesto = (($rs_nuevaventa['impuesto']*$precio_descuento)/100);
-					$precio_unitario = round($precio_descuento+$impuesto,2);
+					$precio_unitario = round($precio_descuento+$impuesto,4);
 					$precio_total = ($rs_nuevaventa['cantidad']*($precio_unitario));
 
 					$total_itbm += $rs_nuevaventa['cantidad']*$impuesto;
@@ -522,10 +523,10 @@ switch ($_COOKIE['coo_tuser']){
 							<span id="stock_quantity"><?php echo $rs_nuevaventa['stock']; ?></span>
 						</td>
 						<td onclick="upd_precio_viejaventa(<?php echo $key; ?>);"><?php echo number_format($rs_nuevaventa['precio'],2); ?></td>
-						<td><?php echo "(".$rs_nuevaventa['descuento']."%) ".number_format($descuento,2); ?></td>
+						<td onclick="upd_descuento_viejaventa(<?php echo $key; ?>);"><?php echo "(".$rs_nuevaventa['descuento']."%) ".number_format($descuento,2); ?></td>
 						<td><?php echo "(".$rs_nuevaventa['impuesto']."%) ".number_format($impuesto,2); ?></td>
-						<td><?php echo number_format($precio_unitario,2); ?></td>
-						<td><?php echo number_format($precio_total,2); ?></td>
+						<td><?php echo number_format($precio_unitario,4); ?></td>
+						<td><?php echo number_format($precio_total,4); ?></td>
 						<td class="al_center"><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_viejaventa(<?php echo $key ?>);"><strong>X</strong></button></td>
 					</tr>
 	<?php
@@ -567,9 +568,9 @@ switch ($_COOKIE['coo_tuser']){
 	</div>
 	<div id="container_limit" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 		<label class="label label_blue_sky" for="txt_rlimit">Mostrar:</label><br />
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
-		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="100" /> 100</label>
+		<label class="radio-inline pt_7"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
+		<label class="radio-inline pt_7"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
+		<label class="radio-inline pt_7"><input type="radio" name="r_limit" id="r_limit" value="100" /> 100</label>
 	</div>
 	<div id="container_report" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 		<button type="button" id="btn_report" class="btn btn-warning btn-sm">Reportar</button>

@@ -133,20 +133,20 @@ function get_product2sell_price(medida_id){
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="pop_form.php" method="post" name="form_product2sell" id="form_product2sell">
-<div id="container_product" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+<div id="container_product" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 pt_7">
 	<label class="label label_blue_sky"  for="txt_product">Producto: </label>
     <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" />
 </div>
-<div id="container_measure" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+<div id="container_measure" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 pt_7">
 	<label class="label label_blue_sky"  for="txt_measure">Codigo:</label>
     <span class=" form-control bg-disabled"><?php echo $rs_product['TX_producto_codigo'] ?></span>
     <input type="hidden" name="txt_measure" id="txt_measure" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_medida'] ?>" />
 </div>
-<div id="container_stock" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+<div id="container_stock" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 pt_7">
 	<label class="label label_blue_sky"  for="txt_stock">Existencia:</label>
   <input type="text" name="txt_stock" id="txt_stock" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_cantidad'] ?>" />
 </div>
-<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 pt_7">
 	<label class="label label_blue_sky"  for="sel_medida">Medida:</label>
 	<select class="form-control" id="sel_medida" name="sel_medida" onchange="get_product2sell_price(this.value)"><?php
 		foreach ($raw_producto_medida as $key => $rs_medida) {
@@ -158,11 +158,11 @@ function get_product2sell_price(medida_id){
 		}					?>
 	</select>
 </div>
-<div id="container_quantity" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+<div id="container_quantity" class="col-xs-6 col-sm-6 col-md-6 col-lg-3 pt_7">
 	<label class="label label_blue_sky"  for="txt_quantity">Cantidad:</label>
   <input type="text" name="txt_quantity" id="txt_quantity" class="form-control" placeholder="1" autofocus/>
 </div>
-<div id="container_price" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+<div id="container_price" class="col-xs-6 col-sm-6 col-md-6 col-lg-3 pt_7">
     <label class="label label_blue_sky"  for="input_price">Precio:</label>
 <?php
 	$rs_precio=$qry_precio->fetch_array(MYSQLI_ASSOC);
@@ -192,11 +192,11 @@ function get_product2sell_price(medida_id){
 ?> 		<input type="text" name="input_price" id="input_price" class="form-control" /><?php
 	} ?>
 </div>
-<div id="container_itbm" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+<div id="container_itbm" class="col-xs-6 col-sm-6 col-md-6 col-lg-3 pt_7">
   <label class="label label_blue_sky"  for="txt_itbm">Imp.%:</label>
   <input type="text" name="txt_itbm" id="txt_itbm" class="form-control" value="<?php echo $rs_product['TX_producto_exento'] ?>" readonly="readonly"/>
 </div>
-<div id="container_discount" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
+<div id="container_discount" class="col-xs-6 col-sm-6 col-md-6 col-lg-3 pt_7">
   <label class="label label_blue_sky"  for="txt_discount">Descuento%:</label>
 <?php
 	if ($_COOKIE['coo_iuser'] < 3) { ?>

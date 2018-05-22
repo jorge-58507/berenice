@@ -249,37 +249,37 @@ switch ($_COOKIE['coo_tuser']){
 <form action="" method="post" name="form_newpurchase"  id="form_newpurchase">
 
 
-<div id="container_provider" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+<div id="container_provider" class="col-xs-9 col-sm-9 col-md-9 col-lg-9 pt_7">
 	<label class="label label_blue_sky" for="txt_filterprovider">Proveedor:</label>
 	<input type="text" class="form-control" id="txt_filterprovider" placeholder="Proveedor">
 </div>
-<div id="container_btnaddprovider" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
+<div id="container_btnaddprovider" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 btn_squared_md">
 	<button type="button" id="btn_add_provider" class="btn btn-success"><i class="fa fa-plus"></i></button>
 </div>
 <div id="container_provider_recall" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 </div>
-<div id="container_date" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+<div id="container_date" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pt_7">
 	<label class="label label_blue_sky" for="txt_date">Fecha:</label>
-    <input type="text" name="txt_date" id="txt_date" value="<?php echo date('d-m-Y'); ?>" class="form-control" readonly="readonly" />
+  <input type="text" name="txt_date" id="txt_date" value="<?php echo date('d-m-Y'); ?>" class="form-control" readonly="readonly" />
 </div>
 
-<div id="container_billnumber" class="col-xs-6 col-sm-6 col-md-6 col-lg-3">
-    <label class="label label_blue_sky" for="txt_bill">Factura N°:</label>
-    <input type="text" name="txt_billnumber" id="txt_billnumber" class="form-control" />
+<div id="container_billnumber" class="col-xs-6 col-sm-6 col-md-6 col-lg-3 pt_7">
+  <label class="label label_blue_sky" for="txt_bill">Factura N°:</label>
+  <input type="text" name="txt_billnumber" id="txt_billnumber" class="form-control" />
 </div>
-<div id="container_purchaseorder" class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-    <label class="label label_blue_sky" for="txt_purchaseorder">Orden de Compra:</label>
-    <input type="text" name="txt_purchaseorder" id="txt_purchaseorder" class="form-control" value="<?php echo $pedido_numero ?>" />
+<div id="container_purchaseorder" class="col-xs-12 col-sm-12 col-md-3 col-lg-3 pt_7">
+  <label class="label label_blue_sky" for="txt_purchaseorder">Orden de Compra:</label>
+  <input type="text" name="txt_purchaseorder" id="txt_purchaseorder" class="form-control" value="<?php echo $pedido_numero ?>" />
 </div>
-	<div id="container_warehouse" class="col-xs-12 col-sm-12 col-md-3 col-lg-3">
-    <label class="label label_blue_sky" for="sel_warehouse">Almacen:</label>
-    <select name="sel_warehouse" id="sel_warehouse" class="form-control"><?php
-			do{ ?>
-	    	<option value="<?php echo $rs_warehouse['AI_almacen_id'] ?>"><?php echo $rs_warehouse['TX_almacen_value'] ?></option><?php
-			}while($rs_warehouse=$qry_warehouse->fetch_array());
+<div id="container_warehouse" class="col-xs-12 col-sm-12 col-md-3 col-lg-3 pt_7">
+  <label class="label label_blue_sky" for="sel_warehouse">Almacen:</label>
+  <select name="sel_warehouse" id="sel_warehouse" class="form-control"><?php
+		do{ ?>
+    	<option value="<?php echo $rs_warehouse['AI_almacen_id'] ?>"><?php echo $rs_warehouse['TX_almacen_value'] ?></option><?php
+		}while($rs_warehouse=$qry_warehouse->fetch_array());
 ?>  </select>
-	</div>
-	<div id="container_product" class="col-xs-12 col-sm-12 col-md-8 col-lg-8">
+</div>
+	<div id="container_product" class="col-xs-12 col-sm-12 col-md-8 col-lg-8 pt_7">
 		<div id="container_filterproduct" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
 		  <label class="label label_blue_sky" for="sel_product">Producto:</label>
 	    <input type="text" alt="select" class="form-control" id="txt_filterproduct" name="txt_filterproduct" autocomplete="off" onkeyup="filter_product2purchase(this);" placeholder="Codigo, Descripcion o Referencia" />
@@ -304,7 +304,7 @@ switch ($_COOKIE['coo_tuser']){
     </table>
   </div>
 </div>
-<div id="container_observation" class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
+<div id="container_observation" class="col-xs-12 col-sm-12 col-md-4 col-lg-4 pt_7">
 	<label class="label label_blue_sky" for="ta_observation">Observaciones</label><span id="span_taobservation" class="span_counter">200</span>
   <textarea id="ta_observation" class="form-control"></textarea>
 </div>

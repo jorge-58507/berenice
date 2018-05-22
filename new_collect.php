@@ -229,22 +229,6 @@ $("#btn_discount").on("click", function(){
 	$("#tbl_product2sell tbody tr:first").dblclick();
 })
 
-// $( function() {
-// 	$( "#txt_filterclient").autocomplete({
-// 		source: "attached/get/filter_client_sell.php",
-// 		minLength: 2,
-// 		select: function( event, ui ) {
-//       var n_val = ui.item.value;
-//       raw_n_val = n_val.split(" | Dir:");
-//       ui.item.value = raw_n_val[0];
-//       console.log(ui.item.value);
-// 			$("#txt_filterclient").prop('alt', ui.item.id);
-// 			content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
-// 			fire_recall('container_client_recall', content)
-// 		}
-// 	});
-// });
-
 $("#1, #2, #3, #4, #7").on("click", function(){
 	plus_payment($(this).prop("id"), '<?php echo $str_factid; ?>');
 })
@@ -286,7 +270,6 @@ $("#btn_refresh_tblproduct2sell").on("click",function(){
 });
 
 $('#txt_amount').validCampoFranz('0123456789.');
-// $("#container_client_recall").css("display","none");
 });
 
 
@@ -386,8 +369,8 @@ switch ($_COOKIE['coo_tuser']){
         	<td><?php echo $raw_medida[$value['TX_datoventa_medida']]; ?></td>
         	<td onclick="upd_quantityonnewcollect('<?php echo $value['AI_datoventa_id']; ?>');"><?php echo $value['TX_datoventa_cantidad']; ?></td>
         	<td><?php echo number_format($value['TX_datoventa_precio'],2); ?></td>
+          <td><?php echo number_format($descuento,2).' ('.$value['TX_datoventa_descuento'].'%)'; ?></td>
         	<td><?php echo number_format($impuesto,2).' ('.$value['TX_datoventa_impuesto'].'%)'; ?></td>
-        	<td><?php echo number_format($descuento,2).' ('.$value['TX_datoventa_descuento'].'%)'; ?></td>
 <?php 		$total_descuento+=$value['TX_datoventa_cantidad']*$descuento;
 		      $total_itbm+=$value['TX_datoventa_cantidad']*$impuesto;
 		      $sub_total+=$value['TX_datoventa_cantidad']*$value['TX_datoventa_precio'];
@@ -409,9 +392,9 @@ switch ($_COOKIE['coo_tuser']){
       <tfoot class="bg-primary">
         <tr>
       	  <td colspan="5"></td>
-          <td><span id="span_nettotal"><?php echo $sub_total; ?></span></td>
-          <td><strong>Imp: </strong> <br />B/ <span id="span_itbm"><?php echo number_format($total_itbm,2); ?></span></td>
+          <td><span id="span_nettotal"><?php echo $sub_total; ?></span><strong>Neto: </strong> <br />B/ <?php echo $sub_total; ?></td>
           <td><strong>Desc: </strong> <br />B/ <span id="span_discount"><?php echo number_format($total_descuento,2); ?></span></td>
+          <td><strong>Imp: </strong> <br />B/ <span id="span_itbm"><?php echo number_format($total_itbm,2); ?></span></td>
           <td><strong>Total: </strong> <br />B/ <span id="span_total"><?php echo number_format($total_ff,2); ?></span></td>
           <td></td>
         </tr>

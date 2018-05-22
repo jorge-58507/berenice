@@ -25,6 +25,7 @@ function read_nuevaventa_rel(){
 function write_nuevaventa_content($contenido){
 	$link=conexion(); $r_function = new recurrent_function();
 	// $contenido = $r_function->replace_regular_character($contenido);
+	// echo "contenido: ".$contenido."<br />";
 	$qry_nuevaventa = $link->query("UPDATE rel_nuevaventa SET TX_rel_nuevaventa_compuesto = '$contenido' WHERE AI_rel_nuevaventa_id = 1")or die($link->error);
 }
 function write_nuevaventa_rel($contenido){
@@ -49,6 +50,12 @@ function plus_nuevaventa(){
 
 	$contenido=read_nuevaventa_content();
 	$raw_decode=json_decode($contenido, true);
+	// if (!array_key_exists($_COOKIE['coo_iuser'], $raw_decode)) {
+	// 	echo "hito";
+	// }else{
+	// 	echo "hito2";
+	// }
+	// return false;
 	if (!array_key_exists($_COOKIE['coo_iuser'], $raw_decode)) {
 		$raw_decode[$_COOKIE['coo_iuser']]= array();
 	}
@@ -167,7 +174,7 @@ function upd_nuevaventa(){
 	if($campo === 'descripcion'){
 		$value = $r_function->url_replace_special_character($value);
 		$value = $r_function->replace_regular_character($value);
-	}else{ echo "<br />NO ES IGUAL"; }
+	}
 	if ($raw_nuevaventa[$_COOKIE['coo_iuser']][$activo][$key_nuevaventa]['promocion'] < 1) {
 		$raw_nuevaventa[$_COOKIE['coo_iuser']][$activo][$key_nuevaventa][$campo] = $value;
 		$contenido = json_encode($raw_nuevaventa);
@@ -199,11 +206,12 @@ function del_nuevaventa(){
 	}
 	$contenido=read_nuevaventa_content();
 	$raw_nuevaventa=json_decode($contenido, true);
-
 	foreach ($raw_2delete as $key => $key_nuevaventa) {
 		unset($raw_nuevaventa[$_COOKIE['coo_iuser']][$activo][$key_nuevaventa]);
 	}
-	$contenido = json_encode($raw_nuevaventa, true);
+
+	$contenido = json_encode($raw_nuevaventa);
+
 	write_nuevaventa_content($contenido);
 	echo $contenido;
 
@@ -240,7 +248,7 @@ function duplicate_datoventa(){
 	$raw_decode=json_decode($contenido, true);
 
 	if (!array_key_exists($_COOKIE['coo_iuser'], $raw_decode)) {	$raw_decode[$_COOKIE['coo_iuser']]= array();	}
-
+	if (!array_key_exists('first_sale', $raw_decode[$_COOKIE['coo_iuser']])) {	$raw_decode[$_COOKIE['coo_iuser']]['first_sale']= array();	}
 	unset($raw_decode[$_COOKIE['coo_iuser']]['first_sale']);
 
 	$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_facturaventa_id, datoventa_AI_producto_id, TX_datoventa_cantidad, TX_datoventa_precio, TX_datoventa_impuesto, TX_datoventa_descuento, TX_datoventa_descripcion, TX_datoventa_medida, TX_datoventa_promocion FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '$facturaventa_id'")or die($link->error);
@@ -249,6 +257,7 @@ function duplicate_datoventa(){
 		$qry_product = $link->query("SELECT TX_producto_value, TX_producto_codigo, TX_producto_medida, TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = '{$rs_datoventa['datoventa_AI_producto_id']}'")or die($link->error);
 		$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
 		if ($rs_datoventa['TX_datoventa_promocion'] < 1) {
+			// echo $r_function->replace_regular_character($rs_datoventa['TX_datoventa_descripcion'])."<br />";
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['producto_id'] = $rs_datoventa['TX_datoventa_cantidad'];
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['cantidad'] = $rs_datoventa['TX_datoventa_cantidad'];
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['precio'] = $rs_datoventa['TX_datoventa_precio'];

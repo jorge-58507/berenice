@@ -88,6 +88,27 @@ function upd_precio_viejaventa(key_viejaventa){
 
 }
 
+function upd_descuento_viejaventa(key_viejaventa){
+	$.ajax({ data: "", type: "GET", dataType: "JSON", url: "attached/get/get_session_admin.php",	})
+	.done(function( data, textStatus, jqXHR ) {	if(data[0][0] != ""){
+			var new_discount = prompt("Ingrese el Monto de Descuento:");
+			if (new_discount === '' || isNaN(new_discount)) {
+				return false;
+			}
+			new_discount = val_intw2dec(new_discount);
+			new_discount = parseFloat(new_discount);
+			$.ajax({	data: {"a" : key_viejaventa, "b" : new_discount.toFixed(2), "c" : 'descuento', "z" : 'upd' }, type: "GET", dataType: "text", url: "attached/php/method_viejaventa.php",	})
+			.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+				if(data){
+					data = JSON.parse(data);
+					generate_tbl_viejaventa(data);
+				}
+			})
+			.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+		}	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+
+}
 function refresh_tbl_viejaventa(){
 	$.ajax({	data: {"z" : 'reload' }, type: "GET", dataType: "text", url: "attached/php/method_viejaventa.php",	})
 	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);

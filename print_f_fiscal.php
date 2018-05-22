@@ -74,6 +74,10 @@ if(array_key_exists(5,$raw_datopago)){
 }else{
 	$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit = '0', TX_facturaf_status = 'IMPRESA' WHERE AI_facturaf_id = '$facturaf_id'");
 }
+
+$qry_vendedor = $link->query("SELECT bh_user.TX_user_seudonimo FROM (bh_facturaventa INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id) WHERE facturaventa_AI_facturaf_id = '$facturaf_id' LIMIT 1")or die($link->error);
+$rs_vendedor = $qry_vendedor->fetch_array();
+$vendedor = $rs_vendedor['TX_user_seudonimo'];
 ?>
 
 
@@ -156,7 +160,7 @@ $raw_facti=["documento" => "", "c_nombre" => "", "c_ruc" => "", "c_direccion" =>
 $raw_facti['documento']="FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7);
 $raw_facti['c_nombre']=$rs_facturaf['TX_cliente_nombre'];
 $raw_facti['c_ruc']=$rs_facturaf['TX_cliente_cif'];
-$raw_facti['c_direccion']=$rs_facturaf['TX_cliente_direccion'];
+$raw_facti['c_direccion']=substr($vendedor,0,3)."-".$rs_facturaf['TX_cliente_direccion'];
 if (!empty($rs_facturaf['TX_facturaf_descuento'])) { $raw_facti['total_descuento']=round($rs_facturaf['TX_facturaf_descuento'],2);  }else{ $raw_facti['total_descuento'] = '0.00'; }
 $raw_facti['total_pagado']=round($total_pagado,2);
 $raw_facti['total_final']=round($rs_facturaf['TX_facturaf_total'],2);
@@ -195,7 +199,6 @@ fclose($file);
 
 /* ####################### ENCABEZADO  ###################### */
 /* ####################### ARTICULOS  ###################### */
-
 $txt_datoventa="SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_descripcion,
 bh_datoventa.TX_datoventa_precio AS precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_medida
 FROM (((bh_facturaf

@@ -38,7 +38,7 @@ $rs_facturaventa=$qry_facturaventa->fetch_array();
 function cap_fl(str){
 	  return string.charAt(0).toUpperCase() + string.slice(1);
 }
-// setTimeout("self.close()", 10000);
+setTimeout("self.close()", 10000);
 </script>
 
 <body style="font-family:Arial" onLoad="window.print()">

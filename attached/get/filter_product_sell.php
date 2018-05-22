@@ -3,6 +3,7 @@ require '../../bh_conexion.php';
 $link = conexion();
 $value=$r_function->url_replace_special_character($_GET['a']);
 $value=$r_function->replace_regular_character($value);
+
 $line_limit = "";
 if(!empty($_GET['b']) && $_GET['b'] != 'undefined'){
 	$line_limit = "LIMIT ".$_GET['b'];

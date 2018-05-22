@@ -295,34 +295,34 @@ function open_newdebit(client_id){
 <form method="post" name="form_loginadmin" action="">
 <div id="container_client" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_spanname" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    	<label for="span_name">Nombre:</label>
+    	<label class="label label_blue_sky" for="span_name">Nombre:</label>
     	<span id="span_name" class="form-control bg-disabled"><?php echo $rs_client['TX_cliente_nombre']; ?></span>
     </div>
 	<div id="container_spanruc" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-    	<label for="span_ruc">RUC:</label>
+    	<label class="label label_blue_sky" for="span_ruc">RUC:</label>
     	<span id="span_ruc" class="form-control bg-disabled"><?php echo $rs_client['TX_cliente_cif']; ?></span>
     </div>
 	<div id="container_spantelephone" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-    	<label for="span_telephone">Tel&eacute;fono:</label>
+    	<label class="label label_blue_sky" for="span_telephone">Tel&eacute;fono:</label>
     	<span id="span_telephone" class="form-control bg-disabled"><?php echo $rs_client['TX_cliente_telefono']; ?></span>
     </div>
 		<div id="container_spandirection" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-			<label for="span_direction">Direcci&oacute;n:</label>
+			<label class="label label_blue_sky" for="span_direction">Direcci&oacute;n:</label>
 			<span id="span_direction" class="form-control bg-disabled"><?php echo $rs_client['TX_cliente_direccion']; ?></span>
 		</div>
 </div>
 <div id="container_credit" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_limit" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-    <label for="txt_limitcredit">Limite de credito</label>
+    <label class="label label_blue_sky" for="txt_limitcredit">Limite de credito</label>
     <input type="text" id="txt_limitcredit" name="txt_limitcredit" class="form-control"	value="<?php echo $rs_credit['TX_cliente_limitecredito']; ?>" readonly="readonly" />
   </div>
 	<div id="container_plazo" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-    <label for="txt_credit_term">Plazo en semanas</label>
+    <label class="label label_blue_sky" for="txt_credit_term">Plazo en semanas</label>
     <input type="text" id="txt_credit_term" name="txt_credit_term" class="form-control"	value="<?php echo $rs_credit['TX_cliente_plazocredito']; ?>" readonly="readonly" />
   </div>
 	<div id="container_saldo" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 		<div id="container_txtsaldo" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label for="span_saldo">Saldo Disp.</label>
+			<label class="label label_blue_sky" for="span_saldo">Saldo Disp.</label>
 			<span id="span_saldo" class="form-control bg-disabled"><?php echo number_format($rs_credit['TX_cliente_saldo'],2); ?></span>
 		</div>
 		<div id="container_btnaddsaldo" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 side-btn-md">
@@ -347,15 +347,15 @@ $date_i=date('d-m-Y',strtotime('-1 week'));
 $date_f=date('d-m-Y');
 ?>
     <div id="container_txtdatei" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <label for="txt_datei">Fecha Inicio:</label>
+        <label class="label label_blue_sky" for="txt_datei">Fecha Inicio:</label>
         <input type="text" class="form-control" id="txt_datei" name="txt_datei" readonly="readonly" value="<?php echo $date_i; ?>" />
     </div>
     <div id="container_txtdatef" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <label for="txt_datef">Fecha Final:</label>
+        <label class="label label_blue_sky" for="txt_datef">Fecha Final:</label>
         <input type="text" class="form-control" id="txt_datef" name="txt_datef" readonly="readonly" value="<?php echo $date_f; ?>" />
     </div>
     <div id="container_seldeficit" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        <label for="sel_deficit">Saldo</label>
+        <label class="label label_blue_sky" for="sel_deficit">Saldo</label>
 		<select id="sel_deficit" class="form-control">
 			<option value="todas">Todas</option>
             <option value="deficit">Con Saldo</option>
@@ -374,7 +374,7 @@ $date_f=date('Y-m-d',strtotime($date_f));
 	$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_ticket, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_user.TX_user_seudonimo, bh_facturaf.facturaf_AI_cliente_id
 	FROM bh_facturaf INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaf.facturaf_AI_user_id
 	WHERE facturaf_AI_cliente_id = '$client_id' AND TX_facturaf_fecha >= '$date_i' AND TX_facturaf_fecha <= '$date_f' ORDER BY AI_facturaf_id DESC";
-	$qry_facturaf=mysql_query($txt_facturaf) or die(mysql_error());
+	$qry_facturaf=$link->query($txt_facturaf) or die($link->error);
 ?>
 	<table id="tbl_facturaf" class="table table-bordered table-condensed table-striped">
     <caption class="caption">Facturas</caption>
@@ -391,8 +391,8 @@ $date_f=date('Y-m-d',strtotime($date_f));
     <tbody>
     <?php
 	$total=0; $deficit=0;
-	if($nr_facturaf=mysql_num_rows($qry_facturaf) > 0){
-    	while($rs_facturaf=mysql_fetch_array($qry_facturaf)){ ?>
+	if($nr_facturaf=$qry_facturaf->num_rows > 0){
+    	while($rs_facturaf=$qry_facturaf->fetch_array()){ ?>
     <tr title="<?php echo $rs_facturaf['TX_user_seudonimo']; ?>">
     	<td><?php echo $rs_facturaf[1]; ?></td>
     	<td><?php echo $rs_facturaf[2]; ?></td>
@@ -446,11 +446,11 @@ $date_f=date('d-m-Y');
 ?>
 <div id="container_filternc" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     <div id="container_txtdatenci" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-        <label for="txt_datenc_i">Fecha Inicio:</label>
+        <label class="label label_blue_sky" for="txt_datenc_i">Fecha Inicio:</label>
         <input type="text" class="form-control" id="txt_datenc_i" name="txt_datenc_i" readonly="readonly" value="<?php echo $date_i; ?>" />
     </div>
     <div id="container_txtdatencf" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-        <label for="txt_datenc_f">Fecha Final:</label>
+        <label class="label label_blue_sky" for="txt_datenc_f">Fecha Final:</label>
         <input type="text" class="form-control" id="txt_datenc_f" name="txt_datenc_f" readonly="readonly" value="<?php echo $date_f; ?>" />
     </div>
     <div id="container_btnfilter" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
@@ -467,7 +467,7 @@ FROM ((bh_notadecredito
 INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_notadecredito.notadecredito_AI_facturaf_id)
 INNER JOIN bh_user ON bh_user.AI_user_id = bh_notadecredito.notadecredito_AI_user_id)
 WHERE bh_notadecredito.notadecredito_AI_cliente_id = '$client_id' AND bh_notadecredito.TX_notadecredito_fecha >= '$date_i' AND bh_notadecredito.TX_notadecredito_fecha <= '$date_f'";
-$qry_nc=mysql_query($txt_nc);
+$qry_nc=$link->query($txt_nc);
 ?>
 	<table id="tbl_creditnote" class="table table-bordered table-condensed table-striped">
     <caption class="caption">Notas de Cr&eacute;dito</caption>
@@ -483,8 +483,8 @@ $qry_nc=mysql_query($txt_nc);
     <tbody>
 <?php
 	$total_nc=0;$total_saldo=0;
-	if($nr_nc=mysql_num_rows($qry_nc) > 0){
-		while($rs_nc=mysql_fetch_array($qry_nc)){
+	if($nr_nc=$qry_nc->num_rows > 0){
+		while($rs_nc=$qry_nc->fetch_array(MYSQLI_ASSOC)){
 			if($rs_nc[1] == 'SALDO'){
 				$total_nc+=$rs_nc[2];
 			}
@@ -535,11 +535,11 @@ $date_f=date('d-m-Y');
 ?>
 <div id="container_filternc" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     <div id="container_txtdatenci" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-        <label for="txt_datenc_i">Fecha Inicio:</label>
+        <label class="label label_blue_sky" for="txt_datenc_i">Fecha Inicio:</label>
         <input type="text" class="form-control" id="txt_datepay_i" name="txt_datepay_i" readonly="readonly" value="<?php echo $date_i; ?>" />
     </div>
     <div id="container_txtdatencf" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-        <label for="txt_datenc_f">Fecha Final:</label>
+        <label class="label label_blue_sky" for="txt_datenc_f">Fecha Final:</label>
         <input type="text" class="form-control" id="txt_datepay_f" name="txt_datepay_f" readonly="readonly" value="<?php echo $date_f; ?>" />
     </div>
     <div id="container_btnfilter" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
@@ -554,7 +554,7 @@ $date_f=date('Y-m-d',strtotime($date_f));
 $txt_payment="SELECT bh_notadebito.TX_notadebito_fecha, bh_notadebito.TX_notadebito_total, bh_notadebito.AI_notadebito_id, bh_user.TX_user_seudonimo
 FROM (bh_notadebito INNER JOIN bh_user ON bh_user.AI_user_id = bh_notadebito.notadebito_AI_user_id)
 WHERE bh_notadebito.notadebito_AI_cliente_id = '$client_id' AND bh_notadebito.TX_notadebito_fecha >= '$date_i' AND bh_notadebito.TX_notadebito_fecha <= '$date_f'";
-$qry_payment=mysql_query($txt_payment);
+$qry_payment=$link->query($txt_payment)or die($link->error);
 ?>
 
 <table id="tbl_notadebito" class="table table-bordered table-condensed table-striped">
@@ -570,23 +570,22 @@ $qry_payment=mysql_query($txt_payment);
     <tbody>
 <?php
 $total_payment=0;
-if($nr_payment=mysql_num_rows($qry_payment) > 0){
-	while($rs_payment=mysql_fetch_array($qry_payment)){
+if($nr_payment=$qry_payment->num_rows > 0){
+	while($rs_payment=$qry_payment->fetch_array()){
 	$total_payment+=$rs_payment[1];
-	$qry_ff=mysql_query("SELECT TX_facturaf_numero
+	$qry_ff=$link->query("SELECT TX_facturaf_numero
 	FROM ((bh_notadebito
 INNER JOIN rel_facturaf_notadebito ON bh_notadebito.AI_notadebito_id = rel_facturaf_notadebito.rel_AI_notadebito_id)
 INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = rel_facturaf_notadebito.rel_AI_facturaf_id) WHERE AI_notadebito_id = '{$rs_payment[2]}'
-")or die(mysql_error());
+")or die($link->error);
 	$ff="";
-	while($rs_ff=mysql_fetch_array($qry_ff)){	$ff .=	$rs_ff[0]."<br/>";	}
+	while($rs_ff=$qry_ff->fetch_array()){	$ff .=	$rs_ff[0]."<br/>";	}
 ?>
     <tr title="<?php echo $rs_payment['TX_user_seudonimo']; ?>">
     	<td><?php echo date('d-m-Y',strtotime($rs_payment[0])); ?></td>
-        <td><?php echo $ff; ?></td>
-        <td><?php echo number_format($rs_payment[1],2); ?></td>
-        <td><button type="button" id="btn_print_payment" name="<?php echo "print_client_debito.php?a=".$rs_payment[2]; ?>" class="btn btn-info btn-xs" onclick="print_html(this.name);">
-        <strong><i class="fa fa-print fa_print" aria-hidden="true"></i></strong></button></td>
+      <td><?php echo $ff; ?></td>
+      <td><?php echo number_format($rs_payment[1],2); ?></td>
+      <td><button type="button" id="btn_print_payment" name="<?php echo "print_client_debito.php?a=".$rs_payment[2]; ?>" class="btn btn-info btn-xs" onclick="print_html(this.name);"><strong><i class="fa fa-print fa_print" aria-hidden="true"></i></strong></button></td>
     </tr>
 <?php
 	}

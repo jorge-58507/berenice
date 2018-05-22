@@ -113,7 +113,8 @@ $("#btn_process").click(function(){
 	$.ajax({	data: {"a" : '<?php echo $str_factid; ?>'},	type: "GET",	dataType: "text",	url: "attached/get/get_paymentondebit.php", })
 	 .done(function( data, textStatus, jqXHR ) {
 		 if(data === '1'){
-	 	 	plus_debit('<?php echo $str_factid ?>');
+			 $("#btn_process").attr("disabled", true);
+	 	 	 plus_debit('<?php echo $str_factid ?>');
 		 }
 	 	})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});

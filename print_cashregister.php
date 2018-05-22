@@ -6,7 +6,7 @@ require 'attached/php/req_login_paydesk.php';
 
 $fecha_actual = date('d-m-Y');
 
-$qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion");
+$qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
 while($rs_opcion=$qry_opcion->fetch_array()){
 	$raw_opcion[$rs_opcion['TX_opcion_titulo']]=$rs_opcion['TX_opcion_value'];
@@ -43,12 +43,12 @@ if (isset($_SESSION['arqueo_id'])) {
 }
 //$arqueo_id='6';
 
-$txt_cashregister="SELECT bh_arqueo.TX_arqueo_fecha, bh_arqueo.TX_arqueo_hora, bh_arqueo.TX_arqueo_pago, bh_arqueo.TX_arqueo_tarjeta, bh_arqueo.TX_arqueo_cheque, bh_arqueo.TX_arqueo_debito, bh_arqueo.TX_arqueo_debitarjeta, bh_arqueo.TX_arqueo_debicheque, bh_arqueo.TX_arqueo_credito, bh_arqueo.TX_arqueo_notadecredito, bh_arqueo.TX_arqueo_ventabruta, bh_arqueo.TX_arqueo_ventaneta, bh_arqueo.TX_arqueo_devolucion, bh_arqueo.TX_arqueo_totalni, bh_arqueo.TX_arqueo_totalci, bh_arqueo.TX_arqueo_totalci_nc, bh_arqueo.TX_arqueo_impuesto, bh_arqueo.TX_arqueo_impuesto_nc, bh_arqueo.TX_arqueo_descuento, bh_arqueo.TX_arqueo_cantidadff, bh_arqueo.TX_arqueo_entrada, bh_arqueo.TX_arqueo_salida, bh_arqueo.TX_arqueo_anulado,
+$txt_cashregister="SELECT bh_arqueo.TX_arqueo_fecha, bh_arqueo.TX_arqueo_hora, bh_arqueo.TX_arqueo_pago, bh_arqueo.TX_arqueo_debito, bh_arqueo.TX_arqueo_ventabruta, bh_arqueo.TX_arqueo_ventaneta, bh_arqueo.TX_arqueo_devolucion, bh_arqueo.TX_arqueo_totalni, bh_arqueo.TX_arqueo_totalci, bh_arqueo.TX_arqueo_totalci_nc, bh_arqueo.TX_arqueo_impuesto, bh_arqueo.TX_arqueo_impuesto_nc, bh_arqueo.TX_arqueo_descuento, bh_arqueo.TX_arqueo_cantidadff, bh_arqueo.TX_arqueo_entrada, bh_arqueo.TX_arqueo_salida, bh_arqueo.TX_arqueo_anulado,
 bh_user.TX_user_seudonimo
 FROM (bh_arqueo
 INNER JOIN bh_user ON bh_user.AI_user_id = bh_arqueo.arqueo_AI_user_id)
 WHERE bh_arqueo.AI_arqueo_id = '$arqueo_id'";
-$qry_cashregister = $link->query($txt_cashregister);
+$qry_cashregister = $link->query($txt_cashregister)or die($link->error);
 $rs_cashregister = $qry_cashregister->fetch_array();
 $raw_pago = json_decode($rs_cashregister['TX_arqueo_pago'],true);
 $raw_debito = json_decode($rs_cashregister['TX_arqueo_debito'],true);

@@ -23,7 +23,7 @@ $qry_letra=$link->query("SELECT bh_letra.AI_letra_id, bh_letra.TX_letra_value, b
 
 $qry_precio_listado = $link->query("SELECT bh_precio.AI_precio_id, bh_precio.TX_precio_fecha, bh_precio.TX_precio_uno, bh_precio.TX_precio_dos, bh_precio.TX_precio_tres, bh_precio.TX_precio_cuatro, bh_precio.TX_precio_cinco, bh_producto.AI_producto_id FROM (bh_precio INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_precio.precio_AI_producto_id) WHERE bh_producto.AI_producto_id = '$product_id' AND bh_precio.precio_AI_medida_id = '{$rs_product['TX_producto_medida']}' ORDER BY TX_precio_fecha DESC, AI_precio_id DESC")or die($link->error);
 
-$qry_datocompra_listado = $link->query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
+$qry_datocompra_listado = $link->query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento,bh_datocompra.TX_datocompra_cantidad FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
 WHERE bh_producto.AI_producto_id = '$product_id' AND TX_datocompra_medida = '{$rs_product['TX_producto_medida']}' ORDER BY TX_facturacompra_fecha DESC")or die($link->error);
 ?>
 
@@ -355,16 +355,17 @@ function get_medida_precio(medida_id){
 		<caption class="caption">Historial de Precios de Compras</caption>
 		<thead class="bg-primary">
 		<tr>
-			<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Fecha</th>
+			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Fecha</th>
 			<th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Precio</th>
-			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Imp.</th>
-			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Desc.</th>
+			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Imp.</th>
+			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Desc.</th>
 			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Total</th>
+			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Cantidad</th>
 		</tr>
 		</thead>
 		<tfoot class="bg-primary">
 		<tr>
-			<td colspan="5"></td>
+			<td colspan="6"></td>
 		</tr>
 		</tfoot>
 		<tbody>
@@ -381,6 +382,7 @@ function get_medida_precio(medida_id){
 				<td><?php echo $rs_datocompra_listado['TX_datocompra_impuesto']; ?>%</td>
 				<td><?php echo $rs_datocompra_listado['TX_datocompra_descuento']; ?>%</td>
 				<td>B/ <?php echo number_format($total_precio,2); ?></td>
+				<td><?php echo $rs_datocompra_listado['TX_datocompra_cantidad']; ?></td>
 			</tr>
 <?php
 		}
