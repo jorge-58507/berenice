@@ -351,8 +351,8 @@ switch ($_COOKIE['coo_tuser']){
           <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Medida</th>
           <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Cantidad</th>
           <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Precio</th>
-          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Imp.%</th>
           <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Desc.%</th>
+          <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">Imp.%</th>
           <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">SubTotal</th>
           <th class="col-xs-2 col-sm-2 col-md-1 col-lg-1">  </th>
         </tr>

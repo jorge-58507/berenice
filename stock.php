@@ -78,7 +78,6 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 })
 
 	setTimeout("upd_btn_report()",60000)
-	// $("#container_create_product").css("display","none");
 
 	$('#btn_save_product').click(function(){
 		if($("#txt_codigo, #txt_cantidad, #txt_medida, #txt_cantminima, #txt_cantmaxima") === ""){
@@ -139,8 +138,6 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 		.fail(function(data, textStatus, errorThrown){	});
 	});
 
-	// $("#container_filterbutton").css("display","none");
-
 	$("#div_expand_filterbutton").click(function(){
 		$("#container_filterbutton").toggle(500);
 		$("#div_expand_filterbutton").toggleClass("fa-angle-double-right");
@@ -156,15 +153,21 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 			this.value = "0000000"+this.value;
 		}
 	});
-
+var intervalo;
 	$("#txt_filterproduct").on("keyup",function(){
+		clearInterval(intervalo);
+    intervalo = setInterval(function(){
+			
 		value = url_replace_regular_character($("#txt_filterproduct").val());
 		$.ajax({	data: {"a" : value },	type: "GET",	dataType: "text",	url: "attached/get/filter_product.php", })
 		.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
 			$("#tbl_product tbody").html(data);
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
-	});
+
+    clearInterval(intervalo);
+  }, 700);
+});
 
 	$( function() {
 		$("#txt_codigo").autocomplete({

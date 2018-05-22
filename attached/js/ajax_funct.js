@@ -236,17 +236,22 @@ function filter_product2purchase(field){
 // 	xmlhttp.open("GET","attached/get/filter_product_purchase.php?a="+value+"&b="+limit,true);	xmlhttp.send();
 // }
 
-function filter_product_sell(field){
-	var value = url_replace_regular_character(field.value);
-	var limit = ($("input[name=r_limit]:checked").val());
-	$.ajax({	data: {"a" : value, "b" : limit },	type: "GET",	dataType: "text",	url: "attached/get/filter_product_sell.php", })
-	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
-		$("#tbl_product tbody").html(data);
-	})
-	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+function filter_product_sell(field,intervalo=''){
+	clearInterval(intervalo);
+	intervalo = setInterval(function(){
+		var value = url_replace_regular_character(field.value);
+		var limit = ($("input[name=r_limit]:checked").val());
+		$.ajax({	data: {"a" : value, "b" : limit },	type: "GET",	dataType: "text",	url: "attached/get/filter_product_sell.php", })
+		.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+			$("#tbl_product tbody").html(data);
+		})
+		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+		clearInterval(intervalo);
+	}, 800);
 }
 
 function filter_product_collect(field,fact_id){
+
 	var value = field.value;
 		if (window.XMLHttpRequest){
 			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}

@@ -10,6 +10,8 @@ if(!empty($_GET['b']) && $_GET['b'] != 'undefined'){
 }
 
 $arr_value = (explode(' ',$value));
+$arr_value = array_values(array_unique($arr_value));
+
 $size_value=sizeof($arr_value);
 $txt_product="SELECT bh_producto.AI_producto_id, bh_producto.producto_AI_letra_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_cantidad FROM bh_producto WHERE ";
 for($it=0;$it<$size_value;$it++){

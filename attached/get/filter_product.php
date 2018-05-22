@@ -9,27 +9,16 @@ $prep_checkfacturaventa=$link->prepare("SELECT bh_facturaventa.AI_facturaventa_i
 $prep_facturacompra=$link->prepare("SELECT bh_facturacompra.AI_facturacompra_id FROM (bh_datocompra INNER JOIN bh_facturacompra ON bh_datocompra.datocompra_AI_facturacompra_id = bh_facturacompra.AI_facturacompra_id) WHERE bh_datocompra.datocompra_AI_producto_id = ?")or die($link->error);
 
 $arr_value = (explode(' ',$value));
+$arr_value = array_values(array_unique($arr_value));
 $txt_product="SELECT AI_producto_id, TX_producto_value, TX_producto_codigo, TX_producto_referencia, TX_producto_activo, TX_producto_minimo, TX_producto_maximo, TX_producto_cantidad, TX_producto_rotacion, TX_producto_medida FROM bh_producto WHERE ";
 foreach ($arr_value as $key => $value) {
-	if($value === end($arr_value)){
-		$txt_product=$txt_product."TX_producto_value LIKE '%{$value}%' OR ";
-	}else{
-		$txt_product=$txt_product."TX_producto_value LIKE '%{$value}%' AND ";
-	}
+	$txt_product .= ($value === end($arr_value)) ? "TX_producto_value LIKE '%{$value}%' OR " : "TX_producto_value LIKE '%{$value}%' AND ";
 }
 foreach ($arr_value as $key => $value) {
-	if($value === end($arr_value)){
-		$txt_product=$txt_product."TX_producto_codigo LIKE '%{$value}%' OR ";
-	}else{
-		$txt_product=$txt_product."TX_producto_codigo LIKE '%{$value}%' AND ";
-	}
+	$txt_product .= ($value === end($arr_value)) ? "TX_producto_codigo LIKE '%{$value}%' OR " : "TX_producto_codigo LIKE '%{$value}%' AND ";
 }
 foreach ($arr_value as $key => $value) {
-	if($value === end($arr_value)){
-		$txt_product=$txt_product."TX_producto_referencia LIKE '%{$value}%'";
-	}else{
-		$txt_product=$txt_product."TX_producto_referencia LIKE '%{$value}%' AND ";
-	}
+	$txt_product .= ($value === end($arr_value)) ? "TX_producto_referencia LIKE '%{$value}%'" : "TX_producto_referencia LIKE '%{$value}%' AND ";
 }
 $qry_product=$link->query($txt_product." ORDER BY TX_producto_value ASC LIMIT 100");
 $raw_producto=array(); $i=0;

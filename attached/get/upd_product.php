@@ -114,7 +114,7 @@ $nr_product=$qry_product->num_rows;
 				$prep_checkfacturaventa->bind_param("i",$rs_product['AI_producto_id']); $prep_checkfacturaventa->execute(); $qry_checkfacturaventa = $prep_checkfacturaventa->get_result();
 				if($qry_checkfacturaventa->num_rows < 1){
 					$prep_facturacompra->bind_param("i", $rs_product['AI_producto_id']); $prep_facturacompra->execute(); $qry_facturacompra=$prep_facturacompra->get_result();
-					if ($qry_facturacompra->num_rows < 1) { echo $qry_facturacompra->num_rows; ?>
+					if ($qry_facturacompra->num_rows < 1) { ?>
 						<button type="button" name="btn_del_product" id="btn_del_product" class="btn btn-danger btn-sm" onclick="del_product('<?php echo $rs_product['AI_producto_id'] ?>');">Eliminar</button>
 <?php			}
 				} ?>
