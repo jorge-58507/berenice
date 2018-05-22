@@ -4,7 +4,7 @@ $link = conexion();
 $value=$r_function->url_replace_special_character($_GET['a']);
 $value=$r_function->replace_regular_character($value);
 
-$prep_precio=$link->prepare("SELECT AI_precio_id, TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0' ORDER BY TX_precio_fecha DESC LIMIT 1")or die($link->error);
+$prep_precio=$link->prepare("SELECT AI_precio_id, TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0' AND precio_AI_medida_id = ? ORDER BY TX_precio_fecha DESC LIMIT 1")or die($link->error);
 $prep_checkfacturaventa=$link->prepare("SELECT bh_facturaventa.AI_facturaventa_id FROM (bh_datoventa INNER JOIN bh_facturaventa ON bh_datoventa.datoventa_AI_facturaventa_id = bh_facturaventa.AI_facturaventa_id) WHERE bh_datoventa.datoventa_AI_producto_id = ?")or die($link->error);
 $prep_facturacompra=$link->prepare("SELECT bh_facturacompra.AI_facturacompra_id FROM (bh_datocompra INNER JOIN bh_facturacompra ON bh_datocompra.datocompra_AI_facturacompra_id = bh_facturacompra.AI_facturacompra_id) WHERE bh_datocompra.datocompra_AI_producto_id = ?")or die($link->error);
 
@@ -34,8 +34,8 @@ foreach ($arr_value as $key => $value) {
 $qry_product=$link->query($txt_product." ORDER BY TX_producto_value ASC LIMIT 100");
 $raw_producto=array(); $i=0;
 while($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)){
-	$prep_precio->bind_param("i", $rs_product['AI_producto_id']); $prep_precio->execute(); $qry_precio=$prep_precio->get_result();
-	$rs_precio=$qry_precio->fetch_array();
+	$prep_precio->bind_param("ii", $rs_product['AI_producto_id'], $rs_product['TX_producto_medida']); $prep_precio->execute(); $qry_precio=$prep_precio->get_result();
+	$rs_precio=$qry_precio->fetch_array(MYSQLI_ASSOC);
 	$prep_checkfacturaventa->bind_param("i",$rs_product['AI_producto_id']); $prep_checkfacturaventa->execute(); $qry_checkfacturaventa = $prep_checkfacturaventa->get_result();
 	$prep_facturacompra->bind_param("i", $rs_product['AI_producto_id']); $prep_facturacompra->execute(); $qry_facturacompra=$prep_facturacompra->get_result();
 
@@ -62,7 +62,7 @@ if ($qry_product->num_rows > 0) {
 				$style_cantidad='style="color:#C63632"';
 			}
 			?><td <?php echo $style_cantidad; ?>><?php echo $rs_product['TX_producto_cantidad'] ?></td>
-			<td><?php $rs_product['precio']; ?></td>
+			<td><?php echo $rs_product['precio']; ?></td>
 			<td><button type="button" class="btn btn-success" onclick="open_popup('popup_relacion.php?a=<?php echo $rs_product['AI_producto_id'] ?>','popup_relacion','500','491')"><i class="fa fa-rotate-right" aria-hidden="true"></i><?php echo $rs_product['TX_producto_rotacion']; ?></button></td>
 			<td><button type="button" name="btn_upd_product" id="btn_upd_product" class="btn btn-warning btn-sm" onclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');">Modificar</button></td>
 			<td><?php if($rs_product['btn_delete'] < 1){ ?>
