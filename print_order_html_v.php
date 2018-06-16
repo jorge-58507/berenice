@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require 'bh_conexion.php';
 $link=conexion();
 ?>
@@ -131,7 +131,7 @@ $fecha = $dias[date('N', strtotime($rs_order['TX_pedido_fecha']))+1];
         	<?php echo $rs_dato_user['TX_datopedido_cantidad']; ?>
         </td>
         <td>
-					<?php echo $rs_dato_user['TX_producto_value']; ?>
+					<?php echo $r_function->replace_special_character($rs_dato_user['TX_producto_value']); ?>
         </td>
         <td>
 					<?php echo number_format($rs_dato_user['TX_datopedido_precio'],2); ?>

@@ -286,7 +286,7 @@ switch ($_COOKIE['coo_tuser']){
     <tr>
     	<td><?php echo $rs_facturaf['TX_facturaf_numero']; ?></td>
       <td><?php echo $rs_facturaf['TX_facturaf_fecha']; ?></td>
-      <td><?php echo number_format($gross_total = ($rs_facturaf['TX_facturaf_subtotalni']+$rs_facturaf['TX_facturaf_subtotalci']-$rs_facturaf['TX_facturaf_descuento']),2); ?></td>
+			<td><?php echo number_format($gross_total = ($rs_facturaf['TX_facturaf_subtotalni']+$rs_facturaf['TX_facturaf_subtotalci']),2); ?></td>
       <td><?php echo number_format($rs_facturaf['TX_facturaf_impuesto'],2); ?></td>
       <td><?php echo number_format($rs_facturaf['TX_facturaf_total'],2); ?></td>
       <td><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></td>

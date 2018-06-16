@@ -33,17 +33,40 @@ if($qry_precio->num_rows < 1){
 
   $qry_precio_listado = $link->query("SELECT bh_precio.AI_precio_id, bh_precio.TX_precio_fecha, bh_precio.TX_precio_uno, bh_precio.TX_precio_dos, bh_precio.TX_precio_tres, bh_precio.TX_precio_cuatro, bh_precio.TX_precio_cinco, bh_producto.AI_producto_id FROM (bh_precio INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_precio.precio_AI_producto_id) WHERE bh_producto.AI_producto_id = '$product_id' AND bh_precio.precio_AI_medida_id = '$medida_id' ORDER BY TX_precio_fecha DESC, AI_precio_id DESC")or die($link->error);
 
-
+$text='';
 	while ($rs_precio_listado = $qry_precio_listado->fetch_array(MYSQLI_ASSOC)) {
-?>
-  	<tr>
-  		<td><?php echo date('d-m-Y', strtotime($rs_precio_listado['TX_precio_fecha'])); ?></td>
-  		<td><?php if (!empty($rs_precio_listado['TX_precio_cuatro'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_cuatro'],2); } ?></td>
-  		<td><?php if (!empty($rs_precio_listado['TX_precio_cinco'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_cinco'],2); } ?></td>
-  		<td><?php if (!empty($rs_precio_listado['TX_precio_tres'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_tres'],2); } ?></td>
-  		<td><?php if (!empty($rs_precio_listado['TX_precio_dos'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_dos'],2); } ?></td>
-  		<td><?php if (!empty($rs_precio_listado['TX_precio_uno'])) { echo "B/ ".number_format($rs_precio_listado['TX_precio_uno'],2); } ?></td>
-  	</tr>
-<?php
+		$text .='<tr><td>';
+		$text .= date('d-m-Y', strtotime($rs_precio_listado['TX_precio_fecha'])).'</td><td>';
+		$text .= (!empty($rs_precio_listado['TX_precio_cuatro'])) ? 'B/ '.number_format($rs_precio_listado['TX_precio_cuatro'],2).'</td><td>' : '</td><td>';
+		$text .= (!empty($rs_precio_listado['TX_precio_cinco'])) ? 'B/ '.number_format($rs_precio_listado['TX_precio_cinco'],2).'</td><td>' : '</td><td>';
+		$text .= (!empty($rs_precio_listado['TX_precio_tres'])) ? 'B/ '.number_format($rs_precio_listado['TX_precio_tres'],2).'</td><td>' : '</td><td>';
+		$text .= (!empty($rs_precio_listado['TX_precio_dos'])) ? 'B/ '.number_format($rs_precio_listado['TX_precio_dos'],2).'</td><td>' : '</td><td>';
+  	$text .= (!empty($rs_precio_listado['TX_precio_uno'])) ? 'B/ '.number_format($rs_precio_listado['TX_precio_uno'],2).'</td></tr>' : '</td></tr>';
 		}
+// echo $text;
+
+$qry_product=$link->query("SELECT * FROM bh_producto WHERE AI_producto_id = '{$_GET['a']}'")or die($link->error);
+$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
+
+$qry_producto_medida = $link->query("SELECT bh_medida.AI_medida_id, bh_medida.TX_medida_value, rel_producto_medida.AI_rel_productomedida_id, rel_producto_medida.TX_rel_productomedida_cantidad FROM (bh_medida INNER JOIN rel_producto_medida ON bh_medida.AI_medida_id = rel_producto_medida.productomedida_AI_medida_id) WHERE productomedida_AI_producto_id = '{$_GET['a']}'")or die($link->error);
+$raw_producto_medida=array();
+while ($rs_producto_medida = $qry_producto_medida->fetch_array(MYSQLI_ASSOC)) {
+	$raw_producto_medida[]=$rs_producto_medida;
+}
+$select='
+<label class="label label_blue_sky"  for="sel_medida_descripcion">Medida:</label>
+<select  class="form-control" id="sel_medida_descripcion" name="sel_medida_descripcion" tabindex="3">';
+foreach ($raw_producto_medida as $key => $rs_medida) {
+	if($rs_medida['AI_medida_id']===$rs_product['TX_producto_medida']){
+		$measure_selected=$rs_medida['TX_medida_value'];
+		$select .= '<option value="'.$rs_medida['AI_medida_id'].'" selected="selected">'.$rs_medida['TX_medida_value'].'</option>';
+	}else{
+		$select .= '<option value="'.$rs_medida['AI_medida_id'].'">'.$rs_medida['TX_medida_value'].'</option>';
+	}
+}
+$select .= '</select>';
+
+$raw_response=array($text,$select);
+
+echo json_encode($raw_response)
 ?>

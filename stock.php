@@ -143,23 +143,21 @@ $("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
 		$("#div_expand_filterbutton").toggleClass("fa-angle-double-right");
 		$("#div_expand_filterbutton").toggleClass("fa-angle-double-left");
 	});
-
-	$("#txt_p_1, #txt_p_2, #txt_p_3, #txt_p_4, #txt_p_5").on("blur",function(){
-		this.value = val_intw2dec(this.value);
-	});
-
 	$("#txt_codigo").on("blur", function(){
 		if(this.value.length == '6'){
 			this.value = "0000000"+this.value;
 		}
 	});
-var intervalo;
+	$("input[name=r_limit]").on("change",function(){
+		$("#txt_filterproduct").keyup();
+	})
+	var intervalo;
 	$("#txt_filterproduct").on("keyup",function(){
 		clearInterval(intervalo);
     intervalo = setInterval(function(){
-			
 		value = url_replace_regular_character($("#txt_filterproduct").val());
-		$.ajax({	data: {"a" : value },	type: "GET",	dataType: "text",	url: "attached/get/filter_product.php", })
+		var limit = ($("input[name=r_limit]:checked").val());
+		$.ajax({	data: {"a" : value, "b" : limit},	type: "GET",	dataType: "text",	url: "attached/get/filter_product.php", })
 		.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
 			$("#tbl_product tbody").html(data);
 		})
@@ -346,7 +344,7 @@ switch ($_COOKIE['coo_tuser']){
   <input type="text" autofocus class="form-control" id="txt_filterproduct" name="txt_filterproduct" autocomplete="off" />
 </div>
 
-<div id="container_filterbutton" class="col-xs-10 col-sm-10 col-md-5 col-lg-5 display_none">
+<div id="container_filterbutton" class="col-xs-9 col-sm-9 col-md-3 col-lg-3 display_none">
 	<label class="label label_blue_sky"  class="col-xs-12 col-sm-12 col-md-12 col-lg-12">Ver:</label>
 	<button type="button" id="btn_alarm_off" name="btn_alarm_off" class="btn btn-warning btn-xs">Alarma Off</button>
     &nbsp;&nbsp;
@@ -355,6 +353,13 @@ switch ($_COOKIE['coo_tuser']){
 <div id="container_div_expand_filterbutton" class="col-xs-2 col-sm-2 col-md-1 col-lg-1" >
     <div id="div_expand_filterbutton" class="fa fa-angle-double-right"></div>
 </div>
+<div id="container_rlimit" class="col-xs-12 col-sm-12 col-md-2 col-lg-2">
+	<label class="label label_blue_sky" for="txt_rlimit">Mostrar:</label><br />
+	<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="20"  checked="checked" /> 20</label>
+	<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
+	<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="200" /> 200</label>
+</div>
+
 <div id="container_tblproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <?php
 	if($nr_product=$qry_product->num_rows != '0'){ ?>

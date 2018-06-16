@@ -115,7 +115,7 @@ while($rs_datoventa=$qry_datoventa->fetch_array()){
 	$raw_impuesto[] = $rs_datoventa['TX_datoventa_impuesto'];
 	$raw_descuento[] = $rs_datoventa['TX_datoventa_descuento'];
 	$raw_promocion[] = $rs_datoventa['TX_datoventa_promocion'];
-	$raw_descripcion[] = $rs_datoventa['TX_datoventa_descripcion'];
+	$raw_descripcion[] = str_replace('\\\'','&squote;',$rs_datoventa['TX_datoventa_descripcion']);
 	$raw_datoventa_id[$rs_datoventa['AI_datoventa_id']] = $i;
 	$i++;
 }

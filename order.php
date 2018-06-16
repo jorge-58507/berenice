@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require 'bh_conexion.php';
 $link=conexion();
 
@@ -173,7 +173,7 @@ function add_rawproduct(product_id, product_codigo, product_nombre, cantidad, pr
 	var tr_product = new Object();
 	tr_product['id'] = product_id;
 	tr_product['codigo'] = product_codigo;
-	tr_product['nombre'] = product_nombre;
+	tr_product['nombre'] = replace_special_character(product_nombre);
 	tr_product['cantidad'] = cantidad;
 	tr_product['precio'] = precio;
 	tr_product['impuesto'] = impuesto;
@@ -530,7 +530,7 @@ switch ($_COOKIE['coo_tuser']){
 	?>
 			<tr>
 				<td><?php echo $rs_datopedido[1]; ?></td>
-				<td><?php echo $rs_datopedido[0]; ?></td>
+				<td><?php echo $r_function->replace_special_character($rs_datopedido[0]); ?></td>
 				<td><?php echo number_format($precio_impuesto,4); ?></td>
 			</tr>
 			<?php

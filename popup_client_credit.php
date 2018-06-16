@@ -484,7 +484,7 @@ $qry_nc=$link->query($txt_nc);
 <?php
 	$total_nc=0;$total_saldo=0;
 	if($nr_nc=$qry_nc->num_rows > 0){
-		while($rs_nc=$qry_nc->fetch_array(MYSQLI_ASSOC)){
+		while($rs_nc=$qry_nc->fetch_array()){
 			if($rs_nc[1] == 'SALDO'){
 				$total_nc+=$rs_nc[2];
 			}

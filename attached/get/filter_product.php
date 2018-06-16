@@ -3,6 +3,7 @@ require '../../bh_conexion.php';
 $link = conexion();
 $value=$r_function->url_replace_special_character($_GET['a']);
 $value=$r_function->replace_regular_character($value);
+$limite=$_GET['b'];
 
 $prep_precio=$link->prepare("SELECT AI_precio_id, TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0' AND precio_AI_medida_id = ? ORDER BY TX_precio_fecha DESC LIMIT 1")or die($link->error);
 $prep_checkfacturaventa=$link->prepare("SELECT bh_facturaventa.AI_facturaventa_id FROM (bh_datoventa INNER JOIN bh_facturaventa ON bh_datoventa.datoventa_AI_facturaventa_id = bh_facturaventa.AI_facturaventa_id) WHERE bh_datoventa.datoventa_AI_producto_id = ?")or die($link->error);
@@ -20,20 +21,24 @@ foreach ($arr_value as $key => $value) {
 foreach ($arr_value as $key => $value) {
 	$txt_product .= ($value === end($arr_value)) ? "TX_producto_referencia LIKE '%{$value}%'" : "TX_producto_referencia LIKE '%{$value}%' AND ";
 }
-$qry_product=$link->query($txt_product." ORDER BY TX_producto_value ASC LIMIT 100");
+$qry_product=$link->query($txt_product." ORDER BY TX_producto_value ASC LIMIT ".$limite);
 $raw_producto=array(); $i=0;
 while($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)){
-	$prep_precio->bind_param("ii", $rs_product['AI_producto_id'], $rs_product['TX_producto_medida']); $prep_precio->execute(); $qry_precio=$prep_precio->get_result();
-	$rs_precio=$qry_precio->fetch_array(MYSQLI_ASSOC);
-	$prep_checkfacturaventa->bind_param("i",$rs_product['AI_producto_id']); $prep_checkfacturaventa->execute(); $qry_checkfacturaventa = $prep_checkfacturaventa->get_result();
-	$prep_facturacompra->bind_param("i", $rs_product['AI_producto_id']); $prep_facturacompra->execute(); $qry_facturacompra=$prep_facturacompra->get_result();
+	if ($i < $limite) {
+		$prep_precio->bind_param("ii", $rs_product['AI_producto_id'], $rs_product['TX_producto_medida']); $prep_precio->execute(); $qry_precio=$prep_precio->get_result();
+		$rs_precio=$qry_precio->fetch_array(MYSQLI_ASSOC);
+		$prep_checkfacturaventa->bind_param("i",$rs_product['AI_producto_id']); $prep_checkfacturaventa->execute(); $qry_checkfacturaventa = $prep_checkfacturaventa->get_result();
+		$prep_facturacompra->bind_param("i", $rs_product['AI_producto_id']); $prep_facturacompra->execute(); $qry_facturacompra=$prep_facturacompra->get_result();
 
-	$raw_producto[$i]=$rs_product;
-	$raw_producto[$i]['precio']=$rs_precio['TX_precio_cuatro'];
-	if ($qry_checkfacturaventa->num_rows < 1) {
-		$raw_producto[$i]['btn_delete']=$qry_facturacompra->num_rows;
+		$raw_producto[$i]=$rs_product;
+		$raw_producto[$i]['precio']=$rs_precio['TX_precio_cuatro'];
+		if ($qry_checkfacturaventa->num_rows < 1) {
+			$raw_producto[$i]['btn_delete']=$qry_facturacompra->num_rows;
+		}else{
+			$raw_producto[$i]['btn_delete']=$qry_checkfacturaventa->num_rows;
+		}
 	}else{
-		$raw_producto[$i]['btn_delete']=$qry_checkfacturaventa->num_rows;
+		break;
 	}
 	$i++;
 }

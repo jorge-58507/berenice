@@ -155,7 +155,7 @@
 #container_tbl_product_promotion{
 	padding-bottom: 5px;
 	max-height: 380px;
-	overflow-y: always;
+	overflow-y: scroll;
 }
 #container_tbl_product_favorite{
 	padding-bottom: 5px;

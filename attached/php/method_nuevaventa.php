@@ -50,19 +50,13 @@ function plus_nuevaventa(){
 
 	$contenido=read_nuevaventa_content();
 	$raw_decode=json_decode($contenido, true);
-	// if (!array_key_exists($_COOKIE['coo_iuser'], $raw_decode)) {
-	// 	echo "hito";
-	// }else{
-	// 	echo "hito2";
-	// }
-	// return false;
 	if (!array_key_exists($_COOKIE['coo_iuser'], $raw_decode)) {
 		$raw_decode[$_COOKIE['coo_iuser']]= array();
 	}
 	if (!array_key_exists($activo, $raw_decode[$_COOKIE['coo_iuser']])) {
 		$raw_decode[$_COOKIE['coo_iuser']][$activo]= array();
 	}
-	// ###################### restrictor por repeticion POR HACER
+	// ###################### restrictor por repeticion
 	$raw_nuevaventa = $raw_decode[$_COOKIE['coo_iuser']][$activo];
 	$add = 1;
 	foreach ($raw_nuevaventa as $key => $value) {

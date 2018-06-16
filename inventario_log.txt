@@ -1,0 +1,3 @@
+02-06-2018 16:16:36 MASTER:  ACEITE CAOBA 1G PRO GLIDDEN (7138) Medida: 2 Cantidad 50 Min: 5 Max: 50 Imp: 7 Alarma: 0 Activo: 0 Letra: 1 Codigo: 744103535291 Descontable: 1 Inventario: 1
+02-06-2018 16:17:43 MASTER:  ACEITE CAOBA 1G PRO GLIDDEN (7138) Medida: 1 Cantidad 50 Min: 5 Max: 50 Imp: 7 Alarma: 0 Activo: 0 Letra: 1 Codigo: 744103535291 Descontable: 1 Inventario: 1
+13-06-2018 14:47:43 MASTER:  BOLSA CEMENTO GRIS (5961) Medida: 1 Cantidad 268 Min: 100 Max: 1000 Imp: 7 Alarma: 0 Activo: 0 Letra: 7 Codigo: 0000000707084 Descontable: 1 Inventario: 1

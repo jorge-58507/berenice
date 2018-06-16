@@ -354,3 +354,11 @@ ul.nav>li>a{
 #container_cashregister_filter>div{
 	margin-top: 7px;
 }
+#container_inventoried{
+	box-shadow: inset 0px 0px 2px red;
+	border-radius: 5px;
+	padding: 0 5px;
+}
+#container_inventoried label{
+	margin-left: 17px;
+}

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require 'bh_conexion.php';
 $link=conexion();
 require 'attached/php/req_login_sale.php';
@@ -71,7 +71,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 	 	<td valign="top" colspan="6" style="text-align:center">
 			<img width="200px" height="75px" src="attached/image/logo_factura_materiales.png" ondblclick="window.location.href='print_sale_html.php?a=<?php echo $facturaventa_id; ?>'">
 			<br />
-			<font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
+			<font style="font-size:10px">RUC: 36021-11-261981 DV: 90<br/></font>
 			<font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
 			<font style="font-size:10px"><?php echo "TLF. ".$raw_opcion['TELEFONO']." WHATSAPP: ".$raw_opcion['FAX']."<br />"; ?></font>
 			<font style="font-size:10px"><?php echo $raw_opcion['EMAIL']."<br />"; ?></font>

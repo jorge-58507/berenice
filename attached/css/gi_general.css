@@ -40,14 +40,13 @@
 }
 #container_btnstart{
 	text-align:right;
-font-size: 34px;
-/*margin-top: 2px;*/
-color: #C63632;
-font-weight: bolder;
-height:25px;
+	font-size: 34px;
+	color: #C63632;
+	font-weight: bolder;
+	height:25px;
 }
 #container_btnstart > i{
-margin: -3px 0 0 0;
+	margin: -3px 0 0 0;
 }
 
 .div_ttl_nobg{
@@ -80,7 +79,7 @@ a.nounderline{
 }
 input[readonly=readonly]{
 	background:#F3F3F3;
-	}
+}
 h1{
 	line-height:1%;
 	font-size:19pt;

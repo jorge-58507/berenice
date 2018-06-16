@@ -4,7 +4,7 @@ $link=conexion();
 require 'attached/php/req_login_sale.php';
 function checkfacturaventa($numero){
 	$link=conexion();
-	$qry_checkfacturaventa=$link->query("SELECT AI_facturaventa_id FROM bh_facturaventa WHERE TX_facturaventa_numero = '$numero'")or die($link->error());
+	$qry_checkfacturaventa=$link->query("SELECT AI_facturaventa_id FROM bh_facturaventa WHERE TX_facturaventa_numero = '$numero'")or die($link->error);
 	$nr_checkfacturaventa=$qry_checkfacturaventa->num_rows;
 	$link->close();
 	if($nr_checkfacturaventa > 0){
@@ -23,7 +23,7 @@ $number=checkfacturaventa($number);
 
 $qry_precio = $link->prepare("SELECT TX_precio_cuatro FROM bh_precio WHERE precio_AI_producto_id = ? AND TX_precio_inactivo = '0'")or die($link->error);
 $qry_letra = $link->prepare("SELECT bh_letra.TX_letra_value FROM (bh_letra INNER JOIN bh_producto ON bh_letra.AI_letra_id = bh_producto.producto_AI_letra_id) WHERE bh_producto.AI_producto_id = ? ")or die($link->error);
-$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_cantidad FROM bh_producto WHERE TX_producto_activo = '0' ORDER BY TX_producto_value ASC LIMIT 10");
+$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_cantidad, TX_producto_inventariado FROM bh_producto WHERE TX_producto_activo = '0' ORDER BY TX_producto_value ASC LIMIT 10");
 $raw_producto=array(); $i=0;
 while ($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)) {
 	$qry_precio->bind_param("i", $rs_product['AI_producto_id']); $qry_precio->execute(); $result = $qry_precio->get_result();
@@ -191,7 +191,7 @@ function generate_tbl_nuevaventa(data,activo){
 			var precio_descuento = nuevaventa[x]['precio']-descuento;
 			var impuesto = (precio_descuento*nuevaventa[x]['impuesto'])/100;
 			var precio_unitario = precio_descuento+impuesto;
-					precio_unitario = Math.round10(precio_unitario, -2);
+					precio_unitario = Math.round10(precio_unitario, -4);
 			var subtotal = nuevaventa[x]['cantidad']*precio_unitario;
 
 			total_itbm += impuesto*nuevaventa[x]['cantidad'];
@@ -199,7 +199,7 @@ function generate_tbl_nuevaventa(data,activo){
 			total += subtotal;
 			style_promotion = (nuevaventa[x]['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
 			fire_promotion = (nuevaventa[x]['promocion'] > 0 ) ? '<i class="fa fa-free-code-camp"> </i> ' : '';
-			content += '<tr '+style_promotion+'><td>'+nuevaventa[x]['codigo']+'</td><td onclick="upd_descripcion_nuevaventa('+x+',\''+replace_regular_character(nuevaventa[x]['descripcion'])+'\')">'+fire_promotion+replace_special_character(nuevaventa[x]['descripcion'])+'</td><td>'+array_medida[nuevaventa[x]['medida']]+'</td><td onclick="upd_unidades_nuevaventa('+x+');">'+nuevaventa[x]['cantidad']+'</td><td  onclick="upd_precio_nuevaventa('+x+');">'+nuevaventa[x]['precio']+'</td><td>'+descuento.toFixed(2)+'</td><td>'+impuesto.toFixed(2)+'</td><td>'+precio_unitario.toFixed(2)+'</td><td>'+subtotal.toFixed(2)+'</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_nuevaventa('+x+');"><strong>X</strong></button></td></tr>';
+			content += '<tr '+style_promotion+'><td>'+nuevaventa[x]['codigo']+'</td><td onclick="upd_descripcion_nuevaventa('+x+',\''+replace_regular_character(nuevaventa[x]['descripcion'])+'\')">'+fire_promotion+replace_special_character(nuevaventa[x]['descripcion'])+'</td><td>'+array_medida[nuevaventa[x]['medida']]+'</td><td onclick="upd_unidades_nuevaventa('+x+');">'+nuevaventa[x]['cantidad']+'</td><td  onclick="upd_precio_nuevaventa('+x+');">'+nuevaventa[x]['precio']+'</td><td>'+descuento.toFixed(2)+'</td><td>'+impuesto.toFixed(2)+'</td><td>'+precio_unitario.toFixed(4)+'</td><td>'+subtotal.toFixed(2)+'</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_nuevaventa('+x+');"><strong>X</strong></button></td></tr>';
 		}
 		activo = activo.replace("_sale","");
 
@@ -588,8 +588,8 @@ switch ($_COOKIE['coo_tuser']){
 <?php
 			if($nr_product=$qry_product->num_rows > 0){
 				foreach ($raw_producto as $key => $rs_product) {
-?>
-			    <tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);">
+				$title = ($rs_product['TX_producto_inventariado'] === '1') ? 'INCLUIDO' : 'NO INCLUIDO'; ?>
+					<tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);" title="<?php echo $title; ?>" >
 	        	<td title="<?php echo $rs_product['AI_producto_id']; ?>"><?php echo $rs_product['TX_producto_codigo']; ?></td>
 	        	<td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
 	        	<td><?php echo $rs_product['TX_producto_cantidad']; ?></td>

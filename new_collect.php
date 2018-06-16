@@ -184,16 +184,20 @@ var pendiente = $("#span_payment_to_pay").text().replace(",","");
 });
 
 $("#btn_process").click(function(){
+  $("#btn_process, #btn_generate").attr("disabled", true);
 	$.ajax({	data: {"a" : '<?php echo $str_factid; ?>'},	type: "GET",	dataType: "text",	url: "attached/get/get_payment.php", })
 	 .done(function( data, textStatus, jqXHR ) {
 		 if(data === '1'){
 			 if($("#txt_filterclient").prop("alt") == ""){
 			 	$("#txt_filterclient").focus;
 				alert("Debe Agregar al Cliente Primero");
+        $("#btn_process, #btn_generate").prop("disabled", false);
 			 	return false;
 			 }
 			 plus_facturaf('<?php echo $str_factid ?>');
-		 }
+		 }else{
+       $("#btn_process, #btn_generate").prop("disabled", false);
+     }
 	 	})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 });

@@ -217,7 +217,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
         	<td><?php echo "B/ ".number_format($rs_datopago['TX_datopago_monto'],2); ?></td>
         </tr>
 <?php
-			$qry_nd->bind_param("i", $rs_facturaf['TX_facturaf_numero']); $qry_nd->execute(); $result = $qry_nd->get_result();
+			$qry_nd->bind_param("i", $rs_facturaf['AI_facturaf_id']); $qry_nd->execute(); $result = $qry_nd->get_result();
 			$importe=0;
 			while ($rs_nd = $result->fetch_array()) {
 				$importe += $rs_nd['TX_rel_facturafnotadebito_importe'];

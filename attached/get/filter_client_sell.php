@@ -20,7 +20,7 @@ $txt_client=$txt_client."TX_cliente_nombre LIKE '%{$arr_value[$it]}%'";
 $txt_client=$txt_client."TX_cliente_nombre LIKE '%{$arr_value[$it]}%' AND ";
 	}
 }
-$qry_client=$link->query($txt_client." ORDER BY TX_cliente_nombre ASC LIMIT 10")or die($link->error);
+$qry_client=$link->query($txt_client." ORDER BY TX_cliente_nombre ASC LIMIT 100")or die($link->error);
 $raw_cliente = array();
 $i=0;
 while($rs_cliente=$qry_client->fetch_array(MYSQLI_ASSOC)){

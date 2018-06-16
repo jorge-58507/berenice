@@ -65,7 +65,9 @@ $(document).ready(function() {
 		if($("#txt_precio4").val() === '') { $("#txt_precio4").val('0.00') }
 		$.ajax({	data: {"a" : <?php echo $_GET['a'] ?>, "b" : $("#hd_medida").attr("alt"), "c" : $("#txt_precio1").val(), "d" :  $("#txt_precio2").val(), "e" :  $("#txt_precio3").val(), "f" :  $("#txt_precio4").val(), "g" :  $("#txt_precio5").val()},	type: "GET",	dataType: "text",	url: "attached/get/plus_product_price.php",	})
 		.done(function( data, textStatus, jqXHR ) {	console.log("GOOD " + data);
-			$("#tbl_historical_price tbody").html(data);
+			data = JSON.parse(data);
+			$("#tbl_historical_price tbody").html(data[0]);
+			$("#container_sel_medida_descripcion").html(data[1]);
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log( "BAD " +  textStatus); })
 	})
@@ -101,7 +103,9 @@ $(document).ready(function() {
 	$("#btn_addproducto_medida").on("click", function(){
 		$.ajax({	data: {"a" : $("#sel_medida_precio").val(), "b" : <?php echo $_GET['a']; ?>, "c" : $("#txt_unidadespormedida").val() },	type: "GET",	dataType: "text",	url: "attached/get/plus_producto_medida.php",	})
 		.done(function( data, textStatus, jqXHR ) { console.log("GOOD " + textStatus);
-			$("#tbl_producto_medida tbody").html(data);
+		data = JSON.parse(data);
+		$("#tbl_producto_medida tbody").html(data[0]);
+		$("#container_sel_medida_descripcion").html(data[1]);
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log( "BAD " +  textStatus); })
 	})
@@ -118,7 +122,9 @@ $(document).ready(function() {
 var del_producto_medida = function(rel_id){
 	$.ajax({	data: {"a" : rel_id},	type: "GET",	dataType: "text",	url: "attached/get/del_producto_medida.php",	})
 	.done(function( data, textStatus, jqXHR ) { console.log("GOOD " + textStatus);
-		$("#tbl_producto_medida tbody").html(data);
+		data = JSON.parse(data);
+		$("#tbl_producto_medida tbody").html(data[0]);
+		$("#container_sel_medida_descripcion").html(data[1]);
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log( "BAD " +  textStatus); })
 }
@@ -184,7 +190,7 @@ function get_medida_precio(medida_id){
 		      <label class="label label_blue_sky"  for="txt_codigo">Codigo:</label>
 		      <input type="text" class="form-control input-sm" id="txt_codigo" name="txt_codigo" value="<?php echo $rs_product['TX_producto_codigo']; ?>" tabindex="2">
 	    	</div>
-				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+				<div id="container_sel_medida_descripcion" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 					<label class="label label_blue_sky"  for="sel_medida_descripcion">Medida:</label>
 					<select  class="form-control" id="sel_medida_descripcion" name="sel_medida_descripcion" tabindex="3">
 <?php				foreach ($raw_producto_medida as $key => $rs_medida) {
@@ -264,6 +270,18 @@ function get_medida_precio(medida_id){
 						<label for="r_discountable_1" class="radio"><input type="radio" name="r_discountable" value="0" <?php echo $checked_1 ?> /> No</label>
 					</div>
 				</div>
+				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">&nbsp;</div>
+				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">&nbsp;</div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">&nbsp;</div>
+				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+					<div class=""  id="container_inventoried">
+						<label for="r_inventoried" style="margin:0" >Inventariado:</label>
+	<?php if($rs_product['TX_producto_inventariado'] === '1'){	$checked_0="checked='checked'";	$checked_1="";	}else{	$checked_0="";	$checked_1="checked='checked'";	} ?>
+						<label for="r_inventoried_0" class="radio"><input type="radio" name="r_inventoried" value="1" <?php echo $checked_0 ?> /> Si</label>
+						<label for="r_inventoried_1" class="radio"><input type="radio" name="r_inventoried" value="0" <?php echo $checked_1 ?> /> No</label>
+					</div>
+				</div>
+
 				<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 					<button type="button" name="btn_save_product" id="btn_save_product" class="btn btn-success">Guardar</button>
 					&nbsp;

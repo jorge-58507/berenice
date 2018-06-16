@@ -12,7 +12,7 @@ while($rs_opcion=$qry_opcion->fetch_array()){
 
 $facturacompra_id=$_GET['a'];
 
-$qry_facturacompra=$link->query("SELECT bh_facturacompra.TX_facturacompra_fecha, bh_facturacompra.TX_facturacompra_numero,
+$qry_facturacompra=$link->query("SELECT bh_facturacompra.TX_facturacompra_fecha, bh_facturacompra.TX_facturacompra_numero, bh_facturacompra.TX_facturacompra_elaboracion,
 	bh_facturacompra.TX_facturacompra_ordendecompra, bh_facturacompra.TX_facturacompra_observacion, bh_almacen.TX_almacen_value,
 	bh_proveedor.TX_proveedor_nombre, bh_proveedor.TX_proveedor_cif, bh_proveedor.TX_proveedor_telefono, bh_proveedor.TX_proveedor_dv,
 	bh_proveedor.TX_proveedor_direccion
@@ -96,7 +96,7 @@ for ($i=0; $i < $index; $i++) {
 			<font style="font-size:10px"><?php echo $raw_opcion['EMAIL']."<br />"; ?></font>
     </td>
     <td valign="top" colspan="2" class="optmayuscula">
-<?php $date=date('d-m-Y',strtotime($rs_facturacompra['TX_facturacompra_fecha']));	?>
+<?php $date=date('d-m-Y',strtotime($rs_facturacompra['TX_facturacompra_elaboracion']));	?>
 			<strong><?php echo $fecha."&nbsp;-&nbsp;"; ?></strong><?php echo $date; ?>
     </td>
 	</tr>
@@ -130,14 +130,14 @@ for ($i=0; $i < $index; $i++) {
 			</table>
 		  <table id="tbl_compra" class="table table-print" style="border:solid; background-color:#DDDDDD;">
 				<tr>
-			  	<td valign="top" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+			  	<td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 						<strong>Factura N&deg;: </strong><?php echo $rs_facturacompra['TX_facturacompra_numero']; ?>
 			    </td>
-			    <td valign="top" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-				    <strong>Orden de Compra N&deg;: </strong><?php echo $rs_facturacompra['TX_facturacompra_ordendecompra']; ?>
+			    <td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+				    <strong>Orden de C. N&deg;: </strong><?php echo $rs_facturacompra['TX_facturacompra_ordendecompra']; ?>
 			    </td>
 					<td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-				    <strong>Fecha: </strong><?php echo $rs_facturacompra['TX_facturacompra_fecha']; ?>
+				    <strong>Fecha: </strong><?php echo date('d-m-Y',strtotime($rs_facturacompra['TX_facturacompra_fecha'])); ?>
 			    </td>
 					<td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 				    <strong>Almacen: </strong><?php echo $rs_facturacompra['TX_almacen_value']; ?>
@@ -194,7 +194,7 @@ for ($i=0; $i < $index; $i++) {
 						<tr style="height:41px;">
 							<td><?php echo $raw_datocompra[$pager]['TX_producto_codigo'];?></td>
 							<td><?php echo $raw_medida[$raw_datocompra[$pager]['TX_datocompra_medida']]; ?></td>
-							<td><?php echo $raw_datocompra[$pager]['TX_producto_value']; ?></td>
+							<td><?php echo $r_function->replace_special_character($raw_datocompra[$pager]['TX_producto_value']); ?></td>
 							<td><?php echo $raw_datocompra[$pager]['TX_datocompra_cantidad']; ?></td>
 							<td><?php echo $raw_datocompra[$pager]['TX_datocompra_precio']; ?></td>
 							<td><?php echo $descuento; ?></td>

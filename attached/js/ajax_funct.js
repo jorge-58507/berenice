@@ -50,6 +50,7 @@ function upd_product(product_id){
 	var alarma = ($("input[name=r_alarm]:checked").val());
 	var active = ($("input[name=r_active]:checked").val());
 	var descontable = ($("input[name=r_discountable]:checked").val());
+	var inventariado = ($("input[name=r_inventoried]:checked").val());
 	var referencia = $("#txt_reference").val();
 	var letra = $("#sel_letter").val();
 
@@ -60,20 +61,17 @@ function upd_product(product_id){
 			window.opener.document.getElementById("container_tblproduct").innerHTML=xmlhttp.responseText;
 			}
 		}
-		xmlhttp.open("GET","attached/get/upd_product.php?a="+codigo+"&b="+nombre+"&c="+medida+"&d="+cantidad+"&e="+maxima+"&f="+minima+"&l="+impuesto+"&m="+alarma+"&n="+active+"&o="+referencia+"&p="+letra+"&q="+product_id+"&r="+last_filter+"&s="+descontable,true);	xmlhttp.send();
+		xmlhttp.open("GET","attached/get/upd_product.php?a="+codigo+"&b="+nombre+"&c="+medida+"&d="+cantidad+"&e="+maxima+"&f="+minima+"&l="+impuesto+"&m="+alarma+"&n="+active+"&o="+referencia+"&p="+letra+"&q="+product_id+"&r="+last_filter+"&s="+descontable+"&t="+inventariado,true);	xmlhttp.send();
 		setTimeout("self.close();",400);
 }
 
 function del_product(id){
-		if (window.XMLHttpRequest){
-			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("response").innerHTML=xmlhttp.responseText;
-			}
-		}
-		xmlhttp.open("GET","attached/get/del_product.php?a="+id,true);	xmlhttp.send();
-		alert("Elemento modificado exitosamente");
-		location.reload();
+	var str = url_replace_regular_character($("#txt_filterproduct").val());
+	$.ajax({	data: {"a" : id ,"b" : str },	type: "GET",	dataType: "text",	url: "attached/get/del_product.php", })
+	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+		$("#tbl_product tbody").html(data);
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
 
 
@@ -243,11 +241,26 @@ function filter_product_sell(field,intervalo=''){
 		var limit = ($("input[name=r_limit]:checked").val());
 		$.ajax({	data: {"a" : value, "b" : limit },	type: "GET",	dataType: "text",	url: "attached/get/filter_product_sell.php", })
 		.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
-			$("#tbl_product tbody").html(data);
+			data = JSON.parse(data);
+			var content_tbody = '';
+			for (var x in data[1]) {
+				var style = (data[1][x]['TX_producto_inventariado'] === '1') ? 'background-color: #cffebb' : '';
+				content_tbody += `
+				<tr onclick="open_product2sell(${data[1][x]['AI_producto_id']})" style="${style};">
+					<td title="${data[1][x]['AI_producto_id']}">${data[1][x]['TX_producto_codigo']}</td>
+					<td>${replace_special_character(data[1][x]['TX_producto_value'])}</td>
+					<td>${data[1][x]['TX_producto_cantidad']}</td>
+					<td>${(data[1][x]['precio']) ? data[1][x]['precio'] : ''}</td>
+					<td>${data[1][x]['letra']}</td>
+				</tr>
+				`;
+			}
+			$("#tbl_product tbody").html(content_tbody);
+			$("#tbl_product caption").html(data[0]);
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 		clearInterval(intervalo);
-	}, 800);
+	}, 1000);
 }
 
 function filter_product_collect(field,fact_id){

@@ -236,7 +236,7 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div class="container-fluid al_center">
 <?php if ($qry_datopago->num_rows < 2 && $nr_creditnote < 1 && $block_btn_anulate > 0) { ?>
-  <button type="button" name="" id="btn_anulate" class="btn btn-danger btn-lg" title="<?php echo $payment_method; ?>"><i class="fa fa-times"></i> Anular Factura</button>
+  <button type="button" name="" id="btn_anulate"  class="btn btn-danger btn-lg" title="<?php echo $payment_method; ?>"><i class="fa fa-times"></i> Anular Factura</button>
 <?php
 } else {
 ?>

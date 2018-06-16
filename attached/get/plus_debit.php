@@ -99,12 +99,13 @@ INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_clie
 WHERE";
 foreach ($arr_factid as $key => $value) {
 	if ($value === end($arr_factid)) {
-		$txt_chk_facturaf .= " bh_facturaf.TX_facturaf_deficit > '0' AND bh_facturaf.facturaf_AI_cliente_id = '$client_id' AND bh_facturaf.AI_facturaf_id = '$value' ORDER BY bh_facturaf.TX_facturaf_deficit ASC";
+		$txt_chk_facturaf .= " bh_facturaf.TX_facturaf_deficit > '0' AND bh_facturaf.facturaf_AI_cliente_id = '$client_id' AND bh_facturaf.AI_facturaf_id = '$value' ORDER BY bh_facturaf.AI_facturaf_id ASC, bh_facturaf.TX_facturaf_deficit ASC";
 	}else{
 		$txt_chk_facturaf .= " bh_facturaf.TX_facturaf_deficit > '0' AND bh_facturaf.facturaf_AI_cliente_id = '$client_id' AND bh_facturaf.AI_facturaf_id = '$value' OR";
 	}
 }
-$qry_chk_facturaf=$link->query($txt_chk_facturaf);
+
+$qry_chk_facturaf=$link->query($txt_chk_facturaf)or die($link->error);
 $nr_chk_facturaf=$qry_chk_facturaf->num_rows;
 if($nr_chk_facturaf < 1){	print_r("las ff estan mal");	return false;	}
 $raw_ffid=array();

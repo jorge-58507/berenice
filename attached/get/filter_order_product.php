@@ -36,9 +36,9 @@ if($qry_product->num_rows > 0){
 	while ($rs_product=$qry_product->fetch_array()){
 ?>
 <tr onclick="set_order_info('<?php echo $rs_product[0]; ?>','<?php echo $rs_product[1]; ?>','<?php echo str_replace("'","\'",$rs_product[2]); ?>')">
-	<td><?php echo $rs_product[1]; ?></td>
-	<td><?php echo $rs_product[2]; ?></td>
-	<td><?php echo $rs_product[3]; ?></td>
+	<td><?php echo $rs_product['TX_producto_codigo']; ?></td>
+	<td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
+	<td><?php echo $rs_product['TX_producto_cantidad']; ?></td>
 </tr>
 
 <?php

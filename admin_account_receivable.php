@@ -1,11 +1,9 @@
 ﻿<?php
 require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
+
 require 'attached/php/req_login_paydesk.php';
-?>
-<?php
+
 $qry_cliente=$link->query("SELECT bh_cliente.AI_cliente_id, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_telefono, SUM(bh_facturaf.TX_facturaf_deficit) AS suma, bh_facturaf.TX_facturaf_deficit, bh_cliente.TX_cliente_direccion FROM (bh_cliente INNER JOIN bh_facturaf ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id) GROUP BY AI_cliente_id ORDER BY TX_cliente_nombre ASC LIMIT 10");
 $rs_cliente=$qry_cliente->fetch_array();
 ?>

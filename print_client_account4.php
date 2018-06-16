@@ -27,7 +27,7 @@ $rs_client=$qry_client->fetch_array();
 $prep_nd = $link->prepare("SELECT bh_notadebito.AI_notadebito_id, bh_notadebito.TX_notadebito_fecha, bh_notadebito.TX_notadebito_hora, bh_notadebito.TX_notadebito_motivo, bh_notadebito.TX_notadebito_numero, bh_notadebito.TX_notadebito_total, rel_facturaf_notadebito.TX_rel_facturafnotadebito_importe
 	FROM (bh_notadebito
 		INNER JOIN rel_facturaf_notadebito ON bh_notadebito.AI_notadebito_id =	rel_facturaf_notadebito.rel_AI_notadebito_id)
-		WHERE bh_notadebito.AI_notadebito_id = ? ORDER BY TX_notadebito_fecha ASC, TX_notadebito_hora ASC LIMIT 1")or die($link->error);
+		WHERE bh_notadebito.AI_notadebito_id = ? ORDER BY TX_notadebito_fecha ASC, TX_notadebito_hora ASC")or die($link->error);
 
 $prep_ff=$link->prepare("SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero,
 	 bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_descuentoni,
@@ -37,7 +37,7 @@ FROM (((bh_facturaf
 INNER JOIN bh_facturaventa ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
 INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
 INNER JOIN bh_datopago ON bh_datopago.datopago_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
-WHERE bh_facturaf.AI_facturaf_id = ? AND bh_datopago.datopago_AI_metododepago_id = '5' ORDER BY TX_facturaf_fecha ASC, TX_facturaf_numero ASC LIMIT 1")or die($link->error);
+WHERE bh_facturaf.AI_facturaf_id = ? ORDER BY TX_facturaf_fecha ASC, TX_facturaf_numero ASC")or die($link->error);
 
 $prep_ff_numero=$link->prepare("SELECT bh_facturaf.TX_facturaf_numero
 	FROM (bh_facturaf
@@ -102,7 +102,7 @@ function find_ff_to_include($raw_ff_included,$raw_nd_included,$ciclo){
 		INNER JOIN bh_datopago ON bh_datopago.datopago_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 		INNER JOIN rel_facturaf_notadebito ON bh_facturaf.AI_facturaf_id =	rel_facturaf_notadebito.rel_AI_facturaf_id)
 		INNER JOIN bh_notadebito ON bh_notadebito.AI_notadebito_id =	rel_facturaf_notadebito.rel_AI_notadebito_id)
-		WHERE bh_notadebito.AI_notadebito_id = ? AND datopago_AI_metododepago_id = '5' ORDER BY TX_facturaf_fecha ASC, TX_facturaf_numero ASC")or die($link->error);
+		WHERE bh_notadebito.AI_notadebito_id = ? ORDER BY TX_facturaf_fecha ASC, TX_facturaf_numero ASC")or die($link->error);
 
 		$prep_ff->bind_param("i",$nd_key); $prep_ff->execute(); $qry_ff =	$prep_ff->get_result();
 		while ($rs_ff=$qry_ff->fetch_array(MYSQLI_ASSOC)) {
@@ -112,34 +112,30 @@ function find_ff_to_include($raw_ff_included,$raw_nd_included,$ciclo){
 			}
 		}
 	}
-
 	if ($ciclo === 1) {
 		$ciclo=0;
 		find_nd_to_include($raw_ff_included,$raw_nd_included,$ciclo);
 	}
 }
 
-//       ##########################     contruccion $raw_facturaf_debito   #########################
-$raw_ff=array();
+$raw_facturaf_debito=array();
 $it=0;
 foreach ($raw_ff_included as $key_ff => $value_ff) {
 	$prep_ff->bind_param("i",$key_ff); $prep_ff->execute(); $qry_ff = $prep_ff->get_result();
 	while ($rs_ff = $qry_ff->fetch_array(MYSQLI_ASSOC)) {
-		$raw_ff[$rs_ff['TX_facturaf_fecha']."ff".$it]=$rs_ff;
+		$raw_facturaf_debito[$rs_ff['TX_facturaf_fecha']."ff".$it]=$rs_ff;
 		$it++;
 	}
 }
-$raw_nd=array();
 $it=0;
 foreach ($raw_nd_included as $key_nd => $value_nd) {
 	$prep_nd->bind_param("i",$key_nd); $prep_nd->execute(); $qry_nd = $prep_nd->get_result();
 	while ($rs_nd = $qry_nd->fetch_array(MYSQLI_ASSOC)) {
-		$raw_nd[$rs_nd['TX_notadebito_fecha']."nd".$it]=$rs_nd;
+		$raw_facturaf_debito[$rs_nd['TX_notadebito_fecha']."nd".$it]=$rs_nd;
 		$it++;
 	}
 }
-			ksort($raw_ff);
-			ksort($raw_nd);
+			ksort($raw_facturaf_debito);
 ?>
 <div style="text-align:center" class="container-fluid no_print">
 	<button type="button"onclick="window.document.location.href='print_client_account_historical.php?a=<?php echo $client_id; ?>'" name="button" class="btn btn-lg btn-default">Impresion con Historial</button>
@@ -189,8 +185,7 @@ foreach ($raw_nd_included as $key_nd => $value_nd) {
 			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>IMPORTE</strong></div>
 			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>SALDO</strong></div>
 		</div><?php $total_saldo=0;
-
-		foreach ($raw_ff as $key => $rs_facturaf_debito) {
+		foreach ($raw_ff_included as $key => $rs_facturaf_debito) {
 			$total_saldo+=$rs_facturaf_debito['TX_facturaf_deficit'];  ?>
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body">
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo date('d-m-Y', strtotime($rs_facturaf_debito['TX_facturaf_fecha']))."-".$rs_facturaf_debito['TX_facturaf_hora']; ?></div>
@@ -209,34 +204,32 @@ foreach ($raw_nd_included as $key_nd => $value_nd) {
 		</div>
 	</div>
 	<!-- ##################  DEBITOS REFERENTES   ##################### -->
-	<?php if (count($raw_nd) > 0) { ?>
-		<div id="print_body" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding" style="page-break-before:always;">
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_caption">
-				Debitos Referentes
-			</div>
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_header">
-				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>FECHA</strong></div>
-				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>DESCRIPCION</strong></div>
-				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>NUMERO</strong></div>
-				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><strong>IMPORTE</strong></div>
-			</div><?php $total_debito=0;
-			foreach ($raw_nd as $key => $rs_facturaf_debito) {
-				$total_debito+=$rs_facturaf_debito['TX_notadebito_total']; ?>
-				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body">
-					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo date('d-m-Y', strtotime($rs_facturaf_debito['TX_notadebito_fecha']))."-".$rs_facturaf_debito['TX_notadebito_hora']; ?></div>
-					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 al_center"><?php echo $rs_facturaf_debito['TX_notadebito_motivo']; ?></div>
-					<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo $rs_facturaf_debito['TX_notadebito_numero']; ?></div>
-					<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 al_center"><?php echo "B/ ".number_format($rs_facturaf_debito['TX_notadebito_total'],2); ?></div>
-				</div><?php
-			} ?>
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body">
-				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"> </div>
-				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"> </div>
-				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"> </div>
-				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 al_center"><strong>Total:</strong><br /><?php echo "B/ ".number_format($total_debito,2); ?></div>
-			</div>
+	<div id="print_body" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding" style="page-break-before:always;">
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_caption">
+			Debitos Referentes
 		</div>
-	<?php } ?>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_header">
+			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>FECHA</strong></div>
+			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>DESCRIPCION</strong></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>NUMERO</strong></div>
+			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><strong>IMPORTE</strong></div>
+		</div><?php $total_debito=0;
+		foreach ($raw_nd_included as $key => $rs_facturaf_debito) {
+			$total_debito+=$rs_facturaf_debito['TX_notadebito_total']; ?>
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body">
+				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo date('d-m-Y', strtotime($rs_facturaf_debito['TX_notadebito_fecha']))."-".$rs_facturaf_debito['TX_notadebito_hora']; ?></div>
+				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 al_center"><?php echo $rs_facturaf_debito['TX_notadebito_motivo']; ?></div>
+				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo $rs_facturaf_debito['TX_notadebito_numero']; ?></div>
+				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 al_center"><?php echo "B/ ".number_format($rs_facturaf_debito['TX_notadebito_total'],2); ?></div>
+			</div><?php
+		} ?>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body">
+			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"> </div>
+			<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"> </div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"> </div>
+			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 al_center"><strong>Total:</strong><br /><?php echo "B/ ".number_format($total_debito,2); ?></div>
+		</div>
+	</div>
 	<!-- #####################         BODY          #################   -->
 </div>
 </body>

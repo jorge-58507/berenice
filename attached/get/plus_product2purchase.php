@@ -28,7 +28,7 @@ VALUES ('{$_COOKIE['coo_iuser']}','$id', '$cantidad', '$precio', '$impuesto', '$
 	while($rs_newpurchase=$qry_newpurchase->fetch_array()){
 		$precio=$rs_newpurchase['TX_nuevacompra_unidades']*$rs_newpurchase['TX_nuevacompra_precio'];
 		$descuento=($precio*$rs_newpurchase['TX_nuevacompra_descuento'])/100;
-		$precio_descuento=$precio+$descuento;
+		$precio_descuento=$precio-$descuento;
 		$impuesto=($precio_descuento*$rs_newpurchase['TX_nuevacompra_itbm'])/100;
 		$precio_total=$precio_descuento+$impuesto;
 ?>
