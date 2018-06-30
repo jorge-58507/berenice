@@ -3,16 +3,6 @@ require 'bh_conexion.php';
 $link=conexion();
 require 'attached/php/req_login_paydesk.php';
 $facturaf_id=$_SESSION["facturaf_id"];
-//  #### APERTURA DEL CAJON
-$handle = printer_open("\\\\TRIILLI-CAJA\\GENERICA");
-printer_start_doc($handle, "");
-printer_start_page($handle);
-printer_set_option($handle, PRINTER_MODE, 'raw');
-printer_draw_text($handle, "Open Sesame", 400, 400);
-printer_end_page($handle);
-printer_end_doc($handle);
-printer_close($handle);
-//  #### APERTURA DEL CAJON
 
 function upd_return(){
   $link=conexion();
@@ -79,10 +69,9 @@ while($rs_datopago=$qry_datopago->fetch_array()){
 	$raw_datopago[$rs_datopago['datopago_AI_metododepago_id']]['monto'] = $rs_datopago['TX_datopago_monto'];
 	$raw_datopago[$rs_datopago['datopago_AI_metododepago_id']]['numero'] = $rs_datopago['TX_datopago_numero'];
 };
-if(array_key_exists(5,$raw_datopago) || array_key_exists(8,$raw_datopago)) {
-  $p_sumando = (!empty($raw_datopago[5])) ? $raw_datopago[5]['monto'] : 0;
-  $s_sumando = (!empty($raw_datopago[8])) ? $raw_datopago[8]['monto'] : 0;
-  $deficit = $p_sumando+$s_sumando;
+if(array_key_exists(5,$raw_datopago) || array_key_exists(8,$raw_datopago)){
+  $deficit = $raw_datopago[5]+$raw_datopago[8];
+  $qry_deficit=$link->query
 	$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit = '$deficit', TX_facturaf_status = 'IMPRESA' WHERE AI_facturaf_id = '$facturaf_id'");
 }else{
 	$link->query("UPDATE bh_facturaf SET TX_facturaf_deficit = '0', TX_facturaf_status = 'IMPRESA' WHERE AI_facturaf_id = '$facturaf_id'");
@@ -167,10 +156,8 @@ setTimeout(function(){ print_html("print_client_facturaf.php?a=<?php echo $factu
 
 <?php
 
-$raw_facti=["documento" => "", "c_nombre" => "", "c_ruc" => "", "c_direccion" => "", "total_descuento" => "",
-            "total_pagado" => "", "total_final" => "", "recargo" => "", "porcentaje_recargo" => "",
-            "p_efectivo" => "", "p_tdc" => "", "p_cheque" => "", "p_tdd" => "", "p_nc" => "", "p_otro" => 0,
-            "dv" => ""];
+$raw_facti=["documento" => "", "c_nombre" => "", "c_ruc" => "", "c_direccion" => "", "total_descuento" => "", "total_pagado" => "", "total_final" => "", "recargo" => "", "porcentaje_recargo" => "",
+"p_efectivo" => "", "p_tdc" => "", "p_cheque" => "", "p_tdd" => "", "p_nc" => "", "p_otro" => "", "dv" => ""];
 
 $raw_facti['documento']="FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7);
 $raw_facti['c_nombre']=$rs_facturaf['TX_cliente_nombre'];
@@ -183,9 +170,8 @@ if (!empty($raw_datopago[1]['monto'])) {  $raw_facti['p_efectivo']=round($raw_da
 if (!empty($raw_datopago[2]['monto'])) {  $raw_facti['p_cheque']=round($raw_datopago[2]['monto'],2); }else{ $raw_facti['p_cheque'] = '0.00'; }
 if (!empty($raw_datopago[3]['monto'])) {  $raw_facti['p_tdc']=round($raw_datopago[3]['monto'],2); }else{ $raw_facti['p_tdc'] = '0.00'; }
 if (!empty($raw_datopago[4]['monto'])) {  $raw_facti['p_tdd']=round($raw_datopago[4]['monto'],2); }else{ $raw_facti['p_tdd'] = '0.00'; }
-if (!empty($raw_datopago[5]['monto'])) {  $raw_facti['p_otro']+=round($raw_datopago[5]['monto'],2); }else{ $raw_facti['p_otro'] = $raw_facti['p_otro']; }
+if (!empty($raw_datopago[5]['monto'])) {  $raw_facti['p_otro']=round($raw_datopago[5]['monto'],2); }else{ $raw_facti['p_otro'] = '0.00'; }
 if (!empty($raw_datopago[7]['monto'])) {  $raw_facti['p_nc']=round($raw_datopago[7]['monto'],2); }else{ $raw_facti['p_nc'] = '0.00'; }
-if (!empty($raw_datopago[8]['monto'])) {  $raw_facti['p_otro']+=round($raw_datopago[8]['monto'],2); }else{ $raw_facti['p_otro'] = $raw_facti['p_otro']; }
 
 $recipiente = $rs_impresora['TX_impresora_recipiente'];
 $retorno = $rs_impresora['TX_impresora_retorno'];
@@ -234,13 +220,11 @@ while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
 $file = fopen($recipiente."FACMV".substr($rs_facturaf['TX_facturaf_numero'],-7).".txt", "w");
 if ($qry_datoventa->num_rows > 3) {
   do{
-    $descripcion=substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,31);
-    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,31).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }else{
   do{
-    $descripcion=substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,61);
-    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,61).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }
 

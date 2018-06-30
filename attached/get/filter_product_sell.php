@@ -55,6 +55,5 @@ while ($rs_product=$qry_product->fetch_array(MYSQLI_ASSOC)) {
 
 			$res_cantidad=($qry_product->num_rows > 200)? '+200' : $qry_product->num_rows;
 			$caption = 'Se Encontr&oacute;: '.$res_cantidad.' Resultado(s) para "'.$r_function->url_replace_special_character($_GET['a']).'".';
-
 			$raw_result = array($caption,$raw_producto);
 			echo json_encode($raw_result);

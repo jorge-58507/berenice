@@ -13,7 +13,7 @@ if (!empty($_GET['a'])) {
 }
 
 require 'attached/php/req_login_paydesk.php';
-session_destroy();
+// session_destroy();
 
 ?>
 <?php

@@ -32,6 +32,12 @@
 .no_padding{
 	padding:0;
 }
+.no_padding_left{
+	padding-left: 0;
+}
+.no_padding_right{
+	padding-right: 0;
+}
 #tbl_relation, #tbl_relation th{
 	font-size:12px;
 	text-align:center;
@@ -136,15 +142,39 @@ tfoot{
 	flex-direction: column;
 	background: #e6e6e6;
 }
+.print_line_header.minimal > div{
+	min-height: 10px;
+}
+
 .print_line_body{
 	min-height: 41px;
 	border: solid 1px #ccc;
+	background: #fff;
+}
+.print_line_body.minimal{
+	min-height: 10px;
 }
 .print_line_body>div{
 	padding: 3px;
 }
+.print_line_body.minimal > div{
+	min-height: 10px;
+}
+.print_line_footer{
+	min-height: 41px;
+	border: solid 1px #ccc;
+	background: #e6e6e6
+}
+.print_line_footer>div{
+	padding: 3px;
+}
+.print_line_footer.minimal > div{
+	min-height: 10px;
+}
+
 .print_line_caption{
 	color: #ccc;
+	background: #fff;
 }
 #container_print_total{
 	border: solid 2px #ccc;
@@ -159,4 +189,18 @@ tfoot{
 }
 h4{
 	font-weight: bolder;
+}
+.mt-5{
+	margin-top: 5px;
+}
+.mt-10{
+	margin-top: 10px;
+}
+.px-5{
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.px-10{
+	padding-left: 10px;
+	padding-right: 10px;
 }

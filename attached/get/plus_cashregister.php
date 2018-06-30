@@ -64,9 +64,13 @@ $raw_ffid=array();
 $ttl_descuento=0; $i=0;
 while($rs_facturaf=$qry_facturaf->fetch_array()){
 	$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto'];
-	$ttl_descuento += $rs_facturaf['descuento'];
-	$raw_ffid[$i] = $rs_facturaf['AI_facturaf_id'];
-	$i++;
+
+	$ttl_descuento += (in_array($rs_facturaf['AI_facturaf_id'],$raw_ffid)) ? $rs_facturaf['descuento'] : 0;
+	if(!in_array($rs_facturaf['AI_facturaf_id'],$raw_ffid)) {
+		$raw_ffid[$i] = $rs_facturaf['AI_facturaf_id'];
+		$i++;
+	}
+
 }
  echo "<br /> PAGOS: ".json_encode($raw_pago);
 
@@ -123,7 +127,7 @@ while($rs_devolucion = $qry_devolucion->fetch_array()){
 	}else{
 		$qry_datopago->bind_param("i", $rs_devolucion['AI_notadecredito_id']); $qry_datopago->execute(); $result=$qry_datopago->get_result();
 		$rs_datopago=$result->fetch_array();
-		$raw_nc_anulated[$rs_datopago['datopago_AI_metododepago_id']]=$rs_datopago['TX_datopago_monto'];
+		$raw_nc_anulated[$rs_datopago['datopago_AI_metododepago_id']]+=$rs_datopago['TX_datopago_monto'];
 		$anulado+=$rs_datopago['TX_datopago_monto'];
 	}
 }

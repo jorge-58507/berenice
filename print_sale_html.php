@@ -96,13 +96,12 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 			</table>
 	    <table id="tbl_client" class="table table-print" style="border:solid; background-color:#DDDDDD;">
 	    	<tr>
-	        <td valign="top" class="col-xs-5 col-sm-5 col-md-5 col-lg-5"><strong>Nombre: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_nombre']); ?></td>
-	        <td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>RUC: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_cif']); ?></td>
-	        <td valign="top" class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><strong>Telefono: </strong><?php echo $rs_facturaventa['TX_cliente_telefono']; ?></td>
+	        <td valign="top" class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding: 8px 0 8px 8px;"><strong>Nombre: </strong><?php echo substr(strtoupper($rs_facturaventa['TX_cliente_nombre']),0,37); ?></td>
+	        <td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding: 8px 0 8px 8px;"><strong>RUC: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_cif']); ?></td>
+	        <td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding: 8px 0 8px 8px;"><strong>Telefono: </strong><?php echo substr($rs_facturaventa['TX_cliente_telefono'],0,10); ?></td>
 	    	</tr>
 	      <tr>
-	      	<td colspan="2"><strong>Direcci&oacute;n: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_direccion']); ?></td>
-	        <td></td>
+	      	<td colspan="3"><strong>Direcci&oacute;n: </strong><?php echo substr(strtoupper($rs_facturaventa['TX_cliente_direccion']),0,85); ?></td>
 	      </tr>
 	    </table>
 	  </td>

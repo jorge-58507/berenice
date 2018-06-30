@@ -214,7 +214,7 @@ switch ($_COOKIE['coo_tuser']){
     <tbody>
 <?php
 	$total_total=0; $total_deficit=0;
-	$total_efectivo=0; $total_tarjeta_dc=0; $total_tarjeta_dd=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
+	$total_efectivo=0; $total_tarjeta_dc=0; $total_tarjeta_dd=0; $total_cheque=0; $total_credito=0; $total_notadc=0; $total_porcobrar=0;
 	$prep_vendor = $link->prepare("SELECT bh_user.TX_user_seudonimo FROM ((bh_facturaf
 		INNER JOIN bh_facturaventa ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 		INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
@@ -231,12 +231,13 @@ switch ($_COOKIE['coo_tuser']){
 						$i++;
 					}
 					$style='';
-					if (array_key_exists(1,$raw_payment)) {	$style= ($style === '') ? 'style="color: #74c374"' : 'style="color: #bdbd07"';	}
-					if (array_key_exists(2,$raw_payment)) {	$style= ($style === '') ? 'style="color: #518ec2"' : 'style="color: #bdbd07"';	}
-					if (array_key_exists(3,$raw_payment)) {	$style= ($style === '') ? 'style="color: #000000"' : 'style="color: #bdbd07"';	}
-					if (array_key_exists(4,$raw_payment)) {	$style= ($style === '') ? 'style="color: #73c9e3"' : 'style="color: #bdbd07"';	}
-					if (array_key_exists(5,$raw_payment)) {	$style= ($style === '') ? 'style="color: #df6d69"' : 'style="color: #bdbd07"';	}
-					if (array_key_exists(7,$raw_payment)) {	$style= ($style === '') ? 'style="color: #f2b968"' : 'style="color: #bdbd07"';	}
+					if (array_key_exists(1,$raw_payment)) {	$style= ($style === '') ? 'style="color: #74c374"' : 'style="color: #700fb4"';	}
+					if (array_key_exists(2,$raw_payment)) {	$style= ($style === '') ? 'style="color: #518ec2"' : 'style="color: #700fb4"';	}
+					if (array_key_exists(3,$raw_payment)) {	$style= ($style === '') ? 'style="color: #000000"' : 'style="color: #700fb4"';	}
+					if (array_key_exists(4,$raw_payment)) {	$style= ($style === '') ? 'style="color: #73c9e3"' : 'style="color: #700fb4"';	}
+					if (array_key_exists(5,$raw_payment)) {	$style= ($style === '') ? 'style="color: #df6d69"' : 'style="color: #700fb4"';	}
+					if (array_key_exists(7,$raw_payment)) {	$style= ($style === '') ? 'style="color: #f2b968"' : 'style="color: #700fb4"';	}
+					if (array_key_exists(8,$raw_payment)) {	$style= ($style === '') ? 'style="color: #bdbd07"' : 'style="color: #700fb4"';	}
 
 					?>
 					<tr <?php echo $style; ?> onclick="toggle_tr('tr_<?php echo $rs_facturaf['AI_facturaf_id'];?>')" >
@@ -269,17 +270,20 @@ switch ($_COOKIE['coo_tuser']){
             			<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 <?php								if(isset($raw_payment[2])){ echo "<strong>Cheque:</strong> ".number_format($raw_payment[2],2); $total_cheque += $raw_payment[2];}	?>
             			</td>
-									<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<td class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 <?php								if(isset($raw_payment[3])){ echo "<strong>TDC:</strong> ".number_format($raw_payment[3],2); $total_tarjeta_dc += $raw_payment[3];}	?>
             			</td>
-									<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<td class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 <?php								if(isset($raw_payment[4])){ echo "<strong>TDD:</strong> ".number_format($raw_payment[4],2); $total_tarjeta_dd += $raw_payment[4];}	?>
             			</td>
             			<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 <?php								if(isset($raw_payment[5])){ echo "<strong>Cr&eacute;dito:</strong> ".number_format($raw_payment[5],2); $total_credito += $raw_payment[5];}	?>
             			</td>
-            			<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 <?php								if(isset($raw_payment[7])){ echo "<strong>Nota de C.:</strong> ".number_format($raw_payment[7],2); $total_notadc += $raw_payment[7];}	?>
+            			</td>
+									<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+<?php								if(isset($raw_payment[8])){ echo "<strong>P.Cobrar:</strong> ".number_format($raw_payment[8],2); $total_porcobrar += $raw_payment[8];}	?>
             			</td>
             		</tr>
             	</table>

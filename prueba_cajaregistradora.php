@@ -2,9 +2,10 @@
 
 // echo phpinfo();
 // var_dump(printer_list(PRINTER_ENUM_LOCAL | PRINTER_ENUM_SHARED));
-//$handle = printer_open("HP LaserJet Pro MFP M127fn");
+// $handle = printer_open("GENERICA"); ÑO
 // $handle = printer_open("PDF Complete");
 // $handle = printer_open("\\\\TRIILLI-CAJA\\HP LaserJet Pro MFP M127-M128 PCLmS");
+$handle = printer_open("\\\\TRIILLI-CAJA\\GENERICA");
 // $handle = printer_open("HP LaserJet Pro MFP M127fn");
 if (!$handle || $handle == NULL) { echo "no conecto"; }else{ echo "si conecto";}
     printer_start_doc($handle, "");

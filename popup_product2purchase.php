@@ -1,4 +1,4 @@
-<?php
+<?php 
 require 'bh_conexion.php';
 $link=conexion();
 
@@ -34,9 +34,6 @@ if ($qry_datocompra_listado->num_rows > 0) {
 }else{
 	$ultimo_precio_compra = '';
 }
-// while ($rs_datocompra_listado = $qry_datocompra_listado->fetch_array(MYSQLI_ASSOC)) {
-// 	$raw_datocompra_listado[]=$rs_datocompra_listado;
-// }
 $qry_producto_medida = $link->query("SELECT bh_medida.AI_medida_id, bh_medida.TX_medida_value, rel_producto_medida.AI_rel_productomedida_id, rel_producto_medida.TX_rel_productomedida_cantidad FROM (bh_medida INNER JOIN rel_producto_medida ON bh_medida.AI_medida_id = rel_producto_medida.productomedida_AI_medida_id) WHERE productomedida_AI_producto_id = '{$_GET['a']}'")or die($link->error);
 $raw_producto_medida=array();
 while ($rs_producto_medida = $qry_producto_medida->fetch_array(MYSQLI_ASSOC)) {

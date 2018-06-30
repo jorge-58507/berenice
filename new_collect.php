@@ -268,6 +268,35 @@ $("#5").on("click", function(){
 		 if ( console && console.log ) {	 console.log( "La solicitud a fallado: " +  textStatus); }
 	})
 })
+$("#8").on("click", function(){
+	var client_id=$("#txt_filterclient").attr("alt");
+	$.ajax({	data: "",type: "GET",dataType: "json",url: "attached/get/get_session_admin.php",	})
+	 .done(function( data, textStatus, jqXHR ) {
+			console.log( "GOOD " + textStatus);
+			if(data[0][0] != ""){
+        if(data[0][0] != 2 && data[0][0] != 1){
+  				$.ajax({	data: {"a" : client_id, "b" : $("#txt_amount").val() },	type: "GET",	dataType: "text",	url: "attached/get/get_credit_client.php", })
+  				.done(function( data, textStatus, jqXHR ) {
+             $("#container_alertcredit").html(data)
+             plus_payment(8, '<?php echo $str_factid; ?>');
+           })
+  				.fail(function( jqXHR, textStatus, errorThrown ) {		});
+        }else{
+          $.ajax({	data: {"a" : client_id, "b" : $("#txt_amount").val() },	type: "GET",	dataType: "text",	url: "attached/get/get_credit_client.php", })
+          .done(function( data, textStatus, jqXHR ) {
+            $("#container_alertcredit").html(data)
+            plus_payment(8, '<?php echo $str_factid; ?>');
+          })
+          .fail(function( jqXHR, textStatus, errorThrown ) {		});
+        }
+			}else{
+        popup = window.open("popup_loginadmin.php?z=start_admin.php", "popup_loginadmin", 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=no,width=425,height=420');
+      }
+	})
+	 .fail(function( jqXHR, textStatus, errorThrown ) {
+		 if ( console && console.log ) {	 console.log( "La solicitud a fallado: " +  textStatus); }
+	})
+})
 
 $("#btn_refresh_tblproduct2sell").on("click",function(){
   location.reload();
@@ -435,9 +464,10 @@ switch ($_COOKIE['coo_tuser']){
 					<button type="button" id="2" name="button" class="btn btn-primary btn-lg"><i class="fa fa-newspaper-o fa-rotate-180" aria-hidden="true"></i> Cheque</button>&nbsp;
 					<button type="button" id="3" name="button" class="btn btn-default btn-lg"><i class="fa fa-cc-visa" aria-hidden="true"></i> Tarjeta Cr&eacute;dito</button>&nbsp;
 					<button type="button" id="4" name="button" class="btn btn-info btn-lg"><i class="fa fa-credit-card" aria-hidden="true"></i> Tarjeta Clave</button>&nbsp;
-					<button type="button" id="5" name="button" class="btn btn-danger btn-lg"><i class="fa fa-university" aria-hidden="true"></i> Cr&eacute;dito</button>
+          <button type="button" id="5" name="button" class="btn btn-danger btn-lg"><i class="fa fa-university" aria-hidden="true"></i> Cr&eacute;dito</button>
 					&nbsp;&nbsp;&nbsp;
 					<button type="button" id="7" name="button" class="btn btn-warning btn-lg">N.C. <span id="client_balance" class="badge"><?php echo number_format($rs_client['TX_cliente_saldo'],2); ?></span></button>
+          <button type="button" id="8" name="button" class="btn btn_yellow btn-lg"><i class="fa fa-money" aria-hidden="true"></i> Por Cobrar</button>
         </div>
     </div>
     <div id="container_txtnumber" class="col-xs-12 col-sm-6 col-md-4 col-lg-4">

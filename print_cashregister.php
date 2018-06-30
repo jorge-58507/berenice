@@ -208,7 +208,6 @@ margin-left: -130px'; ?>; margin-top: 105px;">
 			</tr>
 <?php 	foreach ($raw_metododepago as $index => $value): 				?>
 			<tr>
-				<?php $total_en_caja ?>
 				<td><strong><?php echo $value; ?></strong> <br />
 				Ventas:&nbsp;B/ <?php echo number_format($raw_pago[$index],2); ?>&nbsp;|&nbsp;
 				Cobros:&nbsp;B/ <?php echo number_format($raw_debito[$index],2); ?><br />

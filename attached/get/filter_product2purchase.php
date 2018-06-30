@@ -5,7 +5,7 @@ $link = conexion();
 $value=$r_function->replace_regular_character($_GET['a']);
 
 $arr_value = (explode(' ',$value));
-$txt_product="SELECT AI_producto_id, TX_producto_value, TX_producto_activo, TX_producto_codigo, TX_producto_exento, TX_producto_medida, TX_producto_cantidad, TX_producto_referencia FROM bh_producto WHERE ";
+$txt_product="SELECT AI_producto_id, TX_producto_value, TX_producto_activo, TX_producto_codigo, TX_producto_exento, TX_producto_medida, TX_producto_cantidad, TX_producto_referencia, TX_producto_inventariado FROM bh_producto WHERE ";
 foreach ($arr_value as $key => $value) {
 	$txt_product .= ($value === end($arr_value)) ? "TX_producto_value LIKE '%$value%' OR " : "TX_producto_value LIKE '%$value%' AND ";
 }
@@ -25,7 +25,8 @@ $nr_product=$qry_product->num_rows;
     do{
 			$color = ($rs_product['TX_producto_activo'] === '1') ? '#f84c4c; font-weight: bolder;' : '#000';
 			$title = ($rs_product['TX_producto_activo'] === '1') ? 'INACTIVO' : '';
-?>   	<tr style="color:<?php echo $color; ?>" title="<?php echo $title; ?>">
+			$background = ($rs_product['TX_producto_inventariado'] === '1') ? '#cffebb' : '';
+?>   	<tr style="color:<?php echo $color; ?>; background:<?php echo $background; ?>" title="<?php echo $title; ?>">
 				<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $rs_product['TX_producto_codigo'] ?></td>
 				<td class="col-xs-7 col-sm-7 col-md-7 col-lg-7" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
 				<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $rs_product['TX_producto_cantidad'] ?></td>

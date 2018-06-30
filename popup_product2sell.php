@@ -77,9 +77,10 @@ $('#btn_acept').click(function(){
 	var patt = new RegExp("old_sale.php");
 	ans = patt.test(url)
 	var activo = window.opener.$(".tab-pane.active").attr("id");
+	var	cantidad = $("#txt_quantity").val();
+		if(cantidad === "" || parseFloat(cantidad) === 0.00 ){cantidad='1.00';}
+		$("#txt_quantity").val(cantidad);
 	if (ans) {
-		var	cantidad = $("#txt_quantity").val();
-		if(cantidad === ""){cantidad='1.00'}
 		precio = $("#input_price").val();	descuento = $("#txt_discount").val();	itbm = $("#txt_itbm").val(); medida = $("#sel_medida").val();
 		window.opener.plus_product2viejaventa(id,precio,descuento,itbm,cantidad,medida,'0');
 	}else{

@@ -121,8 +121,8 @@ function duplicate_datoventa(facturaventa_id){
 	$.ajax({data: {"a" : facturaventa_id, "z" : 'duplicate' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",})
 	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
 	if (data) {
-	//	window.opener.location.href='new_sale.php';
-	//	setTimeout('self.close()', 500);
+		window.opener.location.href='new_sale.php';
+		setTimeout('self.close()', 500);
 	}
 })
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});

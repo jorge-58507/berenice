@@ -50,7 +50,7 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 
 
 		$total_total=0; $sumatoria_nc_credito=0; $sumatoria_nc=0;
-		$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
+		$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0; $total_pcobrar=0;
 		if($qry_facturaf->num_rows > 0){
 			$raw_facturaf_credito=array(); $ite=0;
 			$raw_facturaf_readed=array();
@@ -67,6 +67,7 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 							case '4':	$color='#f04006';	$total_tarjeta_debito += $rs_datopago['TX_datopago_monto'];	break;
 							case '5':	$color='#b54a4a';	$total_credito += $rs_datopago['TX_datopago_monto'];	$raw_facturaf_credito[$ite]=$rs_facturaf['AI_facturaf_id']; break;
 							case '7':	$color='#EFA63F';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
+							case '8':	$color='#d12498';	$total_pcobrar += $rs_datopago['TX_datopago_monto'];	break;
 						}
 						$raw_monto[$i]=$rs_datopago['TX_datopago_monto'];
 						$i++;
@@ -83,7 +84,7 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 				}
 			}
 		}  /*  ###############   AQUI IBA EL ELSE    ################### */
-	$total_total = 0 + $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta_credito+$total_tarjeta_debito;
+	$total_total = 0 + $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta_credito+$total_tarjeta_debito+$total_pcobrar;
 	 ?>
 
 	 <table id="tbl_total" class="table-condensed table-bordered" style="width:100%">
@@ -94,7 +95,8 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 				<th class="bg-primary al_center">TDC</th>
 				<th class="bg-primary al_center">TDD</th>
 				<th class="bg-primary al_center">CREDITO</th>
-				<th class="bg-primary al_center">NOTA DE CREDITO</th>
+				<th class="bg-primary al_center">NOTA DE C.</th>
+				<th class="bg-primary al_center">POR COBRAR</th>
 				<th class="bg-primary al_center">TOTAL</th>
 				<th class="bg_red al_center">TOTAL NC</th>
 				<th class="bg_red al_center">TOTAL NC A CREDITO</th>
@@ -102,7 +104,7 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 		 </thead>
 		 <tfoot>
 		 	<tr>
-				<td colspan="7" class="bg-primary"></td>
+				<td colspan="8" class="bg-primary"></td>
 				<td colspan="2" class="bg_red"></td>
 		 	</tr>
 		 </tfoot>
@@ -114,6 +116,7 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 				<td>B/ <?php if(isset($total_tarjeta_debito)){ echo number_format($total_tarjeta_debito,2); } ?></td>
 				<td>B/ <?php if(isset($total_credito)){ echo number_format($total_credito,2); } ?></td>
 				<td>B/ <?php if(isset($total_notadc)){ echo number_format($total_notadc,2); } ?></td>
+				<td>B/ <?php if(isset($total_pcobrar)){ echo number_format($total_pcobrar,2); } ?></td>
 
 				<td>B/ <?php if(isset($total_total)){ echo number_format($total_total,2); } ?></td>
 				<td>B/ <?php if(isset($sumatoria_nc)){ echo number_format($sumatoria_nc,2); } ?></td>
@@ -122,7 +125,7 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 			<tr>
 <?php 	$suma_comision = $total_total-$total_credito-$total_notadc;
 				$resta_comision = $sumatoria_nc-$sumatoria_nc_credito; ?>
-				<td colspan="6"></td>
+				<td colspan="7"></td>
 				<td colspan="3"><div id="total_comision"><?php echo number_format($suma_comision,2).' - '.number_format($resta_comision,2).' = <strong>B/ '.(number_format($suma_comision-$resta_comision,2)).'</strong>'; ?></div></td>
 			</tr>
 		</tbody>

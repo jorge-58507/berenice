@@ -6,7 +6,6 @@ require 'attached/php/req_login_paydesk.php';
 
  $debito_id=$_SESSION['debito_id'];
  // $debito_id='15';
-
 $qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
 while($rs_opcion = $qry_opcion->fetch_array()){

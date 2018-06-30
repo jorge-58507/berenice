@@ -2,9 +2,9 @@
 require '../../bh_conexion.php';
 $link = conexion();
 
-$product_id=$_GET['a'];
+$nuevacompra_id=$_GET['a'];
 
-		$qry_checknuevacompra=$link->query("SELECT AI_nuevacompra_id FROM bh_nuevacompra WHERE nuevacompra_AI_producto_id = '$product_id' AND bh_nuevacompra.nuevacompra_AI_user_id = '{$_COOKIE['coo_iuser']}'")or die($link->error);
+		$qry_checknuevacompra=$link->query("SELECT AI_nuevacompra_id FROM bh_nuevacompra WHERE AI_nuevacompra_id = '$nuevacompra_id' AND bh_nuevacompra.nuevacompra_AI_user_id = '{$_COOKIE['coo_iuser']}'")or die($link->error);
 		$rs_checknuevacompra=$qry_checknuevacompra->fetch_array();
 		$nr_checknuevacompra=$qry_checknuevacompra->num_rows;
 		if($nr_checknuevacompra >= 1){
@@ -32,14 +32,14 @@ $product_id=$_GET['a'];
 	?>
 			<tr>
 	    	<td><?php echo $rs_newpurchase['TX_producto_codigo'] ?></td>
-	      <td><?php echo $rs_newpurchase['TX_producto_value'] ?></td>
+	      <td><?php echo $r_function->replace_special_character($rs_newpurchase['TX_producto_value']); ?></td>
 	      <td><?php echo $raw_medida[$rs_newpurchase['TX_nuevacompra_medida']]; ?></td>
 				<td onclick="upd_quantitynewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_unidades']; ?></td>
 	      <td onclick="upd_pricenewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_precio'] ?></td>
 	      <td><?php echo $rs_newpurchase['TX_nuevacompra_descuento']."% = ".number_format($descuento,4);	?></td>
 	      <td><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".number_format($impuesto,4); ?></td>
 	      <td><?php	echo number_format($precio_total,4);	?></td>
-	      <td class="al_center"><button type="button" name="<?php echo $rs_newpurchase['nuevacompra_AI_producto_id'] ?>" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_product2purchase(this);"><strong>X</strong></button></td>
+	      <td class="al_center"><button type="button" name="<?php echo $rs_newpurchase['AI_nuevacompra_id'] ?>" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_product2purchase(this);"><strong>X</strong></button></td>
 				<td><span id="<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>" class="form-control" onclick="upd_newpurchase_price(this)"><?php echo number_format($rs_newpurchase['TX_nuevacompra_p4'],2);	?></span></td>
 	    </tr><?php
 			$total_itbm += $impuesto;	$total_descuento += $descuento;	$total += $precio_total;

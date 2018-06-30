@@ -71,6 +71,7 @@ $( function() {
 $("#btn_pluscashregister").on("click",function(){
   ans = confirm("Se procedera a cerrar este usuario, ¿Desea Continuar?");
   if(!ans){ return false; };
+	$("#btn_pluscashregister").prop("disabled", false);
   plus_cashregister();
   setTimeout(function(){ print_html('print_cashregister.php') },150);
   setTimeout(function(){ window.opener.location = 'index.php'; },500);
@@ -172,9 +173,13 @@ $ttl_descuento=0; $i=0;
 $raw_ffid = array();
 while($rs_facturaf=$qry_facturaf->fetch_array()){
 	$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto'];
-	$ttl_descuento += $rs_facturaf['descuento'];
-	$raw_ffid[$i] = $rs_facturaf['AI_facturaf_id'];
-	$i++;
+	$ttl_descuento += (in_array($rs_facturaf['AI_facturaf_id'],$raw_ffid)) ? $rs_facturaf['descuento'] : 0;
+	if(!in_array($rs_facturaf['AI_facturaf_id'],$raw_ffid)) {
+		$raw_ffid[$i] = $rs_facturaf['AI_facturaf_id'];
+		$i++;
+	}
+	// $raw_ffid[$i] = $rs_facturaf['AI_facturaf_id'];
+	// $i++;
 }
 $cantidad_ff = $i;
  // echo "<br /> PAGOS: ".json_encode($raw_pago);
@@ -219,7 +224,7 @@ $cantidad_ff = $i;
   }else{
     $qry_datopago->bind_param("i", $rs_devolucion['AI_notadecredito_id']); $qry_datopago->execute(); $result=$qry_datopago->get_result();
 		$rs_datopago=$result->fetch_array();
-		$raw_nc_anulated[$rs_datopago['datopago_AI_metododepago_id']]=$rs_datopago['TX_datopago_monto'];
+		$raw_nc_anulated[$rs_datopago['datopago_AI_metododepago_id']]+=$rs_datopago['TX_datopago_monto'];
 		$anulado+=$rs_datopago['TX_datopago_monto'];
   }
  }
@@ -338,6 +343,11 @@ $cantidad_ff = $i;
 	<tr>
 		<td><?php echo "Ventas: ".number_format($raw_pago[7],2); ?></td>
 		<td><?php echo "Cobros: ".number_format($raw_debito[7],2); ?></td>
+	</tr>
+	<tr> <td colspan="3"><strong>Por Cobrar</strong> (B/ <?php echo number_format($raw_pago[8]+$raw_debito[8]-$raw_nc_anulated[8],2); ?>) </td> </tr>
+	<tr>
+		<td><?php echo "Ventas: ".number_format($raw_pago[8],2); ?></td>
+		<td><?php echo "Cobros: ".number_format($raw_debito[8],2); ?></td>
 	</tr>
 </tbody>
 <tfoot class="bg_green">

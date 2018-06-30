@@ -100,6 +100,7 @@ function add_newentry(field){
 }
 
 function plus_product2purchase(id){
+	$("#btn_acept").attr("disabled", true);
 	$.ajax({	data: {"a" : id, "b" : $("#txt_quantity").val(), "c" : $("#txt_price").val(), "d" : $("#txt_discount").val(), "e" : $("#txt_itbm").val(), "f" : $("#txt_p_4").val(), "g" : $("#sel_measure").val() },	type: "GET",	dataType: "text",	url: "attached/get/plus_product2purchase.php", })
 	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
 		window.opener.$("#tbl_newentry tbody").html(data);

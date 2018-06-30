@@ -220,6 +220,12 @@ h1{
 .no_padding{
 	padding: 0;
 }
+.no_padding_left{
+	padding-left: 0;
+}
+.no_padding_right{
+	padding-right: 0;
+}
 .container_btn_md{
 	padding-top: 15px;
 }
@@ -276,4 +282,8 @@ h1{
 }
 .double_padding{
 	padding: 0 30px;
+}
+.div_centered{
+	float: none;
+	margin: 0 auto;
 }

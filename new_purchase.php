@@ -117,7 +117,7 @@ $("#btn_insert").click(function(){
 
 	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", })
 	.done(function( data, textStatus, jqXHR ) {  console.log("GOOD" + textStatus);
-	 	if(data === '0'){ save_invoice(0);	}else{	alert("La Factura "+billnumber+" de "+$("#txt_filterprovider option:selected").text()+" ya existe.");	}	 })
+	 	if(data === '0'){ save_invoice(0); $("#btn_insert, #btn_save").attr("disabled", true);	}else{	alert("La Factura "+billnumber+" de "+$("#txt_filterprovider option:selected").text()+" ya existe.");	}	 })
 	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
 $("#btn_save").click(function(){
@@ -131,7 +131,7 @@ $("#btn_save").click(function(){
 
 	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", })
 	 .done(function( data, textStatus, jqXHR ) {  console.log("GOOD" + textStatus);
-	 	if(data === '0'){ save_invoice(1);	}else{	alert("La Factura "+billnumber+" de "+$("#txt_filterprovider option:selected").text()+" ya existe.");	}	 })
+	 	if(data === '0'){ save_invoice(1); $("#btn_insert, #btn_save").attr("disabled", true);	}else{	alert("La Factura "+billnumber+" de "+$("#txt_filterprovider option:selected").text()+" ya existe.");	}	 })
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
 $("#btn_cancelar").click(function(){	clean_product2purchase();	})
@@ -201,7 +201,7 @@ function save_invoice(preguardado){
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 
-}
+} 
 
 </script>
 
@@ -340,14 +340,14 @@ switch ($_COOKIE['coo_tuser']){
 					$total+=$total_desc_imp; ?>
 			    <tr>
 			    	<td><?php echo $rs_newpurchase['TX_producto_codigo']; ?></td>
-			      <td><?php echo $rs_newpurchase['TX_producto_value']; ?></td>
+			      <td><?php echo $r_function->replace_special_character($rs_newpurchase['TX_producto_value']); ?></td>
 			      <td><?php echo $raw_medida[$rs_newpurchase['TX_nuevacompra_medida']]; ?></td>
 			      <td onclick="upd_quantitynewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_unidades']; ?></td>
 			      <td onclick="upd_pricenewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_precio']; ?></td>
 			      <td><?php echo $rs_newpurchase['TX_nuevacompra_descuento']."% = ".number_format($descuento4product,4);?></td>
 			      <td><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".number_format($impuesto4product,4); ?></td>
 			      <td><?php echo number_format($total_desc_imp,4);	?></td>
-			      <td class="al_center"><button type="button" name="<?php echo $rs_newpurchase['nuevacompra_AI_producto_id']; ?>" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_product2purchase(this);"><strong>X</strong></button></td>
+			      <td class="al_center"><button type="button" name="<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_product2purchase(this);"><strong>X</strong></button></td>
 						<td><span id="<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>" class="form-control" onclick="upd_newpurchase_price(this)"><?php echo number_format($rs_newpurchase['TX_nuevacompra_p4'],2);	?></span></td>
 			    </tr>
 <?php 	}while($rs_newpurchase=$qry_newpurchase->fetch_array()); ?>

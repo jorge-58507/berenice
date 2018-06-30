@@ -22,15 +22,18 @@ $product_id=$_GET['q'];
 
 $fecha_actual=date('Y-m-d');
 
-	$qry_checkproduct=$link->query("SELECT AI_producto_id FROM bh_producto WHERE AI_producto_id = '$product_id'")or die($link->error);
+	$qry_checkproduct=$link->query("SELECT * FROM bh_producto WHERE AI_producto_id = '$product_id'")or die($link->error);
 	$nr_checkproduct=$qry_checkproduct->num_rows;
 	if($nr_checkproduct > 0){
 		$rs_checkproduct=$qry_checkproduct->fetch_array();
 		$id=$rs_checkproduct['AI_producto_id'];
+		$product_info = date('d-m-Y H:i:s')." ".$_COOKIE['coo_suser'].": /*".$rs_checkproduct['TX_producto_value']." (".$id.")"." Codigo: ".$rs_checkproduct['TX_producto_codigo']." Medida: ".$rs_checkproduct['TX_producto_medida']." Cantidad ".$rs_checkproduct['TX_producto_cantidad']." Min: ".$rs_checkproduct['TX_producto_minimo']." Max: ".$rs_checkproduct['TX_producto_maximo']." Imp: ".$rs_checkproduct['TX_producto_exento']." Alarma: ".$rs_checkproduct['TX_producto_alarma']." Activo: ".$rs_checkproduct['TX_producto_alarma']." Letra: ".$rs_checkproduct['producto_AI_letra_id']." Descontable: ".$rs_checkproduct['TX_producto_descontable']." Inventario: ".$rs_checkproduct['TX_producto_inventariado']."*/";
+
 		$bh_update="UPDATE bh_producto SET TX_producto_value='$value', TX_producto_medida='$medida', TX_producto_cantidad='$cantidad', TX_producto_minimo='$minimo', TX_producto_maximo='$maximo', TX_producto_exento='$impuesto', TX_producto_alarma='$alarm', TX_producto_activo = '$activo', TX_producto_referencia = '$reference', producto_AI_letra_id= '$letra', TX_producto_codigo = '$codigo', TX_producto_descontable = '$descontable', TX_producto_inventariado = '$inventariado' WHERE AI_producto_id = '$id'";
+
 		$link->query($bh_update) or die ($link->error);
 		$file = fopen("../../inventario_log.txt", "a");
-		fwrite($file, date('d-m-Y H:i:s')." ".$_COOKIE['coo_suser'].": ".$value." (".$id.")"." Medida: ".$medida." Cantidad ".$cantidad ." Min: ".$minimo." Max: ".$maximo." Imp: ".$impuesto." Alarma: ".$alarm." Activo: ".$activo." Letra: ".$letra." Codigo: ".$codigo." Descontable: ".$descontable." Inventario: ".$inventariado.PHP_EOL );
+		fwrite($file, $product_info." ---> ".$value." (".$id.")"." Medida: ".$medida." Cantidad ".$cantidad ." Min: ".$minimo." Max: ".$maximo." Imp: ".$impuesto." Alarma: ".$alarm." Activo: ".$activo." Letra: ".$letra." Codigo: ".$codigo." Descontable: ".$descontable." Inventario: ".$inventariado.PHP_EOL );
 		fclose($file);
 
 	}

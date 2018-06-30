@@ -102,7 +102,7 @@ function upd_precio_nuevaventa(key_nuevaventa){
 function upd_unidades_nuevaventa(key_nuevaventa){
 	var activo = $(".tab-pane.active").attr("id");
 	var new_quantity = prompt("Ingrese la cantidad:");
-	if (new_quantity === '' || isNaN(new_quantity) || new_quantity == '0') {
+	if (new_quantity === '' || isNaN(new_quantity) || new_quantity < 0.001) {
 		return false;
 	}
 	new_quantity = val_intw2dec(new_quantity);

@@ -35,5 +35,5 @@ if($rs_precio['TX_precio_cuatro'] === '0' || $rs_precio['TX_precio_cuatro'] === 
 </select>
 <?php }
 }else{
-?> 		<input type="text" name="input_price" id="input_price" class="form-control" /><?php
+?> 		<input type="text" name="input_price" id="input_price" class="form-control" onblur="this.value = val_intw2dec(this.value)" /><?php
 } ?>

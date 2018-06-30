@@ -95,12 +95,13 @@ $prep_payment=$link->prepare("SELECT bh_datopago.TX_datopago_monto, bh_datopago.
 					$i++;
 				}
 				$style='';
-				if (array_key_exists(1,$raw_payment)) {	$style= ($style === '') ? 'style="color: #74c374"' : 'style="color: #bdbd07"';	}
-				if (array_key_exists(2,$raw_payment)) {	$style= ($style === '') ? 'style="color: #518ec2"' : 'style="color: #bdbd07"';	}
-				if (array_key_exists(3,$raw_payment)) {	$style= ($style === '') ? 'style="color: #000000"' : 'style="color: #bdbd07"';	}
-				if (array_key_exists(4,$raw_payment)) {	$style= ($style === '') ? 'style="color: #73c9e3"' : 'style="color: #bdbd07"';	}
-				if (array_key_exists(5,$raw_payment)) {	$style= ($style === '') ? 'style="color: #df6d69"' : 'style="color: #bdbd07"';	}
-				if (array_key_exists(7,$raw_payment)) {	$style= ($style === '') ? 'style="color: #f2b968"' : 'style="color: #bdbd07"';	}
+				if (array_key_exists(1,$raw_payment)) {	$style= ($style === '') ? 'style="color: #74c374"' : 'style="color: #700fb4"';	}
+				if (array_key_exists(2,$raw_payment)) {	$style= ($style === '') ? 'style="color: #518ec2"' : 'style="color: #700fb4"';	}
+				if (array_key_exists(3,$raw_payment)) {	$style= ($style === '') ? 'style="color: #000000"' : 'style="color: #700fb4"';	}
+				if (array_key_exists(4,$raw_payment)) {	$style= ($style === '') ? 'style="color: #73c9e3"' : 'style="color: #700fb4"';	}
+				if (array_key_exists(5,$raw_payment)) {	$style= ($style === '') ? 'style="color: #df6d69"' : 'style="color: #700fb4"';	}
+				if (array_key_exists(7,$raw_payment)) {	$style= ($style === '') ? 'style="color: #f2b968"' : 'style="color: #700fb4"';	}
+				if (array_key_exists(8,$raw_payment)) {	$style= ($style === '') ? 'style="color: #bdbd07"' : 'style="color: #700fb4"';	}
 
 				?>
 				<tr <?php echo $style; ?> onclick="toggle_tr('tr_<?php echo $rs_facturaf['AI_facturaf_id'];?>')" >

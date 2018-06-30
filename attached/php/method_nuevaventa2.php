@@ -57,7 +57,7 @@ function plus_nuevaventa(){
 	$raw_nuevaventa = $raw_decode[$_COOKIE['coo_iuser']][$activo];
 	$add = 1;
 	foreach ($raw_nuevaventa as $key => $value) {
-		if ($value['producto_id'] === $product_id && $value['medida'] === $medida && $value['promocion'] === $promocion) {
+		if ($value['producto_id'] === $product_id && $value['promocion'] === $promocion) {
 			$add = 0;
 			break;
 		}
@@ -79,8 +79,6 @@ function plus_nuevaventa(){
 		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['medida'] = $medida;
 		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['stock'] = $rs_product['TX_producto_cantidad'];
 		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['promocion'] = $promocion;
-	}else {
-		echo "no panan <br />";
 	}
 	$contenido = json_encode($raw_decode);
 	write_nuevaventa_content($contenido);
@@ -111,11 +109,6 @@ function plus_multiple_nuevaventa(){
 		$qry_product = $link->query("SELECT TX_producto_value, TX_producto_codigo, TX_producto_medida, TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = '$raw_product_id'")or die($link->error);
 		$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
 		$descripcion = $rs_product['TX_producto_value'];
-		//####################### RESTRICTOR por cantidad
-		$adde = 1;
-		if (round($raw_cantidad[$indice]*$multiplo,2) > $rs_product['TX_producto_cantidad']) {
-			$adde = 0;
-		}
 
 		// ###################### RESTRICTOR por repeticion
 		$raw_nuevaventa = $raw_decode[$_COOKIE['coo_iuser']][$activo];
@@ -132,7 +125,7 @@ function plus_multiple_nuevaventa(){
 				$indice_vacio=$i;
 			}
 		}
-		if ($add === 1 && $adde === 1) {
+		if ($add === 1) {
 			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['producto_id'] = $raw_product_id;
 			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['cantidad'] = round($raw_cantidad[$indice]*$multiplo,2);
 			$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['precio'] = $raw_precio[$indice];
@@ -260,7 +253,7 @@ function duplicate_datoventa(){
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['precio'] = $rs_datoventa['TX_datoventa_precio'];
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['impuesto'] = $rs_datoventa['TX_datoventa_impuesto'];
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['descuento'] = $rs_datoventa['TX_datoventa_descuento'];
-			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['descripcion'] = $rs_datoventa['TX_datoventa_descripcion'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['descripcion'] = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']);
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['codigo'] = $rs_product['TX_producto_codigo'];
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['medida'] = $rs_datoventa['TX_datoventa_medida'];
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['stock'] = $rs_product['TX_producto_cantidad'];
@@ -269,14 +262,8 @@ function duplicate_datoventa(){
 		$i++;
 	}
 
-	// $raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['descripcion'] = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']);
-
 	$contenido=json_encode($raw_decode);
 	write_nuevaventa_content($contenido);
-	foreach ($raw_decode[$_COOKIE['coo_iuser']]['first_sale'] as $key => $value) {
-		$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$key]['descripcion'] = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']);
-	}
-	$contenido=json_encode($raw_decode);
 	echo $contenido;
 }
 
