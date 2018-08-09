@@ -69,16 +69,33 @@ function plus_nuevaventa(){
 				$indice_vacio=$i;
 			}
 		}
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['producto_id'] = $product_id;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['cantidad'] = $cantidad;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['precio'] = $precio;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['impuesto'] = $itbm;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descuento'] = $descuento;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descripcion'] = $r_function->replace_regular_character($descripcion);
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['codigo'] = $rs_product['TX_producto_codigo'];
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['medida'] = $medida;
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['stock'] = $rs_product['TX_producto_cantidad'];
-		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['promocion'] = $promocion;
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['producto_id'] = $product_id;
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['cantidad'] = $cantidad;
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['precio'] = $precio;
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['impuesto'] = $itbm;
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descuento'] = $descuento;
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descripcion'] = $r_function->replace_regular_character($descripcion);
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['codigo'] = $rs_product['TX_producto_codigo'];
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['medida'] = $medida;
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['stock'] = $rs_product['TX_producto_cantidad'];
+		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['promocion'] = $promocion;
+		$raw_newproduct = array();
+		$raw_newproduct['producto_id'] = $product_id;
+		$raw_newproduct['cantidad'] = $cantidad;
+		$raw_newproduct['precio'] = $precio;
+		$raw_newproduct['impuesto'] = $itbm;
+		$raw_newproduct['descuento'] = $descuento;
+		$raw_newproduct['descripcion'] = $r_function->replace_regular_character($descripcion);
+		$raw_newproduct['codigo'] = $rs_product['TX_producto_codigo'];
+		$raw_newproduct['medida'] = $medida;
+		$raw_newproduct['stock'] = $rs_product['TX_producto_cantidad'];
+		$raw_newproduct['promocion'] = $promocion;
+		if(!is_array($raw_newproduct)){ 
+			echo "failed";
+			return false;
+		}	
+		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]=$raw_newproduct;
+
 	}else {
 		echo "no panan <br />";
 	}
@@ -227,7 +244,10 @@ function reload_nuevaventa(){
 
 	$contenido=read_nuevaventa_content();
 	$raw_decode=json_decode($contenido, true);
-
+	if(!is_array($raw_decode)){ 
+		echo "failed";
+		return false;
+	}	
 	if (!array_key_exists($_COOKIE['coo_iuser'], $raw_decode)) {
 		$raw_decode[$_COOKIE['coo_iuser']]= array();
 	}

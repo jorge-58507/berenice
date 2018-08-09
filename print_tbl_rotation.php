@@ -12,9 +12,9 @@ function cal_month($date_i, $date_f){
 	$meses = $intervalMeses+$intervalAnos;
 	$raw_fecha=array();
 	$fecha_sumada=$date_i;
-	for($i=0;$i<$meses;$i++){
-		$fecha_sumada = date('Y-m-d',strtotime('+1 month',strtotime($fecha_sumada)));
+	for($i=0;$i<=$meses;$i++){
 		$raw_fecha[$i]=$fecha_sumada;
+		$fecha_sumada = date('Y-m-d',strtotime('+1 month',strtotime($fecha_sumada)));
 	}
 	return $raw_fecha;
 }
@@ -27,14 +27,11 @@ $raw_opcion=array();
 while($rs_opcion=$qry_opcion->fetch_array()){
 	$raw_opcion[$rs_opcion['TX_opcion_titulo']]=$rs_opcion['TX_opcion_value'];
 }
-
 	$date_i=date('Y-m',strtotime($_GET['a']));	$date_i=date('Y-m-d',strtotime($date_i));
 	$date_f=date('Y-m',strtotime($_GET['b']));	$date_f=date('Y-m-d',strtotime($date_f));
 	$product_id=$_GET['c'];
-	echo $date_i." ".$date_f;
 
 	$raw_fecha = cal_month($date_i,$date_f);
-// echo json_encode($raw_fecha);
 	$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_referencia, TX_producto_value, TX_producto_minimo, TX_producto_maximo FROM bh_producto WHERE AI_producto_id = '$product_id'")or die($link->error);
 	$rs_product=$qry_product->fetch_array();
 
@@ -44,11 +41,8 @@ while($rs_opcion=$qry_opcion->fetch_array()){
 		$year=date('Y',strtotime($rs_json['TX_rotacion_json']));
 		$array_merged=array_merge($array_merged,json_decode($rs_json['TX_rotacion_json'],true));
 	}
-$stock=0;
-$ite=0;
-$raw_stock=array();
-$counter=0;
-$raw_date_finded=array();
+$stock=0;	$ite=0;	$counter=0;
+$raw_stock=array();	$raw_date_finded=array();
 foreach($raw_fecha as $fecha){
 	$fecha_mes = date('Y-m',strtotime($fecha));
 	foreach ($array_merged as $key => $ciclo) {
@@ -63,24 +57,34 @@ foreach($raw_fecha as $fecha){
 			}
 		}
 	}
-
-	// for($it=0;$it<count($array_merged);$it++){
-	// 	if(isset($array_merged[$it][$fecha])){
-  //
-	// 		$stock+=$array_merged[$it][$fecha];
-	// 		$raw_date_finded[$counter]=$fecha;
-	// 		$counter++;
-	// 		$raw_stock[$ite]=$array_merged[$it][$fecha];
-	// 		$ite++;
-  //
-	// 	}
-	// }
 }
-//print_r($raw_date_finded);
 //############### compras y ventas por intervalo
+$content = file_get_contents("attached/tool/reduce_recompose/reduce_recompose.json");
+ // echo $content;
+$raw_contenido = json_decode($content, true);
 $raw_purchase=array();	$iter=0;
 $raw_sold=array();	$itera=0;
 foreach($raw_date_finded as $finded){
+
+	$reducido=0;
+	$sumado=0;
+	foreach ($raw_contenido['saved'] as $index => $saved) {
+		if (date('Y-m',strtotime($saved['fecha'])) == date('Y-m',strtotime($finded))) {
+
+			foreach ($saved['minus'] as $key => $minus) {
+				if ($minus['producto_id'] === $product_id) {
+					$reducido += $minus['cantidad'];
+				}
+			}
+			foreach ($saved['plus'] as $key => $plus) {
+				if ($plus['producto_id'] === $product_id) {
+					$sumado += $plus['cantidad'];
+				}
+			}
+
+		}
+	}
+
 	$date_initial=$finded;
 	if($finded != end($raw_date_finded)){
 		$date_final=date('Y-m',strtotime('+1 month',strtotime($finded)));	$date_final=date('Y-m-d',strtotime($date_final));
@@ -89,12 +93,12 @@ foreach($raw_date_finded as $finded){
 	}
 	$prep_purchase->bind_param("ssi",$date_initial,$date_final,$product_id); $prep_purchase->execute(); $qry_purchase=$prep_purchase->get_result();
 	$rs_purchase=$qry_purchase->fetch_array();
-	// echo "desde:".$date_initial." hasta: ".$date_final." cantidad: ".$rs_purchase['cantidad']."<br />";
 	if(isset($rs_purchase['cantidad'])){
 		$raw_purchase[$iter]=$rs_purchase['cantidad'];
 	}else{
 		$raw_purchase[$iter]=0;
 	}
+	$raw_purchase[$iter]=$rs_purchase['cantidad']+$sumado;
 	$raw_date_interval[$iter][0]=$date_initial;
 	$raw_date_interval[$iter][1]=$date_final;
 	$iter++;
@@ -106,7 +110,8 @@ foreach($raw_date_finded as $finded){
 	}else{
 		$raw_sold[$itera]=0;
 	}
-		$itera++;
+	$raw_sold[$itera]=$rs_sold['venta']+$reducido;
+	$itera++;
 }
 
 ?>

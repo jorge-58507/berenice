@@ -136,7 +136,7 @@ function get_product2sell_price(medida_id){
 <form action="pop_form.php" method="post" name="form_product2sell" id="form_product2sell">
 <div id="container_product" class="col-xs-12 col-sm-12 col-md-6 col-lg-6 pt_7">
 	<label class="label label_blue_sky"  for="txt_product">Producto: </label>
-    <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" />
+    <span name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control bg-disabled" ><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']);  ?> </span>
 </div>
 <div id="container_measure" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 pt_7">
 	<label class="label label_blue_sky"  for="txt_measure">Codigo:</label>

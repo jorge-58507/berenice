@@ -153,10 +153,11 @@ setTimeout("self.close()", 10000);
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php $total=$subtotal+$totalitbm; echo "<strong>Total:</strong> B/ ".number_format($total,2);	?></div>
 
 			</div>
-			<?php			$qry_datopago=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datopago.TX_datopago_monto, bh_datopago.TX_datopago_numero FROM (bh_datopago INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datopago.datopago_AI_metododepago_id) WHERE bh_datopago.datopago_AI_facturaf_id = '$facturaf_id'");
-								$qry_datodebito=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datodebito.TX_datodebito_monto, bh_datodebito.TX_datodebito_numero
-								FROM (((bh_datodebito
+			<?php			$qry_datopago=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datopago.TX_datopago_monto, bh_datopago.TX_datopago_numero, bh_datopago.TX_datopago_fecha FROM (bh_datopago INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datopago.datopago_AI_metododepago_id) WHERE bh_datopago.datopago_AI_facturaf_id = '$facturaf_id'");
+								$qry_datodebito=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datodebito.TX_datodebito_monto, bh_datodebito.TX_datodebito_numero, bh_datodebito.TX_datodebito_fecha, bh_notadebito.TX_notadebito_numero
+								FROM ((((bh_datodebito
 								INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datodebito.datodebito_AI_metododepago_id)
+								INNER JOIN bh_notadebito ON bh_notadebito.AI_notadebito_id = bh_datodebito.datodebito_AI_notadebito_id)
 								INNER JOIN rel_facturaf_notadebito ON rel_facturaf_notadebito.rel_AI_notadebito_id = datodebito_AI_notadebito_id)
 								INNER JOIN bh_facturaf ON rel_facturaf_notadebito.rel_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 								WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'");
@@ -166,25 +167,28 @@ setTimeout("self.close()", 10000);
 								</div>
 
 								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_header minimal">
-									<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"></div>
-									<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><strong>M&eacute;todo</strong></div>
-									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>Monto</strong></div>
+									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+									<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>Fecha</strong></div>
+									<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>M&eacute;todo</strong></div>
+									<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>Monto</strong></div>
 									<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><strong>Numero</strong></div>
 								</div>
 
 <?php 					while($rs_datopago=$qry_datopago->fetch_array()){						?>
 									<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body minimal">
-										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Pago</div>
-										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><?php echo $rs_datopago['TX_metododepago_value']; ?></div>
-										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo number_format($rs_datopago['TX_datopago_monto'],2); ?></div>
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Pago</div>
+										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo date('d-m-Y', strtotime($rs_datopago['TX_datopago_fecha'])); ?></div>
+										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_datopago['TX_metododepago_value']; ?></div>
+										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">B/ <?php echo number_format($rs_datopago['TX_datopago_monto'],2); ?></div>
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo $rs_datopago['TX_datopago_numero']; ?></div>
 									</div>
 <?php 					}
 								while($rs_datodebito=$qry_datodebito->fetch_array()){ ?>
 									<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body minimal">
-										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Abono a Cr&eacute;dito </div>
-										<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"><?php echo $rs_datodebito['TX_metododepago_value']; ?></div>
-										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo number_format($rs_datodebito['TX_datodebito_monto'],2); ?></div>
+										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Abono a Cr&eacute;dito (<?php echo substr($rs_datodebito['TX_notadebito_numero'],-6); ?>)</div>
+										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo date('d-m-Y', strtotime($rs_datodebito['TX_datodebito_fecha'])); ?></div>
+										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_datodebito['TX_metododepago_value']; ?></div>
+										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">B/ <?php echo number_format($rs_datodebito['TX_datodebito_monto'],2); ?></div>
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo $rs_datodebito['TX_datodebito_numero']; ?></div>
 									</div>
 

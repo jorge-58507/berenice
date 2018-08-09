@@ -22,7 +22,7 @@ class method_crud {
 class public_access_bd {
   public function get_lista_producto($limit){
     $link = conexion();
-    $qry_producto=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_cantidad FROM bh_producto WHERE TX_producto_activo = 0 ORDER BY TX_producto_value ASC LIMIT $limit")or die($link->error);
+    $qry_producto=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_cantidad, TX_producto_activo FROM bh_producto WHERE TX_producto_activo = 0 ORDER BY TX_producto_value ASC LIMIT $limit")or die($link->error);
     $raw_producto = array();
     while ($rs_producto=$qry_producto->fetch_array()) {
       $raw_producto[]=$rs_producto;

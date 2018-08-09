@@ -57,16 +57,35 @@ function plus_viejaventa($product_id,$precio,$descuento,$itbm,$cantidad,$medida,
 				$indice_vacio=$i;
 			}
 		}
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['producto_id'] = $product_id;
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['cantidad'] = $cantidad;
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['precio'] = $precio;
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['impuesto'] = $itbm;
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['descuento'] = $descuento;
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['descripcion'] = $r_function->replace_regular_character($descripcion);
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['codigo'] = $rs_product['TX_producto_codigo'];
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['medida'] = $medida;
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['stock'] = $rs_product['TX_producto_cantidad'];
-		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['promocion'] = $promocion;
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['producto_id'] = $product_id;
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['cantidad'] = $cantidad;
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['precio'] = $precio;
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['impuesto'] = $itbm;
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['descuento'] = $descuento;
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['descripcion'] = $r_function->replace_regular_character($descripcion);
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['codigo'] = $rs_product['TX_producto_codigo'];
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['medida'] = $medida;
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['stock'] = $rs_product['TX_producto_cantidad'];
+		// $raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]['promocion'] = $promocion;
+		$raw_newproduct = array();
+		
+		$raw_newproduct['producto_id'] = $product_id;
+		$raw_newproduct['cantidad'] = $cantidad;
+		$raw_newproduct['precio'] = $precio;
+		$raw_newproduct['impuesto'] = $itbm;
+		$raw_newproduct['descuento'] = $descuento;
+		$raw_newproduct['descripcion'] = $r_function->replace_regular_character($descripcion);
+		$raw_newproduct['codigo'] = $rs_product['TX_producto_codigo'];
+		$raw_newproduct['medida'] = $medida;
+		$raw_newproduct['stock'] = $rs_product['TX_producto_cantidad'];
+		$raw_newproduct['promocion'] = $promocion;
+		if(!is_array($raw_newproduct)){ 
+			echo "failed";
+			return false;
+		}	
+		$raw_decode[$_COOKIE['coo_iuser']][$indice_vacio]=$raw_newproduct;
+
+
 	}
 	$contenido = json_encode($raw_decode);
 	write_viejaventa_content($contenido);

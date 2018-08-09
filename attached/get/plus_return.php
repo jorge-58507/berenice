@@ -72,12 +72,13 @@ FROM ((bh_datoventa
     <caption>Productos a Reingresar</caption>
     <thead class="bg-success">
       <tr>
-      	<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Codigo</th>
-        <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Producto</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Codigo</th>
+        <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Producto</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Medida</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cantidad</th>
         <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Precio</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">IMP%</th>
+        <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Subtotal</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
       </tr>
     </thead>
@@ -86,7 +87,7 @@ FROM ((bh_datoventa
       while($rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array()){ ?>
         <tr>
         	<td><?php echo $rs_nuevadevolucion['TX_producto_codigo']; ?></td>
-          <td><?php echo $rs_nuevadevolucion['TX_datoventa_descripcion']; ?></td>
+          <td><?php echo $r_function->replace_special_character($rs_nuevadevolucion['TX_datoventa_descripcion']); ?></td>
           <td><?php echo $raw_medida[$rs_nuevadevolucion['TX_nuevadevolucion_medida']]; ?></td>
           <td><?php echo $rs_nuevadevolucion['TX_nuevadevolucion_cantidad']; ?></td>
           <?php
@@ -98,15 +99,16 @@ FROM ((bh_datoventa
             $descuento = ($rs_nuevadevolucion['TX_datoventa_descuento']*$rs_nuevadevolucion['TX_datoventa_precio'])/100;
             $precio_descuento = $rs_nuevadevolucion['TX_datoventa_precio']-$descuento;
             $precio_retencion = $precio_descuento*$multiplo;
-            $cant_precio_descuento = ($rs_nuevadevolucion['TX_nuevadevolucion_cantidad']*$rel_coheficiente)*$precio_retencion;
-?>        <td><?php echo number_format($cant_precio_descuento,2); ?></td>
+            $cant_precio_descuento = round(($rel_coheficiente)*$precio_retencion,2);
+?>        <td class="al_center"><?php echo number_format($cant_precio_descuento,2); ?></td>
 <?php       $impuesto = ($rs_nuevadevolucion['TX_datoventa_impuesto']*$precio_retencion)/100;
-            $cant_precio_impuesto = ($rs_nuevadevolucion['TX_nuevadevolucion_cantidad']*$rel_coheficiente)*$impuesto; ?>
-          <td><?php echo number_format($cant_precio_impuesto,2); ?></td>
-          <td><button type="button" id="btn_delreturn" class="btn btn-danger btn-xs" onclick="del_return(<?php echo $rs_nuevadevolucion['AI_nuevadevolucion_id']; ?>);"><strong>X</strong></button></td>
+            $cant_precio_impuesto = round(($rel_coheficiente)*$impuesto,2); ?>
+          <td class="al_center"><?php echo number_format($cant_precio_impuesto,2); ?></td>
+          <td class="al_center"><?php echo number_format(($cant_precio_impuesto+$cant_precio_descuento)*$rs_nuevadevolucion['TX_nuevadevolucion_cantidad'],2); ?></td>
+          <td class="al_center"><button type="button" id="btn_delreturn" class="btn btn-danger btn-xs" onclick="del_return(<?php echo $rs_nuevadevolucion['AI_nuevadevolucion_id']; ?>);"><strong>X</strong></button></td>
         </tr><?php
-        $total_precio += $cant_precio_descuento;
-        $total_impuesto += $cant_precio_impuesto;
+        $total_precio += $cant_precio_descuento*$rs_nuevadevolucion['TX_nuevadevolucion_cantidad'];
+        $total_impuesto += $cant_precio_impuesto*$rs_nuevadevolucion['TX_nuevadevolucion_cantidad'];
       } ?>
     </tbody>
     <tfoot class="bg-success">
@@ -124,6 +126,7 @@ FROM ((bh_datoventa
           <label for="span_totalnc">Total:</label><br />
           B/ <span id="span_totalnc"><?php echo number_format($total_nc = $total_precio+$total_impuesto,2); ?></span>
         </td>
+        <td></td>
       </tr>
     </tfoot>
   </table>

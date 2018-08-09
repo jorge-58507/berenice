@@ -27,9 +27,9 @@ FROM ((bh_datoventa
       WHERE bh_nuevadevolucion.nuevadevolucion_AI_user_id = '$user_id'")or die($link->error);
 $rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array();
 
-$qry_creditnote=$link->query("SELECT bh_cliente.TX_cliente_nombre, bh_notadecredito.AI_notadecredito_id, bh_notadecredito.TX_notadecredito_monto, bh_notadecredito.TX_notadecredito_impuesto, bh_notadecredito.TX_notadecredito_exedente, bh_notadecredito.TX_notadecredito_fecha
+$qry_creditnote=$link->query("SELECT bh_user.TX_user_seudonimo, bh_notadecredito.AI_notadecredito_id, bh_notadecredito.TX_notadecredito_monto, bh_notadecredito.TX_notadecredito_impuesto, bh_notadecredito.TX_notadecredito_exedente, bh_notadecredito.TX_notadecredito_numero, bh_notadecredito.TX_notadecredito_fecha
 FROM (bh_notadecredito
-INNER JOIN bh_cliente ON bh_notadecredito.notadecredito_AI_cliente_id = bh_cliente.AI_cliente_id)
+INNER JOIN bh_user ON bh_notadecredito.notadecredito_AI_user_id = bh_user.AI_user_id)
 WHERE notadecredito_AI_facturaf_id = '$facturaf_id'")or die($link->error);
 $rs_creditnote=$qry_creditnote->fetch_array();
 $nr_creditnote=$qry_creditnote->num_rows;
@@ -252,7 +252,7 @@ switch ($_COOKIE['coo_tuser']){
             <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">C&oacute;digo</th>
             <th class="col-xs-5 col-sm-5 col-md-5 col-lg-5">Producto</th>
             <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Medida</th>
-            <th class="col-xs-2 col-sm-2 col-md-2 col-lg-1">Precio Individual</th>
+            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Precio c/Impuesto</th>
             <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cantidad Facturada</th>
             <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cantidad Retirada</th>
             <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
@@ -308,12 +308,13 @@ switch ($_COOKIE['coo_tuser']){
     <caption>Productos a Reingresar</caption>
     <thead class="bg-success">
       <tr>
-      	<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Codigo</th>
-        <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Producto</th>
+      	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Codigo</th>
+        <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Producto</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Medida</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cantidad</th>
         <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Precio</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">IMP%</th>
+        <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Subtotal</th>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
       </tr>
     </thead>
@@ -343,6 +344,7 @@ switch ($_COOKIE['coo_tuser']){
       <td>
       <label for="span_totalnc">Total:</label><br />
       B/ <span id="span_totalnc"><?php echo number_format($total_nc = $total_precio+$total_impuesto,2); ?></span></td>
+      <td></td>
     </tr>
     </tfoot>
     </table>
@@ -354,33 +356,33 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="container_tblcreditnote" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<table id="tbl_creditnote" class="table table-bordered table-condensed table-striped">
-    <caption>Notas de Crédito Actualmente Activas</caption>
+    <caption>Notas de Crédito Activas</caption>
     <thead class="bg-danger">
-    <tr>
-      <th>Nombre</th>
-      <th>Monto Total</th>
-      <th>Fecha</th>
-    </tr>
+      <tr>
+        <th>Numero</th>
+        <th>Monto Total</th>
+        <th>Fecha</th>
+      </tr>
     </thead>
     <tfoot class="bg-danger">
-    <tr><td colspan="3"></td></tr>
+      <tr><td colspan="3"></td></tr>
     </tfoot>
     <tbody>
-    <?php if($nr_creditnote > '0'){ ?>
-    <?php do{ ?>
-    <tr>
-    	<td><?php echo $rs_creditnote['TX_cliente_nombre']; ?></td>
-  		<td><?php echo number_format($total = $rs_creditnote['TX_notadecredito_monto']+$rs_creditnote['TX_notadecredito_impuesto'],2); ?></td>
-      <td><?php echo $fecha = date('d-m-Y',strtotime($rs_creditnote['TX_notadecredito_fecha'])); ?></td>
-    </tr>
-  <?php }while($rs_creditnote=$qry_creditnote->fetch_array()); ?>
+<?php if($nr_creditnote > '0'){ ?>
+<?php   do{ ?>
+          <tr title="<?php echo $rs_creditnote['TX_user_seudonimo']; ?>">
+          	<td><?php echo $rs_creditnote['TX_notadecredito_numero']; ?></td>
+        		<td><strong>B/ </strong><?php echo number_format($total = $rs_creditnote['TX_notadecredito_monto']+$rs_creditnote['TX_notadecredito_impuesto'],2); ?></td>
+            <td><?php echo $fecha = date('d-m-Y',strtotime($rs_creditnote['TX_notadecredito_fecha'])); ?></td>
+          </tr>
+<?php   }while($rs_creditnote=$qry_creditnote->fetch_array()); ?>
 <?php }else{ ?>
-    <tr>
-    	<td colspan="4"></td>
-    </tr>
+        <tr>
+          <td colspan="3"></td>
+        </tr>
 <?php } ?>
     </tbody>
-    </table>
+  </table>
 </div>
 </form>
 </div>

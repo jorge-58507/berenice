@@ -106,7 +106,7 @@ $(document).ready(function() {
 	})
 	$("#txt_filterproduct").on("keyup", function(){
 		var limit = ($("input[name=r_limit]:checked").val());
-		$.ajax({	data: { "a" : this.value, "b" : limit },	type: "GET",	dataType: "text",	url: "attached/get/filter_ps_product.php", })
+		$.ajax({	data: { "a" : url_replace_regular_character(this.value), "b" : limit },	type: "GET",	dataType: "text",	url: "attached/get/filter_ps_product.php", })
 		.done(function( data, textStatus, jqXHR ) {
 			$("#tbl_product tbody").html(data);
 		})

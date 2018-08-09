@@ -3,16 +3,6 @@ require 'bh_conexion.php';
 $link=conexion();
 require 'attached/php/req_login_paydesk.php';
 $facturaf_id=$_SESSION["facturaf_id"];
-//  #### APERTURA DEL CAJON
-$handle = printer_open("\\\\TRIILLI-CAJA\\GENERICA");
-printer_start_doc($handle, "");
-printer_start_page($handle);
-printer_set_option($handle, PRINTER_MODE, 'raw');
-printer_draw_text($handle, "Open Sesame", 400, 400);
-printer_end_page($handle);
-printer_end_doc($handle);
-printer_close($handle);
-//  #### APERTURA DEL CAJON
 
 function upd_return(){
   $link=conexion();
@@ -49,14 +39,34 @@ else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp
 $ip = $_SERVER['REMOTE_ADDR'];
 else
 $ip = "IP desconocida";
+
+if (strstr($ip, ', ')) {
+  $ips = explode(', ', $ip);
+  $ip = $ips[0];
+}
 return($ip);
 }
 
 $ip   = ObtenerIP();
 $cliente = gethostbyaddr($ip);
-$qry_impresora=$link->query("SELECT AI_impresora_id, TX_impresora_recipiente, TX_impresora_retorno, TX_impresora_cliente, TX_impresora_serial FROM bh_impresora WHERE TX_impresora_cliente = '$cliente'");
+$qry_impresora=$link->query("SELECT AI_impresora_id, TX_impresora_recipiente, TX_impresora_retorno, TX_impresora_cliente, TX_impresora_serial, TX_impresora_cajaregistradora FROM bh_impresora WHERE TX_impresora_cliente = '$cliente'")or die($link->error);
 $rs_impresora=$qry_impresora->fetch_array();
 $impresora_id = $rs_impresora['AI_impresora_id'];
+// echo $rs_impresora['TX_impresora_cajaregistradora'];
+// return false;
+//  #### APERTURA DEL CAJON
+if (!empty($rs_impresora['TX_impresora_cajaregistradora'])){
+  $dir_cajaregistradora = $rs_impresora['TX_impresora_cajaregistradora'];
+  $handle = printer_open($dir_cajaregistradora);
+  printer_start_doc($handle, "");
+  printer_start_page($handle);
+  printer_set_option($handle, PRINTER_MODE, 'raw');
+  printer_draw_text($handle, "Open Sesame", 400, 400);
+  printer_end_page($handle);
+  printer_end_doc($handle);
+  printer_close($handle);
+}
+//  #### APERTURA DEL CAJON
 
 $txt_facturaf="SELECT bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion,
 bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_cambio
@@ -173,7 +183,7 @@ $raw_facti=["documento" => "", "c_nombre" => "", "c_ruc" => "", "c_direccion" =>
             "dv" => ""];
 
 $raw_facti['documento']="FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7);
-$raw_facti['c_nombre']=$rs_facturaf['TX_cliente_nombre'];
+$raw_facti['c_nombre']=$r_function->replace_special_character($rs_facturaf['TX_cliente_nombre']);
 $raw_facti['c_ruc']=$rs_facturaf['TX_cliente_cif'];
 $raw_facti['c_direccion']=substr($vendedor,0,3)."-".$rs_facturaf['TX_cliente_direccion'];
 if (!empty($rs_facturaf['TX_facturaf_descuento'])) { $raw_facti['total_descuento']=round($rs_facturaf['TX_facturaf_descuento'],2);  }else{ $raw_facti['total_descuento'] = '0.00'; }

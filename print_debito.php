@@ -1,10 +1,11 @@
-<?php
+<?php 
 require 'bh_conexion.php';
 $link=conexion();
 
 require 'attached/php/req_login_paydesk.php';
 
- $debito_id=$_SESSION['debito_id'];
+
+ $debito_id=(!empty($_SESSION['debito_id'])) ? $_SESSION['debito_id'] : $_GET['a'];
  // $debito_id='15';
 $qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
@@ -28,7 +29,7 @@ $rs_facturaf = $qry_facturaf->fetch_array();
 $qry_facturaf_d = $link->query($txt_facturaf)or die($link->error);
 $rs_facturaf_d = $qry_facturaf_d->fetch_array();
 
-$txt_datodebito="SELECT bh_notadebito.TX_notadebito_cambio, bh_datodebito.TX_datodebito_monto, bh_datodebito.datodebito_AI_metododepago_id, bh_metododepago.TX_metododepago_value
+$txt_datodebito="SELECT bh_notadebito.TX_notadebito_numero, bh_notadebito.TX_notadebito_cambio, bh_datodebito.TX_datodebito_monto, bh_datodebito.datodebito_AI_metododepago_id, bh_metododepago.TX_metododepago_value
 FROM ((bh_notadebito
 INNER JOIN bh_datodebito ON bh_notadebito.AI_notadebito_id = bh_datodebito.datodebito_AI_notadebito_id)
 INNER JOIN bh_metododepago ON bh_datodebito.datodebito_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
@@ -56,6 +57,7 @@ while($rs_datodebito=$qry_datodebito->fetch_array()){
 		$total_nota_credito+=$rs_datodebito['TX_datodebito_monto'];
 	}
 	$cambio=$rs_datodebito['TX_notadebito_cambio'];
+	$notadebito_numero = $rs_datodebito['TX_notadebito_numero'];
 }
 if(empty($cambio)){ $cambio=0; }
 $total_total=$total_efectivo+$total_tarjeta_debito+$total_tarjeta_credito+$total_nota_credito+$total_cheque+$cambio;
@@ -123,7 +125,7 @@ margin-top: 105px;margin-left: -130px;">
 </tr>
 <tr style="height:45px" align="center">
 	<td valign="top" colspan="10">
-    <h3>RECIBO DE PAGO</h3>
+    <h3>RECIBO DE PAGO - <?php echo $notadebito_numero ?></h3>
     </td>
 </tr>
 <tr style="height:58px">
@@ -268,10 +270,10 @@ foreach ($raw_ff_nd as $key => $ff_id) {
     <td colspan="3">
 </tr>
 </table>
-<!-- ###############################        FIN LADO IZQUIERDO   ######################### --->
+<!-- ###############################        FIN LADO IZQUIERDO   ######################### -->
 </td>
 <td style="width:50%;">
-<!-- ###############################        LADO DERECHO   ######################### --->
+<!-- ###############################        LADO DERECHO   ######################### -->
 <table id="tbl_print" align="center" cellpadding="0" cellspacing="0" border="0" style="height:760px; width:470px; font-size:14px; padding:0 0 0 30px; ">
 <tr style="height:1px">
     <td width="10%"></td>
@@ -309,7 +311,7 @@ foreach ($raw_ff_nd as $key => $ff_id) {
 </tr>
 <tr style="height:45px" align="center">
 	<td valign="top" colspan="10">
-    <h3>RECIBO DE PAGO</h3>
+    <h3>RECIBO DE PAGO - <?php echo $notadebito_numero ?></h3>
     </td>
 </tr>
 <tr style="height:58px">
@@ -451,7 +453,7 @@ foreach ($raw_ff_nd as $key => $ff_id) {
     <td colspan="3">
 </tr>
 </table>
-<!-- ###############################      FIN LADO DERECHO   ######################### --->
+<!-- ###############################      FIN LADO DERECHO   ######################### -->
 </td>
 </tr>
 </table>
@@ -495,7 +497,7 @@ foreach ($raw_ff_nd as $key => $ff_id) {
 </tr>
 <tr style="height:40px" align="center">
 	<td valign="top" colspan="10">
-		<h2>RECIBO DE PAGO</h2>
+		<h2>RECIBO DE PAGO - <?php echo $notadebito_numero ?></h2>
   </td>
 </tr>
 <tr style="height:44px">

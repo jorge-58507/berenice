@@ -3,6 +3,7 @@ function plus_product2viejaventa(product_id,precio,descuento,itbm,cantidad,medid
 	$.ajax({	data: {"a" : product_id, "b" : precio, "c" : descuento, "d" : itbm, "e" : cantidad, "f" : medida, "g" : promotion, "z" : 'plus' }, type: "GET", dataType: "text", url: "attached/php/method_viejaventa.php",	})
 	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
 		if(data){
+			if(data === 'failed'){ alert("Consulte al administrador del sistema"); return false;}
       data = JSON.parse(data);
 			generate_tbl_viejaventa(data);
       var new_value = $("#txt_filterproduct").val();

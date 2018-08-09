@@ -1,4 +1,5 @@
 <?php
+set_time_limit (180);
 require '../../bh_conexion.php';
 $link = conexion();
 
@@ -187,7 +188,7 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 <?php if($qry_facturaventa->num_rows > 0){
 		$raw_facturaf=array();
 		$total_total=0;
-		$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
+		$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0; $total_porcobrar=0;
 		do{
 	?>
     <tr onclick="toogle_tr_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)">
@@ -220,6 +221,7 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 					case '4':	$color='#f04006';	$total_tarjeta_debito += $rs_datopago['TX_datopago_monto'];	break;
 					case '5':	$color='#b54a4a';	$total_credito += $rs_datopago['TX_datopago_monto'];	break;
 					case '7':	$color='#EFA63F';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
+					case '8':	$color='#bdbd07';	$total_porcobrar += $rs_datopago['TX_datopago_monto'];	break;
 				}
 				echo "<font color='{$color}'>".$rs_datopago['TX_metododepago_value']."</font><br />";
 				$raw_monto[$i]=$rs_datopago['TX_datopago_monto'];
@@ -307,56 +309,67 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
     </tbody>
     <tfoot class="bg-primary">
     	<tr>
-        	<td colspan="7">
-            <table id="tbl_total" class="table-condensed table-bordered" style="width:100%">
+        <td colspan="7">
+        	<table id="tbl_total" class="table-condensed table-bordered" style="width:100%">
+						<caption class="caption bg-primary">Metodos de Pago.</caption>
+						<tbody>
 							<tr>
-            	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Efectivo:</strong> <br /><?php
-				if(isset($total_efectivo)){
-					echo number_format($total_efectivo,2);
-				};?>
-              </td>
-							<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Cheque:</strong> <br /><?php
-				if(isset($total_cheque)){
-					echo number_format($total_cheque,2);
-				}?>
-              </td>
-							<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-		<strong>TDC:</strong> <br /><?php
-		if(isset($total_tarjeta_credito)){
-			echo number_format($total_tarjeta_credito,2);
-		}
-		?>
-            	</td>
-							<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-			<strong>TDD:</strong> <br /><?php
-			if(isset($total_tarjeta_debito)){
-				echo number_format($total_tarjeta_debito,2);
-			}
-			?>
-             	</td>
-            	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Cr&eacute;dito:</strong> <br /><?php
-				if(isset($total_credito)){
-					echo number_format($total_credito,2);
-				}?>
-              </td>
-            	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Nota de C.:</strong> <br /><?php
-				if(isset($total_notadc)){
-					echo number_format($total_notadc,2);
-				}?>
-              </td>
-            	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Total:</strong> <br /><?php
-				if(isset($total_total)){
-					echo number_format($total_total,2);
-				}?>
-              </td>
-            </tr>
+	            	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>Efectivo:</strong> <br /><?php
+									if(isset($total_efectivo)){
+										echo 'B/ '.number_format($total_efectivo,2);
+									};?>
+	              </td>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>Cheque:</strong> <br /><?php
+									if(isset($total_cheque)){
+										echo 'B/ '.number_format($total_cheque,2);
+									}?>
+	              </td>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>TDC:</strong> <br /><?php
+									if(isset($total_tarjeta_credito)){
+										echo 'B/ '.number_format($total_tarjeta_credito,2);
+									}
+									?>
+	            	</td>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>TDD:</strong> <br /><?php
+									if(isset($total_tarjeta_debito)){
+										echo 'B/ '.number_format($total_tarjeta_debito,2);
+									}
+									?>
+	             	</td>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>Cr&eacute;dito:</strong> <br /><?php
+									if(isset($total_credito)){
+										echo 'B/ '.number_format($total_credito,2);
+									}?>
+	              </td>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>Saldo:</strong> <br /><?php
+									if(isset($total_notadc)){
+										echo 'B/ '.number_format($total_notadc,2);
+									}?>
+	              </td>
+							</tr>
+							<tr>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>Por Cobrar:</strong> <br /><?php
+									if(isset($total_porcobrar)){
+										echo 'B/ '.number_format($total_porcobrar,2);
+									}?>
+	              </td>
+	            	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>Total:</strong> <br /><?php
+									if(isset($total_total)){
+										echo 'B/ '.number_format($total_total,2);
+									}?>
+	              </td>
+	            </tr>
+						</tbody>
 					</table>
-            </td>
-		</tr>
+	    	</td>
+			</tr>
     </tfoot>
-</table>
+	</table>

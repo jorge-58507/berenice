@@ -49,6 +49,10 @@ $nr_chkexento = $qry_chkexento->num_rows;
 
 $contenido_viejaventa=read_viejaventa_content();
 $raw_viejaventa=json_decode($contenido_viejaventa, true);
+if(!is_array($raw_viejaventa)){ 
+	echo "failed";
+	return false;
+}
 $total=0; $i=0; $raw_nuevaventa=array();
 foreach ($raw_viejaventa[$_COOKIE['coo_iuser']] as $key => $rs_viejaventa) {
 	$precio = $rs_viejaventa['cantidad']*$rs_viejaventa['precio'];

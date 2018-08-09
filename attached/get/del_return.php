@@ -59,7 +59,7 @@ FROM ((bh_datoventa
       while($rs_nuevadevolucion=$qry_nuevadevolucion->fetch_array()){ ?>
         <tr>
         	<td><?php echo $rs_nuevadevolucion['TX_producto_codigo']; ?></td>
-          <td><?php echo $rs_nuevadevolucion['TX_datoventa_descripcion']; ?></td>
+          <td><?php echo $r_function->replace_special_character($rs_nuevadevolucion['TX_datoventa_descripcion']); ?></td>
           <td><?php echo $raw_medida[$rs_nuevadevolucion['TX_nuevadevolucion_medida']]; ?></td>
           <td><?php echo $rs_nuevadevolucion['TX_nuevadevolucion_cantidad']; ?></td>
           <?php

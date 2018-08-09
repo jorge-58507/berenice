@@ -30,7 +30,7 @@ function write_viejaventa_content($contenido){
 }
 function write_viejaventa_rel($contenido){
 	$link=conexion(); $r_function = new recurrent_function();
-	$contenido = $r_function->replace_regular_character($contenido);
+	// $contenido = $r_function->replace_regular_character($contenido);
 	$qry_nuevaventa = $link->query("UPDATE rel_nuevaventa SET TX_rel_nuevaventa_compuesto = '$contenido' WHERE AI_rel_nuevaventa_id = 4")or die($link->error);
 }
 // ############################# FIN DE FUNCIONES

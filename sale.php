@@ -3,6 +3,10 @@ require 'bh_conexion.php';
 $link=conexion();
 require 'attached/php/req_login_sale.php';
 
+$fecha_actual = date('Y-m-d');
+ // $fecha_actual = '2018-07-20';
+$user_id = $_COOKIE['coo_iuser'];
+
 function ObtenerIP(){
 	if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
 	$ip = getenv("HTTP_CLIENT_IP");
@@ -40,6 +44,24 @@ switch ($_COOKIE['coo_tuser']) {
 }
 $qry_facturaventa=$link->query($txt_facturaventa)or die($link->error);
 $rs_facturaventa=$qry_facturaventa->fetch_array();
+
+$prep_payment = $link->prepare("SELECT AI_datopago_id, datopago_AI_metododepago_id, TX_datopago_monto FROM bh_datopago WHERE datopago_AI_facturaf_id = ?")or die($link->error);
+
+$qry_lastsale = $link->query("SELECT bh_facturaventa.TX_facturaventa_numero, bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_total, bh_cliente.TX_cliente_nombre FROM ((bh_facturaf INNER JOIN bh_cliente ON bh_cliente.AI_cliente_id = bh_facturaf.facturaf_AI_cliente_id) INNER JOIN bh_facturaventa ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id) WHERE facturaventa_AI_user_id = '$user_id' AND bh_facturaf.TX_facturaf_fecha = '$fecha_actual' ORDER BY AI_facturaf_id DESC")or die($link->error);
+$raw_lastsale=array();
+$raw_payment = ["1"=>0,"2"=>0,"3"=>0,"4"=>0,"5"=>0,"7"=>0,"8"=>0];
+while ($rs_lastsale = $qry_lastsale->fetch_array()) {
+  $raw_lastsale[] = $rs_lastsale;
+	$prep_payment->bind_param("i",$rs_lastsale['AI_facturaf_id']); $prep_payment->execute(); $qry_payment = $prep_payment->get_result();
+  while ($rs_payment = $qry_payment->fetch_array(MYSQLI_ASSOC)) {
+    $raw_payment[$rs_payment['datopago_AI_metododepago_id']] += $rs_payment['TX_datopago_monto'];
+  }
+}
+$sumatoria = $raw_payment[1]+$raw_payment[2]+$raw_payment[3]+$raw_payment[4]+$raw_payment[8];
+$qry_user = $link->query("SELECT TX_user_meta FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'")or die($link->error);
+$rs_user = $qry_user->fetch_array();
+$porcentaje = round(($sumatoria*100)/$rs_user['TX_user_meta']);
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -91,6 +113,10 @@ $(document).ready(function() {
 		});
 	});
 	$(window).on('beforeunload',function(){	close_popup();	});
+
+	var json_lastsale = '<?php echo json_encode($raw_lastsale); ?>';
+	raw_lastsale = JSON.parse(json_lastsale);
+	setTimeout(function(){	get_lastsale();	},60000);
 });
 
 function upd_loginclient (){
@@ -102,6 +128,47 @@ function upd_loginclient (){
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
+
+function get_lastsale(){
+	$.ajax({	data: {"a" : '<?php echo $_COOKIE['coo_iuser']; ?>'}, type: "GET", dataType: "text", url: "attached/get/get_lastsale.php",	})
+	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+		var data = JSON.parse(data);
+		raw_data = data['last_sale'];
+		var content = '';
+		if (raw_data.length != raw_lastsale.length) {
+			for (var x in raw_data) {
+				if (x == 0) {
+					content += `<tr id="last_sale" class="display_none">
+						<td>${raw_data[x]['TX_facturaventa_numero']}</td>
+						<td>${raw_data[x]['TX_cliente_nombre']}</td>
+						<td>${raw_data[x]['TX_facturaf_total']}</td>
+						</tr>`;
+				}else{
+					var total = parseFloat(raw_data[x]['TX_facturaf_total']);
+					content += `<tr>
+						<td>${raw_data[x]['TX_facturaventa_numero']}</td>
+						<td>${raw_data[x]['TX_cliente_nombre']}</td>
+						<td>${total.toFixed(2)}</td>
+						</tr>`;
+				}
+			}
+			raw_lastsale = raw_data;
+		}else{
+			content += $("#tbl_lastsale tbody").html();
+		}
+		const porcentaje = Math.round10(data['datopago']);
+		$("#bar_goal").html(porcentaje+'%');
+		$("#container_goal").attr("title",porcentaje+'%');
+		$("#bar_goal").css("width",porcentaje+'%');
+		$("#tbl_lastsale tbody").html(content);
+		$("#last_sale").show(5000);
+
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+
+	setTimeout(function(){	get_lastsale();	},60000);
+}
+
 </script>
 </head>
 <body>
@@ -178,7 +245,7 @@ function upd_loginclient (){
 				<button type="button" id="" class="btn btn-danger btn-xs clear_date" onclick="setEmpty('txt_date')"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
 			</div>
     </div>
-    <div id="container_tblfacturaventa" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div id="container_tblfacturaventa" class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
 
 		<table id="tbl_facturaventa" class="table table-bordered table-striped">
 			<caption class="caption">Cotizaciones Guardadas</caption>
@@ -238,6 +305,41 @@ function upd_loginclient (){
     </tbody>
 </table>
 
+	</div>
+	<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 no_padding">
+		<div id="container_goal" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 px_0 py_14" title="<?php echo $porcentaje."%"; ?>">
+			<label for="div_goal" class="label label_blue_sky">Meta</label>
+			<div class="progress">
+				<div id="bar_goal" class="progress-bar progress-bar-success progress-bar-striped progress-bar-animated" role="progressbar" aria-valuenow="70"	aria-valuemin="0" aria-valuemax="100" style="width:<?php echo $porcentaje; ?>%"><?php echo $porcentaje."%"; ?></div>
+			</div>
+		</div>
+		<div id="container_tbl_lastsale" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 px_0 py_14">
+			<table id="tbl_lastsale" class="table table-condensed table-bordered table-striped">
+				<caption>Ultimas Ventas</caption>
+				<thead class="bg_green">
+					<tr onclick="get_lastsale()">
+						<th>No.</th>
+						<th>Cliente</th>
+						<th>Monto</th>
+					</tr>
+				</thead>
+				<tbody>
+	<?php 	if (!empty($raw_lastsale)) {
+						foreach ($raw_lastsale as $key => $lastsale) {
+							echo "<tr><td>{$lastsale['TX_facturaventa_numero']}</td><td>{$lastsale['TX_cliente_nombre']}</td><td class='al_right'>".number_format($lastsale['TX_facturaf_total'],2)."</td></tr>";
+						}
+					} else {
+						echo "<tr><td colspan='3'></td></tr>";
+					}
+	?>
+				</tbody>
+				<tfoot class="bg_green">
+				 <tr>
+				 	<td colspan="3"></td>
+				 </tr>
+				</tfoot>
+			</table>
+		</div>
 	</div>
 </div>
 </form>

@@ -75,6 +75,9 @@ $("#txt_filterfacturaf").keyup(function(){
 $("input[name=r_limit]").on("change", function(){
 	$("#txt_filterfacturaf").keyup();
 })
+$("#sel_paymentmethod").on("change", function(){
+	filter_adminfacturaf($("#txt_filterfacturaf").val());
+})
 
 $( function() {
 var dateFormat = "dd-mm-yy",
@@ -175,19 +178,33 @@ switch ($_COOKIE['coo_tuser']){
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="login.php" method="post" name="form_login"  id="form_login">
 <div id="container_filterfacturaf" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-	<div id="container_txtfilterfacturaf" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+	<div id="container_txtfilterfacturaf" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 	  <label for="txt_filterfacturaf" class="label label_blue_sky">Buscar</label>
 	  <input type="text" id="txt_filterfacturaf" class="form-control" placeholder="Numero Factura o Nombre de Cliente" autofocus />
 	</div>
 	<div id="container_txtdatei"  class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-	  <label for="txt_date_initial" class="label label_blue_sky">Fecha</label>
+	  <label for="txt_date_initial" class="label label_blue_sky">Fecha Inicial</label>
 	  <input type="text" id="txt_date_initial" name="txt_date_initial" class="form-control" readonly="readonly" value="<?php echo $fecha_i; ?>" />
 	</div>
 	<div id="container_txtdatef"  class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-	  <label for="txt_date_final" class="label label_blue_sky">Fecha</label>
+	  <label for="txt_date_final" class="label label_blue_sky">Fecha Final</label>
 	  <input type="text" id="txt_date_final" name="txt_date_final" class="form-control" readonly="readonly" value="<?php echo $fecha_f; ?>" />
 	</div>
-	<div id="container_rlimit"  class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+	<div id="container_selpaymentmethod" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+<?php 	$qry_paymentmethod = $link->query("SELECT AI_metododepago_id, TX_metododepago_value FROM bh_metododepago")or die($link->error);
+		$raw_metododepago = array();
+		while ($rs_paymentmethod = $qry_paymentmethod->fetch_array()) {
+			$raw_metododepago[$rs_paymentmethod['AI_metododepago_id']] = $rs_paymentmethod['TX_metododepago_value'];
+		} ?>
+		<label class="label label_blue_sky" for="sel_paymentmethod">M&eacute;todo de P.</label>
+		<select id="sel_paymentmethod" class="form-control">
+			<option value="todos">Todos</option>
+<?php  		foreach ($raw_metododepago as $key => $value) {
+				echo "<option value=\"$key\">$value</option>";
+			}	?>
+		</select>
+	</div>
+	<div id="container_rlimit"  class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 		<label for="r_limit" class="label label_blue_sky">Mostrar</label><br />
 		<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit_10" value="10" checked="checked">10</label>
 	  <label class="radio-inline"><input type="radio" name="r_limit" id="r_limit_50" value="50">50</label>
@@ -201,14 +218,14 @@ switch ($_COOKIE['coo_tuser']){
 			<tr>
         <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Nº</th>
         <th class="col-xs-4 col-sm-4 col-md-4 col-lg-3">Nombre</th>
-        <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Fecha</th>
-        <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Hora</th>
-        <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Total</th>
-        <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Deficit</th>
-        <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1">Vendedor</th>
-        <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1"></th>
-        <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1"><i id="filter_by_deficit" class="fa fa-angle-double-down" onclick="filter_adminfacturaf('deficit');"></i></th>
-        <th class="col-xs-12 col-sm-12 col-md-12 col-lg-1"></th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Hora</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Deficit</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Vendedor</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><i id="filter_by_deficit" class="fa fa-angle-double-down" onclick="filter_adminfacturaf('deficit');"></i></th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
       </tr>
     </thead>
     <tbody>
@@ -240,7 +257,7 @@ switch ($_COOKIE['coo_tuser']){
 					if (array_key_exists(8,$raw_payment)) {	$style= ($style === '') ? 'style="color: #bdbd07"' : 'style="color: #700fb4"';	}
 
 					?>
-					<tr <?php echo $style; ?> onclick="toggle_tr('tr_<?php echo $rs_facturaf['AI_facturaf_id'];?>')" >
+					<tr <?php echo $style; ?> onclick="toggle_tr('tr_<?php echo $rs_facturaf['AI_facturaf_id'];?>')" ondblclick="print_html('print_client_facturaf.php?a=<?php echo $rs_facturaf['AI_facturaf_id'];?>')" >
 			      <td><?php echo $rs_facturaf['TX_facturaf_numero']; ?></td>
 			      <td><?php echo $rs_facturaf['TX_cliente_nombre']; ?></td>
 			      <td><?php echo $fecha=date('d-m-Y',strtotime($rs_facturaf['TX_facturaf_fecha']));	?></td>
@@ -265,25 +282,25 @@ switch ($_COOKIE['coo_tuser']){
 				      <table id="tbl_payment" class="table table-condensed table_no_margin table-bordered" style="margin:0;">
 					      <tr>
             			<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[1])){ echo "<strong>Efectivo:</strong> ".number_format($raw_payment[1],2); $total_efectivo += $raw_payment[1];}	?>
+<?php								if(isset($raw_payment[1])){ echo "<strong>Efectivo:</strong> <br />".number_format($raw_payment[1],2); $total_efectivo += $raw_payment[1];}	?>
             			</td>
             			<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[2])){ echo "<strong>Cheque:</strong> ".number_format($raw_payment[2],2); $total_cheque += $raw_payment[2];}	?>
+<?php								if(isset($raw_payment[2])){ echo "<strong>Cheque:</strong> <br />".number_format($raw_payment[2],2); $total_cheque += $raw_payment[2];}	?>
             			</td>
 									<td class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-<?php								if(isset($raw_payment[3])){ echo "<strong>TDC:</strong> ".number_format($raw_payment[3],2); $total_tarjeta_dc += $raw_payment[3];}	?>
+<?php								if(isset($raw_payment[3])){ echo "<strong>TDC:</strong> <br />".number_format($raw_payment[3],2); $total_tarjeta_dc += $raw_payment[3];}	?>
             			</td>
 									<td class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-<?php								if(isset($raw_payment[4])){ echo "<strong>TDD:</strong> ".number_format($raw_payment[4],2); $total_tarjeta_dd += $raw_payment[4];}	?>
+<?php								if(isset($raw_payment[4])){ echo "<strong>TDD:</strong> <br />".number_format($raw_payment[4],2); $total_tarjeta_dd += $raw_payment[4];}	?>
             			</td>
             			<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[5])){ echo "<strong>Cr&eacute;dito:</strong> ".number_format($raw_payment[5],2); $total_credito += $raw_payment[5];}	?>
+<?php								if(isset($raw_payment[5])){ echo "<strong>Cr&eacute;dito:</strong> <br />".number_format($raw_payment[5],2); $total_credito += $raw_payment[5];}	?>
             			</td>
 									<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[7])){ echo "<strong>Nota de C.:</strong> ".number_format($raw_payment[7],2); $total_notadc += $raw_payment[7];}	?>
+<?php								if(isset($raw_payment[7])){ echo "<strong>Nota de C.:</strong> <br />".number_format($raw_payment[7],2); $total_notadc += $raw_payment[7];}	?>
             			</td>
 									<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[8])){ echo "<strong>P.Cobrar:</strong> ".number_format($raw_payment[8],2); $total_porcobrar += $raw_payment[8];}	?>
+<?php								if(isset($raw_payment[8])){ echo "<strong>P.Cobrar:</strong> <br />".number_format($raw_payment[8],2); $total_porcobrar += $raw_payment[8];}	?>
             			</td>
             		</tr>
             	</table>

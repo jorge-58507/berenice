@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require '../../bh_conexion.php';
 $link = conexion();
 
@@ -7,17 +7,10 @@ $date_i=$_GET['b'];
 $str=$_GET['c'];
 $limit=$_GET['d'];
 $date_f=$_GET['e'];
-if($_GET['d'] == ""){
-	$limit="";
-}else{
-	$limit=" LIMIT ".$limit;
-}
-if($str == "deficit"){
-	$order = " ORDER BY  TX_facturaf_deficit DESC, TX_cliente_nombre ASC";
-}else{
-	$order = " ORDER BY  TX_facturaf_numero DESC";
-}
+$metododepago = $_GET['f'];
 
+$limit = ($_GET['d'] === "") ? "" : " LIMIT ".$limit;
+$order = ($str == "deficit") ? " ORDER BY  TX_facturaf_deficit DESC, TX_cliente_nombre ASC" : " ORDER BY  TX_facturaf_numero DESC";
 if(!empty($date_i)  && !empty($date_f)){
 	$pre_date_i=strtotime($date_i);
 	$date_i=date('Y-m-d',$pre_date_i);
@@ -27,20 +20,24 @@ if(!empty($date_i)  && !empty($date_f)){
 }else{
 	$line_date = "";
 }
+$line_metododepago = ($_GET['f'] != 'todos') ? " datopago_AI_metododepago_id = '{$_GET['f']}' AND" : "";
+
 
 $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
 
 $txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.facturaf_AI_cliente_id, bh_facturaf.facturaf_AI_user_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_status,
 bh_cliente.TX_cliente_nombre
-FROM (bh_facturaf INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id)
-WHERE";
+FROM ((bh_facturaf
+	INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id)
+	INNER JOIN bh_datopago ON bh_facturaf.AI_facturaf_id = bh_datopago.datopago_AI_facturaf_id)
+WHERE ";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturaf=$txt_facturaf.$line_date." bh_cliente.TX_cliente_nombre LIKE '%{$arr_value[$it]}%'";
+$txt_facturaf=$txt_facturaf.$line_date.$line_metododepago." bh_cliente.TX_cliente_nombre LIKE '%{$arr_value[$it]}%'";
 	}else{
-$txt_facturaf=$txt_facturaf.$line_date." bh_cliente.TX_cliente_nombre LIKE '%{$arr_value[$it]}%' AND";
+$txt_facturaf=$txt_facturaf.$line_date.$line_metododepago." bh_cliente.TX_cliente_nombre LIKE '%{$arr_value[$it]}%' AND";
 	}
 }
 
@@ -48,15 +45,13 @@ $txt_facturaf=$txt_facturaf." OR";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturaf=$txt_facturaf.$line_date." bh_facturaf.TX_facturaf_numero LIKE '%{$arr_value[$it]}%'";
+$txt_facturaf=$txt_facturaf.$line_date.$line_metododepago." bh_facturaf.TX_facturaf_numero LIKE '%{$arr_value[$it]}%'";
 	}else{
-$txt_facturaf=$txt_facturaf.$line_date." bh_facturaf.TX_facturaf_numero LIKE '%{$arr_value[$it]}%' AND";
+$txt_facturaf=$txt_facturaf.$line_date.$line_metododepago." bh_facturaf.TX_facturaf_numero LIKE '%{$arr_value[$it]}%' AND";
 	}
 }
 
-$txt_facturaf=$txt_facturaf.$order.$limit;
-
-
+$txt_facturaf=$txt_facturaf." GROUP BY AI_facturaf_id ".$order.$limit;
 $qry_facturaf = $link->query($txt_facturaf)or die($link->error);
 $rs_facturaf = $qry_facturaf->fetch_array();
 ?>
@@ -78,7 +73,7 @@ $rs_facturaf = $qry_facturaf->fetch_array();
 	<tbody>
 <?php
 $total_total=0; $total_deficit=0;
-$total_efectivo=0; $total_tarjeta_dc=0; $total_tarjeta_dd=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
+$total_efectivo=0; $total_tarjeta_dc=0; $total_tarjeta_dd=0; $total_cheque=0; $total_credito=0; $total_notadc=0; $total_porcobrar=0;
 $prep_vendor = $link->prepare("SELECT bh_user.TX_user_seudonimo FROM ((bh_facturaf
 	INNER JOIN bh_facturaventa ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 	INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
@@ -104,7 +99,7 @@ $prep_payment=$link->prepare("SELECT bh_datopago.TX_datopago_monto, bh_datopago.
 				if (array_key_exists(8,$raw_payment)) {	$style= ($style === '') ? 'style="color: #bdbd07"' : 'style="color: #700fb4"';	}
 
 				?>
-				<tr <?php echo $style; ?> onclick="toggle_tr('tr_<?php echo $rs_facturaf['AI_facturaf_id'];?>')" >
+				<tr <?php echo $style; ?> onclick="toggle_tr('tr_<?php echo $rs_facturaf['AI_facturaf_id'];?>')" ondblclick="print_html('print_client_facturaf.php?a=<?php echo $rs_facturaf['AI_facturaf_id'];?>')" >
 					<td><?php echo $rs_facturaf['TX_facturaf_numero']; ?></td>
 					<td><?php echo $rs_facturaf['TX_cliente_nombre']; ?></td>
 					<td><?php echo $fecha=date('d-m-Y',strtotime($rs_facturaf['TX_facturaf_fecha']));	?></td>
@@ -129,22 +124,25 @@ $prep_payment=$link->prepare("SELECT bh_datopago.TX_datopago_monto, bh_datopago.
 						<table id="tbl_payment" class="table table-condensed table_no_margin table-bordered" style="margin:0;">
 							<tr>
 								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[1])){ echo "<strong>Efectivo:</strong> ".number_format($raw_payment[1],2); $total_efectivo += $raw_payment[1];}	?>
+<?php								if(isset($raw_payment[1])){ echo "<strong>Efectivo:</strong> <br />".number_format($raw_payment[1],2); $total_efectivo += $raw_payment[1];}	?>
 								</td>
 								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[2])){ echo "<strong>Cheque:</strong> ".number_format($raw_payment[2],2); $total_cheque += $raw_payment[2];}	?>
+<?php								if(isset($raw_payment[2])){ echo "<strong>Cheque:</strong> <br />".number_format($raw_payment[2],2); $total_cheque += $raw_payment[2];}	?>
+								</td>
+								<td class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+<?php								if(isset($raw_payment[3])){ echo "<strong>TDC:</strong> <br />".number_format($raw_payment[3],2); $total_tarjeta_dc += $raw_payment[3];}	?>
+								</td>
+								<td class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+<?php								if(isset($raw_payment[4])){ echo "<strong>TDD:</strong> <br />".number_format($raw_payment[4],2); $total_tarjeta_dd += $raw_payment[4];}	?>
 								</td>
 								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[3])){ echo "<strong>TDC:</strong> ".number_format($raw_payment[3],2); $total_tarjeta_dc += $raw_payment[3];}	?>
+<?php								if(isset($raw_payment[5])){ echo "<strong>Cr&eacute;dito:</strong> <br />".number_format($raw_payment[5],2); $total_credito += $raw_payment[5];}	?>
 								</td>
 								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[4])){ echo "<strong>TDD:</strong> ".number_format($raw_payment[4],2); $total_tarjeta_dd += $raw_payment[4];}	?>
+<?php								if(isset($raw_payment[7])){ echo "<strong>Nota de C.:</strong> <br />".number_format($raw_payment[7],2); $total_notadc += $raw_payment[7];}	?>
 								</td>
 								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[5])){ echo "<strong>Cr&eacute;dito:</strong> ".number_format($raw_payment[5],2); $total_credito += $raw_payment[5];}	?>
-								</td>
-								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-<?php								if(isset($raw_payment[7])){ echo "<strong>Nota de C.:</strong> ".number_format($raw_payment[7],2); $total_notadc += $raw_payment[7];}	?>
+<?php								if(isset($raw_payment[8])){ echo "<strong>P.Cobrar:</strong> <br />".number_format($raw_payment[8],2); $total_porcobrar += $raw_payment[8];}	?>
 								</td>
 							</tr>
 						</table>

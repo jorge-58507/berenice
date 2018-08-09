@@ -25,12 +25,12 @@ function read_nuevaventa_rel(){
 }
 function write_nuevaventa_content($contenido){
 	$link=conexion(); $r_function = new recurrent_function();
-	$contenido = $r_function->replace_regular_character($contenido);
+	// $contenido = $r_function->replace_regular_character($contenido);
 	$qry_nuevaventa = $link->query("UPDATE rel_nuevaventa SET TX_rel_nuevaventa_compuesto = '$contenido' WHERE AI_rel_nuevaventa_id = 1")or die($link->error);
 }
 function write_nuevaventa_rel($contenido){
 	$link=conexion(); $r_function = new recurrent_function();
-	$contenido = $r_function->replace_regular_character($contenido);
+	// $contenido = $r_function->replace_regular_character($contenido);
 	$qry_nuevaventa = $link->query("UPDATE rel_nuevaventa SET TX_rel_nuevaventa_compuesto = '$contenido' WHERE AI_rel_nuevaventa_id = 2")or die($link->error);
 }
 
@@ -69,6 +69,10 @@ $nr_chkexento = $qry_chkexento->num_rows;
 
 $contenido = read_nuevaventa_content();
 $raw_decode=json_decode($contenido, true);
+if(!is_array($raw_decode)){ 
+	echo "failed";
+	return false;
+}
 $raw_contenido = $raw_decode[$_COOKIE['coo_iuser']][$activo];
 
 $total=0; $i=0; $raw_nuevaventa=array();

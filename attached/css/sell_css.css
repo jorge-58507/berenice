@@ -192,3 +192,27 @@
 #first_sale>div, #second_sale>div, #container_product_list>div{
 	margin-top: 7px;
 }
+
+/* ######################   CAROUSEL MENU   ################### */
+.carousel{
+	display: none;
+}
+.carousel.active{
+	display: block;
+}
+#carousel_arrow{
+	position: absolute;
+	z-index: 4;
+	height: 40px;
+	padding: 5px;
+}
+/* ##########################   FIN CAROUSEL MENU ################## */
+
+#container_tbl_lastsale{
+	max-height: 580px;
+	overflow-y: scroll;
+}
+#container_goal{
+	height: 50px;
+	cursor: default;
+}

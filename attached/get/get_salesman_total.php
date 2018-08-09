@@ -124,9 +124,9 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 		 	</tr>
 			<tr>
 <?php 	$suma_comision = $total_total-$total_credito-$total_notadc;
-				$resta_comision = $sumatoria_nc-$sumatoria_nc_credito; ?>
+				//$resta_comision = $sumatoria_nc-$sumatoria_nc_credito; ?>
 				<td colspan="7"></td>
-				<td colspan="3"><div id="total_comision"><?php echo number_format($suma_comision,2).' - '.number_format($resta_comision,2).' = <strong>B/ '.(number_format($suma_comision-$resta_comision,2)).'</strong>'; ?></div></td>
+				<td colspan="3"><div id="total_comision"><?php echo number_format($suma_comision,2).' - '.number_format($sumatoria_nc,2).' = <strong>B/ '.(number_format($suma_comision-$sumatoria_nc,2)).'</strong>'; ?></div></td>
 			</tr>
 		</tbody>
 	</table>

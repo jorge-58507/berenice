@@ -64,6 +64,15 @@ $txt_pago="SELECT bh_pago.AI_pago_id, bh_pago.TX_pago_fecha, bh_pago.TX_pago_mon
 $qry_pago=$link->query($txt_pago);
 $rs_pago=$qry_pago->fetch_array();
 $ite=0;
+
+$raw_porcobrar = array();
+$qry_porcobrar = $link->query("SELECT AI_cliente_id FROM bh_cliente WHERE TX_cliente_porcobrar = 1")or die($link->error);
+while($rs_porcobrar=$qry_porcobrar->fetch_array(MYSQLI_ASSOC)){
+	$raw_porcobrar[$rs_porcobrar['AI_cliente_id']] = $rs_porcobrar;
+}
+$json_porcobrar = json_encode($raw_porcobrar);
+
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -270,6 +279,14 @@ $("#5").on("click", function(){
 })
 $("#8").on("click", function(){
 	var client_id=$("#txt_filterclient").attr("alt");
+	var json_porcobrar = <?php echo $json_porcobrar; ?>;
+	var raw_porcobrar = json_porcobrar;
+	if(raw_porcobrar[client_id] === undefined) {
+		alert("Cliente inhabilitado");
+		return false;
+	}
+
+
 	$.ajax({	data: "",type: "GET",dataType: "json",url: "attached/get/get_session_admin.php",	})
 	 .done(function( data, textStatus, jqXHR ) {
 			console.log( "GOOD " + textStatus);
@@ -351,7 +368,7 @@ switch ($_COOKIE['coo_tuser']){
 ?>
 		</div>
 	</div>
-</div>
+</div> 
 
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form id="form_new_collect" action="print_f_fiscal.php" method="post">

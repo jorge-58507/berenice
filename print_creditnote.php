@@ -144,7 +144,7 @@ $hora=date('H:i',$prehora);
 /* ##### ENCABEZADO  ##### */
 $file = fopen($recipiente."NCTI".$str.".txt", "w");
 
-fwrite($file, $row_notadecredito['TX_notadecredito_tipo'].chr(9)."NCTI".substr($row_notadecredito['TX_notadecredito_numero'],-7).chr(9).$row_notadecredito['TX_cliente_nombre'].chr(9).$row_notadecredito['TX_cliente_cif'].chr(9).$row_notadecredito['TX_cliente_direccion'].chr(9).$row_notadecredito['TX_notadecredito_monto'].chr(9).$row_notadecredito['alicuota'].chr(9).$row_notadecredito['TX_notadecredito_motivo'].chr(9).$fecha.chr(9).$hora.chr(9).$row_impresora['TX_impresora_serial'].chr(9).substr($row_notadecredito['TX_facturaf_numero'],-7).chr(9).substr($row_notadecredito['TX_facturaf_ticket'],-7).chr(9) );
+fwrite($file, $row_notadecredito['TX_notadecredito_tipo'].chr(9)."NCTI".substr($row_notadecredito['TX_notadecredito_numero'],-7).chr(9).$r_function->replace_special_character($row_notadecredito['TX_cliente_nombre']).chr(9).$row_notadecredito['TX_cliente_cif'].chr(9).$row_notadecredito['TX_cliente_direccion'].chr(9).$row_notadecredito['TX_notadecredito_monto'].chr(9).$row_notadecredito['alicuota'].chr(9).$row_notadecredito['TX_notadecredito_motivo'].chr(9).$fecha.chr(9).$hora.chr(9).$row_impresora['TX_impresora_serial'].chr(9).substr($row_notadecredito['TX_facturaf_ticket'],-7).chr(9).substr($row_notadecredito['TX_facturaf_numero'],-7));
 
 fclose($file);
 /* ##### ENCABEZADO  ##### */

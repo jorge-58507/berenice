@@ -287,3 +287,36 @@ h1{
 	float: none;
 	margin: 0 auto;
 }
+.px_0{
+	padding-left: 0;
+	padding-right: 0;
+}
+.py_0{
+	padding-top: 0;
+	padding-bottom: 0;
+}
+.px_7{
+	padding-left: 7px;
+	padding-right: 7px;
+}
+.py_7{
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+.px_14{
+	padding-left: 14px;
+	padding-right: 14px;
+}
+.py_14{
+	padding-top: 14px;
+	padding-bottom: 14px;
+}
+.border_1{
+	border: solid #ded7d7 1px;
+}
+.bt_1{
+	border-top: solid #ded7d7 1px;
+}
+.bb_1{
+	border-bottom: solid #ded7d7 1px;
+}

@@ -33,6 +33,18 @@ function make_nc(facturaf_id){
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
+function open_newdebit(client_id){
+	$.ajax({	data: "",	type: "GET",	dataType: "JSON",	url: "attached/get/get_session_admin.php", })
+	 .done(function( data, textStatus, jqXHR ) {
+		 if(data[0][0] != ""){
+			 document.location.href = 'popup_newdebit.php?a='+client_id;
+		 }else{
+			 open_popup('popup_loginadmin.php?z=start_admin.php','_popup','425','420');
+		 }
+		})
+	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+}
+
 function new_return(datoventa_id, cantidad_retirada){
 	open_popup(`popup_product2newdevolution.php?a=${datoventa_id}&b=${cantidad_retirada}`,"_popup",'420','420');
 	// var cantidad = prompt("Ingrese la cantidad.");

@@ -1,20 +1,22 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 
 require 'attached/php/req_login_paydesk.php';
 
 $debito_id=$_GET['a'];
 
-$qry_opcion=mysql_query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion");
+$qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
-while($rs_opcion=mysql_fetch_array($qry_opcion)){
+while($rs_opcion=$qry_opcion->fetch_array(MYSQLI_ASSOC)){
 	$raw_opcion[$rs_opcion['TX_opcion_titulo']]=$rs_opcion['TX_opcion_value'];
 }
-$qry_user=mysql_query("SELECT TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'");
-$rs_user=mysql_fetch_array($qry_user);
+$qry_user=$link->query("SELECT TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'")or die($link->error);
+$rs_user=$qry_user->fetch_array();
 
-$txt_facturaf="SELECT bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_ticket,
+$qry_reldatodebito = $link->prepare("SELECT TX_rel_facturafnotadebito_importe FROM rel_facturaf_notadebito WHERE rel_AI_facturaf_id = ? AND rel_AI_notadebito_id <= '$debito_id'")or die($link->error);
+
+$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_ticket,
 bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono
 FROM (((bh_facturaf
 INNER JOIN rel_facturaf_notadebito ON bh_facturaf.AI_facturaf_id = rel_facturaf_notadebito.rel_AI_facturaf_id)
@@ -22,24 +24,25 @@ INNER JOIN bh_notadebito ON rel_facturaf_notadebito.rel_AI_notadebito_id = bh_no
 INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id)
 WHERE bh_notadebito.AI_notadebito_id = '$debito_id'";
 
-$qry_facturaf = mysql_query($txt_facturaf);
-$rs_facturaf = mysql_fetch_array($qry_facturaf);
+$qry_facturaf = $link->query($txt_facturaf);
+$rs_facturaf = $qry_facturaf->fetch_array(MYSQLI_ASSOC);
 
-$qry_facturaf_d = mysql_query($txt_facturaf);
-$rs_facturaf_d = mysql_fetch_array($qry_facturaf_d);
+$qry_facturaf_d = $link->query($txt_facturaf);
+$rs_facturaf_d = $qry_facturaf_d->fetch_array(MYSQLI_ASSOC);
 
-$txt_datodebito="SELECT bh_notadebito.TX_notadebito_cambio, bh_datodebito.TX_datodebito_monto, bh_datodebito.datodebito_AI_metododepago_id, bh_metododepago.TX_metododepago_value
+
+$txt_datodebito="SELECT bh_notadebito.TX_notadebito_numero, bh_notadebito.TX_notadebito_cambio, bh_datodebito.TX_datodebito_monto, bh_datodebito.datodebito_AI_metododepago_id, bh_metododepago.TX_metododepago_value
 FROM ((bh_notadebito
 INNER JOIN bh_datodebito ON bh_notadebito.AI_notadebito_id = bh_datodebito.datodebito_AI_notadebito_id)
 INNER JOIN bh_metododepago ON bh_datodebito.datodebito_AI_metododepago_id = bh_metododepago.AI_metododepago_id)
 WHERE bh_datodebito.datodebito_AI_notadebito_id = '$debito_id'";
-$qry_datodebito=mysql_query($txt_datodebito);
+$qry_datodebito=$link->query($txt_datodebito);
 $total_efectivo=0;
 $total_cheque=0;
 $total_tarjeta_credito=0;
 $total_tarjeta_debito=0;
 $total_nota_credito=0;
-while($rs_datodebito=mysql_fetch_assoc($qry_datodebito)){
+while($rs_datodebito=$qry_datodebito->fetch_array(MYSQLI_ASSOC)){
 	if($rs_datodebito['datodebito_AI_metododepago_id'] == '1'){
 		$total_efectivo+=$rs_datodebito['TX_datodebito_monto'];
 	}
@@ -56,6 +59,7 @@ while($rs_datodebito=mysql_fetch_assoc($qry_datodebito)){
 		$total_nota_credito+=$rs_datodebito['TX_datodebito_monto'];
 	}
 	$cambio=$rs_datodebito['TX_notadebito_cambio'];
+	$notadebito_numero=$rs_datodebito['TX_notadebito_numero'];
 }
 if(empty($cambio)){ $cambio=0; }
 $total_total=$total_efectivo+$total_tarjeta_debito+$total_tarjeta_credito+$total_nota_credito+$total_cheque+$cambio;
@@ -121,7 +125,7 @@ margin-top: 105px;margin-left: -130px;">
 </tr>
 <tr style="height:45px" align="center">
 	<td valign="top" colspan="10">
-    <h3>RECIBO DE PAGO</h3>
+    <h3>RECIBO DE PAGO- <?php echo $notadebito_numero ?></h3>
     </td>
 </tr>
 <tr style="height:58px">
@@ -154,14 +158,20 @@ margin-top: 105px;margin-left: -130px;">
     	</tr>
         </thead>
         <tbody>
-        <?php do{  ?>
+        <?php do{  
+			$qry_reldatodebito->bind_param('i', $rs_facturaf['AI_facturaf_id']); $qry_reldatodebito->execute(); $result = $qry_reldatodebito->get_result();
+			$ttl_debito = 0;
+			while($rs_reldatodebito = $result->fetch_array(MYSQLI_ASSOC)){
+				$ttl_debito += $rs_reldatodebito['TX_rel_facturafnotadebito_importe'];
+			}
+			?>
         <tr>
         	<td><?php echo $rs_facturaf['TX_facturaf_numero']; ?></td>
         	<td><?php $prefecha=strtotime($rs_facturaf['TX_facturaf_fecha']); echo date('d-m-Y',$prefecha); ?></td>
         	<td><?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_total'],2); ?></td>
-        	<td><?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></td>
+        	<td><?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_total']-$ttl_debito,2); ?></td>
         </tr>
-        <?php }while($rs_facturaf=mysql_fetch_assoc($qry_facturaf)); ?>
+        <?php }while($rs_facturaf=$qry_facturaf->fetch_array(MYSQLI_ASSOC)); ?>
         </tbody>
 	</table>
 	<p>
@@ -206,10 +216,10 @@ margin-top: 105px;margin-left: -130px;">
     <td colspan="3">
 </tr>
 </table>
-<!-- ###############################        FIN LADO IZQUIERDO   ######################### --->
+<!-- ###############################        FIN LADO IZQUIERDO   ######################### -->
 </td>
 <td style="width:50%;">
-<!-- ###############################        LADO DERECHO   ######################### --->
+<!-- ###############################        LADO DERECHO   ######################### -->
 <table id="tbl_print" align="center" cellpadding="0" cellspacing="0" border="0" style="height:760px; width:470px; font-size:14px; padding:0 0 0 30px; ">
 <tr style="height:1px">
     <td width="10%"></td>
@@ -247,7 +257,7 @@ margin-top: 105px;margin-left: -130px;">
 </tr>
 <tr style="height:45px" align="center">
 	<td valign="top" colspan="10">
-    <h3>RECIBO DE PAGO</h3>
+    <h3>RECIBO DE PAGO - <?php echo $notadebito_numero ?></h3>
     </td>
 </tr>
 <tr style="height:58px">
@@ -288,14 +298,20 @@ margin-top: 105px;margin-left: -130px;">
     	</tr>
         </thead>
         <tbody>
-        <?php do{  ?>
+        <?php do{  
+			$qry_reldatodebito->bind_param('i', $rs_facturaf_d['AI_facturaf_id']); $qry_reldatodebito->execute(); $result = $qry_reldatodebito->get_result();
+			$ttl_debito = 0;
+			while($rs_reldatodebito = $result->fetch_array(MYSQLI_ASSOC)){
+				$ttl_debito += $rs_reldatodebito['TX_rel_facturafnotadebito_importe'];
+			}
+			?>
         <tr>
         	<td><?php echo $rs_facturaf_d['TX_facturaf_numero']; ?></td>
         	<td><?php $prefecha=strtotime($rs_facturaf_d['TX_facturaf_fecha']); echo date('d-m-Y',$prefecha); ?></td>
         	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_total'],2); ?></td>
-        	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_deficit'],2); ?></td>
+        	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_total']-$ttl_debito,2); ?></td>
         </tr>
-        <?php }while($rs_facturaf_d = mysql_fetch_array($qry_facturaf_d)); ?>
+        <?php }while($rs_facturaf_d = $qry_facturaf_d->fetch_array(MYSQLI_ASSOC)); ?>
         </tbody>
 	</table>
 	<p>

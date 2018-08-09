@@ -1,7 +1,8 @@
 <?php
 require '../../bh_conexion.php';
 $link = conexion();
-$value=$_GET['a'];
+$value=$r_function->url_replace_special_character($_GET['a']);
+$value=$r_function->replace_regular_character($value);
 if(!empty($_GET['b'])){
 	$line_limit=" LIMIT ".$_GET['b'];
 }else{

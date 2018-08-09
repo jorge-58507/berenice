@@ -1,13 +1,13 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 date_default_timezone_set('America/Panama');
 
- $fecha_actual = date('Y-m-d');
- $fecha_ciclo=date('Y',strtotime($fecha_actual));
- $fecha_subciclo = date ('Y-m',strtotime($fecha_actual));
-$qry_chkrotate=mysql_query("SELECT AI_rotacion_id FROM bh_rotacion WHERE TX_rotacion_ciclo = '$fecha_ciclo' AND TX_rotacion_json LIKE '%$fecha_subciclo%'")or die(mysql_error());
-$nr_chkrotate=mysql_num_rows($qry_chkrotate);
+$fecha_actual = date('Y-m-d');
+$fecha_ciclo=date('Y',strtotime($fecha_actual));
+$fecha_subciclo = date ('Y-m',strtotime($fecha_actual));
+$qry_chkrotate=$link->query("SELECT AI_rotacion_id FROM bh_rotacion WHERE TX_rotacion_ciclo = '$fecha_ciclo' AND TX_rotacion_json LIKE '%$fecha_subciclo%'")or die($link->error);
+$nr_chkrotate=$qry_chkrotate->num_rows;
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -40,7 +40,7 @@ $(document).ready(function() {
 	$.ajax({	data: {"a": '<?php echo $fecha_actual; ?>'},	type: "GET",	dataType: "text",	url: "attached/get/plus_rotation.php", })
 	.done(function( data, textStatus, jqXHR ) {
 		console.log("Succesfully");
-		if(data){	self.close();	}
+		if(data==='All Right'){	self.close();	}
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD " + textStatus );	});
 	}

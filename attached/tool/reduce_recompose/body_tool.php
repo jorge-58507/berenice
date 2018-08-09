@@ -105,6 +105,27 @@ while ($rs_user = $qry_user->fetch_array(MYSQLI_ASSOC)) {
     })
     .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
   }
+  function filter_rr(){
+    var str = $("#txt_filter").val();
+    $.ajax({data: {"a" : url_replace_regular_character(str.toUpperCase()), "z" : 'filter' }, type: "GET", dataType: "text", url: "attached/tool/<?php echo $name_tool; ?>/method_tool.php",})
+    .done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
+      if (data) {
+        raw_data = JSON.parse(data);
+        tbody = '';
+        for (var x in raw_data) {
+          console.log(x);
+          tbody += `<tr>
+            <td>${convertir_formato_fecha(raw_data[x]['fecha'])}</td>
+            <td>${replace_special_character(raw_data[x]['minus'][0]['descripcion'])}</td>
+            <td>Ver Impresion</td>
+            <td><button type="button" class="btn btn-info btn-xs" onclick="print_html('attached/tool/reduce_recompose/print_reduce_recompose.php?a=${x}')"><i class="fa fa-print"></i></button></td>
+          </tr>`;
+        }
+        $("#tbl_rr tbody").html(tbody);
+      }
+    })
+    .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+  }
 </script>
 <!--      #######################     CSS         -->
 <style type="text/css">
@@ -205,7 +226,16 @@ while ($rs_user = $qry_user->fetch_array(MYSQLI_ASSOC)) {
 </div>
 <div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 al_center">
   <button type="button" id="btn_save" class="btn btn-success btn-lg" name="button" onclick="save_reduce_recompose()">Ejecutar</button>
-  <table id="tbl_product_plus" class="table table-bordered table-hover ">
+</div>
+<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+  <label for="txt_filter" class="label label_blue_sky">Buscar</label>
+  <input type="text" id="txt_filter" class="form-control" name="" value="" placeholder="Descripcion de Producto"  />
+</div>
+<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 side-btn-md">
+  <button type="button" class="btn btn-success btn-md" name="button" onclick="filter_rr()"><i class="fa fa-search"></i></button>
+</div>
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 al_center">
+  <table id="tbl_rr" class="table table-bordered table-hover ">
     <caption>Reducciones Realizadas</caption>
     <thead class="bg-success">
       <tr>
@@ -220,12 +250,12 @@ while ($rs_user = $qry_user->fetch_array(MYSQLI_ASSOC)) {
           $raw_columna=["TX_producto_value"]; $raw_where = ["AI_producto_id" => $line_saved['minus'][0]['producto_id']];
           $rs_producto = $public_bd->consultar_bh_producto($raw_columna,$raw_where);
   ?>
-        <tr>
-          <td class="no_padding"><?php echo date('d-m-Y',strtotime($line_saved['fecha'])); ?></td>
-          <td class="no_padding"><?php echo $r_function->replace_special_character($rs_producto['TX_producto_value']); ?></td>
-          <td class="no_padding"><?php echo $raw_user[$line_saved['user_id']]; ?></td>
-          <td class="al_center"><button type="button" class="btn btn-info btn-xs" onclick="print_html('attached/tool/reduce_recompose/print_reduce_recompose.php?a=<?php echo $key; ?>')"><i class="fa fa-print"></i></button></td>
-        </tr>
+          <tr>
+            <td class="no_padding"><?php echo date('d-m-Y',strtotime($line_saved['fecha'])); ?></td>
+            <td class="no_padding"><?php echo $r_function->replace_special_character($rs_producto['TX_producto_value']); ?></td>
+            <td class="no_padding"><?php echo $raw_user[$line_saved['user_id']]; ?></td>
+            <td class="al_center"><button type="button" class="btn btn-info btn-xs" onclick="print_html('attached/tool/reduce_recompose/print_reduce_recompose.php?a=<?php echo $key; ?>')"><i class="fa fa-print"></i></button></td>
+          </tr>
 <?php   } ?>
     </tbody>
     <tfoot class="bg-success"><tr><td colspan="4"></tr></tfoot>

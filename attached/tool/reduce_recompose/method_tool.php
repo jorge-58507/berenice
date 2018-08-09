@@ -59,17 +59,25 @@ function save_reduce_recompose(){
   $name_tool = $crud_function->get_name_tool();
   $json_contenido = $crud_function->read_json_tool($name_tool);
   $raw_contenido =  json_decode($json_contenido, true);
+
   $raw_minus=array();
   foreach ($raw_contenido['minus'] as $key => $value) {
+    $raw_columna=["TX_producto_value"]; $raw_where = ["AI_producto_id" => $value['producto_id']];
+    $rs_producto = $public_bd->consultar_bh_producto($raw_columna,$raw_where);
     $raw_minus[$key]['producto_id']=$value['producto_id'];
     $raw_minus[$key]['cantidad']=$value['cantidad'];
+    $raw_minus[$key]['descripcion']=$rs_producto['TX_producto_value'];
     // $raw_minus[$value['producto_id']]=$value['cantidad'];
     $public_bd->upd_TX_producto_cantidad($value['producto_id'],($value['cantidad']*-1));
   }
   $raw_plus=array();
   foreach ($raw_contenido['plus'] as $key => $value) {
+    $raw_columna=["TX_producto_value"]; $raw_where = ["AI_producto_id" => $value['producto_id']];
+    $rs_producto = $public_bd->consultar_bh_producto($raw_columna,$raw_where);
     $raw_plus[$key]['producto_id']=$value['producto_id'];
     $raw_plus[$key]['cantidad']=$value['cantidad'];
+    $raw_plus[$key]['descripcion']=str_replace("'"," ",$rs_producto['TX_producto_value']);
+
     $public_bd->upd_TX_producto_cantidad($value['producto_id'],($value['cantidad']*1));
 }
   $fecha_actual = date('Y-m-d');
@@ -80,6 +88,28 @@ function save_reduce_recompose(){
   $json_contenido = json_encode($raw_contenido);
   $crud_function->write_json_tool($name_tool,$json_contenido);
   echo $json_contenido;
+}
+function filter_rr(){
+  $crud_function = new method_crud(); $public_bd = new public_access_bd(); $r_function = new recurrent_function();
+  $name_tool = $crud_function->get_name_tool();
+  $json_contenido = $crud_function->read_json_tool($name_tool);
+  $raw_contenido =  json_decode($json_contenido, true);
+  $str = $r_function->url_replace_special_character($_GET['a']);
+  $str = $r_function->replace_regular_character($str);
+  $raw_finded=array();
+  foreach ($raw_contenido['saved'] as $index => $saved) {
+    foreach ($saved['minus'] as $key => $minus) {
+      if (ereg($str,$minus['descripcion'])) {
+        $raw_finded[$index]=$saved;
+      }
+    }
+    foreach ($saved['plus'] as $key => $plus) {
+      if (ereg($str,$plus['descripcion'])) {
+        $raw_finded[$index]=$saved;
+      }
+    }
+  }
+  echo json_encode($raw_finded);
 }
 
 
@@ -99,6 +129,9 @@ switch ($method) {
     break;
   case 'save_reduce_recompose':
     save_reduce_recompose();
+    break;
+  case 'filter':
+    filter_rr();
     break;
 }
 

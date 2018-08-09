@@ -360,6 +360,7 @@ function save_sale(status){
 	tuser= $.cookie('coo_tuser');
 	$.ajax({	data: {"a" : date, "b" : client_id, "c" : client, "d" : vendor_id, "g" : observation, "h" : status, "i" : activo+'_sale' },	type: "GET",	dataType: "text",	url: "attached/get/save_sale.php", })
 	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+			if(data === 'failed'){ alert("Consulte al administrador del sistema"); return false;}
 	 		refresh_tblproduct2sale();
 			$("#txt_filterclient_"+activo).prop("alt",'1');
 			$("#txt_filterclient_"+activo).val('');
@@ -382,6 +383,8 @@ function save_old_sale(){
 	total = total.replace(",","");
 	$.ajax({	data: {"a" : date, "b" : client_id, "c" : facturaventa_id, "d" : observation },	type: "GET",	dataType: "text",	url: "attached/get/save_old_sale.php", })
 	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+		if(data === 'failed'){ alert("Consulte al administrador del sistema"); return false;}
+
 		if (data === 'denied') {
 			alert("Esta cotizacion se encuentra cobrada.");
 		}
@@ -701,7 +704,8 @@ function plus_debit(str_factid){
 		$.ajax({	data: {"a" : motivo, "b" : str_factid },	type: "GET",	dataType: "text",	url: "attached/get/plus_debit.php", })
 		 .done(function( data, textStatus, jqXHR ) {
 			 if(data){
-				 window.open("print_debito.php?a="+str_factid);
+
+				 window.open("print_debito.php?a="+data);
 				 setTimeout("window.location='start.php'",250);
 			 }
 		 })
@@ -778,14 +782,15 @@ function filter_adminfacturaf(str){
 var	value = $("#txt_filterfacturaf").val();
 	date_i = $("#txt_date_initial").val();
 	date_f = $("#txt_date_final").val();
-	limit = ($("input[name=r_limit]:checked").val());
+	limit = $("input[name=r_limit]:checked").val();
+	payment_method = $("#sel_paymentmethod").val();
 	if (window.XMLHttpRequest){
 		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
 		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
 		document.getElementById("container_tblfacturaf").innerHTML=xmlhttp.responseText;
 		}
 	}
-	xmlhttp.open("GET","attached/get/filter_adminfacturaf.php?a="+value+"&b="+date_i+"&c="+str+"&d="+limit+"&e="+date_f,true);	xmlhttp.send();
+	xmlhttp.open("GET","attached/get/filter_adminfacturaf.php?a="+value+"&b="+date_i+"&c="+str+"&d="+limit+"&e="+date_f+"&f="+payment_method,true);	xmlhttp.send();
 }
 
 function upd_statusbill(facturaventa_id){

@@ -36,6 +36,7 @@ function plus_product2nuevaventa(product_id,precio,descuento,itbm,activo,cantida
 	$.ajax({	data: {"a" : product_id, "b" : precio, "c" : descuento, "d" : itbm, "e" : activo, "f" : cantidad, "g" : medida, "h" : promotion, "z" : 'plus' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",	})
 	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
 		if(data){
+			if(data === 'failed'){ alert("Consulte al administrador del sistema"); return false;}
 			data = JSON.parse(data);
 			generate_tbl_nuevaventa(data,activo);
 			activo=activo.replace("_sale","");

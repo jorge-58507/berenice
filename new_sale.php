@@ -75,6 +75,16 @@ while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
 		$raw_promocion[$i]['promo_tipo'] = $rs_promocion['TX_promocion_tipo'];
 		$i++;
 	}
+	$qry_selecto = $link->query("SELECT AI_selecto_id, selecto_AI_producto_id, TX_selecto_value, selecto_AI_medida_id, TX_selecto_cantidad, TX_selecto_status FROM bh_selecto WHERE TX_selecto_status != 0 ORDER BY TX_selecto_value ASC")or die($link->error);
+	$raw_selecto=array();
+	$raw_selecto_group = array();
+	while ($rs_selecto=$qry_selecto->fetch_array(MYSQLI_ASSOC)) {
+		$raw_selecto[$rs_selecto['AI_selecto_id']] = $rs_selecto;
+		if (!in_array($rs_selecto['TX_selecto_value'], $raw_selecto_group)) {
+			$raw_selecto_group[$rs_selecto['selecto_AI_producto_id']]=$rs_selecto['TX_selecto_value'];
+		}
+	}
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -124,6 +134,42 @@ $(document).ready(function() {
 			.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 		}
 	});
+	// ############## CARRUSEL ################
+	var raw_finded = $("#carousel_container").find("div.carousel");
+	var raw_carousel = [];
+	var position = 0;
+	for (var x in raw_finded) {
+		if (raw_finded[x]['id'] != undefined) {
+			raw_carousel.push(raw_finded[x]['id']);
+		}
+	}
+	$("#go_left").on("click", function(){
+		position = (position-- <= 0) ? raw_carousel.length-1 : position--;
+		str_carousel = '';
+		for (var y in raw_carousel) {
+			if (y != position && $('#'+raw_carousel[y]).is(":visible")) {
+				$('#'+raw_carousel[y]).hide(500);
+			}
+		}
+		$("#"+raw_carousel[position]).show(1000);
+
+	})
+	$("#go_right").on("click", function(){
+		position = (position++ >= raw_carousel.length-1) ? 0 : position++;
+		str_carousel = '';
+		for (var y in raw_carousel) {
+			if (y != position && $('#'+raw_carousel[y]).is(":visible")) {
+				$('#'+raw_carousel[y]).hide(500);
+			}
+		}
+		$("#"+raw_carousel[position]).show(1000);
+	})
+
+
+
+	// ######################    FIN CARRUSEL ####################
+
+	generate_tbl_selecto('');
 
 	$("#btn_promotion").on("click", function(){
 		$("#container_tbl_product_favorite").toggleClass('in');
@@ -179,6 +225,34 @@ $(document).ready(function() {
 	removeAttr();
 });
 
+function generate_tbl_selecto(filter){
+	var json_selecto = '<?php echo json_encode($raw_selecto); ?>';
+	var array_selecto = JSON.parse(json_selecto);
+	content = '';
+	if (filter != '') {
+		for (var x in array_selecto) {
+			if(array_selecto[x]['selecto_AI_producto_id'] === filter){
+				html_btn = (array_selecto[x]['TX_selecto_status'] == 1) ? `<button type="button" class="btn btn-danger btn-xs" onclick="set_selecto_status(${x},2)"><i class="fa fa-times"></i></button>` : `<button type="button" class="btn btn-info btn-xs" onclick="set_selecto_status(${x},1)"><i class="fa fa-check"></i></button>`;
+				content += `<tr>
+											<td>${array_selecto[x]['TX_selecto_value']}</td>
+											<td>${array_selecto[x]['TX_selecto_cantidad']}</td>
+											<td>${html_btn}</td>
+										</tr>`;
+			}
+		}
+	} else {
+		for (var x in array_selecto) {
+			html_btn = (array_selecto[x]['TX_selecto_status'] == 1) ? `<button type="button" class="btn btn-danger btn-xs side_btn_xs" onclick="set_selecto_status(${x},2)"><i class="fa fa-times"></i></button>` : `<button type="button" class="btn btn-info btn-xs" onclick="set_selecto_status(${x},1)"><i class="fa fa-check"></i></button>`;
+			content += `<tr>
+										<td>${array_selecto[x]['TX_selecto_value']}</td>
+										<td>${array_selecto[x]['TX_selecto_cantidad']}</td>
+										<td>${html_btn}</td>
+									</tr>`;
+		}
+	}
+	$("#tbl_product_selected tbody").html(content);
+}
+
 function generate_tbl_nuevaventa(data,activo){
 	var json_medida = '<?php echo json_encode($raw_medida); ?>';
 	var array_medida =	JSON.parse(json_medida);
@@ -217,6 +291,7 @@ function generate_tbl_nuevaventa(data,activo){
 	}
 }
 
+
 function generate_tbl_favorito(data,activo){
 	var array_data = JSON.parse(data);
 	var content = '';
@@ -248,6 +323,16 @@ function insert_multiple_product2sell(raw_producto,raw_medida,raw_cantidad,raw_p
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
  	}
+}
+
+function set_selecto_status (selecto_id,status){
+	$.ajax({	data: {"a" : selecto_id, "b" : status}, type: "GET", dataType: "text", url: "attached/get/upd_selecto_status.php",	})
+	.done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus);
+		if(data){
+			generate_tbl_selecto('');
+		}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 }
 
 
@@ -588,8 +673,9 @@ switch ($_COOKIE['coo_tuser']){
 <?php
 			if($nr_product=$qry_product->num_rows > 0){
 				foreach ($raw_producto as $key => $rs_product) {
-				$title = ($rs_product['TX_producto_inventariado'] === '1') ? 'INCLUIDO' : 'NO INCLUIDO'; ?>
-					<tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);" title="<?php echo $title; ?>" >
+				$title = ($rs_product['TX_producto_inventariado'] === '1') ? 'INCLUIDO' : 'NO INCLUIDO';
+				$color = ($rs_product['TX_producto_inventariado'] === '1') ? '#CFFEBB' : ''; ?>
+					<tr onclick="javascript:open_product2sell(<?php echo $rs_product['AI_producto_id']; ?>);" title="<?php echo $title; ?>" style="background-color:<?php echo $color; ?>" >
 	        	<td title="<?php echo $rs_product['AI_producto_id']; ?>"><?php echo $rs_product['TX_producto_codigo']; ?></td>
 	        	<td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
 	        	<td><?php echo $rs_product['TX_producto_cantidad']; ?></td>
@@ -609,49 +695,99 @@ switch ($_COOKIE['coo_tuser']){
 	    </table>
 		</div>
 		<div class="col-xs-12 col-sm-12 col-md-3 col-lg-3 no_padding">
-
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
-				<button type="button" id="btn_promotion" class="btn btn-success form-control" name="button" data-toggle="collapse" data-target="#container_tbl_product_promotion">Promociones</button>
-			</div>
-			<div id="container_tbl_product_promotion" class="col-xs-12 col-sm-12 col-md-12 col-lg-12  no_padding collapse in">
-				<table id='tbl_product_promotion' class="table table-condensed table-hover table-bordered">
-	 				<thead class="bg-success">
-	 					<tr>
-	 						<th>Promociones</th>
-	 					</tr>
-	 				</thead>
-	 				<tbody>
-	<?php 		if(count($raw_promocion) > 0){
-							foreach ($raw_promocion as $key => $value) {?>
-	 							<tr onclick='insert_multiple_product2sell(<?php echo $value['promo_producto'].",".$value['promo_medida'].",".$value['promo_cantidad'].",".$value['promo_precio'].",".$value['promo_impuesto'].",".$value['promo_descuento'].",".$value['promo_tipo']; ?>)'><td style="font-weight:bolder; cursor:pointer;"><?php echo $value['promo_titulo'];?></td></tr>
-								<tr><td>-<?php echo $value['promo_contenido'];?></td></tr>
-	<?php 			}
-						}else{ ?>
-							<tr><td></td></tr>
-	<?php			} ?>
-	 				</tbody>
-	 				<tfoot class="bg-success">
-	 					<tr><td colspan="2"></td></tr>
-	 				</tfoot>
-	 		 </table>
-			</div>
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
-				<button type="button" class="btn btn-warning form-control" id="btn_favorite" name="button" data-toggle="collapse" data-target="#container_tbl_product_favorite">Favoritos</button>
-			</div>
-			<div id="container_tbl_product_favorite" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding collapse">
-			 <table id='tbl_product_favorite' class="table table-condensed table-hover table-bordered">
-					<thead class="bg-warning">
-						<tr>
-							<th colspan="2">Favoritos</th>
-						</tr>
-					</thead>
-					<tbody>
-						<tr><td colspan="2" rowspan="10"> </td></tr>
-					</tbody>
-					<tfoot class="bg-warning">
-						<tr><td colspan="2"></td></tr>
-					</tfoot>
-			 </table>
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding" id="carousel_container">
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding" id="carousel_arrow">
+					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding">
+						<i class="fa fa-arrow-circle-left fa-2x" id="go_left"> </i>
+					</div>
+					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding" id="carousel_title">
+														<!-- titulo -->
+					</div>
+					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding al_right">
+						<i class="fa fa-arrow-circle-right fa-2x" id="go_right"> </i>
+					</div>
+				</div>
+				<div id="container_promotion" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding carousel active">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding bg_green" id="carousel_title">
+						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding">&nbsp;</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding al_center">
+							<strong><h4>PROMOCIONES</h4></strong>
+						</div>
+						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding al_right">&nbsp;</div>
+					</div>
+					<div id="container_tbl_product_promotion" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
+						<table id='tbl_product_promotion' class="table table-condensed table-hover table-bordered">
+			 				<tbody>
+			<?php 		if(count($raw_promocion) > 0){
+									foreach ($raw_promocion as $key => $value) {?>
+			 							<tr onclick='insert_multiple_product2sell(<?php echo $value['promo_producto'].",".$value['promo_medida'].",".$value['promo_cantidad'].",".$value['promo_precio'].",".$value['promo_impuesto'].",".$value['promo_descuento'].",".$value['promo_tipo']; ?>)'><td style="font-weight:bolder; cursor:pointer;"><?php echo $value['promo_titulo'];?></td></tr>
+										<tr><td>-<?php echo $value['promo_contenido'];?></td></tr>
+			<?php 			}
+								}else{ ?>
+									<tr><td></td></tr>
+			<?php			} ?>
+			 				</tbody>
+			 				<tfoot class="bg-success">
+			 					<tr><td colspan="2"></td></tr>
+			 				</tfoot>
+			 		 </table>
+					</div>
+				</div>
+				<div id="container_favorite" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding carousel">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding bg-info" id="carousel_title">
+						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding">&nbsp;</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding">
+							<h4>FAVORITOS</h4>
+						</div>
+						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding al_right">&nbsp;</div>
+					</div>
+					<div id="container_tbl_product_favorite" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
+							<label class="label label-info" for="txt_filterproduct">Buscar:</label>
+					    <input type="text" class="form-control" id="txt_filterproduct" name="txt_filterproduct" autocomplete="off" onkeyup="filter_product_sell(this);" autofocus />
+						</div>
+						<table id='tbl_product_favorite' class="table table-condensed table-hover table-bordered">
+							<tbody>
+								<tr><td colspan="2" rowspan="10"> </td></tr>
+							</tbody>
+							<tfoot class="bg-info">
+								<tr><td colspan="2"></td></tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+				<div id="container_selected" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding carousel">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding bg-warning" id="carousel_title">
+						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding">&nbsp;</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding">
+							<h4>SELECCIONADOS</h4>
+						</div>
+						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding al_right">&nbsp;</div>
+					</div>
+					<div id="container_tbl_product_selected" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
+						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
+							<label class="label label-warning" for="txt_filterproduct">Filtrar:</label>
+							<select class="form-control" name="" onchange="generate_tbl_selecto(this.value)">
+								<option value=''>Seleccione</option>
+<?php 					foreach ($raw_selecto_group as $key => $selecto_group) {
+									echo "<option value='$key'>{$r_function->replace_special_character($selecto_group)}</option>";
+								}
+?>
+							</select>
+						</div>
+						<table id='tbl_product_selected' class="table table-condensed table-hover table-bordered">
+							<thead class="bg-warning">
+								<tr><th colspan="3"></th></tr>
+							</thead>
+							<tbody>
+								<tr><td colspan="2" rowspan="10"> </td></tr>
+							</tbody>
+							<tfoot class="bg-warning">
+								<tr><td colspan="3"></td></tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

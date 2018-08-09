@@ -71,7 +71,8 @@ $(document).ready(function() {
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log( "BAD " +  textStatus); })
 	})
-
+	const product_name = "<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>";
+	$("#txt_nombre").val(product_name.replace("'","\'"));
 
 	$("#txt_nombre").on("blur", function(){
 		$("#txt_nombre").val(this.value.toUpperCase());
@@ -97,6 +98,18 @@ $(document).ready(function() {
 		$.ajax({	data: {"a" : discount, "b" : <?php echo $_GET['a']; ?>},	type: "GET",	dataType: "text",	url: "attached/get/upd_product_discount.php",	})
 		.done(function( data, textStatus, jqXHR ) {	console.log("GOOD " + data);
 			$("#btn_discount").text(data)
+		})
+		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log( "BAD " +  textStatus); })
+	})
+	$("#btn_inventory").on("click", function(){
+		var quantity = prompt("Indique el resultado del conteo");
+		ans = val_intwdec(quantity);
+		if (!ans) {	return false;	}
+		$.ajax({	data: {"a" : quantity, "b" : <?php echo $_GET['a']; ?>},	type: "GET",	dataType: "text",	url: "attached/get/upd_product_inventory.php",	})
+		.done(function( data, textStatus, jqXHR ) {	console.log("GOOD " + data);
+			$("#txt_cantidad").val(data)
+			// $("#r_inventoried_0").attr("checked","checked");
+			$("#r_inventoried_0").attr('checked', 'checked');
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log( "BAD " +  textStatus); })
 	})
@@ -184,7 +197,7 @@ function get_medida_precio(medida_id){
 	    <div id="container_updproduct_description" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	      <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 		      <label class="label label_blue_sky"  for="txt_nombre">Nombre:</label>
-		      <input type="text" class="form-control input-sm" id="txt_nombre" name="txt_nombre" title="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" value="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" tabindex="1" autofocus>
+		      <input type="text" class="form-control input-sm" id="txt_nombre" name="txt_nombre" title="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" value="" tabindex="1" autofocus>
 	      </div>
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 		      <label class="label label_blue_sky"  for="txt_codigo">Codigo:</label>
@@ -204,8 +217,13 @@ function get_medida_precio(medida_id){
 					</select>
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-		      <label class="label label_blue_sky"  for="txt_cantidad">Cantidad:</label>
-		      <input type="text" class="form-control input-sm" id="txt_cantidad" name="txt_cantidad" value="<?php echo $rs_product['TX_producto_cantidad']; ?>" tabindex="4"/>
+					<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 px_0">
+						<label class="label label_blue_sky"  for="txt_cantidad">Cantidad:</label>
+						<input type="text" class="form-control input-sm" id="txt_cantidad" name="txt_cantidad" value="<?php echo $rs_product['TX_producto_cantidad']; ?>" tabindex="4" readonly/>
+					</div>
+					<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 pt_14 ">
+						<button type="button" id="btn_inventory" name="button" class="btn btn-info btn-sm"><i class="fa fa-edit"> </i> Inventariar</button>
+					</div>
 	    	</div>
 				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 					<div class=""  id="container_alarm">
@@ -277,8 +295,8 @@ function get_medida_precio(medida_id){
 					<div class=""  id="container_inventoried">
 						<label for="r_inventoried" style="margin:0" >Inventariado:</label>
 	<?php if($rs_product['TX_producto_inventariado'] === '1'){	$checked_0="checked='checked'";	$checked_1="";	}else{	$checked_0="";	$checked_1="checked='checked'";	} ?>
-						<label for="r_inventoried_0" class="radio"><input type="radio" name="r_inventoried" value="1" <?php echo $checked_0 ?> /> Si</label>
-						<label for="r_inventoried_1" class="radio"><input type="radio" name="r_inventoried" value="0" <?php echo $checked_1 ?> /> No</label>
+						<label for="r_inventoried_0" class="radio"><input type="radio" id="r_inventoried_0" name="r_inventoried" value="1" <?php echo $checked_0 ?> /> Si</label>
+						<label for="r_inventoried_1" class="radio"><input type="radio" id="r_inventoried_1" name="r_inventoried" value="0" <?php echo $checked_1 ?> /> No</label>
 					</div>
 				</div>
 

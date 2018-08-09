@@ -1,5 +1,5 @@
 <?php
-set_time_limit(120);
+set_time_limit(180);
 require 'bh_conexion.php';
 $link=conexion();
 
@@ -72,8 +72,9 @@ while ($rs_nc = $qry_nc->fetch_array()) {
 
 			</div>
 		</div><?php
+		$qry_datopago = $link->prepare("SELECT bh_datopago.TX_datopago_monto, bh_datopago.datopago_AI_metododepago_id FROM bh_datopago WHERE bh_datopago.datopago_AI_facturaf_id = ?")or die($link->error);
 		$qry_datoventa = $link->prepare("SELECT bh_datoventa.TX_datoventa_precio,
-			bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento
+			bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_facturaf.AI_facturaf_id
 		FROM ((bh_datoventa
 		INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
 		INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
@@ -82,6 +83,13 @@ while ($rs_nc = $qry_nc->fetch_array()) {
 		$total_impuesto=0;
 		$total_base_i=0;
 		$total_base_ni=0;
+		$raw_pago=array();
+		$raw_metododepago = array();
+		$qry_metododepago = $link->query("SELECT AI_metododepago_id, TX_metododepago_value FROM bh_metododepago")or die($link->error);
+		while ($rs_metododepago = $qry_metododepago->fetch_array()) {
+			$raw_pago[$rs_metododepago['AI_metododepago_id']] = 0;
+			$raw_metododepago[$rs_metododepago['AI_metododepago_id']] = $rs_metododepago['TX_metododepago_value'];
+		}
 
 		while($rs_facturaf=$qry_facturaf->fetch_array()){
 			$qry_datoventa->bind_param("i", $rs_facturaf['AI_facturaf_id']);
@@ -105,6 +113,10 @@ while ($rs_nc = $qry_nc->fetch_array()) {
 			$total_base_i+=$base_i4facturaf;
 			$total_base_ni+=$base_ni4facturaf;
 			$total+=$total4facturaf;
+			$qry_datopago->bind_param("i", $rs_facturaf['AI_facturaf_id']); $qry_datopago->execute(); $result = $qry_datopago->get_result();
+			while ($rs_datopago = $result->fetch_array()) {
+				$raw_pago[$rs_datopago['datopago_AI_metododepago_id']] += $rs_datopago['TX_datopago_monto'];
+			}
 		}
 
 	?>
@@ -137,6 +149,14 @@ while ($rs_nc = $qry_nc->fetch_array()) {
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
 					<strong>Devolucion de Impuestos</strong><br /><strong>B/</strong> <?php echo number_format($ttl_nc_impuesto,2); ?>
 				</div>
+			</div>
+			<div id="container_print_methods" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<?php foreach ($raw_metododepago as $key => $metododepago_value): ?>
+					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+						<strong><?php echo $metododepago_value; ?></strong><br />
+						B/ <?php echo $raw_pago[$key]; ?>
+					</div>
+				<?php endforeach; ?>
 			</div>
 		</div>
 		<!-- #####################         BODY          #################   -->

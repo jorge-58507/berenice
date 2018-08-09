@@ -21,7 +21,7 @@
   $qry_facturaf=$link->query($txt_facturaf);
   $rs_facturaf=$qry_facturaf->fetch_array();
 
-  $txt_notadebito="SELECT bh_notadebito.TX_notadebito_numero, bh_notadebito.TX_notadebito_total, bh_notadebito.TX_notadebito_impuesto, bh_notadebito.TX_notadebito_fecha, bh_notadebito.TX_notadebito_hora, bh_user.TX_user_seudonimo, SUM(bh_datodebito.TX_datodebito_monto) as TX_datodebito_monto
+  $txt_notadebito="SELECT bh_notadebito.TX_notadebito_numero, bh_notadebito.TX_notadebito_motivo, bh_notadebito.TX_notadebito_total, bh_notadebito.TX_notadebito_impuesto, bh_notadebito.TX_notadebito_fecha, bh_notadebito.TX_notadebito_hora, bh_user.TX_user_seudonimo, SUM(bh_datodebito.TX_datodebito_monto) as TX_datodebito_monto, rel_facturaf_notadebito.TX_rel_facturafnotadebito_importe
   FROM ((((bh_facturaf
           INNER JOIN rel_facturaf_notadebito ON bh_facturaf.AI_facturaf_id = rel_facturaf_notadebito.rel_AI_facturaf_id)
         INNER JOIN bh_notadebito ON rel_facturaf_notadebito.rel_AI_notadebito_id = bh_notadebito.AI_notadebito_id)
@@ -150,7 +150,7 @@
                 do{
                   $tr_color = '000000';
                   if($rs_facturaf['TX_metododepago_value'] ==  'Cr&eacute;dito'){
-                    $tr_color = 'F00';
+                    $tr_color = 'B73838';
                   } ?>
                   <tr title="<?php echo $rs_facturaf['TX_user_seudonimo']; ?>" style='color:#<?php echo $tr_color; ?>;'>
                     <td><?php echo $rs_facturaf['TX_datopago_fecha']; ?></td>
@@ -189,20 +189,57 @@
                       <td><?php echo $rs_notadebito['TX_notadebito_fecha']; ?></td>
                       <td><?php echo $rs_notadebito['TX_notadebito_hora']; ?></td>
                       <td><?php echo $rs_notadebito['TX_notadebito_numero']; ?></td>
-                      <td><?php echo number_format($rs_notadebito['TX_datodebito_monto'],2);?></td>
-                    </tr><?php       
+                      <td><?php echo number_format($rs_notadebito['TX_rel_facturafnotadebito_importe'],2);?></td>
+                    </tr>
+                    <tr>
+                      <td colspan="4" style="font-size:12px;text-align:left;"><?php echo $rs_notadebito['TX_notadebito_motivo'];  ?></td>
+                    </tr>
+                    <?php
                     $total_abono += $rs_notadebito['TX_datodebito_monto'];
                   }while($rs_notadebito=$qry_notadebito->fetch_array());
                 }else{ ?>
                   <tr>
                     <td colspan="4"> </td>
-                  </tr><?php   
+                  </tr><?php
                 }   ?>
               </tbody>
               <tfoot class="bg-info">
                 <tr><td colspan="3"></td>
                   <td><?php echo number_format($total = $total_pago+$total_abono,2); ?></td>
                 </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div id="container_tblcreditnote" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+<?php       $qry_creditnote = $link->query("SELECT AI_notadecredito_id, TX_notadecredito_fecha, TX_notadecredito_numero, TX_notadecredito_monto, TX_notadecredito_destino, TX_notadecredito_anulado FROM bh_notadecredito WHERE notadecredito_AI_facturaf_id = '$facturaf_id'")or die($link->error);  ?>
+            <table id="tbl_debit" class="table table-bordered table-condensed table-striped">
+              <caption>Notas de Cr&eacute;dito</caption>
+              <thead class="bg-danger">
+                <tr>
+                  <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Fecha</th>
+                  <th class="col-xs-5 col-sm-5 col-md-5 col-lg-5">Numero</th>
+                  <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Monto</th>
+                  <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Destino</th>
+                </tr>
+              </thead>
+              <tbody><?php   $total_abono=0;
+                if($nr_creditnote=$qry_creditnote->num_rows > 0){
+                  while($rs_creditnote=$qry_creditnote->fetch_array()){ ?>
+                    <tr>
+                      <td><?php echo $rs_creditnote['TX_notadecredito_fecha']; ?></td>
+                      <td><?php echo $rs_creditnote['TX_notadecredito_numero']; ?></td>
+                      <td><?php echo $rs_creditnote['TX_notadecredito_monto']; ?></td>
+                      <td><?php echo $rs_creditnote['TX_notadecredito_destino'];?></td>
+                    </tr><?php
+                  }
+                }else{ ?>
+                  <tr>
+                    <td colspan="4"> </td>
+                  </tr><?php
+                }   ?>
+              </tbody>
+              <tfoot class="bg-danger">
+                <tr><td colspan="4"></td></tr>
               </tfoot>
             </table>
           </div>

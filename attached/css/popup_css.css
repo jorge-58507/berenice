@@ -131,9 +131,9 @@
 th{
 	text-transform:uppercase;
 }
-#container_btnfilter{
+/* #container_btnfilter{
 	padding-top:25px;
-}
+} */
 #container_tblreport{
 	padding:20px 15px 0 15px;
 }
@@ -146,7 +146,7 @@ th{
 	cursor:pointer;
 }
 #container_facturaf{
-	padding:0;
+	padding:7px 0 14px 0;
 }
 .fa_print{
 	font-size:16px;
