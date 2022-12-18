@@ -77,16 +77,15 @@ function get_tool(root_tool){
 
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
+	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
   	<div id="logo" ></div>
-   	</div>
-
-	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
-    	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        Bienvenido: <label class="bg-primary">
-         <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
-        </label>
-        </div>
+ 	</div>
+	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-10">
+  	<div id="container_username" class="col-lg-4 visible-lg">
+      Bienvenido: <label class="bg-primary">
+       <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
+      </label>
+    </div>
 		<div id="navigation" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
 <?php
 switch ($_COOKIE['coo_tuser']){
@@ -109,9 +108,7 @@ switch ($_COOKIE['coo_tuser']){
 ?>
 		</div>
 	</div>
-
 </div>
-
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="login.php" method="post" name="form_login"  id="form_login">
 <?php
@@ -159,7 +156,7 @@ switch ($_COOKIE['coo_tuser']){
         <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
         </div>
         <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
+    &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
         </div>
         <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
 			<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>

@@ -37,7 +37,7 @@ $nuevacompra_id=$_GET['a'];
 				<td onclick="upd_quantitynewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_unidades']; ?></td>
 	      <td onclick="upd_pricenewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_precio'] ?></td>
 	      <td><?php echo $rs_newpurchase['TX_nuevacompra_descuento']."% = ".number_format($descuento,4);	?></td>
-	      <td><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".number_format($impuesto,4); ?></td>
+				<td onclick="upd_taxnewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"			><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".number_format($impuesto,4); ?></td>
 	      <td><?php	echo number_format($precio_total,4);	?></td>
 	      <td class="al_center"><button type="button" name="<?php echo $rs_newpurchase['AI_nuevacompra_id'] ?>" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_product2purchase(this);"><strong>X</strong></button></td>
 				<td><span id="<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>" class="form-control" onclick="upd_newpurchase_price(this)"><?php echo number_format($rs_newpurchase['TX_nuevacompra_p4'],2);	?></span></td>

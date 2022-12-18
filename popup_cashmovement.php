@@ -117,11 +117,11 @@ var del_cashmovement = function(efectivo_id){
 	</div>
 	<div id="container_txtmonto" class="col-xs-6 col-sm-12 col-md-12 col-lg-12">
 		<label for="txt_monto"  class="label label_blue_sky">Monto:</label>
-		<input type="text" name="txt_monto" id="txt_monto" class="form-control" onkeyup="chk_monto(this)" />
+		<input type="text" name="txt_monto" id="txt_monto" class="form-control" />
 	</div>
 	<div id="container_txtmotivo" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 		<label for="txt_motivo"  class="label label_blue_sky">Motivo:</label>
-	  <input type="text" name="txt_motivo" id="txt_motivo" class="form-control" onkeyup="chk_motivo(this)" />
+	  <input type="text" name="txt_motivo" id="txt_motivo" class="form-control" />
 	</div>
 
 	<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -184,7 +184,7 @@ var del_cashmovement = function(efectivo_id){
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>

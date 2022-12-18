@@ -35,3 +35,10 @@ $rs_impresoraid = $qry_impresoraid->fetch_array();
 		$last_id = trim($rs_lastid[0]);
 session_start();
 		$_SESSION['efectivo_id']=$last_id;
+
+		$raw_user = $r_function->read_user();
+		$qry_user = $link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user WHERE TX_user_type = '2'")or die($link->error);
+		while($rs_user=$qry_user->fetch_array(MYSQLI_ASSOC)) {
+			$content =		$raw_user[$_COOKIE['coo_iuser']].' realiz&oacute; una '.$tipo.' por B/'.number_format($monto,2);
+			$r_function->method_message('create', $_COOKIE['coo_iuser'], $rs_user['AI_user_id'], 'Mov. Caja Menuda', $content, 'notification', date('H:i:s'), date('d-m-Y'));
+		}

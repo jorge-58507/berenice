@@ -1,13 +1,14 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
+date_default_timezone_set('America/Panama');
 $link = conexion();
 
 $value=$_GET['a'];
 $status=$_GET['b'];
 $date_i=$_GET['c'];
 $date_f=$_GET['d'];
-	$line_date="";
-	$line_status = "";
+$line_date="";
+$line_status = "";
 
 $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
@@ -19,9 +20,9 @@ WHERE";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_cliente.TX_cliente_nombre LIKE '%{$arr_value[$it]}%'";
+        $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_cliente.TX_cliente_nombre LIKE '%{$arr_value[$it]}%'";
 	}else{
-$txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_cliente.TX_cliente_nombre LIKE '%{$arr_value[$it]}%' AND";
+        $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_cliente.TX_cliente_nombre LIKE '%{$arr_value[$it]}%' AND";
 	}
 }
 
@@ -32,9 +33,9 @@ bh_facturaventa.TX_facturaventa_status != 'CANCELADA' OR ";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_user.TX_user_seudonimo LIKE '%{$arr_value[$it]}%'";
+        $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_user.TX_user_seudonimo LIKE '%{$arr_value[$it]}%'";
 	}else{
-$txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_user.TX_user_seudonimo LIKE '%{$arr_value[$it]}%' AND";
+        $txt_facturaventa=$txt_facturaventa.$line_status.$line_date." bh_user.TX_user_seudonimo LIKE '%{$arr_value[$it]}%' AND";
 	}
 }
 
@@ -55,8 +56,15 @@ bh_facturaventa.TX_facturaventa_status != 'INACTIVA' AND
 bh_facturaventa.TX_facturaventa_status != 'CANCELADA'
  ORDER BY AI_facturaventa_id DESC LIMIT 10";
 
-$qry_facturaventa = mysql_query($txt_facturaventa);
-$rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
+$qry_facturaventa = $link->query($txt_facturaventa);
+$raw_facturaventa = [];
+while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC)){
+    array_push($raw_facturaventa,$rs_facturaventa);
+}
+// $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
+
+echo json_encode($raw_facturaventa);
+return false;
 ?>
 <table id="tbl_facturaventa" class="table table-bordered table-striped">
 	<thead class="bg-info">
@@ -64,7 +72,7 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
         	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
         	<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Vendedor</th>
             <th class="col-xs-4 col-sm-4 col-md-4 col-lg-4">Cliente</th>
-            <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Nº Factura</th>
+            <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Nº Cot.</th>
             <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
             <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Status</th>
             <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
@@ -113,7 +121,7 @@ $rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
         <?php if($rs_facturaventa['TX_facturaventa_status'] == "ACTIVA" || $rs_facturaventa['TX_facturaventa_status'] == "FACTURADA"){ ?>
         	<button type="button" id="btn_newcollect" name="<?php echo $rs_facturaventa['facturaventa_AI_cliente_id'] ?>" class="btn btn-success" onclick="open_newcollect(this.name,'<?php echo $rs_facturaventa['facturaventa_AI_user_id']?>');">Cobrar</button>
         <?php }else{ ?>
-<!--NADA PARA MOSTRAR -->
+            <!--NADA PARA MOSTRAR -->
         <?php } ?>
         </td>
     </tr>

@@ -285,7 +285,7 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	<div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
     	<button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
     </div>

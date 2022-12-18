@@ -47,7 +47,6 @@ foreach($raw_fecha as $fecha){
 	}
 }
 $content = file_get_contents("../tool/reduce_recompose/reduce_recompose.json");
-// echo $content;
 $raw_contenido = json_decode($content, true);
 $reducido=0; $sumado=0;
 foreach ($raw_contenido['saved'] as $index => $saved) {

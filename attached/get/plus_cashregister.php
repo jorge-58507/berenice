@@ -7,7 +7,6 @@ date_default_timezone_set('America/Panama');
 require '../php/req_login_paydesk.php';
 
 $fecha_actual=date('Y-m-d');
-//$fecha_actual='2017-09-11';
 $hora_actual=date('h:i a');
 
 $qry_datopago=$link->prepare("SELECT bh_datopago.AI_datopago_id, bh_datopago.datopago_AI_metododepago_id, bh_datopago.TX_datopago_monto
@@ -89,7 +88,7 @@ $txt_notadebito="SELECT bh_notadebito.AI_notadebito_id, bh_datodebito.TX_datodeb
 FROM (bh_notadebito
 INNER JOIN bh_datodebito ON bh_notadebito.AI_notadebito_id = bh_datodebito.datodebito_AI_notadebito_id)
 WHERE bh_notadebito.notadebito_AI_impresora_id = '{$rs_impresoraid['0']}'
-AND bh_notadebito.notadebito_AI_arqueo_id = '0'";
+AND bh_notadebito.notadebito_AI_arqueo_id = '0' AND bh_notadebito.TX_notadebito_status = 0";
 
 $qry_notadebito=$link->query($txt_notadebito);
 $raw_debitoid=array();

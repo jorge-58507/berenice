@@ -106,6 +106,7 @@
 }
 #container_paymentmethod{
   text-align: center;
+  padding: 0;
 }
 #container_client{
   padding: 10px 0 0 0;
@@ -127,4 +128,8 @@
 }
 .btn_yellow:hover{
   background-color: #d4e914;
+}
+#btn_addclient {
+  font-size: 25pt;
+  line-height: 0px;
 }

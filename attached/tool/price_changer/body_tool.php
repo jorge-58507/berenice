@@ -206,25 +206,25 @@ $raw_contenido = json_decode($json_contenido, true);
       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding pt_7">
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
           <label for="txt_p4" class="label label_blue_sky">P. Standard</label>
-          <input type="text" id="txt_p4" name="" value="10 " placeholder="0.00" class="form-control">
+          <input type="text" id="txt_p4" name="" value="" placeholder="0.00" class="form-control">
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
           <label for="txt_p5" class="label label_blue_sky">Precio Max.</label>
-          <input type="text" id="txt_p5" name="" value="20" placeholder="0.00" class="form-control">
+          <input type="text" id="txt_p5" name="" value="" placeholder="0.00" class="form-control">
         </div>
       </div>
       <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
           <label for="txt_p3" class="label label_blue_sky">Descuento#3</label>
-          <input type="text" id="txt_p3" name="" value="30" placeholder="0.00" class="form-control">
+          <input type="text" id="txt_p3" name="" value="" placeholder="0.00" class="form-control">
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
           <label for="txt_p2" class="label label_blue_sky">Descuento#2</label>
-          <input type="text" id="txt_p2" name="" value="40" placeholder="0.00" class="form-control">
+          <input type="text" id="txt_p2" name="" value="" placeholder="0.00" class="form-control">
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
           <label for="txt_p1" class="label label_blue_sky">Descuento#1</label>
-          <input type="text" id="txt_p1" name="" value="50" placeholder="0.00" class="form-control">
+          <input type="text" id="txt_p1" name="" value="" placeholder="0.00" class="form-control">
         </div>
       </div>
       <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">

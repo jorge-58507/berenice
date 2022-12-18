@@ -24,6 +24,7 @@ $rs_impuesto = $qry_impuesto->fetch_array();
 <link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/popup_css.css" rel="stylesheet" type="text/css" />
+<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="attached/js/jquery.js"></script>
 <script type="text/javascript" src="attached/js/jquery-ui.min_edit.js"></script>
@@ -42,12 +43,11 @@ $(document).ready(function() {
 		this.value = val_intw2dec(this.value);
 	})
 
-
 	$('#btn_save_product').click(function(){
 		if($("#txt_nombre").val() ===	"" || $("#txt_codigo").val() ===	"" || $("#txt_impuesto").val() ===	"" || $("#txt_cantmaxima").val() ===	"" || $("#txt_cantminima").val() ===	"" || $("#txt_cantidad").val() ===	"" || $("#txt_p_4").val() ===	""){
 			return false;
 		}
-		$.ajax({	data: {"a" : $("#txt_codigo").val(), "b" : $("#txt_referencia").val(), "c" : url_replace_regular_character($("#txt_nombre").val()), "d" : $("#sel_medida").val(), "e" : $("#txt_cantidad").val(), "f" : $("#txt_cantmaxima").val(), "g" : $("#txt_cantminima").val(), "h" : $("#txt_impuesto").val(), "i" : $("#sel_letter").val(), "j" : $("#txt_p_1").val(), "k" : $("#txt_p_2").val(), "l" : $("#txt_p_3").val(), "m" : $("#txt_p_4").val(), "n" : $("#txt_p_5").val()  }, type: "GET", dataType: "text", url: "attached/get/plus_newproduct_popup.php",	})
+		$.ajax({	data: {"a" : $("#txt_codigo").val(), "b" : $("#txt_referencia").val(), "c" : url_replace_regular_character($("#txt_nombre").val()), "d" : $("#sel_medida").val(), "e" : $("#txt_cantidad").val(), "f" : $("#txt_cantmaxima").val(), "g" : $("#txt_cantminima").val(), "h" : $("#txt_impuesto").val(), "i" : $("#sel_letter").val(), "j" : $("#txt_p_1").val(), "k" : $("#txt_p_2").val(), "l" : $("#txt_p_3").val(), "m" : $("#txt_p_4").val(), "n" : $("#txt_p_5").val(), "o" : $("#sel_subfamilia").val() }, type: "GET", dataType: "text", url: "attached/get/plus_newproduct_popup.php",	})
 		.done(function( data, textStatus, jqXHR ) {
 			window.opener.open_product2purchase(data);
 		})
@@ -57,6 +57,10 @@ $(document).ready(function() {
 	$("#txt_nombre").on("blur", function(){
 		$("#txt_nombre").val(this.value.toUpperCase());
 	});
+	$("#txt_referencia").on("blur", function(){
+		$("#txt_referencia").val(this.value.toUpperCase());
+	});
+	
 	$("#txt_codigo").on("blur", function(){
 		if(this.value.length == '6'){
 			this.value = "0000000"+this.value;
@@ -82,6 +86,20 @@ $(document).ready(function() {
 	$('#txt_codigo').validCampoFranz(".0123456789abcdefghijklmnopqrstuvwxyz");
 	$('#txt_precio1, #txt_precio2, #txt_precio3, #txt_precio4, #txt_precio5').validCampoFranz('.0123456789');
 });
+function generate_code () {	
+	var subfamily = document.getElementById('sel_subfamilia').value;
+	data = {"a":subfamily}
+	url_data = data_fetch(data);
+	var myRequest = new Request(`attached/get/code_generator.php${url_data}`);
+	fetch(myRequest)
+	.then(function(response) {
+		return response.text()
+		.then(function(text) {
+			document.getElementById('txt_codigo').value = text;
+		});
+	});
+}
+
 </script>
 
 </head>
@@ -99,58 +117,85 @@ $(document).ready(function() {
 <div id="container_upd_product" class="col-xs-12 col-sm-12 col-md-6 col-lg-6" >
 
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-      <label class="label label_blue_sky" for="txt_nombre">Nombre:</label>
-      <input type="text" class="form-control input-sm" id="txt_nombre" name="txt_nombre" >
-      	</div>
-		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label class="label label_blue_sky" for="txt_codigo">Codigo:</label>
-      <input type="text" class="form-control input-sm" id="txt_codigo" name="txt_codigo" value="">
-    </div>
-		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-      <label class="label label_blue_sky" for="txt_cantidad">Cantidad:</label>
-      <input type="text" class="form-control input-sm" id="txt_cantidad" name="txt_cantidad" value="">
-		</div>
-		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 alert alert-danger display_none" id="container_product_recall">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<label class="label label_blue_sky" for="txt_nombre">Descripci&oacute;n:</label>
+				<input type="text" class="form-control input-sm" id="txt_nombre" name="txt_nombre" >
+			</div>
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+				<label class="label label_blue_sky" for="txt_referencia">Referencia:</label>
+				<input type="text" id="txt_referencia" name="txt_referencia" class="form-control input-sm" value=""/>
+			</div>
+			<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+				<input type="hidden" class="form-control  input-sm" id="txt_cantidad" name="txt_cantidad" value="0">
+				<label class="label label_blue_sky"  for="sel_subfamilia">Subfamilia</label>
+<?php 	$qry_subfamilia = $link->query("SELECT bh_subfamilia.AI_subfamilia_id, bh_subfamilia.TX_subfamilia_value, bh_familia.TX_familia_value
+				FROM (bh_subfamilia
+				INNER JOIN bh_familia ON bh_familia.AI_familia_id = bh_subfamilia.subfamilia_AI_familia_id)
+				ORDER BY subfamilia_AI_familia_id ASC")or die($link->error); 		?>
+				<select  class="form-control input-sm" id="sel_subfamilia" name="sel_subfamilia">
+<?php 		$group = '';
+					while($rs_subfamilia=$qry_subfamilia->fetch_array(MYSQLI_ASSOC)){
+						if ($rs_subfamilia['TX_familia_value'] != $group) {
+							echo "</optgroup><optgroup label=".$rs_subfamilia['TX_familia_value'].">";
+							$group=$rs_subfamilia['TX_familia_value'];
+							if ($rs_subfamilia['AI_subfamilia_id'] === $rs_product['producto_AI_subfamilia_id']) { 				?>
+								<option value="<?php echo $rs_subfamilia['AI_subfamilia_id']; ?>" selected="selected"><?php echo $rs_subfamilia['TX_subfamilia_value']; ?></option>
+<?php 				}else{			?>
+								<option value="<?php echo $rs_subfamilia['AI_subfamilia_id']; ?>"><?php echo $rs_subfamilia['TX_subfamilia_value']; ?></option>
+<?php 				}
+						}else{
+							if ($rs_subfamilia['AI_subfamilia_id'] === $rs_product['producto_AI_subfamilia_id']) { 				?>
+								<option value="<?php echo $rs_subfamilia['AI_subfamilia_id']; ?>" selected="selected"><?php echo $rs_subfamilia['TX_subfamilia_value']; ?></option>
+<?php 				}else{			?>
+								<option value="<?php echo $rs_subfamilia['AI_subfamilia_id']; ?>"><?php echo $rs_subfamilia['TX_subfamilia_value']; ?></option>
+<?php 				}
+						}
+					} 	?>
+				</select>
+			</div>
+			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+				<label class="label label_blue_sky" for="txt_codigo">C&oacute;digo:</label>
+				<input type="text" class="form-control input-sm" id="txt_codigo" name="txt_codigo" value="">
+			</div>
+			<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-sm-label pt_14 ">
+				<button type="button" class="btn btn-sm btn-success" onclick="generate_code();" ><i class="fa fa-file-text"></i></button>
+			</div>			
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 alert alert-danger display_none" id="container_product_recall">
 
+			</div>
+			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+				<label class="label label_blue_sky" for="txt_impuesto">Impuesto:</label>
+				<input type="text" class="form-control input-sm" id="txt_impuesto" name="txt_impuesto" value="<?php echo $rs_impuesto['impuesto'] ?>">
+			</div>
+			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+				<label class="label label_blue_sky" for="sel_medida">Medida:</label>
+				<select  class="form-control input-sm" id="sel_medida" name="sel_medida">
+<?php			do{ ?>
+						<option value="<?php echo $rs_medida['AI_medida_id']; ?>"><?php echo $rs_medida['TX_medida_value']; ?></option>
+<?php			}while($rs_medida=$qry_medida->fetch_array());	?>
+		    </select>
+			</div>
+			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+				<label class="label label_blue_sky" for="sel_letter">Letra:</label>
+				<select  class="form-control input-sm" id="sel_letter" name="sel_letter">
+<?php			$percent = 0;
+					while($rs_letra=$qry_letra->fetch_array()){	?>
+						<option value="<?php echo $rs_letra['AI_letra_id']; ?>"><?php echo $rs_letra['TX_letra_value']." (".$rs_letra['TX_letra_porcentaje']."%)"; ?></option>
+<?php			};	?>
+	      </select>
+			</div>
+			<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+				<label class="label label_blue_sky" for="txt_cantminima">Cantidad M&iacute;nima:</label>
+				<input type="text" class="form-control input-sm" id="txt_cantminima" name="txt_cantminima" value="">
+			</div>
+			<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+				<label class="label label_blue_sky" for="txt_cantmaxima">Cantidad M&aacute;xima:</label>
+				<input type="text" class="form-control input-sm" id="txt_cantmaxima" name="txt_cantmaxima" value="">
+			</div>
 		</div>
-		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label class="label label_blue_sky" for="txt_referencia">Referencia:</label>
-		<input type="text" id="txt_referencia" name="txt_referencia" class="form-control input-sm" value=""/>
-      	</div>
-		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-      <label class="label label_blue_sky" for="txt_impuesto">Impuesto:</label>
-      <input type="text" class="form-control input-sm" id="txt_impuesto" name="txt_impuesto" value="<?php echo $rs_impuesto['impuesto'] ?>">
-  	</div>
-		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label class="label label_blue_sky" for="sel_medida">Medida:</label>
-			<select  class="form-control input-sm" id="sel_medida" name="sel_medida">
-<?php		do{ ?>
-					<option value="<?php echo $rs_medida['AI_medida_id']; ?>"><?php echo $rs_medida['TX_medida_value']; ?></option>
-<?php		}while($rs_medida=$qry_medida->fetch_array());
-?>    </select>
-      	</div>
-		<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-		<label class="label label_blue_sky" for="sel_letter">Letra:</label>
-		<select  class="form-control input-sm" id="sel_letter" name="sel_letter">
-<?php
-       	$percent = 0;
-		while($rs_letra=$qry_letra->fetch_array()){
-?>
-<option value="<?php echo $rs_letra['AI_letra_id']; ?>"><?php echo $rs_letra['TX_letra_value']; ?></option>
-<?php
-		};
-?>      </select>
-      	</div>
-		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label class="label label_blue_sky" for="txt_cantminima">Cantidad M&iacute;nima:</label>
-      <input type="text" class="form-control input-sm" id="txt_cantminima" name="txt_cantminima" value="">
-      	</div>
-		<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-      <label class="label label_blue_sky" for="txt_cantmaxima">Cantidad M&aacute;xima:</label>
-      <input type="text" class="form-control input-sm" id="txt_cantmaxima" name="txt_cantmaxima" value="">
-      	</div>
-    </div>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<input type="hidden" class="form-control input-sm" id="txt_cantidad" name="txt_cantidad" value="0">
+		</div>
     <div id="container_precio" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     	<div id="container_precio4" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
      		<label class="label label_blue_sky" for="txt_p_4">Standard:</label>
@@ -186,7 +231,7 @@ $(document).ready(function() {
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+		&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>

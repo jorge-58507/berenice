@@ -109,7 +109,7 @@ $("form input[type=text]").on("blur",function(){
 					<input type="text" id="<?php echo $datopedido[3]; ?>" name="<?php echo $datopedido[3]; ?>" class="form-control input-sm" value="<?php echo $datopedido[1]; ?>" />
 				</td>
 				<td><?php echo $datopedido[1]; ?></td>
-				<td><?php echo $datopedido[0]; ?></td>
+				<td><?php echo $r_function->replace_special_character($datopedido[0]); ?></td>
 				<td><?php echo $datopedido[2]; ?></td>
 			</tr>
 <?php
@@ -137,9 +137,7 @@ $("form input[type=text]").on("blur",function(){
 
 
 <div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
-	</div>
+	<?php include 'attached/php/req_footer_popup.php'; ?>
 </div>
 </div>
 

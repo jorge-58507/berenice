@@ -243,7 +243,7 @@ switch ($_COOKIE['coo_tuser']){
         <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
         </div>
         <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
+    &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
         </div>
         <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
                     		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>

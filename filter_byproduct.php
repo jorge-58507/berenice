@@ -20,45 +20,15 @@ $fecha_inicial = date('d-m-Y',strtotime($month_year));
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Trilli, S.A. - Todo en Materiales</title>
 
-<link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/jquery-ui.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
+<?php include 'attached/php/req_required.php'; ?>
+
 <link href="attached/css/stock_css.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
-
-
-<script type="text/javascript" src="attached/js/jquery.js"></script>
-<script type="text/javascript" src="attached/js/jquery-ui.min_edit.js"></script>
-<script type="text/javascript" src="attached/js/bootstrap.js"></script>
-<script type="text/javascript" src="attached/js/general_funct.js"></script>
 <script type="text/javascript" src="attached/js/newpurchase_funct.js"></script>
-<script type="text/javascript" src="attached/js/ajax_funct.js"></script>
 
 <script type="text/javascript">
 
 $(document).ready(function() {
 
-	$("#btn_navsale").click(function(){
-		window.location="sale.php";
-	});
-	$("#btn_navstock").click(function(){
-		window.location="stock.php";
-	});
-	$("#btn_navpaydesk").click(function(){
-		window.location="paydesk.php";
-	})
-	$("#btn_navadmin").click(function(){
-		window.location="start_admin.php";
-	});
-	$("#btn_start").click(function(){
-		window.location="start.php";
-	});
-	$("#btn_exit").click(function(){
-		location.href="index.php";
-	})
 	$(window).on('beforeunload', function(){
 		cerrarPopup();
 	});
@@ -251,7 +221,7 @@ function transform_facturacompra(facturacompra_id){
 					</div>
 				</div>
 <!--    ########################      TABS      ######################### -->
-				<div id="container_tabs" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 pt_7">
+				<div id="container_tabs" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 pt_7 bt_1">
 					<ul class="nav nav-tabs">
 					  <li class="active"><a data-toggle="tab" href="#purchased">Compras</a></li>
 					  <li><a data-toggle="tab" href="#sold">Ventas</a></li>
@@ -279,16 +249,17 @@ function transform_facturacompra(facturacompra_id){
 							        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Nº de Fact.</th>
 							        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Orden</th>
 							        <th class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Proveedor</th>
-							        <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Almacen</th>
+							        <th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Cantidad</th>
 											<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
 						        </tr>
 						    	</thead>
-					        <tfoot class="bg-info"><tr><td colspan="6"></td></tr></tfoot>
+					        <tfoot class="bg-info"><tr><td colspan="4"></td><td id="ttl_purchase"></td><td colspan="1"></td></tr></tfoot>
 					        <tbody><tr><td colspan="6"></td></tr></tbody>
 		        		</table>
 		    			</div>
 						</div>
 						<div id="container_datofacturacompra" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 double_padding"></div>
+						<div id="container_compradevolucion" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 double_padding"></div>
 					</div>
 	<!-- ###################             SOLD              ############## -->
 					<div id="sold" class="container-fluid no_padding tab-pane fade">
@@ -343,12 +314,12 @@ function transform_facturacompra(facturacompra_id){
 			</form>
 		</div>
 		<div id="footer">
-			<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-				&copy; Derechos Reservados a: Trilli, S.A. 2017
-				<div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-		   	<button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-			</div>
+			<?php include 'attached/php/req_footer.php'; ?>
 		</div>
 	</div>
+	<script type="text/javascript">
+		<?php include 'attached/php/req_footer_js.php'; ?>
+	</script>
+
 </body>
 </html>

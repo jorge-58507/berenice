@@ -1,5 +1,5 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 
 require 'attached/php/req_login.php';
@@ -54,7 +54,7 @@ $(document.forms['form_loginadmin']).submit(function(){
 	$('#txt_adminpassword').prop("value",	hex_sha1($('#txt_adminpassword').val())	);
 
 	$.ajax({	data: {"a" : $('#txt_adminpassword').val() },	type: "GET",	dataType: "text",	url: "attached/get/get_loginuser_popup.php", })
-	 .done(function( data, textStatus, jqXHR ) {	console.log("GOOD "+textStatus + "   " + data);
+	 .done(function( data, textStatus, jqXHR ) {
 	 if(data === '1'){
 			var ans = confirm('¿Abandonara la presente pagina?');
 			if(ans){
@@ -91,7 +91,7 @@ $(document.forms['form_loginadmin']).submit(function(){
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form method="post" name="form_loginadmin">
-<div id="container_adminpassword" class="col-xs-8 col-sm-6 col-md-4 col-lg-2">
+	<div id="container_adminpassword" class="col-xs-8 col-sm-6 col-md-4 col-lg-2">
 
 	<label for="txt_adminpassword">Contrase&ntilde;a</label>
     <input type="password" id="txt_adminpassword" name="txt_adminpassword" class="form-control input-sm" placeholder="Contrase&ntilde;a" />
@@ -103,7 +103,7 @@ $(document.forms['form_loginadmin']).submit(function(){
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>

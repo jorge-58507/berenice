@@ -28,10 +28,47 @@ if(e.which == 17)
 		$("#7").click(); isCtrl=false; return false;
 	}
 }
+function is_empty_var(string) {
+	if (string === null || string.length === 0 || /^\s+$/.test(string)) {
+		return 0;  //Vacio
+	} else {
+		return 1;  //Lleno
+	}
+}
 function val_intwdec(str){
 	pat = new RegExp('^[0-9]+([.][0-9]+)?$')
 	ans = pat.test(str);
 	return ans;
+}
+function val_dec(str,decimal,refill,split){
+	if (str === '') {	return false;	}
+	str = parseFloat(str);
+	var pat = new RegExp('(^[-][0-9]{1}|^[0-9]+|[0-9]+)([.][0-9]{1,'+decimal+'})?$');
+	// var pat = new RegExp('^[0-9]+([.][0-9]{1,2})?$')
+  if(!pat.test(str)) { return false; }
+	var str_splited = (str.toString()).split('.')
+	decimal_part = '';
+	for (var i = 0; i < decimal; i++) { 	decimal_part+='0';	}
+	if(str_splited.length > '1') {
+		if(str_splited.length > '2') {
+			str_splited.splice(2);
+		}
+		if (str_splited[0].length === 0) {
+			str_splited[0]='0';
+		}
+		if (refill === 1) {
+			str_splited[1]+=decimal_part;  // REFILL
+		}
+		if (split === 1) {
+			str_splited[1] = str_splited[1].substr(0, decimal)  // SPLIT
+		}
+		str = str_splited[0] + '.' + str_splited[1];
+  } else {
+		if (refill === 1) {
+			str = str_splited[0] + '.'+decimal_part;;  // REFILL
+		}
+	}
+	return str;
 }
 function val_intw2dec (str) {
   var pat = new RegExp('^[0-9]+([.][0-9]{1,2})?$')
@@ -150,6 +187,12 @@ if ((document.forms[0][aTextField].value.length==0) || (document.forms[0][aTextF
 //#################### FUNCION ENFOCAR ####################
 function setFocus(aField) {
 document.forms[0][aField].focus();
+}
+//#################### FUNCION ENFOCAR ####################
+function inFocus(aField,timer) {
+	setTimeout(function() {
+		document.getElementById(aField).focus();
+	}, timer);
 }
 //#################### FUNCION CAMPO VACIO ####################
 function isEmpty(aTextField) {
@@ -621,17 +664,17 @@ function validatemail(object){
 }
 //#################### FUNCION VALIDAR x2 CAMPOS ####################
 function validate_empty_userx2(str1,str2) {
-if (isEmpty(str1)) {
-	alert("Faltan datos para continuar.");
-	setFocus(str1);
+	if (isEmpty(str1)) {
+		alert("Faltan datos para continuar.");
+		setFocus(str1);
+		return false;
+	}
+	if (isEmpty(str2)) {
+		alert("Faltan datos para continuar.");
+		setFocus(str2);
+		return false;
+	}
 	return false;
-}
-if (isEmpty(str2)) {
-	alert("Faltan datos para continuar.");
-	setFocus(str2);
-	return false;
-}
-return false;
 }
 
 
@@ -651,8 +694,28 @@ return false;
 	}
 })(jQuery);
 
+function limitText(limitField, limitNum, toast = 0) {
+	if (limitField.value.length > limitNum) {
+		limitField.value = limitField.value.substring(0, limitNum);
+		if (toast === 1) {
+			shot_snackbar('Se excedi&oacute; la cantidad de caracteres.', 'bg-warning');
+		}
+	}
+	return limitField.value.length;
+}
+
 function close_popup(){
 	popup.close();
+}
+function date_converter(from, to, string) { //Ymd,dmY,fecha
+	var raw_fecha = string.split('-');
+	var from_splited = from.split('');
+	var array_fecha = {};
+	for (const a in from_splited) {
+		array_fecha[from_splited[a]] = raw_fecha[a];
+	}
+	var to_splited = to.split('');
+	return array_fecha[to_splited[0]] + '-' + array_fecha[to_splited[1]] + '-' + array_fecha[to_splited[2]];
 }
 
 function replace_regular_character(str){
@@ -741,3 +804,38 @@ if (!Math.ceil10) {
 	}
 }
 })();
+
+function data_fetch(obj){
+	array_keys = Object.keys(obj);
+	var counter = 0;
+	data = '?';
+	for (var i in obj) {
+		counter++
+		data += (counter === array_keys.length) ? `${i}=${obj[i]}` : `${i}=${obj[i]}&`;
+	}
+	return data;
+}
+function verify_limit (event,field,limit){
+	if((field.value).length > limit-1) {	event.preventDefault();	}
+}
+
+function modal_out(modal_id){
+	$("#"+modal_id).hide("200")
+}
+function modal_in(modal_id){
+	$("#"+modal_id).show("200")
+}
+
+function shot_snackbar (message, background_class='snackbar_background') {
+	var x = document.getElementById("snackbar");
+	x.innerHTML = message;
+	x.className = "show ";
+	x.className += background_class;
+	setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+function val_empty (textfield) {
+	const patt = new RegExp("\\w+","g");
+	var str = document.getElementById(textfield).value;
+	return patt.test(str);
+}

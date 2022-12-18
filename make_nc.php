@@ -113,7 +113,7 @@ $("#btn_exit").click(function(){
 $("#txt_motivonc").validCampoFranz("0123456789 abcdefghijklmnopqrstuvwxyz.,");
 $("#txt_debito").validCampoFranz("0123456789");
 
-$("#txt_motivonc").keyup(function(){
+$("#txt_motivonc").blur(function(){
 	this.value = this.value.toUpperCase();
 });
 
@@ -210,27 +210,29 @@ switch ($_COOKIE['coo_tuser']){
 		<span id="span_numeroff" class="form-control bg-disabled"><?php echo $rs_facturaf['TX_facturaf_numero']; ?>
     </span>
     </div>
-	<div id="container_deficit" class="col-xs-12 col-sm-5 col-md-2 col-lg-2">
+	  <div id="container_deficit" class="col-xs-12 col-sm-5 col-md-2 col-lg-2">
     	<?php if($rs_facturaf['TX_facturaf_deficit'] > 0){?>
         <script type="text/javascript">alert("Esta factura posee deficit")</script>
         <label class="label label_blue_sky" for="span_deficit">Deficit</label>
-	<span id="span_deficit" class="form-control"><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></span>
+      	<span id="span_deficit" class="form-control"><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></span>
     	<?php } ?>
     </div>
-    <div id="container_motivo"  class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
+    <div id="container_motivo"  class="col-xs-12 col-sm-12 col-md-6 col-lg-6 pt_7">
         <label class="label label_blue_sky" for="txt_motivonc">Motivo</label>
-        <input type="text" id="txt_motivonc" class="form-control" />
+        <input type="text" id="txt_motivonc" class="form-control" autofocus />
     </div>
-    <div id="container_debito"  class="col-xs-2 col-sm-2 col-md-2 col-lg-1">
+    <div id="container_debito"  class="col-xs-2 col-sm-2 col-md-2 col-lg-1 pt_7">
         <label class="label label_blue_sky" for="txt_debito">Retener %</label>
         <input type="text" id="txt_debito" class="form-control" value="0" />
     </div>
-    <div id="container_destino"  class="col-xs-10 col-sm-10 col-md-4 col-lg-5">
+    <div id="container_destino"  class="col-xs-10 col-sm-10 col-md-4 col-lg-5 pt_7">
         <label class="label label_blue_sky" for="sel_destinonc">Destino</label>
         <select id="sel_destinonc" class="form-control" >
         	<option value="">Seleccione</option>
             <option value="SALDO">Saldo a Favor</option>
-            <option value="EFECTIVO">Retorno de Efectivo</option>
+<?php       if ($rs_facturaf['TX_facturaf_deficit'] < 0.01) { ?>
+              <option value="EFECTIVO">Retorno de Efectivo</option>
+<?php       }  ?>
         </select>
     </div>
 </div>
@@ -391,7 +393,7 @@ switch ($_COOKIE['coo_tuser']){
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
     <div id="container_txtcopyright" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
-      &copy; Derechos Reservados a: Trilli, S.A. 2017
+      &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
     </div>
     <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
     	<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>

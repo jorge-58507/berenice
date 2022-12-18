@@ -51,11 +51,12 @@ $(document).ready(function() {
 $("#txt_quantity").blur(function(){
 	var quantity = $("#txt_quantity").val();
 	var stock = $("#txt_stock").val();
+	var dis = $("#txt_stock").prop('alt');
 
 		quantity = parseFloat(quantity);
 		stock = parseFloat(stock);
 
-	if(quantity > stock){
+	if(quantity > stock && dis === 1){
 		alert("ALERTA: Las existencias son inferiores");
 	}
 	this.value = val_intw2dec(this.value);
@@ -145,7 +146,7 @@ function get_product2sell_price(medida_id){
 </div>
 <div id="container_stock" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 pt_7">
 	<label class="label label_blue_sky"  for="txt_stock">Existencia:</label>
-  <input type="text" name="txt_stock" id="txt_stock" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_cantidad'] ?>" />
+  <input type="text" name="txt_stock" id="txt_stock" alt="<?php echo $rs_product['TX_producto_descontable'] ?>" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_cantidad']; ?>" />
 </div>
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 pt_7">
 	<label class="label label_blue_sky"  for="sel_medida">Medida:</label>
@@ -219,7 +220,7 @@ function get_product2sell_price(medida_id){
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>

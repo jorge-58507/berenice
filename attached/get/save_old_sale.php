@@ -49,7 +49,7 @@ $nr_chkexento = $qry_chkexento->num_rows;
 
 $contenido_viejaventa=read_viejaventa_content();
 $raw_viejaventa=json_decode($contenido_viejaventa, true);
-if(!is_array($raw_viejaventa)){ 
+if(!is_array($raw_viejaventa)){
 	echo "failed";
 	return false;
 }
@@ -80,6 +80,10 @@ write_viejaventa_content($contenido_viejaventa);
 
 $total=round($total,2);
 $rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC);
+if (count($raw_nuevaventa) < 1) {
+	echo "failed";
+	return false;
+}
 
 $link->query("UPDATE bh_facturaventa SET TX_facturaventa_fecha='$date', facturaventa_AI_cliente_id='$cliente_id', TX_facturaventa_total='$total', TX_facturaventa_observacion='$observation' WHERE AI_facturaventa_id = '$facturaventa_id'")or die($link->error);
 $link->query("DELETE FROM bh_datoventa WHERE datoventa_AI_facturaventa_id = '$facturaventa_id'")or die($link->error);

@@ -29,7 +29,7 @@ if(isset($_GET['a'])){
 $qry_warehouse=$link->query("SELECT AI_almacen_id, TX_almacen_value FROM bh_almacen")or die($link->error);
 $rs_warehouse=$qry_warehouse->fetch_array();
 
-$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_referencia, TX_producto_cantidad, TX_producto_activo FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 15")or die($link->error);
+$qry_product=$link->query("SELECT AI_producto_id, TX_producto_codigo, TX_producto_value, TX_producto_referencia, TX_producto_cantidad, TX_producto_activo,TX_producto_inventariado FROM bh_producto ORDER BY TX_producto_value ASC LIMIT 15")or die($link->error);
 $rs_product=$qry_product->fetch_array();
 
 $qry_newpurchase=$link->query("SELECT bh_nuevacompra.AI_nuevacompra_id, bh_nuevacompra.nuevacompra_AI_producto_id, bh_nuevacompra.TX_nuevacompra_unidades, bh_nuevacompra.TX_nuevacompra_precio, bh_nuevacompra.TX_nuevacompra_itbm, bh_nuevacompra.TX_nuevacompra_descuento, bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_cantidad, bh_nuevacompra.TX_nuevacompra_p4, bh_nuevacompra.TX_nuevacompra_medida
@@ -57,7 +57,7 @@ while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
 <link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/jquery-ui.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/newpurchase_css.css" rel="stylesheet" type="text/css" />
-<link rel="stylesheet" href="attached/css/font-awesome.css" type="text/css" />
+<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 
 <script type="text/javascript" src="attached/js/jquery.js"></script>
 <script type="text/javascript" src="attached/js/bootstrap.js"></script>
@@ -107,27 +107,31 @@ $("#btn_add_provider").click(function(){
 	open_addprovider();
 })
 $("#btn_insert").click(function(){
-	var	provider = $("#txt_filterprovider").val();
+	var	provider = $("#txt_filterprovider").attr("alt");
 	var	billnumber = $("#txt_billnumber").val();
 	var chk_product = $("#tbl_newentry tbody tr td").html();
+	var	date_purchase = $("#txt_date").val();
 
 	if(provider ===	""){ set_bad_field("txt_filterprovider"); $("#txt_filterprovider").focus(); return false; }else{ set_good_field("txt_filterprovider"); }
 	if(billnumber ===	""){ set_bad_field("txt_billnumber"); $("#txt_billnumber").focus(); return false; }else{ set_good_field("txt_billnumber"); }
 	if(chk_product ===	""){ set_bad_field("txt_filterproduct"); $("#txt_filterproduct").focus(); return false; }else{ set_good_field("txt_filterproduct"); }
+	if(date_purchase ===	""){ set_bad_field("txt_date"); $("#txt_date").focus(); return false; }else{ set_good_field("txt_date"); }
 
-	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", })
+	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", }) 
 	.done(function( data, textStatus, jqXHR ) {  console.log("GOOD" + textStatus);
-	 	if(data === '0'){ save_invoice(0); $("#btn_insert, #btn_save").attr("disabled", true);	}else{	alert("La Factura "+billnumber+" de "+$("#txt_filterprovider option:selected").text()+" ya existe.");	}	 })
+	 	if(data === '0'){ save_invoice(0); $("#btn_insert, #btn_save").attr("disabled", true);	}else{	alert("La Factura "+billnumber+" de "+$("#txt_filterprovider").val()+" ya existe.");	}	 })
 	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
 $("#btn_save").click(function(){
 	var	provider = $("#txt_filterprovider").val();
 	var	billnumber = $("#txt_billnumber").val();
 	var chk_product = $("#tbl_newentry tbody tr td").html();
+	var	date_purchase = $("#txt_date").val();
 
 	if(provider ===	""){ $("#txt_filterprovider").css("border","inset 2px #cc3300"); $("#txt_filterprovider").focus(); return false; }
 	if(billnumber ===	""){ $("#txt_billnumber").css("border","inset 2px #cc3300"); $("#txt_billnumber").focus(); return false; }
 	if(chk_product ===	""){ $("#txt_filterproduct").css("border","inset 2px #cc3300"); $("#txt_filterproduct").focus(); return false; }
+	if(date_purchase ===	""){ set_bad_field("txt_date"); $("#txt_date").focus(); return false; }else{ set_good_field("txt_date"); }
 
 	$.ajax({	data: { "a" : provider, "b" : billnumber	},	type: "GET",	dataType: "text",	url: "attached/get/get_invoice.php", })
 	 .done(function( data, textStatus, jqXHR ) {  console.log("GOOD" + textStatus);
@@ -138,7 +142,8 @@ $("#btn_cancelar").click(function(){	clean_product2purchase();	})
 $( function() {
 	$("#txt_date").datepicker({
 		changeMonth: true,
-		changeYear: true
+		changeYear: true,
+		maxDate: "0d"
 	});
 });
 $("#txt_filterprovider").on("keyup", function(e){
@@ -201,7 +206,7 @@ function save_invoice(preguardado){
 	})
 	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 
-} 
+}
 
 </script>
 
@@ -248,19 +253,21 @@ switch ($_COOKIE['coo_tuser']){
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form action="" method="post" name="form_newpurchase"  id="form_newpurchase">
 
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
+	<div id="container_provider" class="col-xs-11 col-sm-11 col-md-11 col-lg-11 pt_7">
+		<label class="label label_blue_sky" for="txt_filterprovider">Proveedor:</label>
+		<input type="text" class="form-control" id="txt_filterprovider" placeholder="Proveedor">
+	</div>
+	<div id="container_btnaddprovider" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 pt_21">
+		<button type="button" id="btn_add_provider" class="btn btn-success btn_squared_md"><i class="fa fa-plus"></i></button>
+	</div>
+	<div id="container_provider_recall" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	</div>
+</div>
 
-<div id="container_provider" class="col-xs-9 col-sm-9 col-md-9 col-lg-9 pt_7">
-	<label class="label label_blue_sky" for="txt_filterprovider">Proveedor:</label>
-	<input type="text" class="form-control" id="txt_filterprovider" placeholder="Proveedor">
-</div>
-<div id="container_btnaddprovider" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 btn_squared_md">
-	<button type="button" id="btn_add_provider" class="btn btn-success"><i class="fa fa-plus"></i></button>
-</div>
-<div id="container_provider_recall" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-</div>
 <div id="container_date" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pt_7">
 	<label class="label label_blue_sky" for="txt_date">Fecha:</label>
-  <input type="text" name="txt_date" id="txt_date" value="<?php echo date('d-m-Y'); ?>" class="form-control" readonly="readonly" />
+  <input type="text" name="txt_date" id="txt_date" value="" class="form-control" readonly="readonly" />
 </div>
 
 <div id="container_billnumber" class="col-xs-6 col-sm-6 col-md-6 col-lg-3 pt_7">
@@ -280,22 +287,36 @@ switch ($_COOKIE['coo_tuser']){
 ?>  </select>
 </div>
 	<div id="container_product" class="col-xs-12 col-sm-12 col-md-8 col-lg-8 pt_7">
-		<div id="container_filterproduct" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+		<div id="container_filterproduct" class="col-xs-10 col-sm-10 col-md-10 col-lg-10 pl_0">
 		  <label class="label label_blue_sky" for="sel_product">Producto:</label>
 	    <input type="text" alt="select" class="form-control" id="txt_filterproduct" name="txt_filterproduct" autocomplete="off" onkeyup="filter_product2purchase(this);" placeholder="Codigo, Descripcion o Referencia" />
 		</div>
-		<div id="container_btnaddproduct" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 side-btn-md-label">
+		<div id="container_btnaddproduct" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 pl_7 side-btn-md-label">
 			<button type="button" name="btn_addproduct" id="btn_addproduct" class="btn btn-success btn-md"><i class="fa fa-plus"></i></button>
 		</div>
 		<div id="container_tblproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<table id="tbl_product" class="table table-bordered table-condensed table-striped table-hover">
-        <tbody><?php
+    	<table id="tbl_purchase_product" class="table table-bordered table-condensed table-striped table-hover">
+				<tbody><?php
+				$prep_provider = $link->prepare("SELECT bh_proveedor.TX_proveedor_nombre FROM bh_datocompra 
+				INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id
+				INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = bh_facturacompra.facturacompra_AI_proveedor_id
+				WHERE bh_datocompra.datocompra_AI_producto_id = ? ORDER BY bh_facturacompra.AI_facturacompra_id DESC LIMIT 1")or die($link->error);
         do{
+					$prep_provider->bind_param('i',$rs_product['AI_producto_id']); $prep_provider->execute(); $qry_provider = $prep_provider->get_result();
+					$rs_provider = $qry_provider->fetch_array();
 					$color = ($rs_product['TX_producto_activo'] === '1') ? '#f84c4c; font-weight: bolder;' : '#000';
-					$title = ($rs_product['TX_producto_activo'] === '1') ? 'INACTIVO' : '';
-?>        <tr style="color:<?php echo $color; ?>" title="<?php echo $title; ?>">
+					$title = $rs_provider['TX_proveedor_nombre'];
+					$background = ($rs_product['TX_producto_inventariado'] === '1') ? '#cffebb' : '';
+?>        <tr style="color:<?php echo $color; ?>; background:<?php echo $background; ?>" title="<?php echo $title; ?>">
             <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $rs_product['TX_producto_codigo'] ?></td>
-	        	<td class="col-xs-7 col-sm-7 col-md-7 col-lg-7" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']) ?></td>
+	        	<td class="col-xs-7 col-sm-7 col-md-7 col-lg-7" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)">
+							<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']);
+							if (!empty($rs_product['TX_producto_referencia'])) { ?>
+								<br/>
+								<font style="font-size: 8pt;">(REF: <?php echo $r_function->replace_special_character($rs_product['TX_producto_referencia']); ?>)</font>
+							<?php } ?>
+
+						</td>
             <td class="col-xs-2 col-sm-2 col-md-2 col-lg-2" onclick="open_product2purchase(<?php echo $rs_product['AI_producto_id'] ?>)"><?php echo $rs_product['TX_producto_cantidad'] ?></td>
 						<td class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><button type="button" class="btn btn-warning btn-xs" onclick="open_popup('popup_updproduct.php?a=<?php echo $rs_product['AI_producto_id'] ?>', '_popup','1010','654')"><i class="fa fa-wrench"></i></button></td>
 	        </tr>
@@ -317,7 +338,7 @@ switch ($_COOKIE['coo_tuser']){
 	      <th class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Producto</th>
 	      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Medida</th>
 	      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Cantidad</th>
-	      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Precio</th>
+	      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Coste</th>
 	      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Desc%</th>
 	      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">ITBM%</th>
 	      <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">SubTotal</th>
@@ -345,9 +366,9 @@ switch ($_COOKIE['coo_tuser']){
 			      <td onclick="upd_quantitynewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_unidades']; ?></td>
 			      <td onclick="upd_pricenewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"><?php echo $rs_newpurchase['TX_nuevacompra_precio']; ?></td>
 			      <td><?php echo $rs_newpurchase['TX_nuevacompra_descuento']."% = ".number_format($descuento4product,4);?></td>
-			      <td><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".number_format($impuesto4product,4); ?></td>
+						<td onclick="upd_taxnewpurchase(<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>)"			><?php echo $rs_newpurchase['TX_nuevacompra_itbm']."% = ".number_format($impuesto4product,4); ?></td>
 			      <td><?php echo number_format($total_desc_imp,4);	?></td>
-			      <td class="al_center"><button type="button" name="<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_product2purchase(this);"><strong>X</strong></button></td>
+			      <td class="al_center"><button type="button" name="<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>" id="btn_delproduct" class="btn btn-danger btn-sm btn_squared_sm" onclick="del_product2purchase(this);"><i class="fa fa-times"></i></button></td>
 						<td><span id="<?php echo $rs_newpurchase['AI_nuevacompra_id']; ?>" class="form-control" onclick="upd_newpurchase_price(this)"><?php echo number_format($rs_newpurchase['TX_nuevacompra_p4'],2);	?></span></td>
 			    </tr>
 <?php 	}while($rs_newpurchase=$qry_newpurchase->fetch_array()); ?>
@@ -385,19 +406,8 @@ switch ($_COOKIE['coo_tuser']){
 </form>
 </div>
 <div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-        <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        </div>
-        <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
-        </div>
-        <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-                    		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-        </div>
-        <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            <button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-        </div>
-	</div>
+	<?php require 'attached/php/req_footer.php'; ?>
+</div>
 </div>
 </div>
 

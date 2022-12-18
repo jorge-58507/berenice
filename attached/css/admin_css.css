@@ -9,14 +9,8 @@
 }
 #container_btn{
 	text-align:center;
-	#container_nvo
-
 	padding:15px;
 }
-#container_client{
-	padding:15px;
-}
-#container_nvo
 
 #tbl_return{
 	text-align:center;
@@ -267,4 +261,10 @@ ul.nav-tabs > li{
 	border-radius: 3px;
 	margin: 0 auto;
 	font-size: 18px;
+}
+#tbl_facturacompra>thead>tr>th {
+		vertical-align: middle;
+}
+#tbl_facturacompra>tbody>tr>td {
+	text-align: center;
 }

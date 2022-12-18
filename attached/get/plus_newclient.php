@@ -13,8 +13,12 @@ if(!empty($_GET['e'])){
 	$activo="";
 	$function="_oldsale";
 }
+$dv=$_GET['f'];
+$taxpayer=$_GET['g'];
+$type=$_GET['h'];
+$email=$_GET['i'];
 
-	$link->query("INSERT INTO bh_cliente (TX_cliente_nombre, TX_cliente_cif, TX_cliente_direccion, TX_cliente_telefono, TX_cliente_interes) VALUES ('$name', '$cif', '$direction', '$telephone', '0')")or die($link->error);
+	$link->query("INSERT INTO bh_cliente (TX_cliente_nombre, TX_cliente_cif, TX_cliente_direccion, TX_cliente_telefono, TX_cliente_interes, TX_cliente_dv, TX_cliente_restringido, TX_cliente_contribuyente, TX_cliente_tipo, TX_cliente_correo) VALUES ('$name', '$cif', '$direction', '$telephone', '0', '$dv', '1', '$taxpayer', '$type', '$email')")or die($link->error);
 	$qry_lastid=$link->query("SELECT LAST_INSERT_ID();");
 	$rs_lastid = $qry_lastid->fetch_array();
 

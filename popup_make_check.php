@@ -89,30 +89,30 @@ $("#txt_montoletras").val(nn($("#txt_monto").val()));
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_number" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-  	<label for="span_cpp">CxP N&deg;: </label>
+  	<label class="label label_blue_sky" for="span_cpp">CxP N&deg;: </label>
 		<span class="form-control bg-disabled" id="span_cpp"><?php echo substr('000000000'.$cpp_id,-9); ?></span>
   </div>
 	<div id="container_provider" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-  	<label for="span_provider">Beneficiario: </label>
+  	<label class="label label_blue_sky" for="span_provider">Beneficiario: </label>
 		<span class="form-control bg-disabled" id="span_provider"><?php echo $rs_cpp['TX_proveedor_nombre']; ?></span>
   </div>
 	<div id="container_number" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-  	<label for="txt_number">Numero: </label>
+  	<label class="label label_blue_sky" for="txt_number">Numero: </label>
 		<input type="text" id="txt_number" class="form-control" value="<?php echo $number; ?>" />
   </div>
 	<div id="container_monto" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-  	<label for="txt_monto">Monto:</label>
+  	<label class="label label_blue_sky" for="txt_monto">Monto:</label>
 		<input type="text" id="txt_monto" class="form-control" value="<?php echo $amount; ?>" />
   </div>
 	<div id="container_montoletras" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
-  	<label for="txt_montoletras">Monto en Letras:</label>
+  	<label class="label label_blue_sky" for="txt_montoletras">Monto en Letras:</label>
 		<input type="text" id="txt_montoletras" class="form-control" value="" />
   </div>
-	<div id="container_montoletras" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 side-btn-md">
+	<div id="container_montoletras" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 side-btn-md-label">
 		<button type="button" class="btn btn-primary" onclick="$('#txt_montoletras').val(nn($('#txt_monto').val()))"><i class="fa fa-refresh"></i></button>
   </div>
 	<div id="container_observation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-  	<label for="txt_observation">Observaci&oacute;n: </label>
+  	<label class="label label_blue_sky" for="txt_observation">Observaci&oacute;n: </label>
 		<input type="text" id="txt_observation" class="form-control" value="<?php if(!empty($rs_facturacompra[0])){ echo "Factura: ".$rs_facturacompra[0]; }; if(!empty($rs_pedido[0])){ echo "Orden de Compra: ".$rs_pedido[0]; }; ?>" />
   </div>
   <div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -123,7 +123,7 @@ $("#txt_montoletras").val(nn($("#txt_monto").val()));
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>

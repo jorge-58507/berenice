@@ -1,11 +1,8 @@
 <?php
 require 'bh_conexion.php';
 $link=conexion();
-
 require 'attached/php/req_login_paydesk.php';
-
 $debito_id=$_GET['a'];
-
 $qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
 while($rs_opcion=$qry_opcion->fetch_array(MYSQLI_ASSOC)){
@@ -14,10 +11,11 @@ while($rs_opcion=$qry_opcion->fetch_array(MYSQLI_ASSOC)){
 $qry_user=$link->query("SELECT TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'")or die($link->error);
 $rs_user=$qry_user->fetch_array();
 
-$qry_reldatodebito = $link->prepare("SELECT TX_rel_facturafnotadebito_importe FROM rel_facturaf_notadebito WHERE rel_AI_facturaf_id = ? AND rel_AI_notadebito_id <= '$debito_id'")or die($link->error);
+$qry_reldatodebito = $link->prepare("SELECT TX_rel_facturafnotadebito_importe FROM rel_facturaf_notadebito INNER JOIN bh_notadebito ON bh_notadebito.AI_notadebito_id = rel_facturaf_notadebito.rel_AI_notadebito_id WHERE rel_AI_facturaf_id = ? AND rel_AI_notadebito_id <= '$debito_id' AND bh_notadebito.TX_notadebito_status = 0")or die($link->error);
+$prep_datopago = $link->prepare("SELECT SUM(TX_datopago_monto) as pago FROM bh_datopago WHERE datopago_AI_facturaf_id = ? AND bh_datopago.datopago_AI_metododepago_id != 5 AND bh_datopago.datopago_AI_metododepago_id != 8")or die($link->error);
 
 $txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_ticket,
-bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono
+bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono, bh_notadebito.TX_notadebito_status
 FROM (((bh_facturaf
 INNER JOIN rel_facturaf_notadebito ON bh_facturaf.AI_facturaf_id = rel_facturaf_notadebito.rel_AI_facturaf_id)
 INNER JOIN bh_notadebito ON rel_facturaf_notadebito.rel_AI_notadebito_id = bh_notadebito.AI_notadebito_id)
@@ -62,7 +60,7 @@ while($rs_datodebito=$qry_datodebito->fetch_array(MYSQLI_ASSOC)){
 	$notadebito_numero=$rs_datodebito['TX_notadebito_numero'];
 }
 if(empty($cambio)){ $cambio=0; }
-$total_total=$total_efectivo+$total_tarjeta_debito+$total_tarjeta_credito+$total_nota_credito+$total_cheque+$cambio;
+$total_total=$total_efectivo+$total_tarjeta_debito+$total_tarjeta_credito+$total_nota_credito+$total_cheque;
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -125,7 +123,7 @@ margin-top: 105px;margin-left: -130px;">
 </tr>
 <tr style="height:45px" align="center">
 	<td valign="top" colspan="10">
-    <h3>RECIBO DE PAGO- <?php echo $notadebito_numero ?></h3>
+    <h3>RECIBO DE PAGO- <?php echo ($rs_facturaf['TX_notadebito_status'] === '1') ? '(ANULADO)' :  $notadebito_numero; ?></h3>
     </td>
 </tr>
 <tr style="height:58px">
@@ -158,11 +156,15 @@ margin-top: 105px;margin-left: -130px;">
     	</tr>
         </thead>
         <tbody>
-        <?php do{  
+        <?php do{
 			$qry_reldatodebito->bind_param('i', $rs_facturaf['AI_facturaf_id']); $qry_reldatodebito->execute(); $result = $qry_reldatodebito->get_result();
 			$ttl_debito = 0;
 			while($rs_reldatodebito = $result->fetch_array(MYSQLI_ASSOC)){
 				$ttl_debito += $rs_reldatodebito['TX_rel_facturafnotadebito_importe'];
+			}
+			$prep_datopago->bind_param("i",  $rs_facturaf['AI_facturaf_id']); $prep_datopago->execute(); $qry_datopago=$prep_datopago->get_result();
+			while ($rs_datopago = $qry_datopago->fetch_array(MYSQLI_ASSOC)) {
+				$ttl_debito += $rs_datopago['pago'];
 			}
 			?>
         <tr>
@@ -177,7 +179,7 @@ margin-top: 105px;margin-left: -130px;">
 	<p>
 <?php
 			if($total_efectivo > 0){
-				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
+				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo,2);
 			}
 			if($total_cheque > 0){
 				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);
@@ -257,7 +259,7 @@ margin-top: 105px;margin-left: -130px;">
 </tr>
 <tr style="height:45px" align="center">
 	<td valign="top" colspan="10">
-    <h3>RECIBO DE PAGO - <?php echo $notadebito_numero ?></h3>
+		<h3>RECIBO DE PAGO- <?php echo ($rs_facturaf_d['TX_notadebito_status'] === '1') ? '(ANULADO)' :  $notadebito_numero; ?></h3>
     </td>
 </tr>
 <tr style="height:58px">
@@ -298,12 +300,17 @@ margin-top: 105px;margin-left: -130px;">
     	</tr>
         </thead>
         <tbody>
-        <?php do{  
+        <?php do{
 			$qry_reldatodebito->bind_param('i', $rs_facturaf_d['AI_facturaf_id']); $qry_reldatodebito->execute(); $result = $qry_reldatodebito->get_result();
 			$ttl_debito = 0;
 			while($rs_reldatodebito = $result->fetch_array(MYSQLI_ASSOC)){
 				$ttl_debito += $rs_reldatodebito['TX_rel_facturafnotadebito_importe'];
 			}
+			$prep_datopago->bind_param("i",  $rs_facturaf_d['AI_facturaf_id']); $prep_datopago->execute(); $qry_datopago=$prep_datopago->get_result();
+			while ($rs_datopago = $qry_datopago->fetch_array(MYSQLI_ASSOC)) {
+				$ttl_debito += $rs_datopago['pago'];
+			}
+
 			?>
         <tr>
         	<td><?php echo $rs_facturaf_d['TX_facturaf_numero']; ?></td>
@@ -317,7 +324,7 @@ margin-top: 105px;margin-left: -130px;">
 	<p>
 <?php
 			if($total_efectivo > 0){
-				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
+				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo,2);
 			}
 			if($total_cheque > 0){
 				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);

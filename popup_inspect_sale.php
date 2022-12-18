@@ -64,12 +64,10 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 
 $(document).ready(function() {
 	$("#txt_filterfacturaventa").keyup(function(){
-		if($("#txt_date_initial,#txt_date_final").val() === ""){
-			return false;
-		}
+		if($("#txt_date_initial,#txt_date_final").val() === ""){	return false;	}
 		filter_facturaventa();
 	});
-  	$("#sel_filterfacturaventa").change(function(){
+	$("#sel_filterfacturaventa").change(function(){
 		filter_facturaventa();
 	});
 
@@ -118,14 +116,27 @@ function toogle_tr_datoventa(facturaventa_id){
 	$('#tr_datoventa_'+facturaventa_id).toggle( "fast");
 }
 function duplicate_datoventa(facturaventa_id){
-	$.ajax({data: {"a" : facturaventa_id, "z" : 'duplicate' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",})
-	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
-	if (data) {
-		window.opener.location.href='new_sale.php';
-		setTimeout('self.close()', 500);
-	}
-})
-	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+	$.ajax({	data: "",type: "GET",dataType: "json",url: "attached/get/get_session_admin.php",	})
+	.done(function( data, textStatus, jqXHR ) {
+// ANSWER
+		if(data[0][0] != ""){
+			$.ajax({data: {"a" : facturaventa_id, "z" : 'duplicate' }, type: "GET", dataType: "text", url: "attached/php/method_nuevaventa.php",})
+			.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+				if (data) {
+					window.opener.location.href='new_sale.php';
+					setTimeout('self.close()', 500);
+				}
+			})
+			.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+		}else{
+			popup = window.open("popup_loginadmin.php?z=start_admin.php", "popup_loginadmin", 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=no,width=425,height=420');
+		}
+
+// ANSWER
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {
+		if ( console && console.log ) {	 console.log( "La solicitud a fallado: " +  textStatus); }
+	})
 }
 
 </script>
@@ -188,7 +199,7 @@ function duplicate_datoventa(facturaventa_id){
     <?php
 	$raw_facturaf=array();
 	$total_total=0;
-	$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0;
+	$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0; $total_porcobrar=0;
 	do{
 	?>
 			<tr onclick="toogle_tr_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)">
@@ -221,12 +232,13 @@ function duplicate_datoventa(facturaventa_id){
 			$i=0;
 			while($rs_datopago=$qry_datopago->fetch_array(MYSQLI_ASSOC)){
 			switch($rs_datopago['datopago_AI_metododepago_id']){
-				case '1':	$color='#67b847';	$total_efectivo += $rs_datopago['TX_datopago_monto'];	break;
-				case '3':	$color='#e9ca2f';	$total_tarjeta_credito += $rs_datopago['TX_datopago_monto'];	break;
-				case '4':	$color='#e9ca2f';	$total_tarjeta_debito += $rs_datopago['TX_datopago_monto'];	break;
-				case '5':	$color='#e9ca2f';	$total_credito += $rs_datopago['TX_datopago_monto'];	break;
-				case '2':	$color='#57afdb';	$total_cheque += $rs_datopago['TX_datopago_monto'];	break;
-				case '7':	$color='#EFA63F';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
+				case '1':	$color='#74c374';	$total_efectivo += $rs_datopago['TX_datopago_monto'];	break;
+				case '3':	$color='#000000';	$total_tarjeta_credito += $rs_datopago['TX_datopago_monto'];	break;
+				case '4':	$color='#73c9e3';	$total_tarjeta_debito += $rs_datopago['TX_datopago_monto'];	break;
+				case '5':	$color='#df6d69';	$total_credito += $rs_datopago['TX_datopago_monto'];	break;
+				case '2':	$color='#518ec2';	$total_cheque += $rs_datopago['TX_datopago_monto'];	break;
+				case '7':	$color='#f2b968';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
+				case '8':	$color='#bdbd07';	$total_porcobrar += $rs_datopago['TX_datopago_monto'];	break;
 			}
 			echo "<font color='{$color}'>".$rs_datopago['TX_metododepago_value']."</font><br />";
 			$raw_monto[$i]=$rs_datopago['TX_datopago_monto'];
@@ -297,7 +309,7 @@ function duplicate_datoventa(facturaventa_id){
 		</tr>
 <?php
 	}while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC));
-	$total_total = $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta_credito+$total_tarjeta_debito;
+	$total_total = $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta_credito+$total_tarjeta_debito+$total_porcobrar;
     ?>
     <?php }else{ ?>
     <tr>
@@ -322,42 +334,50 @@ function duplicate_datoventa(facturaventa_id){
                 </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>Cheque:</strong> <br /><?php
-				if(isset($total_efectivo)){
+				if(isset($total_cheque)){
 					echo number_format($total_cheque,2);
 				}?>
               </td>
 							<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>TDC:</strong> <br /><?php
-				if(isset($total_efectivo)){
+				if(isset($total_tarjeta_credito)){
 					echo number_format($total_tarjeta_credito,2);
 				}
 				?>
 							</td>
 							<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>TDD:</strong> <br /><?php
-				if(isset($total_efectivo)){
+				if(isset($total_tarjeta_debito)){
 					echo number_format($total_tarjeta_debito,2);
 				}
 				?>
               </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>Cr&eacute;dito:</strong> <br /><?php
-				if(isset($total_efectivo)){
+				if(isset($total_credito)){
 					echo number_format($total_credito,2);
 				}?>
                 </td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 				<strong>Nota de C.:</strong> <br /><?php
-				if(isset($total_efectivo)){
+				if(isset($total_notadc)){
 					echo number_format($total_notadc,2);
 				}?>
-                </td>
+              </td>
+						</tr>
+						<tr>
+							<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+								<strong>Por Cobrar:</strong> <br /><?php
+								if(isset($total_porcobrar)){
+									echo 'B/ '.number_format($total_porcobrar,2);
+								}?>
+							</td>
             	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-				<strong>Total:</strong> <br /><?php
-				if(isset($total_efectivo)){
-					echo number_format($total_total,2);
-				}?>
-                </td>
+								<strong>Total:</strong> <br /><?php
+								if(isset($total_efectivo)){
+									echo number_format($total_total,2);
+								}?>
+              </td>
             </tr>
 			</table>
             </td>
@@ -370,9 +390,7 @@ function duplicate_datoventa(facturaventa_id){
 </div>
 
 <div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
-	</div>
+	<?php require 'attached/php/req_footer_popup.php'; ?>
 </div>
 </div>
 

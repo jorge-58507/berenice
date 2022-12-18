@@ -226,16 +226,15 @@ function del_provider_cpp(cpp_id){
 <body>
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
+	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
   	<div id="logo" ></div>
-   	</div>
-
-	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
-    	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        Bienvenido: <label class="bg-primary">
-         <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
-        </label>
-        </div>
+ 	</div>
+	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-10">
+  	<div id="container_username" class="col-lg-4 visible-lg">
+      Bienvenido: <label class="bg-primary">
+       <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
+      </label>
+    </div>
 		<div id="navigation" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
 <?php
 switch ($_COOKIE['coo_tuser']){
@@ -428,13 +427,13 @@ $rs_pedido = $qry_pedido->fetch_array();
 				if (!empty($rs_facturanumero[0])) {	echo "<em>".$rs_facturanumero[0]."</em>"; }
 				if (!empty($rs_pedido[0])) {	echo "<strong>".$rs_pedido[0]."</strong>"; }
 				?></td>
-				<td class=" al_center"><button type="button" class="btn btn-success btn-sm" onclick="document.location.href='admin_pay_cpp.php?a=<?php echo $rs_cpp['AI_cpp_id']; ?>'"><i class="fa fa-money" aria-hidden="true"></i></button></td>
-				<td class=" al_center"><button type="button" class="btn btn-info btn-sm" onclick="open_popup('popup_cpp_confirm.php?a=<?php echo $rs_cpp['AI_cpp_id']; ?>','_popup','580','580')"><i class="fa fa-check" aria-hidden="true"></i></button></td>
+				<td class=" al_center"><button type="button" class="btn btn-success btn-sm" title="Elaborar Pago" onclick="document.location.href='admin_pay_cpp.php?a=<?php echo $rs_cpp['AI_cpp_id']; ?>'"><i class="fa fa-money" aria-hidden="true"></i></button></td>
+				<td class=" al_center"><button type="button" class="btn btn-info btn-sm" title="Cerrar CPP" onclick="open_popup('popup_cpp_confirm.php?a=<?php echo $rs_cpp['AI_cpp_id']; ?>','_popup','580','420')"><i class="fa fa-check" aria-hidden="true"></i></button></td>
 				<td class=" al_center"><?php
 				$qry_datocpp->bind_param("i", $rs_cpp['AI_cpp_id']); $qry_datocpp->execute(); $result_datocpp = $qry_datocpp->get_result();
 				$qry_cheque->bind_param("i", $rs_cpp['AI_cpp_id']); $qry_cheque->execute(); $result_cheque = $qry_cheque->get_result();
 				if ($result_datocpp->num_rows < 1 && $result_cheque->num_rows < 1) { ?>
-					<button type="button" class="btn btn-danger btn-sm" onclick="del_provider_cpp('<?php echo $rs_cpp['AI_cpp_id']; ?>')"><i class="fa fa-times" aria-hidden="true"></i></button>
+					<button type="button" class="btn btn-danger btn-sm" title="Eliminar CPP" onclick="del_provider_cpp('<?php echo $rs_cpp['AI_cpp_id']; ?>')"><i class="fa fa-times" aria-hidden="true"></i></button>
 <?php		}
 				?></td>
 			</tr>
@@ -452,7 +451,7 @@ $rs_pedido = $qry_pedido->fetch_array();
         <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
         </div>
         <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
+    &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
         </div>
         <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
                     		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>

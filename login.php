@@ -49,10 +49,10 @@ function create_cookies_user($id_user,$user_type,$user_seudonimo){
 
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
   <div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
+    <div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
       <div id="logo"></div>
     </div>
-  	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
+  	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-10">
       <div id="navigation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
   	</div>
   </div>
@@ -75,31 +75,31 @@ function create_cookies_user($id_user,$user_type,$user_seudonimo){
     	$title=$RS_title['TX_opcion_value'];
     	setcookie("coo_tittle","".$title."",time()+86400);
       $user_type=$rs_checkpass['TX_user_type'];
-      switch ($user_type) {
-        case "1":
+      // switch ($user_type) {
+      //   case "1":
       		$login_content = "&nbsp;Para ingresar haga Click <a href='start.php' target='_self' >AQU&Iacute;</a>";
       		echo "<meta http-equiv='Refresh' content='1;url=start.php'>".$login_content;
-            break;
-        case "2":
-      		$login_content = "&nbsp;Para ingresar haga Click <a href='start.php' target='_self' >AQU&Iacute;</a>";
-      		echo "<meta http-equiv='Refresh' content='1;url=start.php'>".$login_content;
-            break;
-        case "3":
-      		$login_content = "&nbsp;Para ingresar haga Click <a href='sale.php' target='_self' >AQU&Iacute;</a>";
-      		echo "<meta http-equiv='Refresh' content='1;url=sale.php'>".$login_content;
-            break;
-        case "4":
-      		$login_content = "&nbsp;Para ingresar haga Click <a href='paydesk.php' target='_self' >AQU&Iacute;</a>";
-      		echo "<meta http-equiv='Refresh' content='1;url=paydesk.php'>".$login_content;
-            break;
-        case "5":
-      		$login_content = "&nbsp;Para ingresar haga Click <a href='stock.php' target='_self' >AQU&Iacute;</a>";
-      		echo "<meta http-equiv='Refresh' content='1;url=stock.php'>".$login_content;
-            break;
-        default:
-      		$login_content = "&nbsp;Para ingresar haga Click <a href='start.php' target='_self' >AQU&Iacute;</a>";
-      		echo "<meta http-equiv='Refresh' content='1;url=start.php'>".$login_content;
-      }
+      //       break;
+      //   case "2":
+      // 		$login_content = "&nbsp;Para ingresar haga Click <a href='start.php' target='_self' >AQU&Iacute;</a>";
+      // 		echo "<meta http-equiv='Refresh' content='1;url=start.php'>".$login_content;
+      //       break;
+      //   case "3":
+      // 		$login_content = "&nbsp;Para ingresar haga Click <a href='sale.php' target='_self' >AQU&Iacute;</a>";
+      // 		echo "<meta http-equiv='Refresh' content='1;url=sale.php'>".$login_content;
+      //       break;
+      //   case "4":
+      // 		$login_content = "&nbsp;Para ingresar haga Click <a href='paydesk.php' target='_self' >AQU&Iacute;</a>";
+      // 		echo "<meta http-equiv='Refresh' content='1;url=paydesk.php'>".$login_content;
+      //       break;
+      //   case "5":
+      // 		$login_content = "&nbsp;Para ingresar haga Click <a href='stock.php' target='_self' >AQU&Iacute;</a>";
+      // 		echo "<meta http-equiv='Refresh' content='1;url=stock.php'>".$login_content;
+      //       break;
+      //   default:
+      // 		$login_content = "&nbsp;Para ingresar haga Click <a href='start.php' target='_self' >AQU&Iacute;</a>";
+      // 		echo "<meta http-equiv='Refresh' content='1;url=start.php'>".$login_content;
+      // }
       $file = fopen("login_log.txt", "a");
       fwrite($file, date('d-m-Y H:i:s')." (".$cliente.")"." - ".$user_seudonimo.PHP_EOL );
       fclose($file);
@@ -114,7 +114,7 @@ function create_cookies_user($id_user,$user_type,$user_seudonimo){
 ?>
   </div>
   <div id="footer">
-    <div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >&copy; Derechos Reservados a: Trilli, S.A. 2017</div>
+    <div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?></div>
   </div>
 </div>
 

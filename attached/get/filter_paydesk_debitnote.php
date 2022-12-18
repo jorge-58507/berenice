@@ -6,9 +6,10 @@ $value=$_GET['a'];
 $date_i=date('Y-m-d', strtotime($_GET['b']));
 $date_f=date('Y-m-d', strtotime($_GET['c']));
 $txt_debito="SELECT bh_notadebito.TX_notadebito_numero, bh_notadebito.TX_notadebito_fecha, bh_notadebito.TX_notadebito_hora,
-bh_notadebito.TX_notadebito_total, bh_cliente.TX_cliente_nombre, bh_notadebito.AI_notadebito_id
-FROM (bh_notadebito
+bh_notadebito.TX_notadebito_total, bh_cliente.TX_cliente_nombre, bh_notadebito.AI_notadebito_id, bh_user.TX_user_seudonimo, bh_notadebito.TX_notadebito_status
+FROM ((bh_notadebito
 INNER JOIN bh_cliente ON bh_cliente.AI_cliente_id = bh_notadebito.notadebito_AI_cliente_id)
+INNER JOIN bh_user ON bh_user.AI_user_id = bh_notadebito.notadebito_AI_user_id)
 WHERE  bh_notadebito.TX_notadebito_numero LIKE '%$value%' AND
 bh_notadebito.TX_notadebito_fecha >= '$date_i' AND
 bh_notadebito.TX_notadebito_fecha <= '$date_f'
@@ -40,8 +41,12 @@ $prep_facturaf = $link->prepare("SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.
       <td title="<?php echo $ff_numero; ?>"><?php if ($qry_facturaf->num_rows > 1) { echo "<strong>Multiples</strong>"; }else{ echo $ff_numero; } ?></td>
       <td><?php echo number_format($rs_debito['TX_notadebito_total'],2); ?></td>
       <td class="al_center">
-				<button type="button" id="btn_print_ff" name="<?php echo "print_client_debito.php?a=".$rs_debito['AI_notadebito_id']; ?>" class="btn btn-info btn-md" onclick="print_html(this.name);"><strong><i class="fa fa-print fa_print" aria-hidden="true"></i></strong></button>
-			</td>
+        <button type="button" id="btn_print_ff" name="<?php echo "print_client_debito.php?a=".$rs_debito['AI_notadebito_id']; ?>" class="btn btn-info btn-md" onclick="print_html(this.name);"><strong><i class="fa fa-print fa_print" aria-hidden="true"></i></strong></button>
+        &nbsp;
+<?php   if ($rs_debito['TX_notadebito_status'] != '1') { ?>
+          <button type="button" id="btn_redo_nd" name="" class="btn btn-danger btn-md" onclick="redo_nd('<?php echo $rs_debito['AI_notadebito_id']; ?>');"><strong><i class="fa fa-times fa_print" aria-hidden="true"></i></strong></button>
+<?php   } ?>
+      </td>
     </tr>
 <?php
 		}

@@ -14,10 +14,9 @@ while($rs_opcion = $qry_opcion->fetch_array()){
 }
 $qry_user=$link->query("SELECT TX_user_seudonimo FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'")or die($link->error);
 $rs_user=$qry_user->fetch_array();
-?>
-<?php
+
 $txt_facturaf="SELECT bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_ticket,
-bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono, bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_deficit
+bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_telefono, bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_deficit, bh_notadebito.TX_notadebito_status
 FROM (((bh_facturaf
 INNER JOIN rel_facturaf_notadebito ON bh_facturaf.AI_facturaf_id = rel_facturaf_notadebito.rel_AI_facturaf_id)
 INNER JOIN bh_notadebito ON rel_facturaf_notadebito.rel_AI_notadebito_id = bh_notadebito.AI_notadebito_id)
@@ -27,8 +26,8 @@ WHERE bh_notadebito.AI_notadebito_id = '$debito_id'";
 $qry_facturaf = $link->query($txt_facturaf)or die($link->error);
 $rs_facturaf = $qry_facturaf->fetch_array();
 
-$qry_facturaf_d = $link->query($txt_facturaf)or die($link->error);
-$rs_facturaf_d = $qry_facturaf_d->fetch_array();
+// $qry_facturaf_d = $link->query($txt_facturaf)or die($link->error);
+// $rs_facturaf_d = $qry_facturaf_d->fetch_array();
 
 $txt_datodebito="SELECT bh_notadebito.TX_notadebito_cambio, bh_datodebito.TX_datodebito_monto, bh_datodebito.datodebito_AI_metododepago_id, bh_metododepago.TX_metododepago_value
 FROM ((bh_notadebito
@@ -66,7 +65,7 @@ $qry_nd = $link->prepare("SELECT bh_notadebito.TX_notadebito_fecha, bh_notadebit
 	FROM ((bh_notadebito
 		INNER JOIN rel_facturaf_notadebito ON bh_notadebito.AI_notadebito_id =	rel_facturaf_notadebito.rel_AI_notadebito_id)
 		INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id =	rel_facturaf_notadebito.rel_AI_facturaf_id)
-		WHERE bh_facturaf.AI_facturaf_id = ? ORDER BY TX_notadebito_fecha ASC, TX_notadebito_hora ASC")or die($link->error);
+		WHERE bh_facturaf.AI_facturaf_id = ? AND bh_notadebito.TX_notadebito_status = 0 ORDER BY TX_notadebito_fecha ASC, TX_notadebito_hora ASC")or die($link->error);
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -122,7 +121,7 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
     </td>
 </tr>
 <tr style="height:21px" align="center">
-	<td valign="top" colspan="10"><h4>RECIBO DE PAGO</h4></td>
+	<td valign="top" colspan="10"><h4>RECIBO DE PAGO (<?php echo ($rs_facturaf['TX_notadebito_status'] === '1') ? 'ANULADO' : ''; ?>)</h4></td>
 </tr>
 <tr style="height:184px">
 	<td valign="top" colspan="10">

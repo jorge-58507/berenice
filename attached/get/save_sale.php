@@ -69,7 +69,7 @@ $nr_chkexento = $qry_chkexento->num_rows;
 
 $contenido = read_nuevaventa_content();
 $raw_decode=json_decode($contenido, true);
-if(!is_array($raw_decode)){ 
+if(!is_array($raw_decode)){
 	echo "failed";
 	return false;
 }
@@ -139,7 +139,6 @@ write_nuevaventa_rel($contenido_nuevaventarel);
 
 unset($raw_decode[$_COOKIE['coo_iuser']][$activo]);
 $contenido = json_encode($raw_decode, true);
-
 write_nuevaventa_content($contenido);
 
 $link->close()

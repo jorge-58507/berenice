@@ -19,7 +19,7 @@
 
 /* --------------------################   ADD PROVIDER    ------------------- */
 #txt_direction{
-	height:80px;
+	height:50px;
 }
 
 
@@ -324,8 +324,9 @@ th{
 #container_measure_selected{
 	font-size: 20px;
 	font-weight: bolder;
-	color: #fff;
+	color: #C63632;
 	border-radius: 5px;
+	border: solid 2px #C63632;
 }
 div:has(> #container_measure_selected) {
   padding: 10px 15px;

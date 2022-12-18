@@ -12,7 +12,7 @@ while($rs_opcion=$qry_opcion->fetch_array()){
 
 $facturacompra_id=$_GET['a'];
 
-$qry_facturacompra=$link->query("SELECT bh_facturacompra.TX_facturacompra_fecha, bh_facturacompra.TX_facturacompra_numero, bh_facturacompra.TX_facturacompra_elaboracion,
+$qry_facturacompra=$link->query("SELECT bh_facturacompra.facturacompra_AI_user_id, bh_facturacompra.TX_facturacompra_fecha, bh_facturacompra.TX_facturacompra_numero, bh_facturacompra.TX_facturacompra_elaboracion,
 	bh_facturacompra.TX_facturacompra_ordendecompra, bh_facturacompra.TX_facturacompra_observacion, bh_almacen.TX_almacen_value,
 	bh_proveedor.TX_proveedor_nombre, bh_proveedor.TX_proveedor_cif, bh_proveedor.TX_proveedor_telefono, bh_proveedor.TX_proveedor_dv,
 	bh_proveedor.TX_proveedor_direccion
@@ -34,6 +34,11 @@ while ($rs_datocompra = $qry_datocompra->fetch_array(MYSQLI_ASSOC)) {
 }
 $count_datocompra = count($raw_datocompra);
 
+$qry_user = $link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user")or die($link->error);
+$raw_user = array();
+while ($rs_user = $qry_user->fetch_array(MYSQLI_ASSOC)) {
+	$raw_user[$rs_user['AI_user_id']] = $rs_user['TX_user_seudonimo'];
+}
 $first_pager = 12;
 $second_pager = 20;
 // ### CALCULAR INDICES
@@ -88,7 +93,7 @@ for ($i=0; $i < $index; $i++) {
 	<tr style="height:135px" align="right">
 		<td colspan="2" style="text-align:left"></td>
    	<td valign="top" colspan="6" style="text-align:center">
-			<img width="200px" height="75px" src="attached/image/logo_factura.png">
+			<img width="200px" height="75px" src="attached/image/logo_factura_materiales.png">
 			<br />
 			<font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
 			<font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
@@ -97,7 +102,7 @@ for ($i=0; $i < $index; $i++) {
     </td>
     <td valign="top" colspan="2" class="optmayuscula">
 <?php $date=date('d-m-Y',strtotime($rs_facturacompra['TX_facturacompra_elaboracion']));	?>
-			<strong><?php echo $fecha."&nbsp;-&nbsp;"; ?></strong><?php echo $date; ?>
+			<strong><?php echo $raw_user[$rs_facturacompra['facturacompra_AI_user_id']]." ".$fecha."&nbsp;-&nbsp;"; ?></strong><?php echo $date; ?>
     </td>
 	</tr>
 	<tr style="height:169px">

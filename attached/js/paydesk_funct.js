@@ -1,7 +1,18 @@
 // JavaScript Document
-function prueba(str){
-	alert(str);
+class class_payment
+{
+
 }
+class class_collect
+{
+	constructor(total,payed){
+		this.total = total;
+		this.payed = payed;
+	}
+
+	
+}
+
 function upd_quantityonnewcollect(datoventa_id){
 var new_quantity=prompt("Ingrese la nueva cantidad:");
 	new_quantity = val_intw2dec(new_quantity);

@@ -1,8 +1,8 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
 require '../php/req_login_admin.php';
 
 
 				$bh_del="DELETE FROM bh_nuevadevolucion WHERE nuevadevolucion_AI_user_id = '$user_id'";
-				mysql_query($bh_del, $link) or die(mysql_error());
+				$link->query($bh_del) or die($link->error);

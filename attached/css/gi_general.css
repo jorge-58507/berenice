@@ -1,5 +1,17 @@
 @charset "utf-8";
 /* CSS Document */
+@font-face {
+  font-family: 'Awesome_Season';
+  src: url('../font/Awesome_Season.ttf');
+  src: url('../font/Awesome_Season.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+.footer_sign {
+  font-size: 10px;
+	font-family: 'Awesome_Season';
+  font-weight: normal;
+}
 #container_btn, .tbl_product{
 	padding:0px;
 }
@@ -11,12 +23,15 @@
 	height: 25px;
 	padding: 0 5px;
 }
+/* #btn_config{
+	color: #C63632;
+} */
 #container_btnexit{
 	float: right;
     margin-top: 2px;
 }
 .side-btn-md{
-	padding-top: 14px;
+	padding: 14px 0 0 0;
 }
 .side-btn-md>button{
 	height: 34px;
@@ -24,14 +39,21 @@
 	padding: 0px;
 }
 .side-btn-md-label{
-	padding-top: 14px;
+	padding: 14px 0 0 0;
 }
 .side-btn-md-label>button{
 	height: 34px;
 	width: 34px;
 	padding: 0px;
 }
-
+.side-btn-sm-label{
+	padding: 20px 0 0 0;
+}
+.side-btn-sm-label>button{
+	height: 30px;
+	width: 30px;
+	padding: 0px;
+}
 #btn_start{
 	cursor:pointer;
 }
@@ -105,6 +127,9 @@ h1{
 .bg_red {
     background-color: #C63632;
 	color: #FFFFFF;
+}
+.al_left{
+	text-align: left;
 }
 .al_right{
 	text-align: right;
@@ -242,7 +267,7 @@ h1{
 	font-size: 100%;
 }
 .bad_field{
-	box-shadow: inset 0px 0px 5px #fb0e0e;
+	box-shadow: inset 0px 0px 5px #fb0e0e !important;
 }
 .clear_date{
 	font-size:18px;
@@ -268,17 +293,42 @@ h1{
 	width: 21px;
 	height: 21px;
 }
+.btn_squared_sm{
+	padding: 5px;
+}
 .btn_squared_md{
 	height: 34px;
 	width: 34px;
 	padding: 0;
 	text-align: center;
 }
+.text_center{
+	text-align: center;
+}
+/* ALTURAS */
+.h_10 {
+	height: 10px;
+}
+.h_40 {
+	height: 40px;
+}
+/* Margenes */
+.mt_7{	margin-top: 7px;	}
+.mt_14{	margin-top: 14px;	}
+.mx_7{	margin-left: 7px; margin-right: 7px; }
+.my_7{	margin-top: 7px; margin-bottom: 7px; }
+.mx_14{	margin-left: 14px;	margin-right: 14px; }
+.my_14{	margin-top: 14px; 	margin-bottom: 14px; }
+
+
 .pt_7{
 	padding-top: 7px;
 }
-.pt_14{
-	padding-top: 14px;
+.pt_21{
+	padding-top: 21px;
+}
+.pt_28{
+	padding-top: 28px;
 }
 .double_padding{
 	padding: 0 30px;
@@ -303,20 +353,291 @@ h1{
 	padding-top: 7px;
 	padding-bottom: 7px;
 }
-.px_14{
+.px_14 {
 	padding-left: 14px;
 	padding-right: 14px;
+}
+.px_15 {
+	padding-left: 15px;
+	padding-right: 15px;
 }
 .py_14{
 	padding-top: 14px;
 	padding-bottom: 14px;
 }
+.pt_0{ padding-top: 0px; }
+.pt_7{ padding-top: 7px !important; }
+.pt_14{ padding-top: 14px !important; }
+.pr_0{ padding-right: 0px; }
+.pr_7{ padding-right: 7px; }
+.pr_14{ padding-right: 14px; }
+.pb_0{ padding-bottom: 0px; }
+.pb_7{ padding-bottom: 7px; }
+.pb_14{ padding-bottom: 14px; }
+.pl_0{ padding-left: 0px; }
+.pl_7{ padding-left: 7px; }
+.pl_14{ padding-left: 14px; }
+
+.border_0{
+	border: 0px;
+}
 .border_1{
 	border: solid #ded7d7 1px;
 }
-.bt_1{
-	border-top: solid #ded7d7 1px;
+.border_2{
+	border: solid #ded7d7 2px;
 }
-.bb_1{
+.border_3{
+	border: solid #ded7d7 3px;
+}
+
+.by_1{
+	border-top: solid #ded7d7 1px;
 	border-bottom: solid #ded7d7 1px;
 }
+.bx_1{
+	border-left: solid #ded7d7 1px;
+	border-right: solid #ded7d7 1px;
+}
+.bt_1{		border-top: solid #ded7d7 1px;		}
+.bb_1{		border-bottom: solid #ded7d7 1px;		}
+.bl_1{		border-left: solid #ded7d7 1px;		}
+.br_1{		border-right: solid #ded7d7 1px;		}
+
+.bt_2{		border-top: solid #ded7d7 2px;		}
+.bb_2{		border-bottom: solid #ded7d7 2px;		}
+.bl_2{		border-left: solid #ded7d7 2px;		}
+.br_2{		border-right: solid #ded7d7 2px;		}
+
+.bt_5{		border-top: solid #ded7d7 5px;		}
+.bb_5{		border-bottom: solid #ded7d7 5px;		}
+.bl_5{		border-left: solid #ded7d7 5px;		}
+.br_5{		border-right: solid #ded7d7 5px;		}
+
+.bt_000_1{		border-top: solid #000 1px;		}
+.bb_000_1{		border-bottom: solid #000 1px;		}
+.bl_000_1{		border-left: solid #000 1px;		}
+.br_000_1{		border-right: solid #000 1px;		}
+
+.bt_000_2{		border-top: solid #000 2px;		}
+.bb_000_2{		border-bottom: solid #000 2px;		}
+.bl_000_2{		border-left: solid #000 2px;		}
+.br_000_2{		border-right: solid #000 2px;		}
+
+.bt_000_5{		border-top: solid #000 5px;		}
+.bb_000_5{		border-bottom: solid #000 5px;		}
+.bl_000_5{		border-left: solid #000 5px;		}
+.br_000_5{		border-right: solid #000 5px;		}
+
+.border_000 { border-color: #000;	}
+.radius_5 { border-radius: 5px;	}
+
+.tarjeta{
+	position: relative;
+	display: -webkit-box;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-box-orient: vertical;
+	-webkit-box-direction: normal;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	min-width: 0;
+	word-wrap: break-word;
+	background-color: #fff;
+	background-clip: border-box;
+	border: 1px solid rgba(0,0,0,.125);
+	border-radius: .25rem;
+}
+.tarjeta_body{
+	-webkit-box-flex: 1;
+	-ms-flex: 1 1 auto;
+	flex: 1 1 auto;
+	padding: 0.25rem;
+}
+.tarjeta_header{
+	border-radius: calc(.25rem - 1px) calc(.25rem - 1px) 0 0;
+	padding: .75rem 1.25rem;
+	margin-bottom: 0;
+	background-color: rgba(0,0,0,.03);
+	border-bottom: 1px solid rgba(0,0,0,.125);
+}
+#nav_wailing_wall {
+	height: 40px;
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: left;
+	padding: 5px 5px;
+}
+.container_navbutton {
+	position: relative;
+}
+.notification_min {
+	height: 0px;
+	opacity: 0;
+}
+.notification_max {
+	height: 350px;
+	opacity: 1;
+}
+.btn_reveal {
+  visibility: hidden;
+}
+#div_btn_notification {
+	float: right;
+	padding: 6px 0 6px 6px;	
+	position: relative;
+}
+#div_btn_start {
+	float: right;
+	padding: 6px 0 6px 6px;
+}
+#div_btn_exit {
+	float: right;
+	padding: 6px 0 6px 6px;
+}
+.non_selectable {
+   -moz-user-select: none; 
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none; 
+}
+
+
+/* ############  TOGGLE SWITCH  ######## */
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+	height: 34px;
+	margin-top: 7px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+/* The slider */
+.slider_switch {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+	transition: .4s;
+	height: 27px;
+	width: 55px;
+}
+
+.slider_switch:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: .4s;
+	transition: .4s;
+	content: "No";
+	color: #7a7a7a;
+	text-align: center;
+	font-size: 12px;
+	font-weight: bolder;
+	padding-top: 2px;
+}
+
+input:checked + .slider_switch {
+  background-color: #2196F3;
+}
+
+input:focus + .slider_switch {
+  box-shadow: 0 0 1px rgb(23, 103, 169);
+}
+
+input:checked + .slider_switch:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+	transform: translateX(26px);
+	content: "Si";
+	color: #1678c6;
+	text-align: center;
+}
+
+/* Rounded sliders */
+.slider_switch.round {
+  border-radius: 34px;
+}
+
+.slider_switch.round:before {
+  border-radius: 50%;
+}
+.cursor_pointer{
+	cursor: pointer;
+}
+
+.tooltip-inner {
+	opacity: 1;
+	font-weight: bolder;
+}
+
+/* TOAST */
+ /* The snackbar - position it at the bottom and in the middle of the screen */
+.snackbar_background {
+	background-color: #000;
+	color: #fff; /*White text color*/
+}
+.bg_danger{
+	background: red;
+	color: white;
+	font-weight: bolder;
+	bottom: 200px !important;
+}
+ #snackbar {
+  visibility: hidden; /* Hidden by default. Visible on click */
+  min-width: 250px; /* Set a default minimum width */
+  margin-left: -125px; /* Divide value of min-width by 2 */
+  text-align: center; /* Centered text */
+  border-radius: 2px; /* Rounded borders */
+  padding: 16px; /* Padding */
+  position: fixed; /* Sit on top of the screen */
+  z-index: 1; /* Add a z-index if needed */
+  left: 50%; /* Center the snackbar */
+	bottom: 30px; /* 30px from the bottom */
+}
+
+/* Show the snackbar when clicking on a button (class added with JavaScript) */
+#snackbar.show {
+  visibility: visible; /* Show the snackbar */
+  /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+  However, delay the fade out process for 2.5 seconds */
+  -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+  animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@-webkit-keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+  from {bottom: 0; opacity: 0;}
+  to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+  from {bottom: 30px; opacity: 1;}
+  to {bottom: 0; opacity: 0;}
+} 

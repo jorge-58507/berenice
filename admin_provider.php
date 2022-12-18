@@ -5,210 +5,159 @@ require 'attached/php/req_login_stock.php';
 
 $fecha_actual=date('Y-m-d');
 $qry_proveedor = $link->query("SELECT AI_proveedor_id, TX_proveedor_nombre, TX_proveedor_cif, TX_proveedor_dv, TX_proveedor_direccion, TX_proveedor_telefono FROM bh_proveedor ORDER BY TX_proveedor_nombre ASC LIMIT 10");
-
-$qry_saldo = $link->prepare("SELECT bh_cpp.AI_cpp_id, bh_cpp.TX_cpp_total, bh_cpp.TX_cpp_saldo
-	FROM (bh_cpp
-		INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = cpp_AI_proveedor_id)
-		WHERE cpp_AI_proveedor_id = ? AND TX_cpp_saldo > 0") or die($link->error);
-
-$qry_expired_cpp = $link->query("SELECT bh_cpp.AI_cpp_id,bh_cpp.TX_cpp_saldo,bh_cpp.TX_cpp_total,bh_cpp.TX_cpp_fecha, bh_proveedor.TX_proveedor_nombre, bh_proveedor.AI_proveedor_id FROM (bh_cpp INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = bh_cpp.cpp_AI_proveedor_id) WHERE TX_cpp_fecha <= '$fecha_actual' AND TX_cpp_status = 'ACTIVA' ORDER BY TX_cpp_fecha DESC")or die($link->error);
+$qry_saldo = $link->prepare("SELECT bh_cpp.AI_cpp_id, bh_cpp.TX_cpp_total, bh_cpp.TX_cpp_saldo FROM (bh_cpp INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = cpp_AI_proveedor_id) WHERE cpp_AI_proveedor_id = ? AND TX_cpp_saldo > 0") or die($link->error);
 $qry_cpp_facturacompra = $link->prepare("SELECT AI_facturacompra_id,TX_facturacompra_numero FROM (bh_facturacompra INNER JOIN bh_cpp ON bh_facturacompra.AI_facturacompra_id = bh_cpp.cpp_AI_facturacompra_id) WHERE AI_cpp_id = ?");
 $qry_cpp_pedido = $link->prepare("SELECT AI_pedido_id,TX_pedido_numero FROM (bh_pedido INNER JOIN bh_cpp ON bh_pedido.AI_pedido_id = bh_cpp.cpp_AI_pedido_id) WHERE AI_cpp_id = ?");
+$qry_expired_cpp = $link->query("SELECT bh_cpp.AI_cpp_id,bh_cpp.TX_cpp_saldo,bh_cpp.TX_cpp_total,bh_cpp.TX_cpp_fecha, bh_proveedor.TX_proveedor_nombre, bh_proveedor.AI_proveedor_id FROM (bh_cpp INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = bh_cpp.cpp_AI_proveedor_id) WHERE TX_cpp_fecha <= '$fecha_actual' AND TX_cpp_status = 'ACTIVA' ORDER BY TX_cpp_fecha DESC")or die($link->error);
 
 $qry_cheque = $link->query("SELECT bh_cheque.AI_cheque_id, bh_cheque.TX_cheque_fecha, bh_proveedor.TX_proveedor_nombre, bh_cheque.cheque_AI_cpp_id, bh_cheque.TX_cheque_numero, bh_cheque.TX_cheque_monto, bh_cheque.TX_cheque_observacion, bh_cheque.cheque_AI_proveedor_id
 	FROM (bh_cheque
 		INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id = bh_cheque.cheque_AI_proveedor_id)
 		ORDER BY TX_cheque_fecha LIMIT 10;")or die($link->error);
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Trilli, S.A. - Todo en Materiales</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Trilli, S.A. - Todo en Materiales</title>
+	<?php include 'attached/php/req_required.php'; ?>
+	<link href="attached/css/admin_css.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript">
 
-<link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/admin_css.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/jquery-ui.css" rel="stylesheet" type="text/css" />
+		$(document).ready(function() {
+			$(window).on('beforeunload', function(){
+				close_popup();
+			});
+			$("#btn_add_provider").on("click", function(){
+				open_popup(`popup_addprovider.php?a=${$("#txt_filterprovider").val()}`,'_popup','420','473');
+			})
+			$("#txt_filterprovider").on("keyup", function(){
+				$.ajax({	data: {"a" : this.value },	type: "GET",	dataType: "text",	url: "attached/get/filter_provider_adminprovider.php", })
+				 .done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
+				 	$("#tbl_provider tbody").html(data);
+					})
+				 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+			})
+			$("#txt_filtercpp").on("keyup", function(){
+				$.ajax({	data: {"a" : this.value, "b" : $("#txt_cpp_fechai").val(), "c" : $("#txt_cpp_fechaf").val() },	type: "GET",	dataType: "text",	url: "attached/get/filter_provider_admincpp.php", })
+				 .done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
+				 	$("#tbl_cpp tbody").html(data);
+					})
+				 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+			})
+			$("#txt_filtercheque").on("keyup", function(){
+				$.ajax({	data: {"a" : this.value, "b" : $("#txt_check_fechai").val(), "c" : $("#txt_check_fechaf").val() },	type: "GET",	dataType: "text",	url: "attached/get/filter_provider_admincheck.php", })
+				 .done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
+				 	$("#tbl_cheque tbody").html(data);
+					})
+				 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+			})
+		// #######################  FILTRO DE CUENTAS POR PAGAR
+			$( function() {
+				var dateFormat = "dd-mm-yy",
+			  from = $( "#txt_cpp_fechai" )
+				.datepicker({
+				  defaultDate: "+1w",
+				  changeMonth: true,
+				  numberOfMonths: 2
+				})
+				.on( "change", function() {
+				  to.datepicker( "option", "minDate", getDate( this ) );
+				}),
+			  to = $( "#txt_cpp_fechaf" ).datepicker({
+					defaultDate: "+1w",
+					changeMonth: true,
+					numberOfMonths: 2
+			  })
+			  .on( "change", function() {
+					from.datepicker( "option", "maxDate", getDate( this ) );
+			  });
+				function getDate( element ) {
+				  var date;
+				  try {
+						date = $.datepicker.parseDate( dateFormat, element.value );
+				  } catch( error ) {
+						date = null;
+				  }
+				  return date;
+				}
+			});
 
-<script type="text/javascript" src="attached/js/jquery.js"></script>
-<script type="text/javascript" src="attached/js/jquery-ui.min_edit.js"></script>
-<script type="text/javascript" src="attached/js/bootstrap.js"></script>
-<script type="text/javascript" src="attached/js/general_funct.js"></script>
-<script type="text/javascript" src="attached/js/ajax_funct.js"></script>
+		// ################## FILTRO DE CHEQUES
+			$( function() {
+				var dateFormat = "dd-mm-yy",
+			  from = $( "#txt_check_fechai" )
+				.datepicker({
+				  defaultDate: "+1w",
+				  changeMonth: true,
+				  numberOfMonths: 2
+				})
+				.on( "change", function() {
+				  to.datepicker( "option", "minDate", getDate( this ) );
+				}),
+			  to = $( "#txt_check_fechaf" ).datepicker({
+					defaultDate: "+1w",
+					changeMonth: true,
+					numberOfMonths: 2
+			  })
+			  .on( "change", function() {
+					from.datepicker( "option", "maxDate", getDate( this ) );
+			  });
 
+				function getDate( element ) {
+				  var date;
+				  try {
+						date = $.datepicker.parseDate( dateFormat, element.value );
+				  } catch( error ) {
+						date = null;
+				  }
+				  return date;
+				}
+			});
+		});
 
-<script type="text/javascript">
-
-$(document).ready(function() {
-$(window).on('beforeunload', function(){
-	close_popup();
-});
-$("#btn_navsale").click(function(){
-	window.location="sale.php";
-});
-$("#btn_navstock").click(function(){
-	window.location="stock.php";
-});
-$("#btn_navpaydesk").click(function(){
-	window.location="paydesk.php";
-})
-$("#btn_navadmin").click(function(){
-	window.location="start_admin.php";
-});
-$("#btn_start").click(function(){
-	window.location="start.php";
-});
-$("#btn_exit").click(function(){
-	location.href="index.php";
-})
-
-$("#btn_add_provider").on("click", function(){
-	open_popup(`popup_addprovider.php?a=${$("#txt_filterprovider").val()}`,'_popup','420','473');
-})
-
-$("#txt_filterprovider").on("keyup", function(){
-	$.ajax({	data: {"a" : this.value },	type: "GET",	dataType: "text",	url: "attached/get/filter_provider_adminprovider.php", })
-	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
-	 	$("#tbl_provider tbody").html(data);
-		})
-	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
-})
-$("#txt_filtercpp").on("keyup", function(){
-	$.ajax({	data: {"a" : this.value, "b" : $("#txt_cpp_fechai").val(), "c" : $("#txt_cpp_fechaf").val() },	type: "GET",	dataType: "text",	url: "attached/get/filter_provider_admincpp.php", })
-	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
-	 	$("#tbl_cpp tbody").html(data);
-		})
-	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
-})
-$("#txt_filtercheque").on("keyup", function(){
-	$.ajax({	data: {"a" : this.value, "b" : $("#txt_check_fechai").val(), "c" : $("#txt_check_fechaf").val() },	type: "GET",	dataType: "text",	url: "attached/get/filter_provider_admincheck.php", })
-	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
-	 	$("#tbl_cheque tbody").html(data);
-		})
-	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
-})
-// #######################  FILTRO DE CUENTAS POR PAGAR
-$( function() {
-var dateFormat = "dd-mm-yy",
-  from = $( "#txt_cpp_fechai" )
-	.datepicker({
-	  defaultDate: "+1w",
-	  changeMonth: true,
-	  numberOfMonths: 2
-	})
-	.on( "change", function() {
-	  to.datepicker( "option", "minDate", getDate( this ) );
-	}),
-  to = $( "#txt_cpp_fechaf" ).datepicker({
-	defaultDate: "+1w",
-	changeMonth: true,
-	numberOfMonths: 2
-  })
-  .on( "change", function() {
-	from.datepicker( "option", "maxDate", getDate( this ) );
-  });
-
-function getDate( element ) {
-  var date;
-  try {
-	date = $.datepicker.parseDate( dateFormat, element.value );
-  } catch( error ) {
-	date = null;
-  }
-
-  return date;
-}
-});
-
-// ################## FILTRO DE CHEQUES
-$( function() {
-var dateFormat = "dd-mm-yy",
-  from = $( "#txt_check_fechai" )
-	.datepicker({
-	  defaultDate: "+1w",
-	  changeMonth: true,
-	  numberOfMonths: 2
-	})
-	.on( "change", function() {
-	  to.datepicker( "option", "minDate", getDate( this ) );
-	}),
-  to = $( "#txt_check_fechaf" ).datepicker({
-	defaultDate: "+1w",
-	changeMonth: true,
-	numberOfMonths: 2
-  })
-  .on( "change", function() {
-	from.datepicker( "option", "maxDate", getDate( this ) );
-  });
-
-function getDate( element ) {
-  var date;
-  try {
-	date = $.datepicker.parseDate( dateFormat, element.value );
-  } catch( error ) {
-	date = null;
-  }
-
-  return date;
-}
-});
-});
-
-function del_provider(provider_id){
-	$.ajax({	data: {"a" : provider_id },	type: "GET",	dataType: "text",	url: "attached/get/del_provider.php", })
-	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
-		 	$("#tbl_provider tbody").html(data);
-		})
-	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
-}
-</script>
-
+		function del_provider(provider_id){
+			$.ajax({	data: {"a" : provider_id },	type: "GET",	dataType: "text",	url: "attached/get/del_provider.php", })
+			.done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
+			 	$("#tbl_provider tbody").html(data);
+			})
+			.fail(function( jqXHR, textStatus, errorThrown ) {		});
+		}
+	</script>
 </head>
-
 <body>
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
-  	<div id="logo" ></div>
-   	</div>
-
-	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
-    	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        Bienvenido: <label class="bg-primary">
-         <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
-        </label>
-        </div>
-		<div id="navigation" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+	<div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
+	  	<div id="logo" ></div>
+	  </div>
+		<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
+			<div id="container_username" class="col-lg-4  visible-lg">
+				Bienvenido: <label class="bg-primary"><?php echo $rs_checklogin['TX_user_seudonimo']; ?></label>
+		  </div>
+			<div id="navigation" class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
 <?php
-switch ($_COOKIE['coo_tuser']){
-	case '1':
-		include 'attached/php/nav_master.php';
-	break;
-	case '2':
-		include 'attached/php/nav_admin.php';
-	break;
-	case '3':
-		include 'attached/php/nav_sale.php';
-	break;
-	case '4':
-		include 'attached/php/nav_paydesk.php';
-	break;
-	case '5':
-		include 'attached/php/nav_stock.php';
-	break;
-}
-?>
+			switch ($_COOKIE['coo_tuser']){
+				case '1':
+					include 'attached/php/nav_master.php';
+				break;
+				case '2':
+					include 'attached/php/nav_admin.php';
+				break;
+				case '3':
+					include 'attached/php/nav_sale.php';
+				break;
+				case '4':
+					include 'attached/php/nav_paydesk.php';
+				break;
+				case '5':
+					include 'attached/php/nav_stock.php';
+				break;
+			}
+	?>
+		</div>
 		</div>
 	</div>
-
-</div>
-
 <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="padding-top:5px;">
 <form name="form_provider" onsubmit="return false;">
 
@@ -220,7 +169,7 @@ switch ($_COOKIE['coo_tuser']){
   <div class="tab-content">
     <div id="cpp" class="tab-pane fade in active">
 			<div id="container_cpp" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-				<div id="container_filtercpp" class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+				<div id="container_filtercpp" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
 					<label for="txt_filtercpp" class="label label_blue_sky" >Buscar</label>
 					<input type="text" id="txt_filtercpp" placeholder="Buscar Cuentas por Pagar" autocomplete="off" class="form-control">
 				</div>
@@ -238,8 +187,8 @@ switch ($_COOKIE['coo_tuser']){
 						<caption>Cuentas por Pagar</caption>
 						<thead class="bg_red">
 							<tr>
-								<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center">FECHA</th>
-								<th class="col-xs-6 col-sm-6 col-md-6 col-lg-6 al_center">PROVEEDOR</th>
+								<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">FECHA</th>
+								<th class="col-xs-7 col-sm-7 col-md-7 col-lg-7 al_center">PROVEEDOR</th>
 								<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">TOTAL</th>
 								<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">SALDO</th>
 								<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">NUMERO</th>
@@ -254,8 +203,8 @@ switch ($_COOKIE['coo_tuser']){
 						<tbody>
 			<?php 	while ($rs_expired_cpp = $qry_expired_cpp->fetch_array()) { ?>
 							<tr>
-								<td><?php echo $rs_expired_cpp['TX_cpp_fecha']; ?></td>
-								<td><?php echo $rs_expired_cpp['TX_proveedor_nombre']; ?></td>
+								<td><?php echo date('d-m-Y', strtotime($rs_expired_cpp['TX_cpp_fecha'])); ?></td>
+								<td><?php echo $r_function->replace_special_character($rs_expired_cpp['TX_proveedor_nombre']); ?></td>
 								<td><?php echo "B/ ".number_format($rs_expired_cpp['TX_cpp_total'],2); ?></td>
 								<td><?php echo "B/ ".number_format($rs_expired_cpp['TX_cpp_saldo'],2); ?></td>
 								<td><?php
@@ -410,24 +359,13 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 </form>
 </div>
-
-
 <div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-        <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        </div>
-        <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
-        </div>
-        <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-                    		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-        </div>
-        <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            <button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-        </div>
-	</div>
+	<?php require 'attached/php/req_footer.php'; ?>
 </div>
 </div>
-
+</div>
+<script type="text/javascript">
+	<?php include 'attached/php/req_footer_js.php'; ?>
+</script>
 </body>
 </html>

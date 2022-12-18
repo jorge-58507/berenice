@@ -3,6 +3,12 @@ require 'bh_conexion.php';
 $link=conexion();
 $qry_product = $link->query("SELECT TX_producto_value, TX_producto_codigo, TX_producto_referencia FROM bh_producto WHERE AI_producto_id = '{$_GET['a']}'")or die($link->error);
 $rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
+$qry_inventory = $link->query("SELECT TX_inventario_json FROM bh_inventario WHERE inventario_AI_producto_id = '{$_GET['a']}'")or die($link->error);
+$rs_inventory=$qry_inventory->fetch_array(MYSQLI_ASSOC);
+$array_inventory = json_decode($rs_inventory['TX_inventario_json'], true);
+$last_count = end($array_inventory);
+$last_count_date = key($last_count);
+$last_count_quantity = $last_count[$last_count_date];
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -69,7 +75,7 @@ $( function() {
 
 $("#btn_calculate").on("click",function(){
 	 // ############   RELACION COMPRA/VENTA
-	 if(isNaN($("#txt_count").val())) { console.log("no e sun numero"); return false; }
+	 if(isNaN($("#txt_count").val())) { console.log("no es un numero"); return false; }
 	$.ajax({	data: {'a': $("#txt_datei").val(), 'b': $("#txt_datef").val(), 'c': '<?php echo $_GET['a']; ?>', 'd' : $("#txt_count").val() },	type: "GET",	dataType: "text",	url: "attached/get/get_relation.php", })
 	 .done(function( data, textStatus, jqXHR ) {
 	 console.log(data);
@@ -117,7 +123,7 @@ $("#btn_print").on("click",function(){
 </div>
 
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <?php $date_i=date('d-m-Y',strtotime('-4 week')); $date_f=date('d-m-Y',strtotime('+1 day')); ?>
+    <?php $date_i=date('d-m-Y',strtotime($last_count_date)); $date_f=date('d-m-Y',strtotime('+1 day')); ?>
     <div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
         <div id="container_spanproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
 	    	<label for="span_product" class="label label-info">Nombre</label>
@@ -128,9 +134,9 @@ $("#btn_print").on("click",function(){
 			<span id="span_code" class="form-control bg-disabled"><?php echo $rs_product['TX_producto_codigo']; ?></span>
         </div>
 		<div id="container_spanreference" class="col-xs-6 col-sm-6 col-md-6 col-lg-6" >
-        	<label for="span_reference" class="label label-info">Referencia</label>
-			<span id="span_reference" class="form-control bg-disabled"><?php echo $rs_product['TX_producto_referencia']; ?></span>
-        </div>
+    	<label for="span_reference" class="label label-info">Referencia</label>
+			<span id="span_reference" class="form-control bg-disabled"><?php echo $r_function->replace_special_character($rs_product['TX_producto_referencia']); ?></span>
+    </div>
     </div>
     <div id="container_date" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
         <div id="container_datei" class="col-xs-4 col-sm-4 col-md-4 col-lg-4" >
@@ -143,7 +149,7 @@ $("#btn_print").on("click",function(){
         </div>
 				<div id="container_txtcount" class="col-xs-4 col-sm-4 col-md-4 col-lg-4"  >
 					<label for="txt_count" class="label label-info">Conteo</label>
-					<input type="text" id="txt_count" name="" class="form-control" value="">
+					<input type="text" id="txt_count" name="" class="form-control" value="<?php echo $last_count_quantity ?>">
 				</div>
     </div>
     <div id="container_relation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
@@ -193,7 +199,7 @@ $("#btn_print").on("click",function(){
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>

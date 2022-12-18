@@ -1,4 +1,6 @@
 <?php
+set_time_limit(180);
+
 require '../../bh_conexion.php';
 $link = conexion();
 require '../php/req_login_paydesk.php';
@@ -82,22 +84,25 @@ if ($nr_impresora < 1) {
 $rs_impresora=$qry_impresora->fetch_array();
 $impresora_id = $rs_impresora['AI_impresora_id'];
 $recipiente = $rs_impresora['TX_impresora_recipiente'];
-// $recipiente = "//noexiste/P_CAJA/";
+// $recipiente = "//noexiste/P_CAJA/";,m
+// ############################# 								VERIFICAR SI HAY ACCESO A LA RED								########################
 $retorno = $rs_impresora['TX_impresora_retorno'];
 if (!file_exists($recipiente)) {
-    if(!mkdir($recipiente, 0777, true)){
-			echo "denied";
-			return false;
-		};
+	if(!mkdir($recipiente, 0777, true)){
+		echo "denied";
+		return false;
+	};
 }
 /* ^########################### FUNCIONES ##################### ^ */
+
+
 $subtotal_ni=0;
 $subtotal_ci=0;
 $impuesto=0;
 $descuento_ni=0;
 $descuento_ci=0;
 /* V#################CALCULAR TOTALES DE LOS PRODUCTOS EN LA FACTURA  ###################V */
-$txt_facturaventa="SELECT bh_datoventa.datoventa_AI_producto_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_exento, bh_facturaventa.facturaventa_AI_cliente_id, bh_datoventa.TX_datoventa_medida
+$txt_facturaventa="SELECT bh_facturaventa.AI_facturaventa_id, bh_datoventa.datoventa_AI_producto_id, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_producto.TX_producto_exento, bh_facturaventa.facturaventa_AI_cliente_id, bh_datoventa.TX_datoventa_medida
 FROM ((bh_facturaventa
 INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
 INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
@@ -111,7 +116,7 @@ foreach ($arr_factid as $key => $value) {
 }
 $qry_facturaventa=$link->query($txt_facturaventa)or die($link->error);
 $raw_facturaventa = array();
-while($rs_facturaventa=$qry_facturaventa->fetch_array()){
+while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC)){
 	$raw_facturaventa[]=$rs_facturaventa;
 	$precio=$rs_facturaventa['TX_datoventa_precio']*$rs_facturaventa['TX_datoventa_cantidad'];
 	$desc=($rs_facturaventa['TX_datoventa_descuento']*$precio)/100;
@@ -174,13 +179,19 @@ foreach ($raw_payment as $key => $value) {
 foreach ($arr_factid as $key => $value) {
 	upd_facturaventa($last_ff,$value,$client_id);
 }
+// restar cantidades a inventario
+	$prep_producto = $link->prepare("SELECT TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = ?")or die($link->error);
+	$prep_producto_medida = $link->prepare("SELECT AI_rel_productomedida_id, TX_rel_productomedida_cantidad FROM rel_producto_medida WHERE productomedida_AI_producto_id = ? AND productomedida_AI_medida_id = ?")or die($link->error);
 foreach ($raw_facturaventa as $key => $value) {
-	$qry_producto = $link->query("SELECT TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = '{$value['datoventa_AI_producto_id']}'")or die($link->error);
-	$rs_producto = $qry_producto->fetch_array();
-	$qry_producto_medida = $link->query("SELECT AI_rel_productomedida_id, TX_rel_productomedida_cantidad FROM rel_producto_medida WHERE productomedida_AI_producto_id = '{$value['datoventa_AI_producto_id']}' AND productomedida_AI_medida_id = '{$value['TX_datoventa_medida']}'")or die($link->error);
-	$rs_producto_medida = $qry_producto_medida->fetch_array();
+	// $qry_producto = $link->query("SELECT TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = '{$value['datoventa_AI_producto_id']}'")or die($link->error);
+	$prep_producto->bind_param("i",$value['datoventa_AI_producto_id']); $prep_producto->execute(); $qry_producto = $prep_producto->get_result();
+	$rs_producto = $qry_producto->fetch_array(MYSQLI_ASSOC);
+	// $qry_producto_medida = $link->query("SELECT AI_rel_productomedida_id, TX_rel_productomedida_cantidad FROM rel_producto_medida WHERE productomedida_AI_producto_id = '{$value['datoventa_AI_producto_id']}' AND productomedida_AI_medida_id = '{$value['TX_datoventa_medida']}'")or die($link->error);
+	$prep_producto_medida->bind_param("ii",$value['datoventa_AI_producto_id'],$value['TX_datoventa_medida']); $prep_producto_medida->execute(); $qry_producto_medida = $prep_producto_medida->get_result();
+	$rs_producto_medida = $qry_producto_medida->fetch_array(MYSQLI_ASSOC);
 	$resta=$rs_producto['TX_producto_cantidad']-($value['TX_datoventa_cantidad']*$rs_producto_medida['TX_rel_productomedida_cantidad']);
 	$link->query("UPDATE bh_producto SET TX_producto_cantidad = '$resta' WHERE AI_producto_id = '{$value['datoventa_AI_producto_id']}' AND TX_producto_descontable = '1'")or die($link->error);
+	$link->query("UPDATE bh_datoventa SET TX_datoventa_entrega = 0 WHERE datoventa_AI_facturaventa_id = '{$value['AI_facturaventa_id']}'")or die($link->error);
 }
 echo "acepted"
 ?>

@@ -11,7 +11,6 @@ WHERE bh_facturacompra.TX_facturacompra_fecha >= '$date_i' AND  bh_facturacompra
 $qry_purchase=$link->query($txt_purchase);
 $cantidad_comprada=0;
 while($rs_purchase=$qry_purchase->fetch_array()){
-	echo "<br />comprados ".$rs_purchase[0];
 	$cantidad_comprada+=$rs_purchase[0];
 }
 $cantidad_ingresada = $cantidad_comprada+$conteo;
@@ -45,14 +44,16 @@ $content = file_get_contents("../tool/reduce_recompose/reduce_recompose.json");
 $raw_contenido = json_decode($content, true);
 $reducido=0; $sumado=0;
 foreach ($raw_contenido['saved'] as $index => $saved) {
-	foreach ($saved['minus'] as $key => $minus) {
-		if ($minus['producto_id'] === $product_id) {
-			$reducido += $minus['cantidad'];
+	if ($saved['fecha'] >= $date_i && $saved['fecha'] <= $date_f ) {
+		foreach ($saved['minus'] as $key => $minus) {
+			if ($minus['producto_id'] === $product_id) {
+				$reducido += $minus['cantidad'];
+			}
 		}
-	}
-	foreach ($saved['plus'] as $key => $plus) {
-		if ($plus['producto_id'] === $product_id) {
-			$sumado += $plus['cantidad'];
+		foreach ($saved['plus'] as $key => $plus) {
+			if ($plus['producto_id'] === $product_id) {
+				$sumado += $plus['cantidad'];
+			}
 		}
 	}
 }

@@ -1,12 +1,15 @@
-<?php 
+<?php
 require 'bh_conexion.php';
 $link=conexion();
 
 require 'attached/php/req_login_paydesk.php';
 
-
- $debito_id=(!empty($_SESSION['debito_id'])) ? $_SESSION['debito_id'] : $_GET['a'];
+$debito_id=(!empty($_SESSION['debito_id'])) ? $_SESSION['debito_id'] : $_GET['a'];
  // $debito_id='15';
+// $qry_reldatodebito = $link->prepare("SELECT TX_rel_facturafnotadebito_importe FROM rel_facturaf_notadebito WHERE rel_AI_facturaf_id = ? AND rel_AI_notadebito_id <= '$debito_id'")or die($link->error);
+$qry_reldatodebito = $link->prepare("SELECT TX_rel_facturafnotadebito_importe FROM rel_facturaf_notadebito INNER JOIN bh_notadebito ON bh_notadebito.AI_notadebito_id = rel_facturaf_notadebito.rel_AI_notadebito_id WHERE rel_AI_facturaf_id = ? AND rel_AI_notadebito_id <= '$debito_id' AND bh_notadebito.TX_notadebito_status = 0")or die($link->error);
+$prep_datopago = $link->prepare("SELECT SUM(TX_datopago_monto) as pago FROM bh_datopago WHERE datopago_AI_facturaf_id = ? AND bh_datopago.datopago_AI_metododepago_id != 5 AND bh_datopago.datopago_AI_metododepago_id != 8")or die($link->error);
+
 $qry_opcion=$link->query("SELECT TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
 while($rs_opcion = $qry_opcion->fetch_array()){
@@ -60,7 +63,7 @@ while($rs_datodebito=$qry_datodebito->fetch_array()){
 	$notadebito_numero = $rs_datodebito['TX_notadebito_numero'];
 }
 if(empty($cambio)){ $cambio=0; }
-$total_total=$total_efectivo+$total_tarjeta_debito+$total_tarjeta_credito+$total_nota_credito+$total_cheque+$cambio;
+$total_total=$total_efectivo+$total_tarjeta_debito+$total_tarjeta_credito+$total_nota_credito+$total_cheque;
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -160,12 +163,21 @@ margin-top: 105px;margin-left: -130px;">
         <tbody>
 <?php 	$raw_facturaf=array();
 				do{
+          $qry_reldatodebito->bind_param('i', $rs_facturaf['AI_facturaf_id']); $qry_reldatodebito->execute(); $result = $qry_reldatodebito->get_result();
+          $ttl_debito = 0;
+          while($rs_reldatodebito = $result->fetch_array(MYSQLI_ASSOC)){
+            $ttl_debito += $rs_reldatodebito['TX_rel_facturafnotadebito_importe'];
+          }
+          $prep_datopago->bind_param("i",  $rs_facturaf['AI_facturaf_id']); $prep_datopago->execute(); $qry_datopago=$prep_datopago->get_result();
+          while ($rs_datopago = $qry_datopago->fetch_array(MYSQLI_ASSOC)) {
+            $ttl_debito += $rs_datopago['pago'];
+          }
 					$raw_facturaf[]=$rs_facturaf;?>
         <tr>
         	<td><?php echo $rs_facturaf['TX_facturaf_numero']; ?></td>
         	<td><?php $prefecha=strtotime($rs_facturaf['TX_facturaf_fecha']); echo date('d-m-Y',$prefecha); ?></td>
         	<td><?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_total'],2); ?></td>
-        	<td><?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></td>
+        	<td><?php echo "B/ ".number_format($rs_facturaf['TX_facturaf_total']-$ttl_debito,2); ?></td>
         </tr>
 			<?php }while($rs_facturaf=$qry_facturaf->fetch_array());
 			?>
@@ -207,9 +219,11 @@ margin-top: 105px;margin-left: -130px;">
 		</thead>
 		<tbody>
 <?php
+$nc_exist=0;
 foreach ($raw_ff_nd as $key => $ff_id) {
 	foreach ($ff_id['nd_id'] as $index => $nd_id) {
 		$qry_datodebito->bind_param("i", $nd_id); $qry_datodebito->execute(); $result=$qry_datodebito->get_result();
+		if ($result->num_rows > 0) { 	$nc_exist=1;	}
 		while ($rs_datodebito=$result->fetch_array()) {
 			if ($rs_datodebito['datodebito_AI_metododepago_id'] === 7) {
 ?>
@@ -224,13 +238,16 @@ foreach ($raw_ff_nd as $key => $ff_id) {
 		}
 	}
 }
+if ($nc_exist > 0) {
+	echo '<meta http-equiv="refresh" content="1; url=http://localhost:8080/berenice/print_debito_v.php?a='.$debito_id.'">';
+}
 ?>
 		</tbody>
 	</table>
   <p>
 		<?php
 			if($total_efectivo > 0){
-				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
+				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo,2);
 			}
 			if($total_cheque > 0){
 				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);
@@ -344,14 +361,22 @@ foreach ($raw_ff_nd as $key => $ff_id) {
       	</tr>
       </thead>
       <tbody>
-        <?php
-
-        do{  ?>
+<?php   do{
+          $qry_reldatodebito->bind_param('i', $rs_facturaf_d['AI_facturaf_id']); $qry_reldatodebito->execute(); $result = $qry_reldatodebito->get_result();
+    			$ttl_debito = 0;
+    			while($rs_reldatodebito = $result->fetch_array(MYSQLI_ASSOC)){
+    				$ttl_debito += $rs_reldatodebito['TX_rel_facturafnotadebito_importe'];
+    			}
+    			$prep_datopago->bind_param("i",  $rs_facturaf_d['AI_facturaf_id']); $prep_datopago->execute(); $qry_datopago=$prep_datopago->get_result();
+    			while ($rs_datopago = $qry_datopago->fetch_array(MYSQLI_ASSOC)) {
+    				$ttl_debito += $rs_datopago['pago'];
+    			}
+?>
         <tr>
         	<td><?php echo $rs_facturaf_d['TX_facturaf_numero']; ?></td>
         	<td><?php	$prefecha=strtotime($rs_facturaf_d['TX_facturaf_fecha']);	echo date('d-m-Y',$prefecha); ?></td>
         	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_total'],2); ?></td>
-        	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_deficit'],2); ?></td>
+        	<td><?php echo "B/ ".number_format($rs_facturaf_d['TX_facturaf_total']-$ttl_debito,2); ?></td>
         </tr>
       <?php }while($rs_facturaf_d=$qry_facturaf_d->fetch_array()); ?>
       </tbody>
@@ -414,7 +439,7 @@ foreach ($raw_ff_nd as $key => $ff_id) {
   <p>
 		<?php
 			if($total_efectivo > 0){
-				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
+				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo,2);
 			}
 			if($total_cheque > 0){
 				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);
@@ -609,7 +634,7 @@ foreach ($raw_ff_nd as $key => $ff_id) {
     <p>
 <?php
   			if($total_efectivo > 0){
-  				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo+$cambio,2);
+  				echo "<strong>Efectivo: B/ </strong>".number_format($total_efectivo,2);
   			}
   			if($total_cheque > 0){
   				echo "<strong>Cheque: B/ </strong>".number_format($total_cheque,2);

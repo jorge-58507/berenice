@@ -98,7 +98,7 @@ if(!empty($date_i) && !empty($date_f)){
 $line_status= " bh_facturaventa.TX_facturaventa_status = '{$status}' AND";
 
 $txt_facturaventa="SELECT bh_facturaventa.TX_facturaventa_fecha, bh_facturaventa.AI_facturaventa_id, bh_cliente.TX_cliente_nombre,
- bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status
+ bh_facturaventa.TX_facturaventa_numero, bh_facturaventa.TX_facturaventa_total, bh_facturaventa.TX_facturaventa_status, bh_facturaventa.facturaventa_AI_facturaf_id
  FROM (bh_facturaventa
  INNER JOIN bh_cliente ON bh_facturaventa.facturaventa_AI_cliente_id = bh_cliente.AI_cliente_id)
  WHERE ";
@@ -154,7 +154,7 @@ break;
 }
 
 $qry_facturaventa = $link->query($txt_facturaventa)or die($link->error);
-$rs_facturaventa = $qry_facturaventa->fetch_array(MYSQLI_ASSOC);
+// $rs_facturaventa = $qry_facturaventa->fetch_array(MYSQLI_ASSOC);
 
 $qry_datopago=$link->prepare("SELECT TX_datopago_monto, datopago_AI_metododepago_id, bh_metododepago.TX_metododepago_value
 FROM ((bh_datopago
@@ -167,6 +167,8 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 		INNER JOIN bh_datoventa ON bh_producto.AI_producto_id = bh_datoventa.datoventa_AI_producto_id)
 		INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
 		WHERE bh_datoventa.datoventa_AI_facturaventa_id = ?")or die($link->error);
+
+$qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id, bh_notadecredito.TX_notadecredito_fecha, bh_notadecredito.TX_notadecredito_numero, bh_notadecredito.TX_notadecredito_monto, bh_notadecredito.TX_notadecredito_impuesto FROM bh_notadecredito WHERE notadecredito_AI_facturaf_id =	?")or die($link->error);
 
 ?>
 <script type="text/javascript">
@@ -189,7 +191,11 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 		$raw_facturaf=array();
 		$total_total=0;
 		$total_efectivo=0; $total_tarjeta_credito=0; $total_tarjeta_debito=0; $total_cheque=0; $total_credito=0; $total_notadc=0; $total_porcobrar=0;
-		do{
+		$raw_facturaf_credito=array();
+		$sumatoria_nc=0; $sumatoria_nc_credito=0;
+		while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC)){
+
+
 	?>
     <tr onclick="toogle_tr_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)">
         <td><?php $time=strtotime($rs_facturaventa['TX_facturaventa_fecha']); echo $date=date('d-m-Y',$time); ?></td>
@@ -219,7 +225,7 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 					case '2':	$color='#57afdb';	$total_cheque += $rs_datopago['TX_datopago_monto'];	break;
 					case '3':	$color='#e9ca2f';	$total_tarjeta_credito += $rs_datopago['TX_datopago_monto'];	break;
 					case '4':	$color='#f04006';	$total_tarjeta_debito += $rs_datopago['TX_datopago_monto'];	break;
-					case '5':	$color='#b54a4a';	$total_credito += $rs_datopago['TX_datopago_monto'];	break;
+					case '5':	$color='#b54a4a';	$total_credito += $rs_datopago['TX_datopago_monto'];	$raw_facturaf_credito[]=$rs_facturaventa['AI_facturaf_id']; break;
 					case '7':	$color='#EFA63F';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
 					case '8':	$color='#bdbd07';	$total_porcobrar += $rs_datopago['TX_datopago_monto'];	break;
 				}
@@ -287,15 +293,25 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 						</tr>
 					</tfoot>
 				</table>
-				<div class="container-fluid">
+				<div class="container-fluid ">
 					<span>¿Desea Duplicar la factura?</span>
 					<button type="button" onclick="duplicate_datoventa(<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>)" class="btn btn-link" style="color: #fc0909; font-weight: bold;"><i class="fa fa-clone"></i> Click AQUI</button>
 				</div>
 			</td>
 		</tr>
-    <?php
-	}while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC));
-	$total_total = $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta_credito+$total_tarjeta_debito;
+<?php
+		if (!empty($rs_facturaventa['AI_facturaf_id'])) {
+			$qry_notadecredito->bind_param("i", $rs_facturaventa['AI_facturaf_id']); $qry_notadecredito->execute(); $result=$qry_notadecredito->get_result();
+			while ($rs_notadecredito=$result->fetch_array()) {
+				if (in_array($rs_facturaventa['AI_facturaf_id'],$raw_facturaf_credito)) {
+					$sumatoria_nc_credito+=$rs_notadecredito['TX_notadecredito_monto']+$rs_notadecredito['TX_notadecredito_impuesto'];
+				} else {
+					$sumatoria_nc+=$rs_notadecredito['TX_notadecredito_monto']+$rs_notadecredito['TX_notadecredito_impuesto'];
+				}
+			}
+		}
+	};
+	$total_total = $total_cheque+$total_credito+$total_efectivo+$total_notadc+$total_tarjeta_credito+$total_tarjeta_debito+$total_porcobrar;
     ?>
     <?php }else{ ?>
     <tr>
@@ -360,12 +376,31 @@ $qry_datoventa=$link->prepare("SELECT bh_datoventa.AI_datoventa_id, bh_datoventa
 										echo 'B/ '.number_format($total_porcobrar,2);
 									}?>
 	              </td>
-	            	<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
 									<strong>Total:</strong> <br /><?php
 									if(isset($total_total)){
 										echo 'B/ '.number_format($total_total,2);
 									}?>
 	              </td>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>Devoluciones:</strong> <br /><?php
+									if(isset($sumatoria_nc)){
+										echo 'B/ '.number_format($sumatoria_nc,2);
+									}?>
+	              </td>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
+									<strong>Dev. a Cr&eacute;ditos:</strong> <br /><?php
+									if(isset($sumatoria_nc_credito)){
+										echo 'B/ '.number_format($sumatoria_nc_credito,2);
+									}?>
+	              </td>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2">&nbsp;
+	              </td>
+								<td class="col-xs-2 col-sm-2 col-md-2 col-lg-2" style="border: solid 2px #ff0822;">
+									<strong>Totalizaci&oacute;n:</strong> <br /><?php
+										echo 'B/ '.number_format(($total_efectivo+$total_cheque+$total_tarjeta_debito+$total_tarjeta_credito+$total_notadc+$total_porcobrar)-$sumatoria_nc,2);
+									?>
+								</td>
 	            </tr>
 						</tbody>
 					</table>

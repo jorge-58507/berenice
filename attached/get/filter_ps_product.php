@@ -35,15 +35,13 @@ $rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
 
 $nr_product=$qry_product->num_rows;
 
-
-
-			?>
+?>
 
 
 	<?php
 	if($nr_product > 0){
     do{        ?>
-    	<tr onclick="filter_psbyproduct('<?php echo $rs_product['AI_producto_id']; ?>');">
+    	<tr onclick="filter_psbyproduct('<?php echo $rs_product['AI_producto_id']; ?>');" ondblclick="open_popup('popup_updproduct.php?a=<?php echo $rs_product['AI_producto_id']; ?>');">
         <td><?php echo $rs_product['TX_producto_codigo'] ?></td>
         <td><?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?></td>
         <td>

@@ -101,7 +101,7 @@ $("#btn_exit").click(function(){
     	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
   	<div id="logo" ></div>
    	</div>
-	
+
 	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
     	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
         Bienvenido: <label class="bg-primary">
@@ -142,25 +142,25 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <div id="container_facturaventa" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
     <div id="container_tblfacturaventa" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    
+
 <table id="tbl_facturaventa" class="table table-bordered table-striped">
 	<thead class="bg-primary">
     	<tr>
-        	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
-            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-5">Cliente</th>
-            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2">Nº Factura</th>
-            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
-            <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Status</th>
-        </tr>
+      	<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-5">Cliente</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-2">Nº Factura</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
+        <th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Status</th>
+      </tr>
     </thead>
     <tfoot class="bg-primary">
     	<tr>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-        	<td> </td>
-		</tr>
+      	<td> </td>
+      	<td> </td>
+      	<td> </td>
+      	<td> </td>
+      	<td> </td>
+			</tr>
     </tfoot>
     <tbody>
     <?php if($nr_facturaventa=mysql_num_rows($qry_facturaventa)>0){ ?>
@@ -168,7 +168,7 @@ switch ($_COOKIE['coo_tuser']){
 	do{
 	?>
     <tr>
-        <td><?php 
+        <td><?php
 		$time=strtotime($rs_facturaventa['TX_facturaventa_fecha']);
 		$date=date('d-m-Y',$time);
 		echo $date; ?></td>
@@ -176,7 +176,7 @@ switch ($_COOKIE['coo_tuser']){
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
         <td><?php echo number_format($rs_facturaventa['TX_facturaventa_total'],2); ?></td>
         <td>
-        <?php 
+        <?php
 		switch($rs_facturaventa['TX_facturaventa_status']){
 			case "ACTIVA":
 				$font='#00CC00';
@@ -219,7 +219,7 @@ switch ($_COOKIE['coo_tuser']){
         <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
         </div>
         <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
+    &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
         </div>
         <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
                     		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>

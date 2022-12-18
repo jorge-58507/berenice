@@ -46,7 +46,7 @@ setTimeout("self.close()", 10000);
 		<div id="print_header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="height: 140px; padding-top: 10px;">
 			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">&nbsp;</div>
 			<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 al_center">
-				<img width="200px" height="75px" src="attached/image/logo_factura.png" ondblclick="window.location.href='print_sale_html_materiales.php?a=<?php echo $facturaventa_id; ?>'">
+				<img width="200px" height="75px" src="attached/image/logo_factura_materiales.png" ondblclick="window.location.href='print_sale_html_materiales.php?a=<?php echo $facturaventa_id; ?>'">
 				<br />
 				<font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
 				<font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
@@ -154,13 +154,13 @@ setTimeout("self.close()", 10000);
 
 			</div>
 			<?php			$qry_datopago=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datopago.TX_datopago_monto, bh_datopago.TX_datopago_numero, bh_datopago.TX_datopago_fecha FROM (bh_datopago INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datopago.datopago_AI_metododepago_id) WHERE bh_datopago.datopago_AI_facturaf_id = '$facturaf_id'");
-								$qry_datodebito=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datodebito.TX_datodebito_monto, bh_datodebito.TX_datodebito_numero, bh_datodebito.TX_datodebito_fecha, bh_notadebito.TX_notadebito_numero
+								$qry_datodebito=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datodebito.TX_datodebito_monto, bh_datodebito.TX_datodebito_numero, bh_datodebito.TX_datodebito_fecha, bh_notadebito.TX_notadebito_numero, rel_facturaf_notadebito.TX_rel_facturafnotadebito_importe
 								FROM ((((bh_datodebito
 								INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datodebito.datodebito_AI_metododepago_id)
 								INNER JOIN bh_notadebito ON bh_notadebito.AI_notadebito_id = bh_datodebito.datodebito_AI_notadebito_id)
 								INNER JOIN rel_facturaf_notadebito ON rel_facturaf_notadebito.rel_AI_notadebito_id = datodebito_AI_notadebito_id)
 								INNER JOIN bh_facturaf ON rel_facturaf_notadebito.rel_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
-								WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id'");
+								WHERE bh_facturaf.AI_facturaf_id = '$facturaf_id' AND bh_notadebito.TX_notadebito_status = '0'");
 			?>			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_footer">
 								<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_caption">
 									Pagos Asociados
@@ -188,10 +188,9 @@ setTimeout("self.close()", 10000);
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">Abono a Cr&eacute;dito (<?php echo substr($rs_datodebito['TX_notadebito_numero'],-6); ?>)</div>
 										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo date('d-m-Y', strtotime($rs_datodebito['TX_datodebito_fecha'])); ?></div>
 										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_datodebito['TX_metododepago_value']; ?></div>
-										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">B/ <?php echo number_format($rs_datodebito['TX_datodebito_monto'],2); ?></div>
+										<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2">B/ <?php echo number_format($rs_datodebito['TX_datodebito_monto'],2)." (".number_format($rs_datodebito['TX_rel_facturafnotadebito_importe'],2).")"; ?></div>
 										<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo $rs_datodebito['TX_datodebito_numero']; ?></div>
 									</div>
-
 <?php						} ?>
 
 

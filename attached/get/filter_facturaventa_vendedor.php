@@ -102,6 +102,7 @@ if (!in_array($rs_facturaf['AI_facturaf_id'],$raw_facturaf_readed)) {
 			case '4':	$color='#f04006';	$total_tarjeta_debito += $rs_datopago['TX_datopago_monto'];	break;
 			case '5':	$color='#b54a4a';	$total_credito += $rs_datopago['TX_datopago_monto'];	$raw_facturaf_credito[$ite]=$rs_facturaf['AI_facturaf_id']; break;
 			case '7':	$color='#EFA63F';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
+			case '8':	$color='#d4e914';	$total_notadc += $rs_datopago['TX_datopago_monto'];	break;
 		}
 		echo "<font color='{$color}'>".$rs_datopago['TX_metododepago_value']."</font><br />";
 		$raw_monto[$i]=$rs_datopago['TX_datopago_monto'];

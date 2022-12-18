@@ -11,18 +11,29 @@ if(empty($_COOKIE['coo_suser'])){
 $iuser=$_COOKIE['coo_iuser'];
 $tuser=$_COOKIE['coo_tuser'];
 $suser=$_COOKIE['coo_suser'];
-
-$qry_checklogin=mysql_query("SELECT * FROM bh_user WHERE AI_user_id = '$iuser'", $link);
-$nr_checklogin=mysql_num_rows($qry_checklogin);
-if($nr_checklogin > 0){
+$access = 'true';
+if(!is_object($link)){
+	$qry_checklogin=mysql_query("SELECT * FROM bh_user WHERE AI_user_id = '$iuser'")or die(mysql_error());
+	$nr_checklogin=mysql_num_rows($qry_checklogin);
 	$rs_checklogin=mysql_fetch_assoc($qry_checklogin);
+}else{
+	$qry_checklogin=$link->query("SELECT * FROM bh_user WHERE AI_user_id = '$iuser'")or die($link->error);
+	$nr_checklogin=$qry_checklogin->num_rows;
+	$rs_checklogin=$qry_checklogin->fetch_array();
+}
+if($nr_checklogin > 0){
 	if($rs_checklogin['TX_user_type']!=$tuser){
-		echo "<meta http-equiv='Refresh' content='1;url=index.php'>";
+		$access='false';
 	}
 	if($rs_checklogin['TX_user_seudonimo']!=$suser){
-		echo "<meta http-equiv='Refresh' content='1;url=index.php'>";
+		$access='false';
 	}
 }else{
-	echo "<meta http-equiv='Refresh' content='1;url=index.php'>";
+	$access='false';
 }
+if($access == 'false'){
+	header('Location: index.php');
+}
+date_default_timezone_set('America/Panama');
+
 ?>

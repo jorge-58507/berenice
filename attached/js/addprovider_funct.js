@@ -67,11 +67,26 @@ content_clientname = "";
 limit_clientname = 50;
 
 function chk_clientname(field){
-	field.value = field.value.toUpperCase();
+	// field.value = field.value.toUpperCase();
 	var num_char = field.value.length;
 	if(num_char > limit_clientname){
 		field.value = content_clientname;
 	}else{
 		return content_clientname = field.value;
+	}
+}
+
+function chk_client_taxpayer(field){
+	if (field.value === "1") { //quitar option 3
+		$('#sel_client_type option').remove();
+		$('#sel_client_type').append($('<option>', { value: 1, text: 'Contribuyente' }));
+		$('#sel_client_type').append($('<option>', { value: 2, text: 'Consumidor Final' }));
+		$('#sel_client_type').append($('<option>', { value: 4, text: 'Extranjero'}));
+	}
+	if (field.value === "2") { //quitar option 2
+		$('#sel_client_type option').remove();
+		$('#sel_client_type').append($('<option>', { value: 1, text: 'Contribuyente' }));
+		$('#sel_client_type').append($('<option>', { value: 3, text: 'Gobierno' }));
+		$('#sel_client_type').append($('<option>', { value: 4, text: 'Extranjero' }));
 	}
 }

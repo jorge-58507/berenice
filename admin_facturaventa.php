@@ -1,5 +1,5 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 date_default_timezone_set('America/Panama');
 ?>
@@ -25,14 +25,13 @@ default:
 $txt_facturaventa=$txt_facturaventa." AND TX_facturaventa_status != 'INACTIVA' AND bh_facturaventa.facturaventa_AI_user_id = '{$_COOKIE['coo_iuser']}' ORDER BY AI_facturaventa_id DESC LIMIT 10";
 break;
 }
-$qry_facturaventa=mysql_query($txt_facturaventa);
-$rs_facturaventa=mysql_fetch_assoc($qry_facturaventa);
-?>
-<?php
+$qry_facturaventa=$link->query($txt_facturaventa);
+$rs_facturaventa=$qry_facturaventa->fetch_array();
+
 $fecha_limite=strtotime('-8 weeks');
 $date_limit = date('Y-m-d',$fecha_limite);
-$qry_old_quotation=mysql_query("SELECT TX_facturaventa_fecha FROM bh_facturaventa WHERE TX_facturaventa_status != 'CANCELADA' AND TX_facturaventa_status != 'INACTIVA' AND TX_facturaventa_fecha < '$date_limit'");
-$nr_old_quotation=mysql_num_rows($qry_old_quotation);
+$qry_old_quotation=$link->query("SELECT TX_facturaventa_fecha FROM bh_facturaventa WHERE TX_facturaventa_status != 'CANCELADA' AND TX_facturaventa_status != 'INACTIVA' AND TX_facturaventa_fecha < '$date_limit'");
+$nr_old_quotation=$qry_old_quotation->fetch_array();
 ?>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -109,14 +108,12 @@ $("#btn_back").click(function(){
     	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
   	<div id="logo" ></div>
    	</div>
-	
+
 	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
-    	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        Bienvenido: <label class="bg-primary">
-         <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
-        </label>
-        </div>
-		<div id="navigation" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+    	<div id="container_username" class="col-lg-4 visible-lg">
+        Bienvenido: <label class="bg-primary"><?php echo $rs_checklogin['TX_user_seudonimo']; ?></label>
+      </div>
+			<div id="navigation" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
 <?php
 switch ($_COOKIE['coo_tuser']){
 	case '1':
@@ -147,7 +144,7 @@ switch ($_COOKIE['coo_tuser']){
 <?php if($nr_old_quotation > 0){ ?>
         <div class="alert alert-danger alert-dismissable fade in">
           <a href="#" onclick="old_quotation('<?php echo $date_limit; ?>');" class="close" data-dismiss="alert" aria-label="close">&times;</a>
-          <strong>Ateci&oacute;n!</strong> Hay cotizaciones activas con mas de 8 semanas. 
+          <strong>Ateci&oacute;n!</strong> Hay cotizaciones activas con mas de 8 semanas.
         </div>
 <?php } ?>
 	</div>
@@ -155,11 +152,11 @@ switch ($_COOKIE['coo_tuser']){
 <div id="container_facturaventa" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_filterfacturaventa" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
         <div id="container_txtfilterfacturaventa" class="col-xs-12 col-sm-8 col-md-5 col-lg-5">
-            <label for="txt_filterfacturaventa">Buscar</label>
+            <label class="label label_blue_sky" for="txt_filterfacturaventa">Buscar</label>
             <input type="text" id="txt_filterfacturaventa" class="form-control" />
         </div>
 		<div id="container_selfilterfacturaventa" class="col-xs-6 col-sm-4 col-md-4 col-lg-4">
-            <label for="sel_status">Status</label>
+            <label class="label label_blue_sky" for="sel_status">Status</label>
             <select id="sel_status" class="form-control">
             	<option value="">TODAS</option>
             	<option value="ACTIVA">ACTIVA</option>
@@ -168,45 +165,36 @@ switch ($_COOKIE['coo_tuser']){
             </select>
         </div>
         <div id="container_txtfilterfacturaventa" class="col-xs-6 col-sm-4 col-md-3 col-lg-3">
-            <label for="txt_date">Fecha
-            <button type="button" id="clear_date_initial" class="btn btn-danger btn-xs" onclick="setEmpty('txt_date')"><strong>!</strong></button>
-            </label>
+            <label class="label label_blue_sky" for="txt_date">Fecha <button type="button" id="clear_date_initial" class="btn btn-danger btn-xs" onclick="setEmpty('txt_date')"><strong>!</strong></button></label>
             <input type="text" id="txt_date" class="form-control" readonly="readonly" />
         </div>
 
     </div>
     <div id="container_tblfacturaventa" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    
-<table id="tbl_facturaventa" class="table table-bordered table-striped">
-	<thead>
-    	<tr>
-        	<th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
-        	<th class="bg-primary col-xs-3 col-sm-3 col-md-3 col-lg-3">Vendedor</th>
-            <th class="bg-primary col-xs-3 col-sm-3 col-md-3 col-lg-3">Cliente</th>
-            <th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-2">Nº Factura</th>
-            <th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
-            <th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-1">Status</th>
-            <th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
-        </tr>
-    </thead>
-    <tfoot>
-    	<tr>
-        	<td class="bg-primary"> </td>
-        	<td class="bg-primary"> </td>
-        	<td class="bg-primary"> </td>
-        	<td class="bg-primary"> </td>
-        	<td class="bg-primary"> </td>
-        	<td class="bg-primary"> </td>
-        	<td class="bg-primary"> </td>
-		</tr>
-    </tfoot>
+
+		<table id="tbl_facturaventa" class="table table-bordered table-striped">
+			<thead>
+		  	<tr>
+		    	<th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-1">Fecha</th>
+		    	<th class="bg-primary col-xs-3 col-sm-3 col-md-3 col-lg-3">Vendedor</th>
+		      <th class="bg-primary col-xs-3 col-sm-3 col-md-3 col-lg-3">Cliente</th>
+		      <th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-2">Nº Factura</th>
+		      <th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-1">Total</th>
+		      <th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-1">Status</th>
+		      <th class="bg-primary col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+		    </tr>
+	    </thead>
+	    <tfoot>
+	    	<tr>
+	      	<td class="bg-primary" colspan="7"> </td>
+				</tr>
+	    </tfoot>
     <tbody>
-    <?php if($nr_facturaventa=mysql_num_rows($qry_facturaventa)>0){ ?>
-    <?php
+    <?php if($nr_facturaventa=$qry_facturaventa->num_rows > 0){
 	do{
 	?>
     <tr>
-        <td><?php 
+        <td><?php
 		$time=strtotime($rs_facturaventa['TX_facturaventa_fecha']);
 		$date=date('d-m-Y',$time);
 		echo $date; ?></td>
@@ -215,7 +203,7 @@ switch ($_COOKIE['coo_tuser']){
         <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
         <td><?php echo $rs_facturaventa['TX_facturaventa_total']; ?></td>
         <td>
-        <?php 
+        <?php
 		switch($rs_facturaventa['TX_facturaventa_status']){
 			case "ACTIVA":
 				$font='#00CC00';
@@ -238,7 +226,7 @@ switch ($_COOKIE['coo_tuser']){
         </td>
     </tr>
     <?php
-	}while($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa));
+	}while($rs_facturaventa=$qry_facturaventa->fetch_array());
     ?>
     <?php }else{ ?>
     <tr>
@@ -262,21 +250,13 @@ switch ($_COOKIE['coo_tuser']){
 
 
 <div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-        <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        </div>
-        <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
-        </div>
-        <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-                    		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-        </div>
-        <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            <button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-        </div>
-	</div>
+	<?php require 'attached/php/req_footer.php'; ?>
 </div>
 </div>
+<script type="text/javascript">
+	ScrollReveal().reveal('#tbl_product tbody tr', {interval: 100});
+	<?php include 'attached/php/req_footer_js.php'; ?>
+</script>
 
 </body>
 </html>

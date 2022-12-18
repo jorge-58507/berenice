@@ -12,7 +12,7 @@ $qry_cheque = $link->query("SELECT AI_cheque_id, TX_cheque_numero, TX_cheque_mon
 		INNER JOIN bh_cpp ON bh_cpp.AI_cpp_id = bh_cheque.cheque_AI_cpp_id)
 		WHERE bh_cpp.AI_cpp_id = '$cpp_id'")or die($link->error);
 
-$qry_unnasigned_check=$link->query("SELECT AI_cheque_id, TX_cheque_numero, TX_cheque_monto, TX_cheque_status FROM bh_cheque WHERE cheque_AI_proveedor_id = '{$rs_proveedor['AI_proveedor_id']}' ") or die($link->error);
+$qry_unnasigned_check=$link->query("SELECT AI_cheque_id, TX_cheque_numero, TX_cheque_monto, TX_cheque_status FROM bh_cheque WHERE cheque_AI_proveedor_id = '{$rs_proveedor['AI_proveedor_id']}' AND cheque_AI_cpp_id = 0 ") or die($link->error);
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -47,7 +47,7 @@ $('#btn_acept').click(function(){
 	$.ajax({	data: {"a" : <?php echo $cpp_id; ?>},	type: "GET",	dataType: "text",	url: "attached/get/upd_cpp_status.php", })
 	 .done(function( data, textStatus, jqXHR ) {
 		 window.opener.$("#tbl_cpp tbody").html(data);
-		 setTimeout('self.close()',300);
+		 // setTimeout('self.close()',300);
 		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
 })
@@ -109,28 +109,29 @@ function upd_cheque_unassigned_status(cheque_id, status, cpp_id){
 function upd_cheque_unassign(cheque_id){
 	$.ajax({	data: {"a" : cheque_id },	type: "GET",	dataType: "text",	url: "attached/get/upd_cheque_unassign.php", })
 	.done(function( data, textStatus, jqXHR ) { console.log("GOOD"+textStatus);
-		data = JSON.parse(data);
-		console.log("data_obj: "+data);
-		var content_cheque = '';
-		if (Object.keys(data[0]).length > 0) {
-			for (var x in data[0]) {
-				var btn_entregado = (data[0][x]['TX_cheque_status'] === 'ALMACENADO' || data[0][x]['TX_cheque_status'] === 'DEPOSITADO') ?	'<button type="button" class="btn btn-primary btn-sm" onclick="upd_cheque_status('+data[0][x]['AI_cheque_id']+',\'ENTREGADO\')">Entregado</button>' : '';
-				var btn_depositado = (data[0][x]['TX_cheque_status'] === 'ALMACENADO' || data[0][x]['TX_cheque_status'] === 'ENTREGADO') ?	'<button type="button" class="btn btn-info btn-sm" onclick="upd_cheque_status('+data[0][x]['AI_cheque_id']+',\'DEPOSITADO\')">Depositado</button>' : '';
-				content_cheque = content_cheque+'<tr><td>'+data[0][x]['TX_cheque_numero']+'</td><td>'+data[0][x]['TX_cheque_monto']+'</td><td>'+data[0][x]['TX_cheque_status']+'</td><td>'+btn_entregado+'</td><td>'+btn_depositado+'</td><td><button type="button" class="btn btn-danger btn-sm" onclick="upd_cheque_unassign('+data[0][x]['AI_cheque_id']+')"><i class="fa fa-times"></i></button></td></tr>';
-			}
-		}else{ content_cheque='<tr><td colspam="6"></td></tr>'; }
-
-		$("#tbl_cheque tbody").html(content_cheque);
-		var content_cheque_proveedor = '';
-		if (Object.keys(data[1]).length > 0) {
-			for (var x in data[1]) {
-				var btn_entregado = (data[1][x]['TX_cheque_status'] === 'ALMACENADO') ?	'<button type="button" class="btn btn-primary btn-sm" onclick="upd_cheque_unassigned_status('+data[1][x]['AI_cheque_id']+',\'ENTREGADO\','+data[3]+')">Entregado</button>' : '';
-				var btn_depositado = (data[1][x]['TX_cheque_status'] === 'ALMACENADO') ?	'<button type="button" class="btn btn-info btn-sm" onclick="upd_cheque_unassigned_status('+data[1][x]['AI_cheque_id']+',\'DEPOSITADO\','+data[3]+')">Depositado</button>' : '';
-				content_cheque_proveedor = content_cheque_proveedor+'<tr><td>'+data[1][x]['TX_cheque_numero']+'</td><td>'+data[1][x]['TX_cheque_monto']+'</td><td>'+data[1][x]['TX_cheque_status']+'</td><td>'+btn_entregado+'</td><td>'+btn_depositado+'</td></tr>';
-			}
-		}else{ content_cheque='<tr><td colspam="6"></td></tr>'; }
-
-		$("#tbl_cheque_proveedor tbody").html(content_cheque_proveedor);
+		location.reload()
+		// data = JSON.parse(data);
+		// console.log("data_obj: "+data);
+		// var content_cheque = '';
+		// if (Object.keys(data[0]).length > 0) {
+		// 	for (var x in data[0]) {
+		// 		var btn_entregado = (data[0][x]['TX_cheque_status'] === 'ALMACENADO' || data[0][x]['TX_cheque_status'] === 'DEPOSITADO') ?	'<button type="button" class="btn btn-primary btn-sm" onclick="upd_cheque_status('+data[0][x]['AI_cheque_id']+',\'ENTREGADO\')">Entregado</button>' : '';
+		// 		var btn_depositado = (data[0][x]['TX_cheque_status'] === 'ALMACENADO' || data[0][x]['TX_cheque_status'] === 'ENTREGADO') ?	'<button type="button" class="btn btn-info btn-sm" onclick="upd_cheque_status('+data[0][x]['AI_cheque_id']+',\'DEPOSITADO\')">Depositado</button>' : '';
+		// 		content_cheque = content_cheque+'<tr><td>'+data[0][x]['TX_cheque_numero']+'</td><td>'+data[0][x]['TX_cheque_monto']+'</td><td>'+data[0][x]['TX_cheque_status']+'</td><td>'+btn_entregado+'</td><td>'+btn_depositado+'</td><td><button type="button" class="btn btn-danger btn-sm" onclick="upd_cheque_unassign('+data[0][x]['AI_cheque_id']+')"><i class="fa fa-times"></i></button></td></tr>';
+		// 	}
+		// }else{ content_cheque='<tr><td colspam="6"></td></tr>'; }
+    //
+		// $("#tbl_cheque tbody").html(content_cheque);
+		// var content_cheque_proveedor = '';
+		// if (Object.keys(data[1]).length > 0) {
+		// 	for (var x in data[1]) {
+		// 		var btn_entregado = (data[1][x]['TX_cheque_status'] === 'ALMACENADO') ?	'<button type="button" class="btn btn-primary btn-sm" onclick="upd_cheque_unassigned_status('+data[1][x]['AI_cheque_id']+',\'ENTREGADO\','+data[3]+')">Entregado</button>' : '';
+		// 		var btn_depositado = (data[1][x]['TX_cheque_status'] === 'ALMACENADO') ?	'<button type="button" class="btn btn-info btn-sm" onclick="upd_cheque_unassigned_status('+data[1][x]['AI_cheque_id']+',\'DEPOSITADO\','+data[3]+')">Depositado</button>' : '';
+		// 		content_cheque_proveedor = content_cheque_proveedor+'<tr><td>'+data[1][x]['TX_cheque_numero']+'</td><td>'+data[1][x]['TX_cheque_monto']+'</td><td>'+data[1][x]['TX_cheque_status']+'</td><td>'+btn_entregado+'</td><td>'+btn_depositado+'</td></tr>';
+		// 	}
+		// }else{ content_cheque='<tr><td colspam="6"></td></tr>'; }
+    //
+		// $("#tbl_cheque_proveedor tbody").html(content_cheque_proveedor);
 	 })
 	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
@@ -230,7 +231,7 @@ function upd_cheque_unassign(cheque_id){
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>

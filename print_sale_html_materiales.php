@@ -223,9 +223,9 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 						<td style="vertical-align: middle;" class="al_center"><?php echo $raw_medida[$rs_facturaventa['TX_datoventa_medida']]; ?></td>
 						<td style="vertical-align: middle;" class="al_center"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
 		        <td style="vertical-align: middle;" class="al_center"><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
-		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($descuento,4); 			?></td>
-		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($itbm,4); 						?></td>
-		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($precio_total,4); 		?></td>
+		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($descuento,2); 			?></td>
+		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($itbm,2); 						?></td>
+		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($precio_total,2); 		?></td>
 					</tr>
 	<?php
 				$totalitbm += $itbm;

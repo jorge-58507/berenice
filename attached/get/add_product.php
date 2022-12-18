@@ -20,6 +20,7 @@ $p_1=$_GET['l'];
 
 $referencia=$_GET['m'];
 $letra=$_GET['n'];
+$familia=$_GET['o'];
 
 $fecha_actual=date('Y-m-d');
 
@@ -29,7 +30,7 @@ if($returnValue === 0){ return false; }
 $qry_checkproduct=$link->query("SELECT AI_producto_id FROM bh_producto WHERE TX_producto_codigo = '$codigo'");
 $nr_checkproduct=$qry_checkproduct->num_rows;
 if($nr_checkproduct < 1){
-	$bh_insert="INSERT INTO bh_producto (TX_producto_codigo, TX_producto_value, TX_producto_medida, TX_producto_cantidad, TX_producto_minimo, TX_producto_maximo, TX_producto_exento, TX_producto_referencia, producto_AI_letra_id) VALUES ('$codigo','$value','$medida','$cantidad','$minimo','$maximo','$exento','$referencia','$letra')";
+	$bh_insert="INSERT INTO bh_producto (TX_producto_codigo, TX_producto_value, TX_producto_medida, TX_producto_cantidad, TX_producto_minimo, TX_producto_maximo, TX_producto_exento, TX_producto_referencia, producto_AI_letra_id, producto_AI_subfamilia_id) VALUES ('$codigo','$value','$medida','$cantidad','$minimo','$maximo','$exento','$referencia','$letra','$familia')";
 	$link->query($bh_insert) or die($link->error);
 
 	$rs = $link->query("SELECT MAX(AI_producto_id) AS id FROM bh_producto");
@@ -39,7 +40,8 @@ if($nr_checkproduct < 1){
 	$bh_insprecio="INSERT INTO bh_precio (precio_AI_producto_id, precio_AI_medida_id, TX_precio_uno, TX_precio_dos, TX_precio_tres, TX_precio_cuatro, TX_precio_cinco, TX_precio_fecha) VALUES ('$lastid','$medida','$p_1','$p_2','$p_3','$p_4','$p_5','$fecha_actual')";
 	$link->query($bh_insprecio) or die($link->error);
 
-	$link->query("INSERT INTO rel_producto_medida (productomedida_AI_medida_id, productomedida_AI_producto_id, TX_rel_productomedida_cantidad) VALUES ('1','$lastid','1')")or die($link->error);
+	// $link->query("INSERT INTO rel_producto_medida (productomedida_AI_medida_id, productomedida_AI_producto_id, TX_rel_productomedida_cantidad) VALUES ('1','$lastid','1')")or die($link->error);
+	$link->query("INSERT INTO rel_producto_medida (productomedida_AI_medida_id, productomedida_AI_producto_id, TX_rel_productomedida_cantidad, productomedida_AI_user_id, productomedida_AI_letra_id) VALUES ('1','$lastid','1',{$_COOKIE['coo_iuser']},$letra)")or die($link->error);
 
 // #################################   ANSWER     ##################
 
@@ -69,7 +71,7 @@ if($nr_checkproduct < 1){
 				<tr><td colspan="8"></td></tr>
 			</tfoot>
 			<tbody>
-	<?php			do{		?>
+	<?php		do{		?>
 					<tr ondblclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');">
 						<td><?php echo $rs_product['TX_producto_codigo'] ?></td>
 						<td><?php echo $rs_product['TX_producto_referencia'] ?></td>
@@ -82,12 +84,12 @@ if($nr_checkproduct < 1){
 							}else{
 								echo '<font style="color:#000000">'.$rs_product['TX_producto_cantidad'].'</font>';
 							}
-	?>				</td>
+	?>					</td>
 						<td>
-	<?php 			$prep_precio->bind_param("i",$rs_product['AI_producto_id']); $prep_precio->execute(); $qry_precio=$prep_precio->get_result();
+	<?php 					$prep_precio->bind_param("i",$rs_product['AI_producto_id']); $prep_precio->execute(); $qry_precio=$prep_precio->get_result();
 							$rs_precio=$qry_precio->fetch_array(MYSQLI_ASSOC);
 							echo $rs_precio['TX_precio_cuatro'];
-	?>				</td>
+	?>					</td>
 						<td><button type="button" class="btn btn-success" onclick="open_popup('popup_relacion.php?a=<?php echo $rs_product['AI_producto_id'] ?>','popup_relacion','500','491')"><i class="fa fa-rotate-right" aria-hidden="true"></i><?php echo $rs_product['TX_producto_rotacion']; ?></button></td>
 						<td><button type="button" name="btn_upd_product" id="btn_upd_product" class="btn btn-warning btn-sm" onclick="openpopup_updproduct('<?php echo $rs_product['AI_producto_id'] ?>');">Modificar</button></td>
 						<td>

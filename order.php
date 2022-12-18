@@ -14,53 +14,22 @@ $qry_product=$link->query("SELECT bh_producto.AI_producto_id, bh_producto.TX_pro
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Trilli, S.A. - Todo en Materiales</title>
-
-<link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/jquery-ui.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
+<?php include 'attached/php/req_required.php'; ?>
 <link href="attached/css/stock_css.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
-
-<script type="text/javascript" src="attached/js/jquery.js"></script>
-<script type="text/javascript" src="attached/js/jquery-ui.min.js"></script>
-<script type="text/javascript" src="attached/js/bootstrap.js"></script>
-<script type="text/javascript" src="attached/js/general_funct.js"></script>
-<script type="text/javascript" src="attached/js/ajax_funct.js"></script>
 <script type="text/javascript" src="attached/js/stock_funct.js"></script>
-<script type="text/javascript" src="attached/js/validCampoFranz.js"></script>
 <script type="text/javascript" src="attached/js/jquery.cookie.js"></script>
 
 <script type="text/javascript">
 
 $(document).ready(function() {
 
-$("#btn_navsale").click(function(){
-	window.location="sale.php";
-});
-$("#btn_navstock").click(function(){
-	window.location="stock.php";
-});
-$("#btn_navpaydesk").click(function(){
-	window.location="paydesk.php";
-})
-$("#btn_navadmin").click(function(){
-	window.location="start_admin.php";
-});
-$("#btn_exit").click(function(){
-	location.href="index.php";
-})
-$("#btn_start").click(function(){
-	window.location="start.php";
-});
 $(window).on('beforeunload',function(){
 	close_popup();
 });
 	$("#txt_price").on("blur",function(){	this.value = val_intw2dec(this.value);	})
 	$("#txt_quantity").on("blur",function(){	this.value = val_intw2dec(this.value);	})
 	$("#btn_add_provider").on("click",function(){
-		open_popup('popup_addprovider.php','popup_addprovider','425','420');
+		open_popup('popup_addprovider.php?a='+$("#txt_filterprovider").val(),'popup_addprovider','425','420');
 	})
 	$("#container_neworder").css("display","none");
 	$("#container_orderinfo").css("display","none");
@@ -149,12 +118,31 @@ $(window).on('beforeunload',function(){
 
 });
 function set_order_info(id,codigo,detalle,impuesto){
-	$("#container_orderinfo").show(500);
-	$("#hd_product_id").val(id);
-	$("#hd_product_codigo").val(codigo);
-	$("#hd_product_nombre").val(detalle);
-	$("#hd_product_impuesto").val(impuesto);
-	$("#txt_quantity").focus();
+	$("#container_orderinfo").hide(500);
+	$.ajax({	data: {	"a" : id, "z": "compraByProduct"},	type: "GET",	dataType: "text",	url: "attached/get/get_product.php", })
+	 .done(function( data, textStatus, jqXHR ) {
+		 console.log("GOOD " + textStatus);
+		 $("#hd_product_id").val(id);
+		 $("#hd_product_codigo").val(codigo);
+		 $("#hd_product_nombre").val(detalle);
+		 $("#hd_product_impuesto").val(impuesto);
+		 $("#container_product_name").html(replace_special_character(detalle));
+		 $("#container_orderinfo").show(500);
+
+		 var table = '<table class=" table table-bordered table-sm col-xs-12 col-sm-12 col-md-12 col-lg-12"><caption>Historial de Precio</caption><thead><tr><th>Fecha</th><th>Medida</th><th>Costo</th></tr></thead><tfoot><tr><td colspan="3"></td></tr></tfoot><tbody>';
+		 obj_data = JSON.parse(data);
+		if (obj_data.length > 0) {
+			for (const a in obj_data) {
+				 var precio = Math.round10(obj_data[a]['precio'],-1);
+				 table += `<tr><td>${convertir_formato_fecha(obj_data[a]['fecha'])}</td><td>${obj_data[a]['medida']}</td><td>${precio.toFixed(2)}</td></tr>`;
+			}
+			table += '</tbody></table>';
+		}
+		 document.getElementById('container_historical').innerHTML = table;
+		 $("#txt_quantity").focus();
+	 })
+	 .fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD " + textStatus);	});
+
 }
 
 var raw_product = [];
@@ -187,7 +175,6 @@ function add_rawproduct(product_id, product_codigo, product_nombre, cantidad, pr
 	print_rawproduct(raw_product);
 }
 function print_rawproduct(obj){
-	console.log(obj);
 	var content_tbody=""
 	var largo = obj.length+1;
 	var total_neworder=0;
@@ -304,7 +291,7 @@ switch ($_COOKIE['coo_tuser']){
 <div id="container_neworder" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
 	<div id="container_provider" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 		<div id="container_txtprovider"class="col-xs-11 col-sm-11 col-md-11 col-lg-11">
-			<label for="txt_filterprovider">Proveedor</label>
+			<label class="label label_blue_sky" for="txt_filterprovider">Proveedor</label>
 			<input type="text" id="txt_filterprovider" alt="" class="form-control" />
 		</div>
 		<div id="container_btnaddprovider" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side_btn-md">
@@ -320,14 +307,17 @@ switch ($_COOKIE['coo_tuser']){
 		<input type="hidden" id="hd_product_nombre" />
 		<input type="hidden" id="hd_product_impuesto" />
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-			<h3>Introduzca los Datos</h3>
+			<span id="container_product_name" class="form-control font_bolder bg_disabled"></span>
+		</div>
+		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<h4>Introduzca los Datos</h4>
 		</div>
 		<div id="container_txtquantity"class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label for="txt_quantity">Cantidad</label>
+			<label class="label label_blue_sky" for="txt_quantity">Cantidad</label>
 			<input type="text" id="txt_quantity" class="form-control" />
 		</div>
 		<div id="container_txtprice"class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label for="txt_price">Precio Neto</label>
+			<label class="label label_blue_sky" for="txt_price">Precio Neto</label>
 			<input type="text" id="txt_price" class="form-control" placeholder="0.00" />
 		</div>
 		<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -335,10 +325,13 @@ switch ($_COOKIE['coo_tuser']){
 			&nbsp;&nbsp;
 			<button type="button" id="btn_close" class="btn btn-warning btn-sm" onclick="$('#container_orderinfo').hide(500)" name="btn_close"><i class="fa fa-ban fa-2x"></i></button>
 		</div>
+		<div id="container_historical"class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			
+		</div>
 	</div>
 	<div id="container_product" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
 		<div id="container_txtproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-			<label for="txt_product">Producto:</label>
+			<label class="label label_blue_sky" for="txt_product">Producto:</label>
 			<input type="text" id="txt_product" class="form-control"/>
 		</div>
 		<div id="container_tblproduct" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -353,19 +346,19 @@ switch ($_COOKIE['coo_tuser']){
 				</thead>
         <tbody>
 					<?php if($qry_product->num_rows === 0){ ?>
-	        <tr>
-	        	<td></td>
-	        	<td></td>
-	          <td></td>
-	        </tr>
+		        <tr>
+		        	<td></td>
+		        	<td></td>
+		          <td></td>
+		        </tr>
 <?php 		}else{
 						while ($rs_product=$qry_product->fetch_array()) { 	?>
-				<tr onclick="set_order_info('<?php echo $rs_product[0]; ?>','<?php echo $rs_product[1]; ?>','<?php echo str_replace("'","\'",$rs_product[2]); ?>', '<?php echo $rs_product['TX_producto_exento']; ?>')">
-					<td><?php echo $rs_product[1]; ?></td>
-					<td><?php echo $rs_product[2]; ?></td>
-					<td><?php echo $rs_product[3]; ?></td>
-				</tr>
-<?php 		}
+							<tr onclick="set_order_info('<?php echo $rs_product[0]; ?>','<?php echo $rs_product[1]; ?>','<?php echo str_replace("'","\'",$rs_product[2]); ?>', '<?php echo $rs_product['TX_producto_exento']; ?>')">
+								<td><?php echo $rs_product[1]; ?></td>
+								<td><?php echo $r_function->replace_special_character($rs_product[2]); ?></td>
+								<td><?php echo $rs_product[3]; ?></td>
+							</tr>
+<?php 			}
  					} ?>
         </tbody>
 				<tfoot>
@@ -421,12 +414,12 @@ switch ($_COOKIE['coo_tuser']){
 		</div>
 	</div>
 	<div id="container_filterorder" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-		<div id="container_txtfilterorder" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label for="txt_filterorder">Buscar:</label>
+		<div id="container_txtfilterorder" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding">
+			<label class="label label_blue_sky" for="txt_filterorder">Buscar:</label>
 			<input type="text" id="txt_filterorder" name="" class="form-control" placeholder="Usuario, Proveedor o Numero de Orden " />
 		</div>
 		<div id="container_rlimit" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
-			<label for="r_limit">Mostrar:</label><br />
+			<label class="label label_blue_sky" for="r_limit">Mostrar:</label><br />
 			<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="10" checked="checked"/> 10</label>
 			<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="50" /> 50</label>
 			<label class="radio-inline"><input type="radio" name="r_limit" id="r_limit" value="" /> Todas</label>
@@ -587,19 +580,8 @@ switch ($_COOKIE['coo_tuser']){
 
 
 <div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-        <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        </div>
-        <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
-        </div>
-        <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-			<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-        </div>
-        <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            <button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-        </div>
-	</div>
+	<?php require 'attached/php/req_footer.php'; ?>
+</div>
 </div>
 </div>
 

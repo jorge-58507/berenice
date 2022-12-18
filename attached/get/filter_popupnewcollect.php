@@ -1,5 +1,5 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
 
 $value=$_GET['a'];
@@ -9,6 +9,7 @@ $raw_cb_selected = array();
 if (isset($_GET['d'])) {
 	$raw_cb_selected = $_GET['d'];
 }
+$vendor_id = $_GET['e'];
 if(!empty($date)){
 	$pre_date=strtotime($date);
 	$date = date('Y-m-d',$pre_date);
@@ -28,28 +29,18 @@ $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' AND TX_facturaventa_numero LIKE '%{$arr_value[$it]}%'";
+$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.facturaventa_AI_user_id = '$vendor_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' AND TX_facturaventa_numero LIKE '%{$arr_value[$it]}%'";
 	}else{
-$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' AND TX_facturaventa_numero LIKE '%{$arr_value[$it]}%' AND";
+$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.facturaventa_AI_user_id = '$vendor_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' AND TX_facturaventa_numero LIKE '%{$arr_value[$it]}%' AND";
 	}
 }
 $txt_facturaventa=$txt_facturaventa." OR";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' AND TX_facturaventa_numero LIKE '%{$arr_value[$it]}%'";
+$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.facturaventa_AI_user_id = '$vendor_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' AND TX_facturaventa_numero LIKE '%{$arr_value[$it]}%'";
 	}else{
-$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' AND TX_facturaventa_numero LIKE '%{$arr_value[$it]}%' AND";
-	}
-}
-
-$txt_facturaventa=$txt_facturaventa." OR";
-
-for($it=0;$it<$size_value;$it++){
-	if($it == $size_value-1){
-$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' AND TX_facturaventa_total LIKE '%{$arr_value[$it]}%'";
-	}else{
-$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' AND TX_facturaventa_total LIKE '%{$arr_value[$it]}%' AND";
+$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.facturaventa_AI_user_id = '$vendor_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' AND TX_facturaventa_numero LIKE '%{$arr_value[$it]}%' AND";
 	}
 }
 
@@ -57,21 +48,28 @@ $txt_facturaventa=$txt_facturaventa." OR";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' AND TX_facturaventa_total LIKE '%{$arr_value[$it]}%'";
+$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.facturaventa_AI_user_id = '$vendor_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' AND TX_facturaventa_total LIKE '%{$arr_value[$it]}%'";
 	}else{
-$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' AND TX_facturaventa_total LIKE '%{$arr_value[$it]}%' AND";
+$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.facturaventa_AI_user_id = '$vendor_id' AND bh_facturaventa.TX_facturaventa_status = 'ACTIVA' AND TX_facturaventa_total LIKE '%{$arr_value[$it]}%' AND";
 	}
 }
 
-$txt_facturaventa = $txt_facturaventa." ORDER BY TX_facturaventa_fecha, TX_facturaventa_numero DESC";
+$txt_facturaventa=$txt_facturaventa." OR";
 
-$qry_facturaventa = mysql_query($txt_facturaventa);
-$rs_facturaventa = mysql_fetch_assoc($qry_facturaventa);
-$nr_facturaventa = mysql_num_rows($qry_facturaventa);
+for($it=0;$it<$size_value;$it++){
+	if($it == $size_value-1){
+$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.facturaventa_AI_user_id = '$vendor_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' AND TX_facturaventa_total LIKE '%{$arr_value[$it]}%'";
+	}else{
+$txt_facturaventa=$txt_facturaventa.$line_date." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND bh_facturaventa.facturaventa_AI_user_id = '$vendor_id' AND bh_facturaventa.TX_facturaventa_status = 'FACTURADA' AND TX_facturaventa_total LIKE '%{$arr_value[$it]}%' AND";
+	}
+}
 
-?>
+$txt_facturaventa = $txt_facturaventa." ORDER BY AI_facturaventa_id DESC";
 
-<?php
+$qry_facturaventa = $link->query($txt_facturaventa);
+$rs_facturaventa = $qry_facturaventa->fetch_array(MYSQLI_ASSOC);
+$nr_facturaventa = $qry_facturaventa->num_rows;
+
 if($nr_facturaventa > 0){
 	do{
 ?>
@@ -79,33 +77,33 @@ if($nr_facturaventa > 0){
 		$ans = array_search($rs_facturaventa['AI_facturaventa_id'],$raw_cb_selected);
 		if($ans === false){
 ?>
-<tr id="tr_<?php echo $rs_facturaventa['AI_facturaventa_id'];?>" title="<?php echo $rs_facturaventa['TX_user_seudonimo'];?>" ondblclick="pick_one('<?php echo $rs_facturaventa['AI_facturaventa_id'];?>')">
+<tr id="tr_<?php echo $rs_facturaventa['AI_facturaventa_id'];?>" title="<?php echo $rs_facturaventa['TX_user_seudonimo'];?>" ondblclick="pick_one('<?php echo $rs_facturaventa['AI_facturaventa_id'];?>','<?php echo $rs_facturaventa['TX_facturaventa_numero'];?>','<?php echo $rs_facturaventa['TX_facturaventa_total'];?>')">
   <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
   <td>
 <?php
 		echo $date=date('d-m-Y',strtotime($rs_facturaventa['TX_facturaventa_fecha']));
 ?>
 	</td>
-  <td>B/ <?php echo $rs_facturaventa['TX_facturaventa_total']; ?></td>
+  <td>B/ <?php echo number_format($rs_facturaventa['TX_facturaventa_total'],2); ?></td>
 </tr>
 
 <?php
 		}else{
 ?>
-<tr id="tr_<?php echo $rs_facturaventa['AI_facturaventa_id'];?>" title="<?php echo $rs_facturaventa['TX_user_seudonimo'];?>" ondblclick="pick_one('<?php echo $rs_facturaventa['AI_facturaventa_id'];?>')" class="tbl_primary_hovered">
+<tr id="tr_<?php echo $rs_facturaventa['AI_facturaventa_id'];?>" title="<?php echo $rs_facturaventa['TX_user_seudonimo'];?>" ondblclick="pick_one('<?php echo $rs_facturaventa['AI_facturaventa_id'];?>','<?php echo $rs_facturaventa['TX_facturaventa_numero'];?>','<?php echo $rs_facturaventa['TX_facturaventa_total'];?>')" class="tbl_primary_hovered">
   <td><?php echo $rs_facturaventa['TX_facturaventa_numero']; ?></td>
   <td>
 <?php
 		echo $date=date('d-m-Y',strtotime($rs_facturaventa['TX_facturaventa_fecha']));
 ?>
 	</td>
-  <td>B/ <?php echo $rs_facturaventa['TX_facturaventa_total']; ?></td>
+  <td>B/ <?php echo number_format($rs_facturaventa['TX_facturaventa_total'],2); ?></td>
 </tr>
 <?php
 		}
 ?>
 <?php
-  	}while($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa));
+}while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC));
 	}else{
 ?>
 <tr>

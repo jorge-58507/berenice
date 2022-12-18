@@ -174,9 +174,14 @@ function  unset_filterclient(e){
 				ui.item.value = raw_n_val[0];
 				$("#txt_filterclient_"+activo).prop('alt', ui.item.id);
 				$("#txt_filterclient_"+activo).prop('title', 'Completa las ventas '+ui.item.asiduo+" de las veces");
-				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20)+' <strong>Asiduo.</strong> '+ui.item.asiduo;
+				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
 				fire_recall('container_client_recall_'+activo, content)
-				generate_tbl_favorito(ui.item.json_favorito,activo);
+				
+				var ruc = ui.item.ruc;
+				if (ruc.charAt(0) == 0 && ruc.charAt(1) == '-' || ruc.charAt(0) == 0 && ruc.charAt(1) == 0) {
+					shot_snackbar('¡Debe Acomodar la Cédula','bg_danger');
+					add_client();
+				}
 			}
 		});
 	});
@@ -189,11 +194,52 @@ function add_client(){
 			name = url_replace_regular_character(name);
 	if($("#txt_filterclient_"+activo).prop('alt') != ""){
 		if($("#txt_filterclient_"+activo).prop('alt') === "1"){
-			open_popup('popup_addclient.php?a='+name,'popup_addclient','425','420')
+			open_popup('popup_addclient.php?a='+name,'popup_addclient','425','460')
 		}else{
-			open_popup('popup_updclient.php?a='+$("#txt_filterclient_"+activo).prop('alt'),'popup_updclient','425','420')
+			open_popup('popup_updclient.php?a=' + $("#txt_filterclient_" + activo).prop('alt'), 'popup_updclient', '425','507')
 		}
 	}else{
-		open_popup('popup_addclient.php?a='+name,'popup_addclient','425','420')
+		open_popup('popup_addclient.php?a=' + name, 'popup_addclient', '425','460')
 	}
+}
+function calculate_ceiling(){
+	var metraje = $("#txt_metraje").val();
+	var raw_ceiling = new Array();
+	// ############     SIM     ################
+	// 2X2
+		raw_ceiling.push({"lamina" : 2.82*metraje, "t12" : 0.26*metraje, "t4" : 1.41*metraje, "angulo" : 0.33*metraje, "clavo" : 2*metraje});
+	// 2x4
+		raw_ceiling.push({"lamina" : 1.41*metraje, "t12" : 0.26*metraje, "t4" : 1.41*metraje, "angulo" : 0.33*metraje, "clavo" : 2*metraje});
+		contenido_tbody = `
+		<tr>
+			<td class="al_center">Laminas:</td>
+			<td>${raw_ceiling[0]['lamina'].toFixed(2)}</td>
+			<td>${raw_ceiling[1]['lamina'].toFixed(2)}</td>
+		</tr>
+		<tr>
+			<td class="al_center">T 12:</td>
+			<td>${raw_ceiling[0]['t12'].toFixed(2)}</td>
+			<td>${raw_ceiling[1]['t12'].toFixed(2)}</td>
+		</tr>
+		<tr>
+			<td class="al_center">T 4:</td>
+			<td>${raw_ceiling[0]['t4'].toFixed(2)}</td>
+			<td>${raw_ceiling[1]['t4'].toFixed(2)}</td>
+		</tr>
+		<tr>
+			<td class="al_center">Ang.12:</td>
+			<td>${raw_ceiling[0]['angulo'].toFixed(2)}</td>
+			<td>${raw_ceiling[1]['angulo'].toFixed(2)}</td>
+		</tr>
+		<tr>
+			<td class="al_center">Clavo:</td>
+			<td>${raw_ceiling[0]['clavo'].toFixed(2)}</td>
+			<td>${raw_ceiling[1]['clavo'].toFixed(2)}</td>
+		</tr>
+			`;
+			$("#tbl_ceiling tbody").html(contenido_tbody);
+}
+
+function insert_herraje_tina(){
+	
 }

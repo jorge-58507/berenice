@@ -18,7 +18,7 @@ while ($rs_lastsale = $qry_lastsale->fetch_array()) {
     $raw_payment[$rs_payment['datopago_AI_metododepago_id']] += $rs_payment['TX_datopago_monto'];
   }
 }
-$sumatoria = $raw_payment[1]+$raw_payment[2]+$raw_payment[3]+$raw_payment[4]+$raw_payment[8];
+$sumatoria = $raw_payment[1]+$raw_payment[2]+$raw_payment[3]+$raw_payment[4]+$raw_payment[7]+$raw_payment[8];
 $qry_user = $link->query("SELECT TX_user_meta FROM bh_user WHERE AI_user_id = '{$_COOKIE['coo_iuser']}'")or die($link->error);
 $rs_user = $qry_user->fetch_array();
 $porcentaje = ($sumatoria*100)/$rs_user['TX_user_meta'];

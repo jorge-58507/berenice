@@ -135,8 +135,8 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">FECHA</th>
 			<th class="col-xs-5 col-sm-5 col-md-5 col-lg-5">PROVEEDOR</th>
 			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">FACT.</th>
-			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">STATUS</th>
-			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">ALMACEN</th>
+			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">SUBTOTAL</th>
+			<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">IMPUESTO</th>
 			<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">TOTAL</th>
 		</tr>
 		</thead>
@@ -152,13 +152,15 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 		$qry_datocompra->bind_param("i", $rs_facturacompra['AI_facturacompra_id']);
 		$qry_datocompra->execute()or die($link->error);
 		$result=$qry_datocompra->get_result();
-		$total4facturacompra=0;
+		$total4facturacompra=0; $sum_impuesto = 0;$sum_basedescuento = 0;
 		while ($rs_datocompra=$result->fetch_array()) {
 			$base4product=$rs_datocompra['TX_datocompra_cantidad']*$rs_datocompra['TX_datocompra_precio'];
 			$descuento=($rs_datocompra['TX_datocompra_descuento']*$base4product)/100;
 			$base_descuento=$base4product-$descuento;
 			$impuesto=($rs_datocompra['TX_datocompra_impuesto']*$base_descuento)/100;
 			$precio4product=$base_descuento+$impuesto;
+			$sum_impuesto += $impuesto;
+			$sum_basedescuento += $base_descuento;
 			$total4facturacompra += $precio4product;
 		}
 		$total+=$total4facturacompra;
@@ -168,8 +170,8 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 			<td><?php echo date('d-m-Y',strtotime($rs_facturacompra['TX_facturacompra_fecha'])); ?></td>
 			<td><?php echo $rs_facturacompra['TX_proveedor_nombre']; ?></td>
 			<td><?php echo $rs_facturacompra['TX_facturacompra_numero']; ?></td>
-			<td><?php echo $rs_facturacompra['TX_facturacompra_status']; ?></td>
-			<td><?php echo $rs_facturacompra['TX_almacen_value']; ?></td>
+			<td><?php echo number_format($sum_basedescuento,4); ?></td>
+			<td><?php echo number_format($sum_impuesto,4); ?></td>
 			<td><?php echo number_format($total4facturacompra,4); ?></td>
 		</tr>
 <?php } ?>

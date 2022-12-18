@@ -76,6 +76,12 @@ $("#txt_quantity").blur(function(){
 
 
 $('#btn_acept').click(function(){
+
+	$("#btn_acept").attr("disabled", true);
+	setTimeout(() => {
+		$("#btn_acept").attr("disabled", false);
+	}, 5000);
+
 	var product_id = $("#txt_product").attr("alt");
 	var input_price = document.forms[0]['input_price'].name;
 	var txt_itbm = document.forms[0]['txt_itbm'].name;
@@ -220,7 +226,7 @@ function get_product2sell_price(medida_id){
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>

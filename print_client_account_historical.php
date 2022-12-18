@@ -45,7 +45,7 @@ $line_order=" ORDER BY TX_facturaf_fecha ASC, TX_facturaf_numero ASC";
 		$prep_nd = $link->prepare("SELECT bh_notadebito.AI_notadebito_id, bh_notadebito.TX_notadebito_fecha, bh_notadebito.TX_notadebito_hora, bh_notadebito.TX_notadebito_motivo, bh_notadebito.TX_notadebito_numero, bh_notadebito.TX_notadebito_total, rel_facturaf_notadebito.TX_rel_facturafnotadebito_importe
 			FROM (bh_notadebito
 				INNER JOIN rel_facturaf_notadebito ON bh_notadebito.AI_notadebito_id =	rel_facturaf_notadebito.rel_AI_notadebito_id)
-				WHERE bh_notadebito.AI_notadebito_id = ? ORDER BY TX_notadebito_fecha ASC, TX_notadebito_hora ASC ")or die($link->error);
+				WHERE bh_notadebito.AI_notadebito_id = ? AND bh_notadebito.TX_notadebito_status = 0 ORDER BY TX_notadebito_fecha ASC, TX_notadebito_hora ASC ")or die($link->error);
 
 		$prep_ff=$link->prepare("SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero,
 			 bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_descuentoni,
@@ -87,7 +87,7 @@ function find_nd_to_include($raw_ff_included,$raw_nd_included,$ciclo){
 		FROM ((bh_notadebito
 			INNER JOIN rel_facturaf_notadebito ON bh_notadebito.AI_notadebito_id =	rel_facturaf_notadebito.rel_AI_notadebito_id)
 			INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id =	rel_facturaf_notadebito.rel_AI_facturaf_id)
-			WHERE bh_facturaf.AI_facturaf_id = ? ORDER BY TX_notadebito_fecha ASC, TX_notadebito_hora ASC")or die($link->error);
+			WHERE bh_facturaf.AI_facturaf_id = ?  AND bh_notadebito.TX_notadebito_status = 0 ORDER BY TX_notadebito_fecha ASC, TX_notadebito_hora ASC")or die($link->error);
 
 	foreach ($raw_ff_included as $ff_key => $rs_facturaf) {
 		$prep_nd->bind_param("i", $ff_key); $prep_nd->execute(); $qry_nd = $prep_nd->get_result();
@@ -119,7 +119,7 @@ function find_ff_to_include($raw_ff_included,$raw_nd_included,$ciclo){
 		INNER JOIN bh_datopago ON bh_datopago.datopago_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 		INNER JOIN rel_facturaf_notadebito ON bh_facturaf.AI_facturaf_id =	rel_facturaf_notadebito.rel_AI_facturaf_id)
 		INNER JOIN bh_notadebito ON bh_notadebito.AI_notadebito_id =	rel_facturaf_notadebito.rel_AI_notadebito_id)
-		WHERE bh_notadebito.AI_notadebito_id = ? ORDER BY TX_facturaf_fecha ASC, TX_facturaf_numero ASC")or die($link->error);
+		WHERE bh_notadebito.AI_notadebito_id = ? AND bh_notadebito.TX_notadebito_status = 0 ORDER BY TX_facturaf_fecha ASC, TX_facturaf_numero ASC")or die($link->error);
 
 		$prep_ff->bind_param("i",$nd_key); $prep_ff->execute(); $qry_ff =	$prep_ff->get_result();
 		while ($rs_ff=$qry_ff->fetch_array(MYSQLI_ASSOC)) {

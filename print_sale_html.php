@@ -47,6 +47,9 @@ while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
 </script>
 
 <body style="font-family:Arial" onLoad="window.print()">
+	<div class="container-fluid no_print al_center">
+		<button type="button" onclick="window.document.location.href='print_sale_html2.php?a=<?php echo $facturaventa_id; ?>'" name="button" class="btn btn-lg btn-default">Impresion con Precios</button>
+	</div>
 
 <?php
 $dias = array('','Domingo','Lunes','Martes','Mi&eacute;rcoles','Jueves','Viernes','Sabado');
@@ -69,7 +72,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		<td colspan="2" style="text-align:left">
 	  </td>
 	 	<td valign="top" colspan="6" style="text-align:center">
-			<img width="200px" height="75px" src="attached/image/logo_factura.png" ondblclick="window.location.href='print_sale_html_materiales.php?a=<?php echo $facturaventa_id; ?>'">
+			<img width="200px" height="75px" src="attached/image/logo_factura_materiales.png" ondblclick="window.location.href='print_sale_html_materiales.php?a=<?php echo $facturaventa_id; ?>'">
 			<br />
 			<font style="font-size:10px">RUC: <?php echo $raw_opcion['RUC']; ?> DV: <?php echo $raw_opcion['DV']."<br/>"; ?></font>
 			<font style="font-size:10px"><?php echo $raw_opcion['DIRECCION']."<br />"; ?></font>
@@ -96,7 +99,7 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 			</table>
 	    <table id="tbl_client" class="table table-print" style="border:solid; background-color:#DDDDDD;">
 	    	<tr>
-	        <td valign="top" class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding: 8px 0 8px 8px;"><strong>Nombre: </strong><?php echo substr(strtoupper($rs_facturaventa['TX_cliente_nombre']),0,37); ?></td>
+	        <td valign="top" class="col-xs-6 col-sm-6 col-md-6 col-lg-6" style="padding: 8px 0 8px 8px;"><strong>Nombre: </strong><?php echo substr(strtoupper($r_function->replace_special_character($rs_facturaventa['TX_cliente_nombre'])),0,37); ?></td>
 	        <td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding: 8px 0 8px 8px;"><strong>RUC: </strong><?php echo strtoupper($rs_facturaventa['TX_cliente_cif']); ?></td>
 	        <td valign="top" class="col-xs-3 col-sm-3 col-md-3 col-lg-3" style="padding: 8px 0 8px 8px;"><strong>Telefono: </strong><?php echo substr($rs_facturaventa['TX_cliente_telefono'],0,10); ?></td>
 	    	</tr>
@@ -126,10 +129,6 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		        <th>Detalle</th>
 						<th>Medida</th>
 		        <th>Cant.</th>
-		        <th>Precio</th>
-		        <th>Desc.</th>
-		        <th>Imp.</th>
-		        <th>Total.</th>
 					</tr>
 				</thead>
 		  	<tbody>
@@ -164,10 +163,6 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		        <th>Detalle</th>
 						<th>Medida</th>
 		        <th>Cant.</th>
-		        <th>Precio</th>
-		        <th>Desc.</th>
-		        <th>Imp.</th>
-		        <th>Total.</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -199,10 +194,6 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		        <th>Detalle</th>
 						<th>Medida</th>
 		        <th>Cant.</th>
-		        <th>Precio</th>
-		        <th>Desc.</th>
-		        <th>Imp.</th>
-		        <th>Total.</th>
 					</tr>
 				</thead>
 		    <tbody>
@@ -221,10 +212,6 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		        <td style="vertical-align: middle;"><?php echo substr($r_function->replace_special_character($rs_facturaventa['TX_datoventa_descripcion']),0,96); 	?></td>
 						<td style="vertical-align: middle;" class="al_center"><?php echo $raw_medida[$rs_facturaventa['TX_datoventa_medida']]; ?></td>
 						<td style="vertical-align: middle;" class="al_center"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
-		        <td style="vertical-align: middle;" class="al_center"><?php	echo number_format($rs_facturaventa['TX_datoventa_precio'],2);	?></td>
-		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($descuento/$rs_facturaventa['TX_datoventa_cantidad'],4); 			?></td>
-		        <td style="vertical-align: middle;" class="al_center"><?php echo number_format($itbm/$rs_facturaventa['TX_datoventa_cantidad'],4); 						?></td>
-		        <td style="vertical-align: middle;" class="al_right"><?php echo number_format($precio_total,4); 		?></td>
 					</tr>
 	<?php
 				$totalitbm += $itbm;

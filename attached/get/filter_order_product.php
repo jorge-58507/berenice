@@ -12,7 +12,7 @@ $size_value=sizeof($arr_value);
 $txt_product="SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_cantidad FROM bh_producto WHERE ";
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-$txt_product=$txt_product."TX_producto_value LIKE '%{$arr_value[$it]}%' AND TX_producto_activo = '0'";
+$txt_product=$txt_product."TX_producto_value LIKE '%{$arr_value[$it]}%' ";
 	}else{
 $txt_product=$txt_product."TX_producto_value LIKE '%{$arr_value[$it]}%' AND ";
 	}
@@ -22,13 +22,13 @@ $txt_product=$txt_product." OR ";
 
 for($it=0;$it<$size_value;$it++){
 	if($it == $size_value-1){
-		$txt_product=$txt_product."TX_producto_codigo LIKE '%{$arr_value[$it]}%' AND TX_producto_activo = '0'";
+		$txt_product=$txt_product."TX_producto_codigo LIKE '%{$arr_value[$it]}%' ";
 	}else{
 		$txt_product=$txt_product."TX_producto_codigo LIKE '%{$arr_value[$it]}%' AND ";
 	}
 }
 
-$txt_product.=" ORDER BY TX_producto_value ASC LIMIT 10";
+$txt_product.=" ORDER BY TX_producto_value ASC LIMIT 50";
 
 $qry_product=$link->query($txt_product);
 

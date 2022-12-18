@@ -1,4 +1,5 @@
 <?php
+// CANTIDAD DE MOVIMIENTOS
 require 'bh_conexion.php';
 $link=conexion();
 require 'attached/php/req_login_sale.php';
@@ -13,23 +14,97 @@ $date_f=$_GET['c'];
 
 $qry_client=$link->query("SELECT TX_cliente_nombre, TX_cliente_cif, TX_cliente_telefono, TX_cliente_direccion FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die($link->error);
 $rs_client=$qry_client->fetch_array(MYSQLI_ASSOC);
-
+ 
 $date_i=date('Y-m-d',strtotime($date_i));
 $date_f=date('Y-m-d',strtotime($date_f));
+
+$prep_payment = $link->prepare("SELECT datopago_AI_metododepago_id, TX_datopago_monto FROM bh_datopago WHERE datopago_AI_facturaf_id = ?")or die($link->error);
+
 $txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_ticket, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_descuentoni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_cambio,
 bh_user.TX_user_seudonimo
 FROM ((bh_facturaf
 INNER JOIN bh_facturaventa ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
 INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
-WHERE facturaf_AI_cliente_id = '$client_id' AND TX_facturaf_fecha >= '$date_i' AND TX_facturaf_fecha <= '$date_f'";
-$line_deficit="";
-if(isset($_GET['d'])){
-	if($_GET['d'] == "deficit"){ $line_deficit=" AND TX_facturaf_deficit > 0"; } else{ $line_deficit = ""; }
+WHERE facturaf_AI_cliente_id = '$client_id' AND TX_facturaf_fecha >= '$date_i' AND TX_facturaf_fecha <= '$date_f' ORDER BY AI_facturaf_id";
+$qry_facturaf=$link->query($txt_facturaf) or die($link->error);
+$raw_facturaf = array();
+$prep_payment->bind_param('i', $facturaf_id);
+$total_credit = 0; $cant_doc = 0;
+$facturaf_id = '';
+while($rs_facturaf=$qry_facturaf->fetch_array(MYSQLI_ASSOC)){
+	if ($facturaf_id != $rs_facturaf['AI_facturaf_id']) {
+		$cant_doc++;
+		$index = date('Ymd',strtotime($rs_facturaf['TX_facturaf_fecha'])).date('H:i',strtotime($rs_facturaf['TX_facturaf_hora'])).$rs_facturaf['AI_facturaf_id'];
+		$raw_facturaf[$index] = $rs_facturaf;
+		$raw_facturaf[$index]['imprimir'] = ($rs_facturaf['TX_facturaf_deficit'] > 0.00) ? 'print' : 'no' ;
+		if ($_GET['d'] === 'todas') {
+			$raw_facturaf[$index]['imprimir'] = 'print';
+		}
+		$raw_facturaf[$index]['tipo'] = 'FACTURA';
+		$facturaf_id = $rs_facturaf['AI_facturaf_id'];
+		$prep_payment->execute(); $qry_payment = $prep_payment->get_result();
+		$amount = 0;
+		while($rs_payment = $qry_payment->fetch_array()){
+			if($rs_payment['datopago_AI_metododepago_id'] === 5 || $rs_payment['datopago_AI_metododepago_id'] === 8){
+				$amount += $rs_payment['TX_datopago_monto'];
+			}
+		}
+		$total_credit += $amount;
+		$raw_facturaf[$index]['cargo'] = $amount;
+	}
+
 }
-$line_order=" ORDER BY AI_facturaf_id";
-$qry_facturaf=$link->query($txt_facturaf.$line_deficit.$line_order) or die($link->error);
+$qry_debito = $link->query("SELECT AI_notadebito_id, TX_notadebito_total, TX_notadebito_fecha, TX_notadebito_hora, TX_notadebito_numero FROM bh_notadebito WHERE notadebito_AI_cliente_id = '$client_id' AND TX_notadebito_fecha >= '$date_i' AND TX_notadebito_fecha <= '$date_f' AND TX_notadebito_status != 1")or die($link->error);
+$total_payed = 0;
+while ($rs_notadebito = $qry_debito->fetch_array(MYSQLI_ASSOC)) {
+	$index = date('Ymd',strtotime($rs_notadebito['TX_notadebito_fecha'])).date('H:i',strtotime($rs_notadebito['TX_notadebito_hora'])).$rs_notadebito['AI_notadebito_id'];
+	$amount = $rs_notadebito['TX_notadebito_total']*(-1);
+	$raw_facturaf[$index]['TX_facturaf_fecha'] = $rs_notadebito['TX_notadebito_fecha'];
+	$raw_facturaf[$index]['TX_facturaf_hora'] = $rs_notadebito['TX_notadebito_hora'];
+	$raw_facturaf[$index]['TX_facturaf_numero'] = $rs_notadebito['TX_notadebito_numero'];
+	$raw_facturaf[$index]['TX_facturaf_total'] = 0.00;
+	$raw_facturaf[$index]['TX_facturaf_deficit'] = 0.00;
+	$raw_facturaf[$index]['tipo'] = 'DEBITO';
+	$raw_facturaf[$index]['cargo'] = $amount;
+	$raw_facturaf[$index]['imprimir'] = 'print';
+	if ($_GET['d'] != 'todas') {
+		$raw_facturaf[$index]['imprimir'] = 'no';
+	}
+	$total_payed += $amount;
+}
+// ###########################				PREVIOS				###################################
 
+$txt_previusff="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_ticket, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_descuentoni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_cambio,
+bh_user.TX_user_seudonimo
+FROM ((bh_facturaf
+INNER JOIN bh_facturaventa ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
+INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
+WHERE facturaf_AI_cliente_id = '$client_id' AND TX_facturaf_fecha < '$date_i' ORDER BY AI_facturaf_id";
+$qry_previusff=$link->query($txt_previusff) or die($link->error);
+$saldo_retenido = 0;
+$total = 0;
+while ($rs_previusff = $qry_previusff->fetch_array(MYSQLI_ASSOC)) {
+	// $cant_doc++;
+	// $total+=round($rs_previusff['TX_facturaf_total'],2);
+	$facturaf_id = $rs_previusff['AI_facturaf_id'];
+	$prep_payment->execute(); $qry_payment = $prep_payment->get_result();
+	$amount = 0;
+	while($rs_payment = $qry_payment->fetch_array(MYSQLI_ASSOC)){
+		if($rs_payment['datopago_AI_metododepago_id'] === 5 || $rs_payment['datopago_AI_metododepago_id'] === 8){
+			$amount += $rs_payment['TX_datopago_monto'];
+		}
+	}
+	// $total_credit += $amount;
+	$saldo_retenido += $amount;
+}
+$qry_previusdebito = $link->query("SELECT AI_notadebito_id, TX_notadebito_total, TX_notadebito_fecha, TX_notadebito_hora, TX_notadebito_numero FROM bh_notadebito WHERE notadebito_AI_cliente_id = '$client_id' AND TX_notadebito_fecha < '$date_i' AND TX_notadebito_status != 1 AND TX_notadebito_status != 1")or die($link->error);
+while ($rs_previusdebito = $qry_previusdebito->fetch_array(MYSQLI_ASSOC)) {
+	$amount = $rs_previusdebito['TX_notadebito_total'];
+	$saldo_retenido -= $amount;
+	// $total_payed += $amount;
+}
 
+ksort($raw_facturaf);
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -37,6 +112,7 @@ $qry_facturaf=$link->query($txt_facturaf.$line_deficit.$line_order) or die($link
 <title>Facturas: <?php echo $rs_client['TX_cliente_nombre']; ?></title>
 <link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/print_css.css" rel="stylesheet" type="text/css" />
+<link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
 </head>
 <script type="text/javascript">
 function cap_fl(str){
@@ -72,7 +148,8 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 	</div>
 	<div id="print_title" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding" style="height: 110px;">
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 al_center" style="height: 50px;">
-			<h3>FACTURAS</h3>
+			<h3 style="margin:0;">Historial</h3>
+			Movimientos del <?php echo date('d-m-Y', strtotime($date_i)); ?> al <?php echo date('d-m-Y', strtotime($date_f)); ?>.
 		</div>
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding" style="height: 30px;">
 			<div class="col-xs-5 col-sm-5 col-md-5 col-lg-5"><strong>Nombre: </strong><?php echo strtoupper($rs_client['TX_cliente_nombre']); ?></div>
@@ -92,32 +169,38 @@ $fecha = date('d-m-Y',strtotime($fecha_actual));
 		</div>
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_header">
 			<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><strong>FECHA</strong></div>
-			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>NUMERO</strong></div>
-			<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><strong>TICKET</strong></div>
-			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>BASE</strong></div>
-			<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><strong>DESC</strong></div>
-			<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><strong>IMP</strong></div>
-			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>TOTAL</strong></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>DOCUMENTO</strong></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>DESCRIPCI&Oacute;N</strong></div>
+			<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><strong>TOTAL</strong></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>DEFICIT</strong></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>CARGO</strong></div>
 			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><strong>SALDO</strong></div>
 		</div><?php
-		$total=0; $saldo=0;
-		while($rs_facturaf=$qry_facturaf->fetch_array(MYSQLI_ASSOC)){
+		// $total=0; 
+		$saldo=$saldo_retenido; $deficit = 0;
+		foreach ($raw_facturaf as $key => $rs_facturaf) {
 			$total+=round($rs_facturaf['TX_facturaf_total'],2);
-			$saldo+=round($rs_facturaf['TX_facturaf_deficit'],2);?>
-			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body">
-				<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><?php echo date('d-m-Y', strtotime($rs_facturaf['TX_facturaf_fecha']))."<br />".$rs_facturaf['TX_facturaf_hora']; ?></div>
-				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo $rs_facturaf['TX_facturaf_numero']; ?></div>
-				<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center"><?php echo $rs_facturaf['TX_facturaf_ticket']; ?></div>
-				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo number_format($base_ni = round($rs_facturaf['TX_facturaf_subtotalni'],2)+round($rs_facturaf['TX_facturaf_subtotalci'],2),2); ?></div>
-				<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center"><?php echo number_format($base_ni = round($rs_facturaf['TX_facturaf_descuentoni'],2)+round($rs_facturaf['TX_facturaf_descuento'],2),2); ?></div>
-				<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center"><?php echo number_format($rs_facturaf['TX_facturaf_impuesto'],2); ?></div>
-				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo number_format($rs_facturaf['TX_facturaf_total'],2); ?></div>
-				<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></div>
-			</div><?php
+			$saldo+=round($rs_facturaf['cargo'],2);
+			$deficit += round($rs_facturaf['TX_facturaf_deficit'],2);
+			if ($rs_facturaf['imprimir'] === 'print') { ?>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body">
+					<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1"><?php echo date('d-m-Y', strtotime($rs_facturaf['TX_facturaf_fecha']))."<br />".$rs_facturaf['TX_facturaf_hora']; ?></div>
+					<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo $rs_facturaf['tipo']; ?></div>
+					<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo $rs_facturaf['TX_facturaf_numero']; ?></div>
+					<div class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center"><?php echo number_format($rs_facturaf['TX_facturaf_total'],2); ?></div>
+					<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo number_format($rs_facturaf['TX_facturaf_deficit'],2); ?></div>
+					<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><?php echo number_format($rs_facturaf['cargo'],2); ?></div>
+					<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center">B/.<?php echo ($_GET['d'] === 'todas') ? number_format($saldo,2) : number_format($deficit,2) ; ?></div>
+				</div>
+			<?php			
+			} 
 		} ?>
 		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body">
-			<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8"> </div>
-			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><strong>TOTAL:</strong><br /><?php echo "B/ ".number_format($total,2); ?></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><strong>DOCUMENTOS:</strong><br /><?php echo $cant_doc; ?></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center br_1"><strong>TOTAL FACTURADO:</strong><br /><?php echo "B/ ".number_format($total,2); ?></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><strong>SALDO ANTERIOR</strong>:</strong><br />B/.<?php echo number_format($saldo_retenido,2); ?></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><strong>TOTAL CR&Eacute;DITO:</strong><br /><?php echo "B/ ".number_format($total_credit,2); ?></div>
+			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><strong>TOTAL ABONADO:</strong><br /><?php echo "B/ ".number_format($total_payed,2); ?></div>
 			<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center"><strong>SALDO:</strong><br /><?php echo "B/ ".number_format($saldo,2); ?></div>
 		</div>
 	</div>

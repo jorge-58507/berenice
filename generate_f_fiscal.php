@@ -92,7 +92,7 @@ $vendedor = $rs_vendedor['TX_user_seudonimo'];
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta http-equiv='Refresh' content='3;url=paydesk.php?a=<?php echo $facturaf_id; ?>' />
+<!-- <meta http-equiv='Refresh' content='15;url=paydesk.php?a=<?php /*echo $facturaf_id; */?>' /> -->
 <title>Trilli, S.A. - Todo en Materiales</title>
 
 <link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
@@ -242,7 +242,7 @@ fclose($file);
         <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
         </div>
         <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
+    &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
         </div>
         <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
                     		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>

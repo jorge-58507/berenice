@@ -16,7 +16,7 @@
 	text-align:center;
 }
 #container_create_product{
-	height:420px;
+	height:330px;
 	margin:0 auto;
 	padding:10px 0 0 0;
 	float:unset;
@@ -27,7 +27,7 @@
 }
 #container_btn_purchase{
 	border-top:solid 2px #7892CF;
-	margin:10px 0 0 0;
+	margin:0 0 0 0;
 	padding:10px 0 0 0;
 	text-align:center;
 }
@@ -45,7 +45,7 @@
 #div_newproduct{
 	text-align:left;
 	float: left;
-	margin: -10px 0 0 0;
+	margin: 0 0 0 0;
 	padding:0 0 0 15px;
 	font-size: 17px;
 	color: #7892CF;
@@ -92,13 +92,14 @@
 	vertical-align: middle;
 }
 #container_orderinfo{
-	box-shadow: 0px  0px 5px #cccccc;
+	box-shadow: 0px 0px 10px #080808;
 	float: right;
 	position: fixed;
 	top: 200px;
 	left: 120px;
 	z-index: 1;
 	background-color: #FFF;
+	border: solid 1px #050505;
 	border-radius: 18px;
 	padding: 5px;
 }
@@ -155,4 +156,19 @@
 }
 #container_rlimit > label.radio-inline {
     padding-top: 7px;
+}
+
+#mod_set_savegroup{
+	border: solid 1px #ccc;
+	border-radius: 10px;
+	position: fixed;
+	top: 100px;
+	left: 400px;
+	z-index: 1;
+	background-color: #ffffff;
+	padding: 15px;
+	box-shadow: 0px 2px 300px 85px #aaa4a4;
+}
+#tbl_productgroup>tbody{
+	cursor: pointer;
 }

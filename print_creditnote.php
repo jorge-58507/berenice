@@ -1,11 +1,11 @@
 ﻿<?php
 require 'bh_conexion.php';
 $link=conexion();
-?>
-<?php
 require 'attached/php/req_login_admin.php';
+if (!empty($_SESSION['creditnote_id'])) {
+
+}
 $creditnote_id = $_SESSION['creditnote_id'];
-//$creditnote_id = 19;
 
 function get_rel_medida_cantidad($producto_id, $medida_id){
   $link=conexion();
@@ -76,23 +76,14 @@ print_html("print_client_nc.php?a=<?php echo $creditnote_id; ?>");
 <body>
 
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
-  	<div id="logo" ></div>
-   	</div>
-
-	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
-
-		<div id="navigation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-
-
-
-
-
+	<div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
+				<div id="logo" ></div>
+			</div>
+		<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
+			<div id="navigation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
 		</div>
 	</div>
-
-</div>
 <?php
 function ObtenerIP(){
 if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
@@ -123,7 +114,9 @@ if (!file_exists($recipiente)) {
     mkdir($recipiente, 0777, true);
 }
 
-$qry_notadecredito=$link->query("SELECT bh_notadecredito.TX_notadecredito_numero, bh_notadecredito.TX_notadecredito_tipo, bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_notadecredito.TX_notadecredito_monto, round(((bh_notadecredito.TX_notadecredito_impuesto*100)/bh_notadecredito.TX_notadecredito_monto)) AS alicuota, bh_notadecredito.TX_notadecredito_motivo, bh_notadecredito.TX_notadecredito_fecha, bh_notadecredito.TX_notadecredito_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_ticket
+$qry_notadecredito=$link->query("SELECT bh_notadecredito.TX_notadecredito_numero, bh_notadecredito.TX_notadecredito_tipo, 
+bh_cliente.TX_cliente_nombre, bh_cliente.TX_cliente_cif, bh_cliente.TX_cliente_direccion, bh_cliente.TX_cliente_dv, bh_cliente.TX_cliente_correo, bh_cliente.TX_cliente_contribuyente, bh_cliente.TX_cliente_tipo,
+bh_notadecredito.TX_notadecredito_monto, round(((bh_notadecredito.TX_notadecredito_impuesto*100)/bh_notadecredito.TX_notadecredito_monto)) AS alicuota, bh_notadecredito.TX_notadecredito_motivo, bh_notadecredito.TX_notadecredito_fecha, bh_notadecredito.TX_notadecredito_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_ticket
 FROM ((bh_notadecredito
 INNER JOIN bh_cliente ON bh_notadecredito.notadecredito_AI_cliente_id = bh_cliente.AI_cliente_id)
 INNER JOIN bh_facturaf ON bh_notadecredito.notadecredito_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
@@ -144,8 +137,7 @@ $hora=date('H:i',$prehora);
 /* ##### ENCABEZADO  ##### */
 $file = fopen($recipiente."NCTI".$str.".txt", "w");
 
-fwrite($file, $row_notadecredito['TX_notadecredito_tipo'].chr(9)."NCTI".substr($row_notadecredito['TX_notadecredito_numero'],-7).chr(9).$r_function->replace_special_character($row_notadecredito['TX_cliente_nombre']).chr(9).$row_notadecredito['TX_cliente_cif'].chr(9).$row_notadecredito['TX_cliente_direccion'].chr(9).$row_notadecredito['TX_notadecredito_monto'].chr(9).$row_notadecredito['alicuota'].chr(9).$row_notadecredito['TX_notadecredito_motivo'].chr(9).$fecha.chr(9).$hora.chr(9).$row_impresora['TX_impresora_serial'].chr(9).substr($row_notadecredito['TX_facturaf_ticket'],-7).chr(9).substr($row_notadecredito['TX_facturaf_numero'],-7));
-
+fwrite($file, $row_notadecredito['TX_notadecredito_tipo'].chr(9)."NCTI".substr($row_notadecredito['TX_notadecredito_numero'],-7).chr(9).$r_function->replace_special_character($row_notadecredito['TX_cliente_nombre']).chr(9).$row_notadecredito['TX_cliente_cif'].chr(9).$row_notadecredito['TX_cliente_direccion'].chr(9).$row_notadecredito['TX_notadecredito_monto'].chr(9).$row_notadecredito['alicuota'].chr(9).$row_notadecredito['TX_notadecredito_motivo'].chr(9).$fecha.chr(9).$hora.chr(9).$row_impresora['TX_impresora_serial'].chr(9).substr($row_notadecredito['TX_facturaf_ticket'],-7).chr(9)."FACTI".substr($row_notadecredito['TX_facturaf_numero'],-7).chr(9).$row_notadecredito['TX_cliente_dv'].chr(9).$row_notadecredito['TX_cliente_correo'].chr(9).$row_notadecredito['TX_cliente_contribuyente'].chr(9).$row_notadecredito['TX_cliente_tipo']);
 fclose($file);
 /* ##### ENCABEZADO  ##### */
 
@@ -167,23 +159,23 @@ $file = fopen($recipiente."NCMV".$str.".txt", "w");
 
 if ($qry_datodevolucion->num_rows > 3) {
 	do{
-		$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_producto_id, TX_datoventa_medida, TX_datoventa_cantidad FROM bh_datoventa WHERE AI_datoventa_id = '{$row_datodevolucion['datodevolucion_AI_datoventa_id']}'")or die($link->error);
+		$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_producto_id, TX_datoventa_descripcion, TX_datoventa_medida, TX_datoventa_cantidad FROM bh_datoventa WHERE AI_datoventa_id = '{$row_datodevolucion['datodevolucion_AI_datoventa_id']}'")or die($link->error);
 		$rs_datoventa=$qry_datoventa->fetch_array();
 		$rel_datodevolucion = get_rel_medida_cantidad($row_datodevolucion['datodevolucion_AI_producto_id'],$row_datodevolucion['TX_datodevolucion_medida']);
 		$rel_datoventa = get_rel_medida_cantidad($rs_datoventa['datoventa_AI_producto_id'],$rs_datoventa['TX_datoventa_medida']);
 		$rel_coheficiente = $rel_datodevolucion/$rel_datoventa;
 
-		fwrite($file, "NCTI".$str.chr(9).substr($row_datodevolucion['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$row_datodevolucion['TX_datodevolucion_medida']],0,3)." ".substr($r_function->replace_special_character($row_datodevolucion['TX_producto_value']),0,31).chr(9).$raw_medida[$row_datodevolucion['TX_datodevolucion_medida']].chr(9).$row_datodevolucion['TX_datodevolucion_cantidad'].chr(9).($row_datodevolucion['precio']*$rel_coheficiente).chr(9).$row_datodevolucion['TX_datoventa_impuesto'].chr(9). PHP_EOL );
+		fwrite($file, "NCTI".$str.chr(9).substr($row_datodevolucion['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$row_datodevolucion['TX_datodevolucion_medida']],0,3)." ".substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,31).chr(9).$raw_medida[$row_datodevolucion['TX_datodevolucion_medida']].chr(9).$row_datodevolucion['TX_datodevolucion_cantidad'].chr(9).($row_datodevolucion['precio']*$rel_coheficiente).chr(9).$row_datodevolucion['TX_datoventa_impuesto'].chr(9). PHP_EOL );
 	}while($row_datodevolucion=$qry_datodevolucion->fetch_array());
 }else {
 	do{
-		$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_producto_id, TX_datoventa_medida, TX_datoventa_cantidad FROM bh_datoventa WHERE AI_datoventa_id = '{$row_datodevolucion['datodevolucion_AI_datoventa_id']}'")or die($link->error);
+		$qry_datoventa=$link->query("SELECT AI_datoventa_id, datoventa_AI_producto_id, TX_datoventa_descripcion, TX_datoventa_medida, TX_datoventa_cantidad FROM bh_datoventa WHERE AI_datoventa_id = '{$row_datodevolucion['datodevolucion_AI_datoventa_id']}'")or die($link->error);
 		$rs_datoventa=$qry_datoventa->fetch_array();
 		$rel_datodevolucion = get_rel_medida_cantidad($row_datodevolucion['datodevolucion_AI_producto_id'],$row_datodevolucion['TX_datodevolucion_medida']);
 		$rel_datoventa = get_rel_medida_cantidad($rs_datoventa['datoventa_AI_producto_id'],$rs_datoventa['TX_datoventa_medida']);
 		$rel_coheficiente = $rel_datodevolucion/$rel_datoventa;
 
-		fwrite($file, "NCTI".$str.chr(9).substr($row_datodevolucion['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$row_datodevolucion['TX_datodevolucion_medida']],0,3)." ".substr($r_function->replace_special_character($row_datodevolucion['TX_producto_value']),0,61).chr(9).$raw_medida[$row_datodevolucion['TX_datodevolucion_medida']].chr(9).$row_datodevolucion['TX_datodevolucion_cantidad'].chr(9).($row_datodevolucion['precio']*$rel_coheficiente).chr(9).$row_datodevolucion['TX_datoventa_impuesto'].chr(9). PHP_EOL );
+		fwrite($file, "NCTI".$str.chr(9).substr($row_datodevolucion['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$row_datodevolucion['TX_datodevolucion_medida']],0,3)." ".substr($r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']),0,61).chr(9).$raw_medida[$row_datodevolucion['TX_datodevolucion_medida']].chr(9).$row_datodevolucion['TX_datodevolucion_cantidad'].chr(9).($row_datodevolucion['precio']*$rel_coheficiente).chr(9).$row_datodevolucion['TX_datoventa_impuesto'].chr(9). PHP_EOL );
 	}while($row_datodevolucion=$qry_datodevolucion->fetch_array());
 }
 
@@ -203,7 +195,7 @@ sleep(5);
         <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
         </div>
         <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
+    &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
         </div>
         <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
                     		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>

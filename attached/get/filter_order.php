@@ -128,13 +128,13 @@ if($qry_order->num_rows > 0){
 		$total+=$precio4product;
 ?>
 	<tr>
-		<td><?php echo $rs_datopedido[1]; ?></td>
-		<td><?php echo $rs_datopedido[0]; ?></td>
+		<td><?php echo $rs_datopedido['TX_datopedido_cantidad']; ?></td>
+		<td><?php echo $r_function->replace_special_character($rs_datopedido['TX_producto_value']); ?></td>
 		<td><?php echo number_format($precio_impuesto,4); ?></td>
 	</tr>
-	<?php
+<?php
 	}
-	?>
+?>
 			</tbody>
 			<tfoot class="bg-info">
 			<tr>

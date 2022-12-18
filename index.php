@@ -19,7 +19,7 @@ function ObtenerIP(){
 $ip   = ObtenerIP();
 $cliente = gethostbyaddr($ip);
 
-$arr_pc=['COTIZADOR','TPV4','TPV3','TPV2','TRIILLI-CAJA','Trilli2015','Servidor','SERVIDORFIRES'];
+$arr_pc=['TRILLI001','TRILLI002','TRILLI003','TRILLI004','TRILLI005','TRILLI006','COTIZADOR','TPV4','TPV3','TPV2','TRIILLI-CAJA','Trilli2015','Servidor','SERVIDORFIRES','TRILLISA'];
 $ans_client = in_array($cliente, $arr_pc);
 
 $txt_vendor="SELECT TX_user_seudonimo, TX_user_password FROM bh_user WHERE TX_user_type = '3' AND TX_user_activo = '1'";
@@ -114,7 +114,7 @@ $(document).ready(function() {
 		</form>
 	</div>
 <div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >&copy; Derechos Reservados a: Trilli, S.A. 2017</div>
+	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?></div>
 </div>
 
 </div>

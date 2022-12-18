@@ -31,7 +31,9 @@ foreach ($raw_value as $key => $value) {
 		$txt_cheque .= " TX_cheque_observacion LIKE '%$value%' AND TX_cheque_fecha >= '$fecha_i' AND TX_cheque_fecha <= '$fecha_f' OR";
 	}
 }
-$qry_cheque=$link->query($txt_cheque."ORDER BY TX_cheque_fecha DESC, TX_proveedor_nombre ASC")or die($link->error);
+// echo $txt_cheque;
+// return false;
+$qry_cheque=$link->query($txt_cheque."ORDER BY TX_cheque_numero DESC, TX_proveedor_nombre ASC")or die($link->error);
 
 while($rs_cheque = $qry_cheque->fetch_array()){ ?>
 	<tr>

@@ -2,30 +2,34 @@
 /* CSS Document */
 
 #container_btn_option{
-	text-align:center;	
+	text-align:center;
+	padding: 10px 0;
 }
 
-#btn_sell{
-    height: 80px;
-    width: 150px;
-    font-size: 25px;
-}
-
-#btn_stock{
-    height: 80px;
-    font-size: 25px;
-}
-
-#btn_config{
-    height: 80px;
-    font-size: 25px;
-}
-#btn_paydesk{
-    height: 80px;
-    font-size: 25px;
-}
 
 #container_btn_option button{
 	min-width:150px;
+	font-size: 25px;
+}
+
+#container_wailing_wall {
+	display: flex;
+	flex-direction: column;
+	justify-content: end;
+	border: solid 1px #000;
+	height: 410px;
+}
+#wailing_wall_salutation {
+	height: 340px;
+	margin: 25px 0px;
+}
+#wailing_wall_abstract {
+	height: 340px;
+	margin: 25px 0px;
+}
+.motd_fecha {
+	color: #fff;
+	font-weight: bold;
+	text-align: left;
 }
 

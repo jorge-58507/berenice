@@ -3,11 +3,40 @@ require '../../bh_conexion.php';
 $link = conexion();
 
 $cpp_id=$_GET['a'];
-
+$fecha_actual = date('Y-m-d');
 $qry_datocpp = $link->prepare("SELECT AI_datocpp_id FROM bh_datocpp WHERE datocpp_AI_cpp_id = ?")or die($link->error);
 $qry_cheque = $link->prepare("SELECT AI_cheque_id FROM bh_cheque WHERE cheque_AI_cpp_id = ?")or die($link->error);
+$ins_datocpp = $link->prepare("INSERT INTO bh_datocpp (TX_datocpp_monto,TX_datocpp_numero,TX_datocpp_fecha,datocpp_AI_cpp_id,datocpp_AI_user_id,datocpp_AI_metododepago_id) VALUES (?,?,'$fecha_actual','$cpp_id','{$_COOKIE['coo_iuser']}','2')")or die($link->error);
+$qry_cpp = $link->query("SELECT AI_cpp_id, cpp_AI_proveedor_id, TX_cpp_saldo FROM bh_cpp WHERE AI_cpp_id = '$cpp_id'")or die($link->error);
+$rs_cpp = $qry_cpp->fetch_array(MYSQLI_ASSOC);
 
-$qry_cpp = $link->query("SELECT AI_cpp_id FROM bh_cpp WHERE AI_cpp_id = '$cpp_id' AND TX_cpp_saldo > '0'")or die($link->error);
+$qry_datocpp = $link->query("SELECT TX_datocpp_monto FROM bh_datocpp WHERE datocpp_AI_cpp_id =	'$cpp_id'")or die($link->error);
+$total_datocpp = 0;
+while ($rs_datocpp = $qry_datocpp->fetch_array(MYSQLI_ASSOC)) {
+	$total_datocpp += $rs_datocpp['TX_datocpp_monto'];
+}
+$cpp_saldo = $rs_cpp['TX_cpp_saldo']*1.00;
+
+$qry_datocheck = $link->query("SELECT AI_cheque_id, TX_cheque_monto, TX_cheque_numero FROM bh_cheque WHERE cheque_AI_cpp_id = '$cpp_id'")or die($link->error);
+$total_check = 0;	$raw_check = array();
+while ($rs_datocheck = $qry_datocheck->fetch_array(MYSQLI_ASSOC)) {
+	$raw_check[] = $rs_datocheck;
+	$total_check += $rs_datocheck['TX_cheque_monto'];
+}
+echo "saldo: ".gettype($cpp_saldo)." cheque: ".gettype($total_check);
+if ($total_check === $cpp_saldo) {
+	echo "son iguales";
+	$ins_datocpp->bind_param('ds',$check_amount,$check_number);
+	foreach ($raw_check as $key => $rs_check) {
+		$check_amount = $rs_check['TX_cheque_monto'];
+		$check_number = $rs_check['TX_cheque_numero'];
+		$ins_datocpp->execute();
+	}
+}
+
+// $qry_cpp = $link->query("SELECT AI_cpp_id, cpp_AI_proveedor_id FROM bh_cpp WHERE AI_cpp_id = '$cpp_id' AND TX_cpp_saldo > 0")or die($link->error);
+echo 'finish';
+return false;
 if ($qry_cpp->num_rows < 1) {
 	$link->query("UPDATE bh_cpp SET TX_cpp_status = 'CANCELADA' WHERE AI_cpp_id = '$cpp_id'")or die($link->error);
 }

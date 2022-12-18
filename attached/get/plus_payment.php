@@ -1,7 +1,6 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
-
 date_default_timezone_set('America/Panama');
 
 $uid=$_COOKIE['coo_iuser'];
@@ -15,15 +14,13 @@ $arr_factid = explode(",",$str_factid);
 $fecha_actual = date('Y-m-d');
 
 function insert_payment($method, $amount, $number, $approved){
-	 // echo "insertar";
+	$link = conexion();
+
 	if($approved === 1){
-		 // echo "aprobadop";
 		$uid=$_COOKIE['coo_iuser'];
 		$fecha_actual = date('Y-m-d');
-		mysql_query("INSERT INTO bh_pago (pago_AI_user_id, pago_AI_metododepago_id, TX_pago_monto, TX_pago_numero, TX_pago_fecha)
+		$link->query("INSERT INTO bh_pago (pago_AI_user_id, pago_AI_metododepago_id, TX_pago_monto, TX_pago_numero, TX_pago_fecha)
 		VALUES ('$uid', '$method', '$amount', '$number', '$fecha_actual')");
-	}else{
-		// echo "no aprobado";
 	}
 }
 
@@ -36,8 +33,8 @@ foreach ($arr_factid as $key => $value) {
 		$txt_clientid=$txt_clientid." AI_facturaventa_id = '$value' OR";
 	}
 }
-$qry_clientid=mysql_query($txt_clientid);
-$row_clientid=mysql_fetch_array($qry_clientid);
+$qry_clientid=$link->query($txt_clientid);
+$row_clientid=$qry_clientid->fetch_array(MYSQLI_ASSOC);
 $client_id=$row_clientid['facturaventa_AI_cliente_id'];
 
 $txt_facturaventa="SELECT
@@ -55,9 +52,9 @@ foreach ($arr_factid as $key => $value) {
 		$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' OR";
 	}
 }
-$qry_facturaventa=mysql_query($txt_facturaventa, $link);
+$qry_facturaventa=$link->query($txt_facturaventa);
 $raw_facturaventa=array();
-while ($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa)) {
+while ($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC)) {
 	$raw_facturaventa[]=$rs_facturaventa;
 }
 $total_ff = 0;
@@ -74,8 +71,8 @@ $total_ff = floatval($total_ff);
 
 $raw_payment=array();
 $total_pagado=0;
-$qry_payment = mysql_query("SELECT pago_AI_user_id,pago_AI_metododepago_id,TX_pago_monto,TX_pago_numero FROM bh_pago WHERE pago_AI_user_id = '$uid'");
-while ($rs_payment = mysql_fetch_array($qry_payment)) {
+$qry_payment = $link->query("SELECT pago_AI_user_id,pago_AI_metododepago_id,TX_pago_monto,TX_pago_numero FROM bh_pago WHERE pago_AI_user_id = '$uid'");
+while ($rs_payment = $qry_payment->fetch_array(MYSQLI_ASSOC)) {
 	$raw_payment[$rs_payment['pago_AI_metododepago_id']]['monto'] = $rs_payment['TX_pago_monto'];
 	$raw_payment[$rs_payment['pago_AI_metododepago_id']]['numero'] = $rs_payment['TX_pago_numero'];
 	$total_pagado+=$rs_payment['TX_pago_monto'];
@@ -83,14 +80,9 @@ while ($rs_payment = mysql_fetch_array($qry_payment)) {
 $total_pagado=round($total_pagado,2);
 $total_pagado = floatval($total_pagado);
 $approved = 1;
-// foreach ($raw_payment as $key => $value) {
-	if(array_key_exists($method, $raw_payment)){
-		// echo "<br />si existe";
-		$approved = 0;
-	}else{
-		// echo "<br />no existe";
-	}
-// }
+if(array_key_exists($method, $raw_payment)){
+	$approved = 0;
+}
 
 
 if ($total_pagado < $total_ff) {
@@ -98,15 +90,11 @@ if ($total_pagado < $total_ff) {
 	$pagando=floatval($pagando);
 	$resta = $pagando-$total_ff;
 	$resta = round($resta,2);
-	 // echo "Pagando: ".$pagando." A pagar: ".$total_ff."<br />";
 
-	//if($pagando <= $total_ff){
-	// echo "resta: ".$resta."<br />";
 	if($resta <= 0){
-	 // echo "insertar";
 		if($method === 7){
-			$qry_cliente = mysql_query("SELECT TX_cliente_saldo FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die(mysql_error());
-			$rs_cliente = mysql_fetch_assoc($qry_cliente);
+			$qry_cliente = $link->query("SELECT TX_cliente_saldo FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die($link->error());
+			$rs_cliente = $qry_cliente->fetch_array(MYSQLI_ASSOC);
 			if($rs_cliente['TX_cliente_saldo'] >= $amount){
 				insert_payment($method, $amount, $number, $approved);
 			}
@@ -114,12 +102,9 @@ if ($total_pagado < $total_ff) {
 			insert_payment($method, $amount, $number, $approved);
 		}
 	}else{
-		// echo "verificar si es efectivo o cheque";
 		if($method === 1){
-			// echo "es 1 o 2";
 			insert_payment($method, $amount, $number, $approved);
 		}elseif($method === 2){
-
 			if(array_key_exists(1, $raw_payment) && $resta <= round($raw_payment[1]['monto'],2)){
 				insert_payment($method, $amount, $number, $approved);
 			}elseif(!array_key_exists(1, $raw_payment)){
@@ -131,13 +116,46 @@ if ($total_pagado < $total_ff) {
 }
 
 /* ####################               ANSWER                   ################## */
-?>
 
-<?php
 $txt_pago="SELECT bh_pago.AI_pago_id, bh_pago.TX_pago_fecha, bh_pago.TX_pago_monto, bh_pago.TX_pago_numero, bh_metododepago.TX_metododepago_value
 FROM (bh_pago INNER JOIN bh_metododepago ON bh_pago.pago_AI_metododepago_id = bh_metododepago.AI_metododepago_id) WHERE pago_AI_user_id = '{$_COOKIE['coo_iuser']}'";
-$qry_pago=mysql_query($txt_pago);
-$rs_pago=mysql_fetch_assoc($qry_pago);
+$qry_pago=$link->query($txt_pago);
+$raw_pago = [];
+while($rs_pago=$qry_pago->fetch_array(MYSQLI_ASSOC)){
+	array_push($raw_pago,$rs_pago);
+}
+$data['fact_id'] = $str_factid;
+$data['total_ff'] = $total_ff;
+$data['data_pago'] = $raw_pago;
+echo json_encode($data);
+return false;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 $ite=0;
 ?>
 
@@ -156,8 +174,8 @@ $ite=0;
 		<tbody id="tbody_paymentlist">
 <?php
 			$monto_pagado=0;	$var_pmethod="0";
-			if($nr_pago=mysql_num_rows($qry_pago) > 0){
-			do{ ?>
+			if($nr_pago=$qry_pago->num_rows > 0){
+				do{ ?>
 		<tr>
 			<td><?php echo $ite=$ite+'1'.".-" ?></td>
 			<td><?php	echo $date=date('d-m-Y',strtotime($rs_pago['TX_pago_fecha']));?></td>
@@ -165,14 +183,15 @@ $ite=0;
 			<td><?php echo $rs_pago['TX_pago_numero']; ?></td>
 			<td><?php echo number_format($rs_pago['TX_pago_monto'],2); ?></td>
 			<td>
-<?php				if($_COOKIE['coo_tuser'] < 3 || $_COOKIE['coo_tuser'] == '4' ){	?>
+				<?php				
+				if($_COOKIE['coo_tuser'] < 3 || $_COOKIE['coo_tuser'] == '4' ){	?>
 					<button type="button" name="<?php echo $rs_pago['AI_pago_id']; ?>" id="btn_delpago" class="btn btn-danger btn-xs btn-fa" onclick="del_payment(this.name,'<?php echo $str_factid; ?>')"><i class="fa fa-times" aria-hidden="true"></i></button>
 <?php    		}        ?>
 			</td>
 		</tr>
 <?php
 		$monto_pagado += $rs_pago['TX_pago_monto'];
-		}while($rs_pago=mysql_fetch_assoc($qry_pago)); ?>
+		}while($rs_pago=$qry_pago->fetch_array(MYSQLI_ASSOC)); ?>
 <?php }else{ ?>
 		<tr>
 			<td>&nbsp;</td>

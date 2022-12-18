@@ -64,11 +64,11 @@ $nr_facturacompra=$qry_facturacompra->num_rows;
 						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Nº de Fact.</th>
 						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Orden</th>
 						<th class="col-xs-6 col-sm-6 col-md-6 col-lg-6">Proveedor</th>
-						<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2">Almacen</th>
-						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></th>
+						<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1">Almacen</th>
+						<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2"></th>
 	        </tr>
 		    </thead>
-        <tfoot class="bg-info"><tr><td colspan="6"></td></tr></tfoot>
+        <tfoot class="bg-info"><tr><td colspan="4"></td><td id="ttl_purchase"></td><td colspan="1"></td></tr></tfoot>
         <tbody>
         <?php
 				if($nr_facturacompra > 0){
@@ -83,6 +83,8 @@ $nr_facturacompra=$qry_facturacompra->num_rows;
 								<button type="button" id="btn_delete" class="btn btn-danger btn-sm" name="" onclick="transform_facturacompra('<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>')"><i class="fa fa-times" aria-hidden="true"></i></button>
 								&nbsp;
 								<button type="button" id="btn_print" class="btn btn-info btn-sm" name="" onclick="print_html('print_purchase_html.php?a=<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>')"><i class="fa fa-print" aria-hidden="true"></i></button>
+								&nbsp;
+								<button type="button" id="btn_nc" class="btn btn-warning btn-sm" name="" onclick="document.location.href = 'make_purchase_nc.php?a=<?php echo $rs_facturacompra['AI_facturacompra_id']; ?>'"><i class="fa fa-reply" aria-hidden="true"></i></button>
 							</td>
 		        </tr>
 		<?php }while($rs_facturacompra=$qry_facturacompra->fetch_array(MYSQLI_ASSOC));

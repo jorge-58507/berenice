@@ -1,171 +1,116 @@
 ﻿<?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
-
 require 'attached/php/req_login_admin.php';
-?>
-<?php
-$qry_opcion=mysql_query("SELECT AI_opcion_id, TX_opcion_titulo, TX_opcion_value FROM bh_opcion");
+
+$qry_opcion=$link->query("SELECT AI_opcion_id, TX_opcion_titulo, TX_opcion_value FROM bh_opcion")or die($link->error);
 $raw_opcion=array();
-while($rs_opcion=mysql_fetch_array($qry_opcion)){
+while($rs_opcion=$qry_opcion->fetch_array()){
 	$raw_opcion[$rs_opcion['TX_opcion_titulo']]['ID']=$rs_opcion['AI_opcion_id'];
 	$raw_opcion[$rs_opcion['TX_opcion_titulo']]['VALUE']=$rs_opcion['TX_opcion_value'];
 }
 ?>
-
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>Trilli, S.A. - Todo en Materiales</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Trilli, S.A. - Todo en Materiales</title>
+	<?php include 'attached/php/req_required.php'; ?>
+	<link href="attached/css/admin_css.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" src="attached/js/admin_funct.js"></script>
+	<script type="text/javascript">
 
-<link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/admin_css.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/jquery-ui.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
+		$(document).ready(function() {
+			$("#btn_back").click(function(){	history.back(1);	});
+			$("#btn_save").click(function(){
+				var raw_form = $("form input[type=text]").toArray();
+				var form_length = raw_form.length;
+				var raw_value=new Object();
+				for(i=0;i<form_length;i++){
+				var id=$(raw_form[i]).attr("name");
+					raw_value[id]=$(raw_form[i]).val();
+				}
 
-<script type="text/javascript" src="attached/js/jquery.js"></script>
-<script type="text/javascript" src="attached/js/jquery-ui.min_edit.js"></script>
-<script type="text/javascript" src="attached/js/bootstrap.js"></script>
-<script type="text/javascript" src="attached/js/general_funct.js"></script>
-<script type="text/javascript" src="attached/js/ajax_funct.js"></script>
-<script type="text/javascript" src="attached/js/admin_funct.js"></script>
-
-
-<script type="text/javascript">
-
-$(document).ready(function() {
-
-$("#btn_navsale").click(function(){
-	window.location="sale.php";
-});
-$("#btn_navstock").click(function(){
-	window.location="stock.php";
-});
-$("#btn_navpaydesk").click(function(){
-	window.location="paydesk.php";
-})
-$("#btn_navadmin").click(function(){
-	window.location="start_admin.php";
-});
-$("#btn_start").click(function(){
-	window.location="start.php";
-});
-$("#btn_exit").click(function(){
-	location.href="index.php";
-})
-
-$("#btn_back").click(function(){
-	history.back(1);
-});
-$("#btn_save").click(function(){
-	var raw_form = $("form input[type=text]").toArray();
-	var form_length = raw_form.length;
-	var raw_value=new Object();
-	for(i=0;i<form_length;i++){
-	var id=$(raw_form[i]).attr("name");
-		raw_value[id]=$(raw_form[i]).val();
-	}
-
-	$.ajax({	data: {"a" : raw_value},	type: "GET",	dataType: "json",	url: "attached/get/upd_option.php",	})
-	.done(function( data, textStatus, jqXHR ) {
-	})
-	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log( "BAD" +  textStatus);
-	});
-	 setTimeout(function(){ history.back(1); }, 300);
-
-
-});
-
-
-$("#txt_title").on("click",function(){
-	if($(this).attr("readOnly")){
-	var ans = confirm("¿Confirma modificar el campo?");
-	if(ans){
-		$(this).attr("readOnly",false);
-	}
-	}
-});
-
-$("#txt_ruc").on("click",function(){
-	if($(this).attr("readOnly")){
-	var ans = confirm("¿Confirma modificar el campo?");
-	if(ans){
-		$(this).attr("readOnly",false);
-	}
-	}
-});
-
-$("#txt_dv").on("click",function(){
-	if($(this).attr("readOnly")){
-	var ans = confirm("¿Confirma modificar el campo?");
-	if(ans){
-		$(this).attr("readOnly",false);
-	}
-	}
-});
-
-$("#txt_direction").on("click",function(){
-	if($(this).attr("readOnly")){
-	var ans = confirm("¿Confirma modificar el campo?");
-	if(ans){
-		$(this).attr("readOnly",false);
-	}
-	}
-});
-
-$("#txt_telephone").on("click",function(){
-	if($(this).attr("readOnly")){
-	var ans = confirm("¿Confirma modificar el campo?");
-	if(ans){
-		$(this).attr("readOnly",false);
-	}
-	}
-});
-
-$("#txt_fax").on("click",function(){
-	if($(this).attr("readOnly")){
-		var ans = confirm("¿Confirma modificar el campo?");
-		if(ans){
-			$(this).attr("readOnly",false);
-		}
-	}
-});
-
-$("#txt_email").on("click",function(){
-	if($(this).attr("readOnly")){
-		var ans = confirm("¿Confirma modificar el campo?");
-		if(ans){
-			$(this).attr("readOnly",false);
-		}
-	}
-});
-
-$("#span_impuesto").on("click",function(){
-	open_popup("popup_alicuota.php","popup","500","425");
-});
-
-});
+				$.ajax({	data: {"a" : raw_value},	type: "GET",	dataType: "json",	url: "attached/get/upd_option.php",	})
+				.done(function( data, textStatus, jqXHR ) {
+				})
+				.fail(function( jqXHR, textStatus, errorThrown ) {	console.log( "BAD" +  textStatus);
+				});
+				 setTimeout(function(){ history.back(1); }, 300);
+			});
+			$("#txt_title").on("click",function(){
+				if($(this).attr("readOnly")){
+				var ans = confirm("¿Confirma modificar el campo?");
+				if(ans){
+					$(this).attr("readOnly",false);
+				}
+				}
+			});
+			$("#txt_ruc").on("click",function(){
+				if($(this).attr("readOnly")){
+					var ans = confirm("¿Confirma modificar el campo?");
+					if(ans){
+						$(this).attr("readOnly",false);
+					}
+				}
+			});
+			$("#txt_dv").on("click",function(){
+				if($(this).attr("readOnly")){
+				var ans = confirm("¿Confirma modificar el campo?");
+					if(ans){
+						$(this).attr("readOnly",false);
+					}
+				}
+			});
+			$("#txt_direction").on("click",function(){
+				if($(this).attr("readOnly")){
+				var ans = confirm("¿Confirma modificar el campo?");
+					if(ans){
+						$(this).attr("readOnly",false);
+					}
+				}
+			});
+			$("#txt_telephone").on("click",function(){
+				if($(this).attr("readOnly")){
+				var ans = confirm("¿Confirma modificar el campo?");
+					if(ans){
+						$(this).attr("readOnly",false);
+					}
+				}
+			});
+			$("#txt_fax").on("click",function(){
+				if($(this).attr("readOnly")){
+					var ans = confirm("¿Confirma modificar el campo?");
+					if(ans){
+						$(this).attr("readOnly",false);
+					}
+				}
+			});
+			$("#txt_email").on("click",function(){
+				if($(this).attr("readOnly")){
+					var ans = confirm("¿Confirma modificar el campo?");
+					if(ans){
+						$(this).attr("readOnly",false);
+					}
+				}
+			});
+			$("#span_impuesto").on("click",function(){
+				open_popup("popup_alicuota.php","popup","500","425");
+			});
+		});
 
 
-</script>
-
+	</script>
 </head>
-
 <body>
-
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
+  <div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
   	<div id="logo" ></div>
-   	</div>
+  </div>
 
 	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
-    	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+    	<div id="container_username" class="col-lg-4 visible-lg">
         Bienvenido: <label class="bg-primary">
          <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
         </label>
@@ -258,21 +203,13 @@ switch ($_COOKIE['coo_tuser']){
 
 
 <div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-        <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        </div>
-        <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
-        </div>
-        <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-                    		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-        </div>
-        <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            <button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-        </div>
-	</div>
+	<?php require 'attached/php/req_footer.php'; ?>
 </div>
 </div>
+<script type="text/javascript">
+	ScrollReveal().reveal('#tbl_product tbody tr', {interval: 100});
+	<?php include 'attached/php/req_footer_js.php'; ?>
+</script>
 
 </body>
 </html>

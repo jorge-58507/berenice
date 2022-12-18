@@ -90,10 +90,10 @@ function plus_nuevaventa(){
 		$raw_newproduct['medida'] = $medida;
 		$raw_newproduct['stock'] = $rs_product['TX_producto_cantidad'];
 		$raw_newproduct['promocion'] = $promocion;
-		if(!is_array($raw_newproduct)){ 
+		if(!is_array($raw_newproduct)){
 			echo "failed";
 			return false;
-		}	
+		}
 		$raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]=$raw_newproduct;
 
 	}else {
@@ -244,10 +244,10 @@ function reload_nuevaventa(){
 
 	$contenido=read_nuevaventa_content();
 	$raw_decode=json_decode($contenido, true);
-	if(!is_array($raw_decode)){ 
+	if(!is_array($raw_decode)){
 		echo "failed";
 		return false;
-	}	
+	}
 	if (!array_key_exists($_COOKIE['coo_iuser'], $raw_decode)) {
 		$raw_decode[$_COOKIE['coo_iuser']]= array();
 	}
@@ -275,7 +275,7 @@ function duplicate_datoventa(){
 		$qry_product = $link->query("SELECT TX_producto_value, TX_producto_codigo, TX_producto_medida, TX_producto_cantidad FROM bh_producto WHERE AI_producto_id = '{$rs_datoventa['datoventa_AI_producto_id']}'")or die($link->error);
 		$rs_product=$qry_product->fetch_array(MYSQLI_ASSOC);
 		if ($rs_datoventa['TX_datoventa_promocion'] < 1) {
-			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['producto_id'] = $rs_datoventa['TX_datoventa_cantidad'];
+			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['producto_id'] = $rs_datoventa['datoventa_AI_producto_id'];
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['cantidad'] = $rs_datoventa['TX_datoventa_cantidad'];
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['precio'] = $rs_datoventa['TX_datoventa_precio'];
 			$raw_decode[$_COOKIE['coo_iuser']]['first_sale'][$i]['impuesto'] = $rs_datoventa['TX_datoventa_impuesto'];

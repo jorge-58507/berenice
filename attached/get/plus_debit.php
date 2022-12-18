@@ -126,7 +126,7 @@ $txt_nuevodebito="SELECT bh_nuevodebito.nuevodebito_AI_metododepago_id, bh_nuevo
 FROM bh_nuevodebito
 WHERE bh_nuevodebito.nuevodebito_AI_user_id = '$user_id' ORDER BY nuevodebito_AI_metododepago_id DESC";
 $qry_nuevodebito=$link->query($txt_nuevodebito);
-$total_pagado=0;
+$total_pagado=0; $nuevodebito_numero = '';
 $raw_nuevodebito=array();
 while($rs_nuevodebito=$qry_nuevodebito->fetch_array()){
 	$total_pagado+=$rs_nuevodebito['TX_nuevodebito_monto'];
@@ -162,10 +162,15 @@ foreach ($raw_ffid as $key => $value) {
 // @@@@@@@@@@@@@@@@@@@@@ ARREGLO DE PAGOS
 
 if ($cambio > 0.01) {
+	$qry_notadebito = $link->query("SELECT TX_notadebito_numero FROM bh_notadebito WHERE AI_notadebito_id = '$debito_id'")or die($link->error);
+	$rs_notadebito = $qry_notadebito->fetch_array(MYSQLI_ASSOC);
 	if (array_key_exists(1,$raw_nuevodebito)) {
-		$raw_nuevodebito[1]['monto'] = $raw_nuevodebito[1]['monto']-$cambio;
+		// $raw_nuevodebito[1]['monto'] = $raw_nuevodebito[1]['monto']-$cambio;
+		$raw_nuevodebito[1]['monto'] = $raw_nuevodebito[1]['monto'];
+		$motivo_cambio_efectivo=$debito_id." CAMBIO A DEBITO (".$rs_notadebito['TX_notadebito_numero'].")";
+		$link->query("INSERT INTO bh_efectivo (efectivo_AI_user_id, efectivo_AI_impresora_id, TX_efectivo_tipo, TX_efectivo_motivo, TX_efectivo_monto, TX_efectivo_fecha, TX_efectivo_status)	VALUES ('$user_id', '$impresora_id','SALIDA','$motivo_cambio_efectivo','$cambio','$fecha_actual','ACTIVA')")or die($link->error);
 	}elseif (array_key_exists(2,$raw_nuevodebito)) {
-		$motivo_cambio_cheque="CAMBIO A CHEQUE ".$raw_nuevodebito[2]['numero'];
+		$motivo_cambio_cheque=$debito_id." CAMBIO A CHEQUE (".$rs_notadebito['TX_notadebito_numero'].")";
 		$link->query("INSERT INTO bh_efectivo (efectivo_AI_user_id, efectivo_AI_impresora_id, TX_efectivo_tipo, TX_efectivo_motivo, TX_efectivo_monto, TX_efectivo_fecha, TX_efectivo_status)	VALUES ('$user_id', '$impresora_id','SALIDA','$motivo_cambio_cheque','$cambio','$fecha_actual','ACTIVA')")or die($link->error);
 	}
 	$link->query("UPDATE bh_notadebito SET TX_notadebito_cambio = '$cambio'  WHERE AI_notadebito_id = '$debito_id'")or die($link->error);

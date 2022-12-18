@@ -78,7 +78,22 @@ function getDate( element ) {
 });
 
 });
-
+function redo_nd(nd_id){
+	$.ajax({	data: "",type: "GET",dataType: "json",url: "attached/get/get_session_admin.php",	})
+	 .done(function( data, textStatus, jqXHR ) { console.log( "GOOD " + textStatus);
+	  if(data[0][0] != ""){
+      $.ajax({	data: {"a" : nd_id},	type: "GET",	dataType: "text",	url: "attached/get/anular_paydesk_debito.php", })
+        .done(function( data, textStatus, jqXHR ) {
+					console.log("GOOD: "+textStatus);
+					window.location.reload();
+      	})
+      	.fail(function( jqXHR, textStatus, errorThrown ) {		});
+      }else{
+        popup = window.open("popup_loginadmin.php?z=start_admin.php", "popup_loginadmin", 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=no,width=425,height=420');
+      }
+    })
+  .fail(function( jqXHR, textStatus, errorThrown ) {    console.log( "BAD "+textStatus);   })
+}
 </script>
 
 </head>
@@ -116,8 +131,8 @@ function getDate( element ) {
 					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">Numero</th>
 					<th class="col-xs-5 col-sm-5 col-md-5 col-lg-5 al_center">Cliente</th>
 					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center">Factura</th>
-					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center">Total</th>
-					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">&nbsp;</th>
+					<th class="col-xs-1 col-sm-1 col-md-1 col-lg-1 al_center">Total</th>
+					<th class="col-xs-2 col-sm-2 col-md-2 col-lg-2 al_center">&nbsp;</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -143,7 +158,7 @@ function getDate( element ) {
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>

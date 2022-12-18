@@ -46,7 +46,7 @@ $qry_notadebito = $link->prepare("SELECT bh_notadebito.AI_notadebito_id, rel_fac
 	INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = rel_facturaf_notadebito.rel_AI_facturaf_id)
 	WHERE bh_facturaf.AI_facturaf_id = ? ORDER BY TX_notadebito_fecha DESC, AI_notadebito_id DESC")or die($link->error);
 
-$qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id, bh_notadecredito.TX_notadecredito_fecha, bh_notadecredito.TX_notadecredito_numero, bh_notadecredito.TX_notadecredito_monto FROM bh_notadecredito WHERE notadecredito_AI_facturaf_id =	?")or die($link->error);
+$qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id, bh_notadecredito.TX_notadecredito_fecha, bh_notadecredito.TX_notadecredito_numero, bh_notadecredito.TX_notadecredito_monto, bh_notadecredito.TX_notadecredito_impuesto  FROM bh_notadecredito WHERE notadecredito_AI_facturaf_id =	?")or die($link->error);
 
 
 		$total_total=0; $sumatoria_nc_credito=0; $sumatoria_nc=0;
@@ -77,9 +77,9 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 		 		$qry_notadecredito->bind_param("i", $rs_facturaf['AI_facturaf_id']); $qry_notadecredito->execute(); $result=$qry_notadecredito->get_result();
 				while ($rs_notadecredito=$result->fetch_array()) {
 					if (in_array($rs_facturaf['AI_facturaf_id'],$raw_facturaf_credito)) {
-						$sumatoria_nc_credito+=$rs_notadecredito['TX_notadecredito_monto'];
+						$sumatoria_nc_credito+=$rs_notadecredito['TX_notadecredito_monto']+$rs_notadecredito['TX_notadecredito_impuesto'];
 					} else {
-						$sumatoria_nc+=$rs_notadecredito['TX_notadecredito_monto'];
+						$sumatoria_nc+=$rs_notadecredito['TX_notadecredito_monto']+$rs_notadecredito['TX_notadecredito_impuesto'];
 					}
 				}
 			}
@@ -123,7 +123,7 @@ $qry_notadecredito = $link->prepare("SELECT bh_notadecredito.AI_notadecredito_id
 				<td>B/ <?php if(isset($sumatoria_nc_credito)){ echo number_format($sumatoria_nc_credito,2); } ?></td>
 		 	</tr>
 			<tr>
-<?php 	$suma_comision = $total_total-$total_credito-$total_notadc;
+<?php 	$suma_comision = $total_total-$total_credito;
 				//$resta_comision = $sumatoria_nc-$sumatoria_nc_credito; ?>
 				<td colspan="7"></td>
 				<td colspan="3"><div id="total_comision"><?php echo number_format($suma_comision,2).' - '.number_format($sumatoria_nc,2).' = <strong>B/ '.(number_format($suma_comision-$sumatoria_nc,2)).'</strong>'; ?></div></td>

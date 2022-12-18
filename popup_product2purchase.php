@@ -1,10 +1,10 @@
-<?php 
+<?php
 require 'bh_conexion.php';
 $link=conexion();
 
 $product_id=$_GET['a'];
 
-$qry_product=$link->query("SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_exento FROM bh_producto WHERE AI_producto_id = '$product_id' AND TX_producto_activo = '0'")or die($link->error);
+$qry_product=$link->query("SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_producto.TX_producto_exento FROM bh_producto WHERE AI_producto_id = '$product_id'")or die($link->error);
 $rs_product=$qry_product->fetch_array();
 
 $qry_product_letter = $link->query("SELECT bh_letra.TX_letra_value, bh_letra.TX_letra_porcentaje FROM (bh_producto INNER JOIN bh_letra ON bh_letra.AI_letra_id = bh_producto.producto_AI_letra_id) WHERE AI_producto_id = '$product_id'")or die($link->error);
@@ -24,7 +24,7 @@ $qry_letra=$link->query("SELECT AI_letra_id, TX_letra_value, TX_letra_porcentaje
 $qry_precio_listado = $link->query("SELECT bh_precio.AI_precio_id, bh_precio.TX_precio_fecha, bh_precio.precio_AI_medida_id, bh_precio.TX_precio_uno, bh_precio.TX_precio_dos, bh_precio.TX_precio_tres, bh_precio.TX_precio_cuatro, bh_precio.TX_precio_cinco, bh_producto.AI_producto_id FROM (bh_precio INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_precio.precio_AI_producto_id) WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_precio_fecha DESC, AI_precio_id DESC")or die($link->error);
 
 $qry_datocompra_listado = $link->query("SELECT bh_facturacompra.TX_facturacompra_fecha,bh_datocompra.TX_datocompra_precio,bh_datocompra.TX_datocompra_impuesto,bh_datocompra.TX_datocompra_descuento,bh_datocompra.TX_datocompra_medida FROM ((bh_datocompra INNER JOIN bh_producto ON bh_producto.AI_producto_id = bh_datocompra.datocompra_AI_producto_id) INNER JOIN bh_facturacompra ON bh_facturacompra.AI_facturacompra_id = bh_datocompra.datocompra_AI_facturacompra_id)
-WHERE bh_producto.AI_producto_id = '$product_id' ORDER BY TX_facturacompra_fecha DESC, AI_facturacompra_id DESC")or die($link->error);
+WHERE bh_producto.AI_producto_id = '$product_id' AND bh_facturacompra.TX_facturacompra_preguardado = 0 ORDER BY TX_facturacompra_fecha DESC, AI_facturacompra_id DESC")or die($link->error);
 $raw_datocompra_listado=array();
 if ($qry_datocompra_listado->num_rows > 0) {
 	while ($rs_datocompra_listado = $qry_datocompra_listado->fetch_array(MYSQLI_ASSOC)) {
@@ -34,7 +34,7 @@ if ($qry_datocompra_listado->num_rows > 0) {
 }else{
 	$ultimo_precio_compra = '';
 }
-$qry_producto_medida = $link->query("SELECT bh_medida.AI_medida_id, bh_medida.TX_medida_value, rel_producto_medida.AI_rel_productomedida_id, rel_producto_medida.TX_rel_productomedida_cantidad FROM (bh_medida INNER JOIN rel_producto_medida ON bh_medida.AI_medida_id = rel_producto_medida.productomedida_AI_medida_id) WHERE productomedida_AI_producto_id = '{$_GET['a']}'")or die($link->error);
+$qry_producto_medida = $link->query("SELECT bh_medida.AI_medida_id, bh_medida.TX_medida_value, bh_letra.TX_letra_porcentaje, bh_letra.TX_letra_value, rel_producto_medida.AI_rel_productomedida_id, rel_producto_medida.TX_rel_productomedida_cantidad, rel_producto_medida.productomedida_AI_letra_id FROM (bh_medida INNER JOIN rel_producto_medida ON bh_medida.AI_medida_id = rel_producto_medida.productomedida_AI_medida_id) INNER JOIN bh_letra ON bh_letra.AI_letra_id = rel_producto_medida.productomedida_AI_letra_id  WHERE productomedida_AI_producto_id = '{$_GET['a']}'")or die($link->error);
 $raw_producto_medida=array();
 while ($rs_producto_medida = $qry_producto_medida->fetch_array(MYSQLI_ASSOC)) {
 	$raw_producto_medida[]=$rs_producto_medida;
@@ -103,9 +103,22 @@ $('#btn_cancel').click(function(){
 	self.close();
 })
 
+$("#sel_measure").on("change", function(){
+	var i = this.selectedIndex;
+	document.getElementById('sel_letra').value = this.options[this.selectedIndex].alt;
+	document.getElementById('span_productletter').innerHTML = $("#sel_letra option:selected").text();
+	document.getElementById('span_productletter').setAttribute('title',$("#sel_letra option:selected").attr("alt"));
+	suggest_price();
+})
 $("#sel_letra").on("change", function(){
-	$.ajax({	data: {"a" : this.value, "b" : <?php echo $product_id; ?> },	type: "GET",	dataType: "text",	url: "attached/get/upd_product_letter.php", })
-	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+data+" "+textStatus); suggest_price(); })
+	const confirmation = confirm(`Asignara la letra "${$("#sel_letra option:selected").text()}" a la medida "${$("#sel_measure option:selected").text()}"`);
+	if(!confirmation) { return false; }
+	$.ajax({	data: {"a" : this.value, "b" : <?php echo $product_id; ?>, "c" : $("#sel_measure").val() },	type: "GET",	dataType: "text",	url: "attached/get/upd_product_letter.php", })
+	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+data+" "+textStatus); 
+		document.getElementById('span_productletter').innerHTML = $("#sel_letra option:selected").text();
+		document.getElementById('span_productletter').setAttribute('title',$("#sel_letra option:selected").attr("label"));
+			suggest_price(); 
+		})
 	 .fail(function( jqXHR, textStatus, errorThrown ) {	 console.log("BAD "+textStatus);	});
 })
 
@@ -120,7 +133,7 @@ $('#txt_discount').validCampoFranz('.0123456789');
 
 function suggest_price(){
 	var base = ($("#txt_price").val() === '') ? 0.00 : $("#txt_price").val(); base = parseFloat(base);
-	var letra = $("#sel_letra option:selected").attr("label");
+	var letra = $("#span_productletter").attr("title");
 	var sugerido = ((base*letra)/100)+base;
 
 	sugerido = sugerido.toFixed(2);
@@ -143,10 +156,24 @@ function cal_total(){
 		$("#span_total").html(total);
 	}
 }
+function cal_subtotal(){
+	var base = ($("#txt_price").val() === '') ? 0.00 : $("#txt_price").val(); base = parseFloat(base);
+	var impuesto = ($("#txt_itbm").val() === '') ? 0.00 : $("#txt_itbm").val(); impuesto = parseFloat(impuesto);
+	var descuento = ($("#txt_discount").val() === '') ? 0.00 : $("#txt_discount").val(); descuento = parseFloat(descuento);
+	var cantidad = ($("#txt_quantity").val() === '') ? 0.00 : $("#txt_quantity").val(); cantidad = parseFloat(cantidad);
+	var precio = cantidad*base;
+	var descuento = (precio*descuento)/100;
+	var precio_descuento = precio-descuento;
+	total = precio_descuento.toFixed(2);
+	if (!isNaN(total)){
+		$("#span_subtotal").html(total);
+	}
+}
 
 $("#txt_price, #txt_quantity, #txt_itbm, #txt_discount").on("keyup",function(){
 	suggest_price();
 	cal_total();
+	cal_subtotal();
 });
 
 
@@ -188,60 +215,67 @@ $("#txt_price").on("blur",function(){
 <div id="content-sidebar_popup" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <form method="post" id="form_product2purchase" name="form_product2purchase">
 	<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding">
-		<div id="container_product" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<div id="container_product_description" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 px_7">
 			<label class="label label_blue_sky" for="txt_product">Producto:</label>
 		  <input type="text" name="txt_product" id="txt_product" alt="<?php echo $rs_product['AI_producto_id'] ?>" class="form-control" readonly="readonly" value="<?php echo $r_function->replace_special_character($rs_product['TX_producto_value']); ?>" />
 		</div>
-		<div id="container_quantity" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-			<label class="label label_blue_sky" for="sel_letra">Letra:</label>
+		<div id="container_quantity" class="col-xs-4 col-sm-4 col-md-4 col-lg-4 px_7">
+			<label class="label label-danger" for="sel_letra">Cambiar Letra:</label>
 			<select class="form-control" id="sel_letra">
-<?php 	while($rs_letra = $qry_letra->fetch_array()){
-					if ($rs_letra['TX_letra_value'] === $rs_product_letter['TX_letra_value']) {
-?>					<option value="<?php echo $rs_letra['AI_letra_id']; ?>" label="<?php echo $rs_letra['TX_letra_porcentaje']; ?>" selected><?php echo $rs_letra['TX_letra_value']." (".$rs_letra['TX_letra_porcentaje']."%)"; ?></option>
-<?php 		}else{	?>
+<?php 	while($rs_letra = $qry_letra->fetch_array()){?>
 						<option value="<?php echo $rs_letra['AI_letra_id']; ?>" label="<?php echo $rs_letra['TX_letra_porcentaje']; ?>" ><?php echo $rs_letra['TX_letra_value']." (".$rs_letra['TX_letra_porcentaje']."%)"; ?></option>
-<?php 		}
+<?php 		
 				} ?>
 			</select>
 		</div>
-		<div id="container_code" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+		<div id="container_code" class="col-xs-4 col-sm-4 col-md-4 col-lg-4 px_7">
 			<label class="label label_blue_sky" for="txt_code">C&oacute;digo:</label>
 	    <input type="text" name="txt_code" id="txt_code" class="form-control" readonly="readonly" value="<?php echo $rs_product['TX_producto_codigo'] ?>" />
 		</div>
-		<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 px_7">
 			<label class="label label_blue_sky" class="label label_blue_sky"  for="sel_medida">Medida:</label>
-			<select class="form-control" id="sel_measure" name="sel_measure" autofocus><?php
+			<select class="form-control" id="sel_measure" name="sel_measure"><?php
 				foreach ($raw_producto_medida as $key => $rs_medida) {
 					if($rs_medida['AI_medida_id']===$rs_product['TX_producto_medida']){
 						$producto_medida = $rs_product['TX_producto_medida'];
-		?>			<option value="<?php echo $rs_medida['AI_medida_id']; ?>" selected="selected"><?php echo $rs_medida['TX_medida_value']." (".$rs_medida['TX_rel_productomedida_cantidad'].")"; ?></option>
+						$opt_text = $rs_medida['TX_letra_value'];
+						$opt_percent = $rs_medida['TX_letra_porcentaje'];
+		?>			<option alt="<?php echo $rs_medida['productomedida_AI_letra_id']; ?>" value="<?php echo $rs_medida['AI_medida_id']; ?>" selected="selected"	><?php echo $rs_medida['TX_medida_value']." (".$rs_medida['TX_rel_productomedida_cantidad'].")"; ?></option>
 		<?php	}else{ 	?>
-						<option value="<?php echo $rs_medida['AI_medida_id']; ?>"><?php echo $rs_medida['TX_medida_value']." (".$rs_medida['TX_rel_productomedida_cantidad'].")"; ?></option>
+						<option alt="<?php echo $rs_medida['productomedida_AI_letra_id']; ?>" value="<?php echo $rs_medida['AI_medida_id']; ?>"               ><?php echo $rs_medida['TX_medida_value']." (".$rs_medida['TX_rel_productomedida_cantidad'].")"; ?></option>
 		<?php }
 				}					?>
 			</select>
 		</div>
-		<div id="container_quantity" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-			<label class="label label_blue_sky" for="txt_quantity">Cantidad:</label>
-	    <input type="text" name="txt_quantity" id="txt_quantity" class="form-control" value="1" onkeyup="chk_quantity(this)" />
+		<div id="container_productletter" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 px_7 pt_7">
+			<label class="label label_blue_sky" for="txt_productletter">Letra:</label>
+			<span id="span_productletter" title="<?php echo $opt_percent; ?>" class="form-control bg-disabled"><?php echo $opt_text; ?></span>
 		</div>
-		<div id="container_price" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+		<div id="container_quantity" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 px_7 pt_7">
+			<label class="label label_blue_sky" for="txt_quantity">Cantidad:</label>
+	    <input type="text" name="txt_quantity" id="txt_quantity" class="form-control" value="1" onkeyup="chk_quantity(this)" autofocus="autofocus" />
+		</div>
+		<div id="container_price" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 px_7 pt_7">
 	    <label class="label label_blue_sky" for="txt_price">Costo Base:</label>
 	    <input type="text" name="txt_price" id="txt_price" class="form-control" onkeyup="chk_price(this)" value="<?php echo $ultimo_precio_compra; ?>" />
 		</div>
-		<div id="container_regular" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-	    <label class="label label_blue_sky" for="txt_p_4">P. Venta/<?php echo $raw_medida[$producto_medida]; ?>:</label>
+		<div id="container_regular" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 px_7 pt_7">
+	    <label class="label label_blue_sky" for="txt_p_4">P. Venta:</label>
 	    <input type="text" name="txt_p_4" id="txt_p_4" class="form-control" />
 		</div>
-		<div id="container_itbm" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-	    <label class="label label_blue_sky" for="txt_itbm">Impuesto %:</label>
+		<div id="container_itbm" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 px_7 pt_7">
+	    <label class="label label_blue_sky" for="txt_itbm">Imp %:</label>
 	    <input type="text" name="txt_itbm" id="txt_itbm" class="form-control" value="<?php echo $rs_product['TX_producto_exento'] ?>" onkeyup="chk_itbm(this)"/>
 		</div>
-		<div id="container_discount" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-	    <label class="label label_blue_sky" for="txt_discount">Descuento %:</label>
+		<div id="container_discount" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 px_7 pt_7">
+	    <label class="label label_blue_sky" for="txt_discount">Desc %:</label>
 	    <input type="text" name="txt_discount" id="txt_discount" class="form-control" value="0" onkeyup="chk_descuento(this)" />
 		</div>
-		<div id="container_total" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+		<div id="container_total" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 px_7 pt_7">
+	    <label class="label label_blue_sky" for="txt_discount">Sub-Total:</label>
+			<span id="span_subtotal" class="form-control bg-disabled">0.00</span>
+    </div>
+		<div id="container_total" class="col-xs-3 col-sm-3 col-md-3 col-lg-3 px_7 pt_7">
 	    <label class="label label_blue_sky" for="txt_discount">Total:</label>
 			<span id="span_total" class="form-control bg-disabled">0.00</span>
     </div>
@@ -339,7 +373,7 @@ $("#txt_price").on("blur",function(){
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-		&copy; Derechos Reservados a: Trilli, S.A. 2017
+		&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 

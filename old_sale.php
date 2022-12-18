@@ -468,7 +468,7 @@ switch ($_COOKIE['coo_tuser']){
 	</div>
 	<div id="container_btnrefreshtblproduct2sale" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
 			<button type="button" id="btn_refresh_tblproduct2sale" class="btn btn-info btn-md" title="Refrescar Tabla" onclick="refresh_tbl_viejaventa()">
-	    <strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></span></strong>
+	    	<strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></span></strong>
 	    </button>
 	</div>
 </div>
@@ -518,7 +518,7 @@ switch ($_COOKIE['coo_tuser']){
 						<td><?php echo $rs_nuevaventa['codigo']; ?></td>
 						<td onclick="upd_descripcion_viejaventa(<?php echo $key.",'".$r_function->replace_regular_character($rs_nuevaventa['descripcion'])?>')"><?php echo $fire_promotion.$r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
 						<td><?php echo $raw_medida[$rs_nuevaventa['medida']]; ?></td>
-						<td onclick="upd_unidades_viejaventa(<?php echo $key; ?>);">
+						<td onclick="upd_unidades_viejaventa(<?php echo $key; ?>);"  title="Stock: <?php echo $rs_nuevaventa['stock']; ?>">
 							<?php echo $rs_nuevaventa['cantidad']; ?>
 							<span id="stock_quantity"><?php echo $rs_nuevaventa['stock']; ?></span>
 						</td>
@@ -697,7 +697,7 @@ switch ($_COOKIE['coo_tuser']){
         <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
         </div>
         <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
+    &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
         </div>
         <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
                     		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>

@@ -4,6 +4,7 @@ $link=conexion();
 
 require 'attached/php/req_login_admin.php';
 
+$raw_option = $r_function->read_option();
 $proveedor_nombre=''; $proveedor_id='';
 if (!empty($_GET['a'])) {
 	$proveedor_id = $_GET['a'];
@@ -12,6 +13,8 @@ if (!empty($_GET['a'])) {
 	$proveedor_nombre=$rs_proveedor['TX_proveedor_nombre'];
 }
 
+$qry_lastcheck = $link->query("SELECT AI_cheque_id, TX_cheque_numero FROM bh_cheque ORDER BY AI_cheque_id DESC LIMIT 1")or die($link->error);
+$rs_lastcheck = $qry_lastcheck->fetch_array(MYSQLI_ASSOC);
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -63,8 +66,19 @@ $("#btn_exit").click(function(){
 $("#txt_motivonc").validCampoFranz("0123456789 abcdefghijklmnopqrstuvwxyz.,");
 $("#txt_monto").validCampoFranz("0123456789.");
 
+$( function() {
+	$("#txt_date").datepicker({
+		changeMonth: true,
+		changeYear: true
+	});
+});
+$(window).on('beforeunload',function(){	close_popup();	});
+
 $("#btn_print").click(function(){
-	$.ajax({	data: {"a" : "", "b" : $("#txt_number").val(), "c" : $("#txt_monto").val(), "d" : $("#txt_montoletras").val(), "e" : $("#txt_observation").val(), "f" : $("#txt_filterprovider").prop("alt") },	type: "GET",	dataType: "text",	url: "attached/get/plus_check.php", })
+	if ($("#txt_filterprovider").prop("alt") === '' || $("#txt_number").val() === '' || $("#txt_monto").val() === '' || $("#txt_montoletras").val() === ''  || $("#txt_observation").val() === '') { alert('esta vacio'); return false;
+
+	}
+	$.ajax({	data: {"a" : "", "b" : $("#txt_number").val(), "c" : $("#txt_monto").val(), "d" : $("#txt_montoletras").val(), "e" : $("#txt_observation").val(), "f" : $("#txt_filterprovider").prop("alt"), "g" : $("#txt_date").val() },	type: "GET",	dataType: "text",	url: "attached/get/plus_check.php", })
 	 .done(function( data, textStatus, jqXHR ) {
 		 if (data) {
 		 	console.log('GOOD '+textStatus);
@@ -118,19 +132,17 @@ $("#txt_filterprovider").on("keyup", function(e){
 </head>
 
 <body>
-<div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
-  	<div id="logo" ></div>
-   	</div>
 
-	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10 hidden-md">
-    	<div id="container_username" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-        Bienvenido: <label class="bg-primary">
-         <?php echo $rs_checklogin['TX_user_seudonimo']; ?>
-        </label>
-        </div>
-		<div id="navigation" class="col-xs-12 col-sm-8 col-md-8 col-lg-8">
+<div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+		<div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
+	  	<div id="logo" ></div>
+	  </div>
+		<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-10">
+		 	<div id="container_username" class="col-lg-4  visible-lg">
+				Bienvenido: <label class="bg-primary"><?php echo $rs_checklogin['TX_user_seudonimo']; ?></label>
+		  </div>
+			<div id="navigation" class="col-xs-12 col-sm-12 col-md-12 col-lg-8">
 <?php
 switch ($_COOKIE['coo_tuser']){
 	case '1':
@@ -150,65 +162,54 @@ switch ($_COOKIE['coo_tuser']){
 	break;
 }
 ?>
+			</div>
 		</div>
 	</div>
-
-</div>
-
-<div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-<form action="" >
-	<div id="container_cheque" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-  	<div id="container_provider" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    	<label for="span_provider" class="label label_blue_sky">Beneficiario: </label>
-      <input type="text" class="form-control" id="txt_filterprovider" placeholder="Proveedor" alt="<?php echo $proveedor_id; ?>" value="<?php echo $proveedor_nombre; ?>">
-    </div>
-    <div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 side-btn-md">
-      <button type="button" id="btn_add_provider" class="btn btn-success"><i class="fa fa-plus btn-md" aria-hidden="true"></i></button>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12" id="container_provider_recall">
-
-    </div>
-  	<div id="container_number" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    	<label for="txt_number"  class="label label_blue_sky">Numero: </label>
-  		<input type="text" id="txt_number" class="form-control" value="" />
-    </div>
-  	<div id="container_monto" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
-    	<label for="txt_monto"  class="label label_blue_sky">Monto:</label>
-  		<input type="text" id="txt_monto" class="form-control" value="" />
-    </div>
-  	<div id="container_montoletras" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
-    	<label for="txt_montoletras" class="label label_blue_sky">Monto en Letras:</label>
-  		<input type="text" id="txt_montoletras" class="form-control" value="" />
-    </div>
-  	<div id="container_montoletras" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 side-btn-md">
-  		<button type="button" class="btn btn-primary" id="btn_letter_amount" onclick="$('#txt_montoletras').val(nn($('#txt_monto').val()))"><i class="fa fa-refresh"></i></button>
-    </div>
-  	<div id="container_observation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<label for="txt_observation" class="label label_blue_sky">Observaci&oacute;n: </label>
-  		<textarea id="txt_observation" class="form-control"><?php if(!empty($rs_facturacompra[0])){ echo "Factura: ".$rs_facturacompra[0]; }; if(!empty($rs_pedido[0])){ echo "Orden de Compra: ".$rs_pedido[0]; }; ?></textarea>
-    </div>
-    <div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    	<button type="button" id="btn_print" class="btn btn-info"><span class="glyphicon glyphicon-print"></span> Imprimir</button>
-      <button type="button" id="btn_cancel" class="btn btn-warning">Salir</button>
-    </div>
+	<div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	<form action="" >
+		<div id="container_cheque" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 px_0">
+				<div id="container_provider" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
+		    	<label for="span_provider" class="label label_blue_sky">Beneficiario: </label>
+		      <input type="text" class="form-control" id="txt_filterprovider" placeholder="Proveedor" alt="<?php echo $proveedor_id; ?>" value="<?php echo $proveedor_nombre; ?>">
+		    </div>
+				<div class="col-xs-2 col-sm-1 col-md-1 col-lg-1 side-btn-md">
+					<button type="button" id="btn_add_provider" class="btn btn-success"><i class="fa fa-plus btn-md" aria-hidden="true"></i></button>
+				</div>
+				<div id="container_fecha" class="col-xs-4 col-sm-2 col-md-2 col-lg-2">
+		    	<label for="span_provider" class="label label_blue_sky">Fecha: </label>
+		      <input type="text" class="form-control" id="txt_date" readonly value="<?php echo date('d-m-Y'); ?>">
+		    </div>
+				<div id="container_provider_recall" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+			</div>
+	  	<div id="container_number" class="col-xs-6 col-sm-3 col-md-3 col-lg-2">
+	    	<label for="txt_number"  class="label label_blue_sky">Numero de Cheque: </label>
+	  		<input type="text" id="txt_number" class="form-control" value="<?php echo $rs_lastcheck['TX_cheque_numero']+1; ?>" />
+	    </div>
+	  	<div id="container_monto" class="col-xs-4 col-sm-3 col-md-3 col-lg-2">
+	    	<label for="txt_monto"  class="label label_blue_sky">Monto:</label>
+	  		<input type="text" id="txt_monto" class="form-control" value="" />
+	    </div>
+	  	<div id="container_montoletras" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
+	    	<label for="txt_montoletras" class="label label_blue_sky">Monto en Letras:</label>
+	  		<input type="text" id="txt_montoletras" class="form-control" value="" />
+	    </div>
+	  	<div id="container_montoletras" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 side-btn-md">
+	  		<button type="button" class="btn btn-primary" id="btn_letter_amount" onclick="$('#txt_montoletras').val(nn($('#txt_monto').val()))"><i class="fa fa-refresh"></i></button>
+	    </div>
+	  	<div id="container_observation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	    	<label for="txt_observation" class="label label_blue_sky">Observaci&oacute;n: </label>
+	  		<textarea id="txt_observation" class="form-control"><?php if(!empty($rs_facturacompra[0])){ echo "Factura: ".$rs_facturacompra[0]; }; if(!empty($rs_pedido[0])){ echo "Orden de Compra: ".$rs_pedido[0]; }; ?></textarea>
+	    </div>
+	    <div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+	    	<button type="button" id="btn_print" class="btn btn-info"><span class="glyphicon glyphicon-print"></span> Imprimir</button>
+	      <button type="button" id="btn_cancel" class="btn btn-warning">Salir</button>
+	    </div>
+		</div>
+	</form>
 	</div>
-</form>
-</div>
-
-
-<div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-        <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        </div>
-        <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Trilli, S.A. 2017
-        </div>
-        <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-        </div>
-        <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            <button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-        </div>
+	<div id="footer">
+		<?php require 'attached/php/req_footer.php'; ?>
 	</div>
 </div>
 </div>

@@ -188,7 +188,7 @@ $cantidad_ff = $i;
  FROM (bh_notadebito
  INNER JOIN bh_datodebito ON bh_notadebito.AI_notadebito_id = bh_datodebito.datodebito_AI_notadebito_id)
  WHERE bh_notadebito.notadebito_AI_impresora_id = '{$rs_impresoraid['0']}'
- AND bh_notadebito.notadebito_AI_arqueo_id = '0'";
+ AND bh_notadebito.notadebito_AI_arqueo_id = '0' AND bh_notadebito.TX_notadebito_status = 0";
  $qry_notadebito=$link->query($txt_notadebito);
  $raw_debitoid=array();
  $i=0;
@@ -366,7 +366,7 @@ $cantidad_ff = $i;
 
 <div id="footer">
 	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-&copy; Derechos Reservados a: Trilli, S.A. 2017
+&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
 	</div>
 </div>
 </div>
