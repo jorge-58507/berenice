@@ -134,11 +134,12 @@ $raw_facti=[
 $raw_facti['documento']="FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7);
 $raw_facti['c_nombre']=$r_function->replace_special_character_no_html($rs_facturaf['TX_cliente_nombre']);
 $raw_facti['c_ruc']=$rs_facturaf['TX_cliente_cif'];
-$raw_facti['c_direccion']=substr($vendedor,0,3)."-".$rs_facturaf['TX_cliente_direccion'];
+$raw_facti['c_direccion']=substr($vendedor,0,3)."-".substr($rs_facturaf['TX_cliente_direccion'],0,140);
 $raw_facti['total_descuento']=(!empty($rs_facturaf['TX_facturaf_descuento'])) ? round($rs_facturaf['TX_facturaf_descuento'],2) : '0.00'; 
 $raw_facti['total_pagado']=round($total_pagado,2);
 $raw_facti['total_final']=round($rs_facturaf['TX_facturaf_total'],2);
-
+$raw_facti['recargo']=0;
+$raw_facti['porcentaje_recargo']=0;
 $raw_facti['p_efectivo']  = (!empty($raw_datopago[1]['monto'])) ? round($raw_datopago[1]['monto']+$cambio,2) : '0.00';
 $raw_facti['p_cheque']    = (!empty($raw_datopago[2]['monto'])) ? round($raw_datopago[2]['monto'],2) : '0.00';
 $raw_facti['p_tdc']       = (!empty($raw_datopago[3]['monto'])) ? round($raw_datopago[3]['monto'],2) : '0.00';
@@ -159,22 +160,6 @@ if (!file_exists($recipiente)) {
   return false;
 }
 
-/* ###################### ENCABEZADO  ######################## */
-$total_pagado=$total_pagado+$cambio;
-$file = fopen($recipiente."FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).".txt", "w");
-$str_factid="";
-foreach ($raw_facti as $key => $value) {
-  if ($value === reset($raw_facti)) {
-    $str_factid .= $value;
-  }else{
-    $str_factid .= chr(9).$value;
-  }
-}
-fwrite($file, $str_factid  );
-fclose($file);
-
-
-/* ####################### ENCABEZADO  ###################### */
 /* ####################### ARTICULOS  ###################### */
 $txt_datoventa="SELECT bh_producto.AI_producto_id, bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_producto.TX_producto_medida, bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_descripcion,
 bh_datoventa.TX_datoventa_precio AS precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_medida
@@ -199,8 +184,8 @@ if ($qry_datoventa->num_rows > 3) {
       $flete = "1";
     }
     $codigo =       (preg_match("/-/", $rs_datoventa['TX_producto_codigo'])) ? substr(str_replace("-","",$rs_datoventa['TX_producto_codigo']),-8) : substr($rs_datoventa['TX_producto_codigo'],-7);
-    $descripcion =  (preg_match("/-/", $rs_datoventa['TX_producto_codigo'])) ? substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,25) : substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,25);
-    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-8).chr(9).$codigo.chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+    $descripcion =  (preg_match("/-/", $rs_datoventa['TX_producto_codigo']) && $rs_facturaf['TX_cliente_tipo'] != 3) ? substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,25) : substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,25);
+    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).$codigo.chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }else{
   do{
@@ -208,8 +193,8 @@ if ($qry_datoventa->num_rows > 3) {
       $flete = "1";
     }
     $codigo =       (preg_match("/-/", $rs_datoventa['TX_producto_codigo'])) ? substr(str_replace("-","",$rs_datoventa['TX_producto_codigo']),-8) : substr($rs_datoventa['TX_producto_codigo'],-7);
-    $descripcion =  (preg_match("/-/", $rs_datoventa['TX_producto_codigo'])) ? substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,59) : substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,61);
-    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-8).chr(9).$codigo.chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+    $descripcion =  (preg_match("/-/", $rs_datoventa['TX_producto_codigo']) && $rs_facturaf['TX_cliente_tipo'] != 3) ? substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,59) : substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,61);
+    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).$codigo.chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }
 if ($flete === "1") {
@@ -218,6 +203,23 @@ if ($flete === "1") {
   fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-8).chr(9).$codigo.chr(9).trim("Entregar en: ".$descripcion).chr(9)."UNIDADES".chr(9)."1".chr(9)."0.00".chr(9)."0".chr(9). PHP_EOL);
 }
 fclose($file);
+
+/* ###################### ENCABEZADO  ######################## */
+$total_pagado=$total_pagado+$cambio;
+$file = fopen($recipiente."FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).".txt", "w");
+$str_factid="";
+foreach ($raw_facti as $key => $value) {
+  if ($value === reset($raw_facti)) {
+    $str_factid .= $value;
+  }else{
+    $str_factid .= chr(9).$value;
+  }
+}
+fwrite($file, $str_factid  );
+fclose($file);
+
+
+/* ####################### ENCABEZADO  ###################### */
 
 $facti_exist = (!file_exists($recipiente."\FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).'.txt')) ? 0 : 1;
 $facmv_exist = (!file_exists($recipiente."\FACMV".substr($rs_facturaf['TX_facturaf_numero'],-7).'.txt')) ? 0 : 1;

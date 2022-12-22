@@ -144,7 +144,8 @@ $(document).ready(function() {
 		}
 	});
 	$("#txt_observation").validCampoFranz('abcdefghijklmnopqrstuvwxyz .0123456789-/');
-	$("#txt_filterclient").validCampoFranz('abcdefghijklmnopqrstuvwxyzñ .0123456789-/&');
+	$("#txt_filterclient_first").validCampoFranz('P0123456789-');
+	$("#txt_filterclient_second").validCampoFranz('P0123456789-');
 	$("#btn_report").click(function(){
 		var str = prompt("Ingrese los datos",$("#txt_filterproduct").val());
 		str = str.replace("#","laremun");
