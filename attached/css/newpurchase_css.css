@@ -1,0 +1,62 @@
+@charset "utf-8";
+/* CSS Document */
+
+#btn_addprovider{
+margin-top: 24px;
+}
+
+#container_btnnewpurchase{
+	text-align:center;
+	padding:10px 0;
+}
+#container_tblnewentry{
+	padding:10px 15px;
+}
+#container_tblproduct{
+	padding:0;
+	max-height: 250px;
+	overflow-y: auto;
+	border: solid 1px #ccc;
+	border-radius: 4px;
+	margin: 10px 0 0 0;
+}
+#tbl_newentry, #tbl_newentry th{
+	text-align:center;
+	cursor:pointer;
+}
+#container_tblfacturacompra{
+	padding:15px 0 0 0;
+}
+#container_tblproduct{
+	-webkit-box-shadow: 0px 0px 6px 0px #66afe9;
+	-moz-box-shadow: 0px 0px 6px 0px #66afe9;
+	box-shadow: 0px 0px 6px 0px #66afe9;
+}
+#tbl_purchase_product, #tbl_purchase_product th{
+	text-align:center;
+	cursor:pointer;
+}
+#span_taobservation{
+	float:right;
+}
+#tbl_purchase_product > tbody > tr > td{
+	padding:0;
+	vertical-align: middle;;
+}
+#ta_observation{
+	width: 387px;
+	height: 294px;
+}
+#container_btnprintcompra{
+	padding-top: 24px;
+}
+#container_facturacompra{
+	max-height: 300px;
+	overflow-y: auto;
+}
+#container_product{
+	padding-top: 10px;
+}
+#container_show_filterpurchase>.radio-inline{
+	padding-top: 8px;
+}

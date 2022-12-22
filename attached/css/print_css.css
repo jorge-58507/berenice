@@ -1,0 +1,224 @@
+@charset "utf-8";
+/* CSS Document */
+
+#tbl_notadebito, #tbl_notadebito th{
+	text-align:center;
+	font-size:12px;
+}
+#tbl_notadecredito:first-child{
+	background-color:#DDDDDD;
+}
+#tbl_client{
+	font-size:12px;
+	margin-bottom:5px;
+}
+#tbl_facturaf{
+	font-size:12px;
+}
+.table-print td{
+	font-size:12px;
+}
+.table-print>thead>tr>th{
+	padding: 0 2px;
+	vertical-align: middle;
+	height: 41px
+}
+#tbl_observation{
+	margin-top:5px;
+}
+#tbl_datopago{
+	padding:2px;
+}
+.no_padding{
+	padding:0;
+}
+.no_padding_left{
+	padding-left: 0;
+}
+.no_padding_right{
+	padding-right: 0;
+}
+#tbl_relation, #tbl_relation th{
+	font-size:12px;
+	text-align:center;
+}
+#tbl_datopedido td{
+	text-align: center;
+	padding: 0
+}
+#tbl_datopedido thead th{
+	text-align: center;
+	padding: 2
+}
+#tbl_titulo tbody td{
+	text-align: center;
+}
+#tbl_autorized tbody td{
+	text-align: center;
+}
+.tbl-padding-0 thead tr th{
+	padding:0px;
+}
+.tbl-padding-0 tbody tr td{
+	padding:0px;
+}
+.tbl-padding-0 tfoot tr td{
+	padding:0px;
+}
+.tbl-padding-0 caption{
+	padding:0px;
+}
+#tbl_payment, #tbl_payment th{
+	text-align: center;
+}
+#tbl_payment tr td:first-child {
+	text-align: center;
+	font-weight: bolder;
+}
+#tbl_product thead tr th{
+	text-align: center;
+}
+#tbl_facturacompra thead tr th{
+	text-align: center;
+}
+#tbl_facturacompra tbody tr td:last-child{
+	font-weight: bolder;
+}
+#tbl_facturacompra tbody tr td{
+	padding: 1px
+}
+#tbl_facturaf th{
+	text-align: center;
+}
+#tbl_compra{
+	margin-top: 5px;
+}
+#tbl_tittle{
+	text-align: center;
+	border-top: none;
+}
+tfoot{
+	page-break-after: always;
+}
+#tbl_product td{
+	height: 40px;
+	padding: 3px;
+}
+#tbl_billhistory th{
+	text-align: center;
+	border: solid 2px #000;
+}
+#tbl_afectedff{
+	font-size: 12px;
+}
+@media print {
+	.no_print {
+	  display: none;
+	}
+}
+#tbl_datoventa > tbody > tr > td{
+	padding: 2px;
+	vertical-align: middle;
+}
+.al_center{
+	text-align: center;
+}
+.al_right{
+	text-align: right;
+}
+.print_line_header{
+	border: solid 1px #ccc;
+}
+.print_line_header>div{
+	padding: 0;
+	text-align: center;
+	text-transform: uppercase;
+	font-weight: bolder;
+	border-right: solid 1px #ccc;
+	min-height: 41px;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-direction: column;
+	background: #e6e6e6;
+}
+.print_line_header.minimal > div{
+	min-height: 10px;
+}
+
+.print_line_body{
+	min-height: 41px;
+	border: solid 1px #ccc;
+	background: #fff;
+}
+.print_line_body.minimal{
+	min-height: 10px;
+}
+.print_line_body>div{
+	padding: 3px;
+}
+.print_line_body.minimal > div{
+	min-height: 10px;
+}
+.print_line_footer{
+	min-height: 41px;
+	border: solid 1px #ccc;
+	background: #e6e6e6
+}
+.print_line_footer>div{
+	padding: 3px;
+}
+.print_line_footer.minimal > div{
+	min-height: 10px;
+}
+
+.print_line_caption{
+	color: #ccc;
+	background: #fff;
+}
+#container_print_total{
+	border: solid 2px #ccc;
+	border-radius: 8px;
+	margin: 0 auto;
+	float: none;
+	min-height: 340px;
+}
+#container_print_total>div{
+	text-align: center;
+	font-size: 14px;
+}
+#container_print_methods{
+	border: solid 2px #ccc;
+	border-radius: 8px;
+	margin: 0 auto;
+	float: none;
+	min-height: 100px;
+}
+#container_print_methods>div{
+	text-align: center;
+	font-size: 14px;
+}
+h4{
+	font-weight: bolder;
+}
+.mt-5{
+	margin-top: 5px;
+}
+.mt-10{
+	margin-top: 10px;
+}
+.px-5{
+	padding-left: 5px;
+	padding-right: 5px;
+}
+.px-10{
+	padding-left: 10px;
+	padding-right: 10px;
+}
+.squared_button{
+	height: 50px;
+	width:  50px;
+	font-size: 35px;
+	border-radius: 10px;
+	border: solid 1px #ccc;
+}

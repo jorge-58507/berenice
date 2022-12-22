@@ -1,0 +1,218 @@
+@charset "utf-8";
+/* CSS Document */
+
+#tbl_product, #tbl_product  th{
+	text-align:center;
+	cursor:pointer;
+}
+
+#tbl_product2sell{
+	cursor:default;
+	text-align:center;
+}
+#tbl_product2sell  th{
+	text-align:center;
+}
+#tbl_product2sell  td{
+	vertical-align: middle;
+}
+#tbl_product2sell  tfoot{
+	text-align:center;
+}
+#container_btn_print{
+	text-align:center;
+}
+#container_btn_sale{
+	text-align:center;
+	padding:15px;
+}
+
+
+#tbl_facturaventa{
+	cursor:default;
+	text-align:center;
+}
+#tbl_facturaventa  th{
+	text-align:center;
+}
+#tbl_facturaventa  tfoot{
+	text-align:center;
+}
+
+#btn_addclient{
+	/* margin-top: 24px; */
+	font-size: 23px;
+	padding: 5px;
+}
+
+#stock_quantity{
+	display:none;
+}
+#container_txtfilterpaydesk{
+	padding:0 15px 15px 15px;
+}
+#container_tblfacturaventa{
+	padding: 15px 15px 0 15px;
+}
+#container_alert{
+	padding: 5px 30px;
+}
+/* #container_txtobservation_first, #container_txtobservation_second{
+	padding: 0 30px;
+} */
+#container_report{
+	padding-top:10px;
+}
+#btn_refresh_tblproduct2sale{
+	/* margin-top:24px; */
+	padding:6px 6px;
+	width:34px;
+	height:34px;
+}
+
+#container_cambio{
+	margin: 120px 0;
+	padding: 20px;
+	border-radius: 5px;
+}
+#div_cambio{
+	border: solid #FFF;
+	padding: 20px;
+	border-radius: 5px;
+	color: #EFA843;
+	font-size: 46px;
+	font-weight: bold;
+	text-align: center;
+}
+#container_background{
+	height: 500px;
+	position: absolute;
+	background: radial-gradient(ellipse at center, rgba(120,146,207,0.29) 0%,rgba(120,146,207,0.29) 54%,rgba(120,146,207,0.28) 56%,rgba(120,146,207,0.01) 100%);
+}
+#container_spandiference{
+  font-size: 40px;
+  border: dashed 1px #ccc;
+	text-align: center;
+	color: #F2B968;
+}
+#i_piggy_bank{
+	color: #E38D13;
+}
+#span_ff_number{
+	font-size: 12px;
+	text-align: left;
+}
+#container_selproduct{
+	height: 460px;
+	overflow-y: scroll;
+	padding-right: 5px;
+}
+#div_title{
+	margin: 2px auto;
+	float: none;
+	text-align: center;
+	border: solid 2px #ccc;
+	border-radius: 25px;
+}
+.zoomed{
+	position: absolute;
+	min-width: 600px;
+	background-color: #F84C4C;
+	text-align: center;
+}
+#span_useronline{
+	width: 300px;
+	color: #FFFFFF;
+	opacity: 0.7;
+	padding: 5px;
+	position: absolute;
+	z-index: 1;
+	float: left;
+	border-radius: 10px;
+	margin: 5px;
+	text-align: center;
+
+	background: rgba(241,111,92,1);
+	background: -moz-linear-gradient(top, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	/* background: -webkit-gradient(left top, left bottom, color-stop(0%, rgba(241,111,92,1)), color-stop(5%, rgba(241,111,92,1)), color-stop(42%, rgba(248,80,50,1)), color-stop(67%, rgba(246,41,12,1)), color-stop(87%, rgba(240,47,23,1)), color-stop(100%, rgba(201,22,52,1))); */
+	background: -webkit-linear-gradient(top, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	background: -o-linear-gradient(top, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	background: -ms-linear-gradient(top, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	background: linear-gradient(to bottom, rgba(241,111,92,1) 0%, rgba(241,111,92,1) 5%, rgba(248,80,50,1) 42%, rgba(246,41,12,1) 67%, rgba(240,47,23,1) 87%, rgba(201,22,52,1) 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#f16f5c', endColorstr='#c91634', GradientType=0 );
+}
+#span_useronline>div>i{
+	font-size: 60px;
+	padding: 5px 0 0 0;
+}
+#span_useronline>div>span{
+	font-size: 40px;
+}
+.nav-tabs>li>a{
+	font-size: 24px;
+	padding: 0 5px;
+}
+#container_tbl_product_promotion{
+	padding-bottom: 5px;
+	max-height: 380px;
+	overflow-y: scroll;
+}
+#container_tbl_product_favorite{
+	padding-bottom: 5px;
+	max-height: 380px;
+	overflow-y: always;
+}
+#container_tbl_product_favorite tbody{
+	cursor: pointer;
+}
+#tbl_product2sell_first>tbody>tr>td:nth-last-child(-n+7){
+	text-align: center;
+}
+#tbl_product2sell_first>thead>tr>th:nth-child(2){
+	width: 27.6%;
+}
+#tbl_product2sell_first>thead>tr>th:nth-child(1){
+	width: 10%;
+}
+#tbl_product2sell_first>thead>tr>th:nth-last-child(-n+8){
+	width: 8.3%;
+}
+#tbl_product2sell_first>thead>tr>th:nth-last-child(1){
+	width: 4.3%;
+}
+#tbl_product2sell_first>tbody>tr>td{
+	vertical-align: middle;
+	padding: 0 5px;
+}
+
+#container_complementary, #container_client, #container_observation{
+	padding-top: 5px;
+}
+
+#first_sale>div, #second_sale>div, #container_product_list>div{
+	margin-top: 7px;
+}
+
+/* ######################   CAROUSEL MENU   ################### */
+.carousel{
+	display: none;
+}
+.carousel.active{
+	display: block;
+}
+#carousel_arrow{
+	position: absolute;
+	z-index: 4;
+	height: 40px;
+	padding: 5px;
+}
+/* ##########################   FIN CAROUSEL MENU ################## */
+
+#container_tbl_lastsale{
+	max-height: 580px;
+	overflow-y: scroll;
+}
+#container_goal{
+	height: 50px;
+	cursor: default;
+}

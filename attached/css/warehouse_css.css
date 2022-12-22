@@ -1,0 +1,87 @@
+@charset "utf-8";
+/* CSS Document */
+
+#container_tab_todeliver > ul.nav-tabs > li.active{
+	border-bottom: solid 2px #58b358;
+	border-radius: 15px;
+}
+#container_tab_delivered > ul.nav-tabs > li.active{
+	border-bottom: solid 2px #337ab7;
+	border-radius: 15px;
+}
+#carousel_arrow{
+	color: #fff;
+}
+/* #####################     TABLA DIV    ###################### */
+.div_table{
+	cursor: pointer;
+}
+.line_header{
+	min-height: 40px;
+}
+div.line_header > div.cell{
+	min-height: 40px;
+	font-size: 16px;
+	text-align: center;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-direction: column;
+	font-weight: bolder;
+}
+.line_body{
+	min-height: 40px;
+}
+div.line_body > div.cell{
+	min-height: 40px;
+	font-size: 16px;
+	display: flex;
+	justify-content: center;
+	align-content: center;
+	flex-direction: column;
+}
+div.line_body > div.cell > span.badge_info{
+	background-color: #3fb4d7;
+	font-size: 20px;
+}
+div.line_body > div.cell > span.badge_warning{
+	background-color: #f0ad4e;
+	font-size: 20px;
+}
+/* #####################     TABLA DIV    ###################### */
+.tarjeta{
+	cursor: pointer;
+}
+.tarjeta_header{
+	height: 40px;
+	word-break: break-all;
+	margin-top: 0;
+}
+.tarjeta_subtitulo{
+	color: #b60909;
+	font-weight: bold;
+	font-size: 14px;
+	margin: 5px 0 0 0;
+}
+#todeliver_caption{
+	font-size: 16pt;
+	font-weight: bolder;
+}
+#mod_set_todeliver{
+	border: solid 1px #ccc;
+	border-radius: 10px;
+	position: fixed;
+	top: 100px;
+	left: 400px;
+	z-index: 1;
+	background-color: #ffffff;
+	padding: 15px;
+	box-shadow: 0px 2px 300px 85px #aaa4a4;
+}
+#div_codigo, #div_descripcion{
+	font-size: 16px;
+}
+#btn_todeliverall{
+	width: 100px;
+	margin: 0 auto;
+}

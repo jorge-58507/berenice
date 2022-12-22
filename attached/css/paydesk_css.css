@@ -1,0 +1,135 @@
+@charset "utf-8";
+/* CSS Document */
+
+#container_tblbill{
+ 	padding-top:50px;
+}
+#tbl_bill th{
+ 	text-align:center;
+}
+#tbl_bill{
+ 	text-align:center;
+	width:500px;
+	margin:0 auto;
+}
+#container_btncollect{
+	text-align:center;
+	padding:10px 0 0 0;
+}
+#container_tblproduct2sale{
+	padding:30px 15px 0 15px;
+}
+#tbl_product2sell, #tbl_product2sell th{
+ 	text-align:center;
+}
+#container_paymentinfo{
+	padding:15px;
+}
+#container_paymentinfotitle{
+	text-align:center;
+	font-weight:bolder;
+	font-size:16px;
+	border:solid 5px #337AB7;
+	border-radius:6px;
+	margin-bottom:10px;
+}
+#container_btnpaymentmethod{
+	padding:15px;
+	text-align:center;
+}
+#container_btnpayment{
+	text-align:center;
+}
+#span_ff{
+	display:none;
+}
+#tbl_paymentlist, #tbl_paymentlist th{
+	text-align:center;
+}
+/* #container_btnamount{
+	margin-top:25px;
+} */
+#span_nettotal{
+	display:none;
+}
+#container_btnprocess{
+	text-align:center;
+}
+#btn_addclient{
+	/* margin-top: 24px; */
+}
+.div_total_total{
+	border:solid 3px #FFFFFF; font-size:26px; border-radius:8px;
+}
+.div_total_entrega{
+	border:solid 3px #FFFFFF; font-size:26px; border-radius:8px; color:#74C274;
+}
+.div_total_cambio{
+	border:solid 3px #FFFFFF; font-size:26px; border-radius:8px; color:#EFA843;
+}
+.div_total_diferencia{
+	border:solid 3px #FFFFFF; font-size:26px; border-radius:8px; color:#f00;
+}
+#tbl_product2sell{
+	cursor:pointer;
+}
+#tbl_product, #tbl_product th{
+	text-align:center;
+	cursor:pointer;
+}
+#container_payment{
+	padding:0;
+}
+#container_client_recall{
+  color: #666;
+  font-size: 16px;
+}
+#btn_amount{
+  font-size: 19px;
+}
+#container_payment_data > div {
+  border: solid 2px #FFF;
+  border-radius: 8px;
+  font-size: 26px;
+}
+#container_payment_data {
+  padding: 0;
+}
+#payment_paid_out{
+  color: #74C274;
+}
+#payment_to_pay{
+  color: #F00;
+}
+#payment_change{
+  color: #EFA843;
+}
+#container_paymentmethod{
+  text-align: center;
+  padding: 0;
+}
+#container_client{
+  padding: 10px 0 0 0;
+}
+.btn_yellow{
+  color: #050404;
+  background-color: #fffc;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, .2);
+  -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
+  background-image: -webkit-linear-gradient(top, #d9534f 0%, #c12e2a 100%);
+  background-image: -o-linear-gradient(top, #d9534f 0%, #c12e2a 100%);
+  background-image: -webkit-gradient(linear, left top, left bottom, from(#d9534f), to(#c12e2a));
+  background-image: linear-gradient(to bottom, #eaed7dcc  0%, #d4e914 100%);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffd9534f', endColorstr='#ffc12e2a', GradientType=0);
+  filter: progid:DXImageTransform.Microsoft.gradient(enabled = false);
+  background-repeat: repeat-x;
+  border-color: #bcc809;
+}
+.btn_yellow:hover{
+  background-color: #d4e914;
+}
+#btn_addclient {
+  font-size: 25pt;
+  line-height: 0px;
+}

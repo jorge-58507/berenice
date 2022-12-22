@@ -1,0 +1,20 @@
+@charset "utf-8";
+/* CSS Document */
+#login_container{
+    margin: 0 auto;
+    float: none;
+}
+#container_quickaccess{
+	text-align:center;
+	padding:30px 0px;
+	margin-top: 100px;
+}
+#container_div_expand_login{
+	text-align:center;
+}
+#container_expand_login{
+	text-align:center;
+	font-size:30px;
+	color:#7892CF;
+	cursor:pointer;
+}

@@ -1,0 +1,166 @@
+@charset "utf-8";
+/* CSS Document */
+.sub_tileable-metal-textures{
+	background-image:url(../image/tileable-metal-textures.jpg);
+	color:#FFF;
+}
+.button_add_short{
+	margin:0 auto;
+	display:block;
+	width:25px;
+	-webkit-transition: all 0.5s ease-out;
+}
+.button_add_short:hover{
+	width:30px;
+	position:inherit;
+	border:outset #CCC 2px;
+	-webkit-transform: skewY(0.5deg);
+	transform: skewY(0.5deg);
+}
+.title{
+	margin: 0px auto;
+	width:-moz-max-content;
+	color:#FFF;
+	font-weight:bold;
+}
+.title_shade1{
+	background-image:url(../image/title_shade1.png);
+	background-repeat:no-repeat;
+	width: 7px;
+	height: 20px;
+	float:left;
+	margin:0px 0px;
+}
+.title_shade2{
+	background-image:url(../image/title_shade2.png);
+	background-repeat:repeat-x;
+	min-width: 20px;
+	height: 20px;
+	float:left;
+	margin:0px 0px;
+	padding:0px 0px;
+}
+.title_shade3{
+	background-image:url(../image/title_shade3.png);
+	background-repeat:no-repeat;
+	width: 7px;
+	height: 20px;
+	float:left;
+	margin:0px 0px;
+}
+
+#tbl_config{
+	width:100%;
+}
+#tbl_config .link{
+	margin: 0 auto;
+	width: 154px;
+}
+
+#td_fmtcomplete{
+	text-align:center; 
+	vertical-align:top;
+}
+#tbl_fmt_complete{
+	width:82%;
+	text-align:justify;
+	border:solid 3px #DC4233;
+}
+#tbl_fmt_complete thead th{
+	border-bottom:solid 3px #DC4233;
+}
+#tbl_fmt_complete tbody td{
+	background-image:url(../image/tbl_shade1.png);
+	height:130px;
+	vertical-align:top; 
+	padding:5px;
+}
+#tbl_fmt_complete tbody strong{
+	border-top: solid 1px #DC4233;
+	border-right: solid 1px #DC4233;
+}
+
+#tbl_fmt_complete tfoot td{
+	background-image:url(../image/tbl_shade1.png);
+	padding:5px;
+	text-align:right;
+}
+#sel_medfont{
+	width:270px;
+}
+#med_speciality{
+	border: solid 1px #DC4233;
+	background-color:#D8D8D8;
+/*	background-image:url(../image/tbl_shade1.png);
+*/	width:390px;
+	height:70px;
+}
+
+#counter_speciality{
+	font-weight:bold;
+	color:#F00;
+	font-size:10px;
+	height:15px;
+}
+#med_direction{
+	border: solid 1px #DC4233;
+	background-color:#D8D8D8;
+/*	background-image:url(../image/tbl_shade1.png);*/
+	width:390px;
+	height:70px;
+}
+
+#counter_direction{
+	font-weight:bold;
+	color:#F00;
+	font-size:10px;
+	height:15px;
+}
+#bt_save_fmtcomplete{
+	background:url(../image/guardar45x45.png) center no-repeat;
+	width:50px;
+	height:50px;	
+}
+
+
+
+#td_config_sel{
+	text-align:center;
+	vertical-align:top;
+}
+#tbl_upd_sel{
+	border:solid 3px #DC4233;
+	width:82%; 
+	text-align:justify;
+}
+#tbl_upd_sel td{
+	background-image:url(../image/tbl_shade1.png);
+}
+
+
+
+#tbl_upd_sel thead th{
+	border-bottom:solid 3px #DC4233;
+}
+#tbl_upd_sel tbody td{
+	text-align:center;
+	width:83px;
+	height:62px;
+	background-image:url(../image/tbl_shade1.png);
+	vertical-align:top; 
+	padding:5px;
+}
+#tbl_upd_sel tbody td a{
+	margin:0 auto;
+	display:block;
+	width:25px;}
+
+#div_config_medic_name{
+	text-align:center;
+}
+#div_config_fmt{
+	margin-top:10px;
+}
+#div_config_button{
+	margin-top:10px;
+}

@@ -1,0 +1,174 @@
+@charset "utf-8";
+/* CSS Document */
+
+#tbl_product, #tbl_product th{
+	text-align:center;
+	cursor: pointer;
+}
+#tbl_product caption{
+	text-align:center;
+	font-weight:bolder;
+}
+#tbl_product caption{
+	transition:opacity 0.8s linear 0.2s
+}
+#tbl_product thead th{
+	text-align:center;
+}
+#container_create_product{
+	height:330px;
+	margin:0 auto;
+	padding:10px 0 0 0;
+	float:unset;
+}
+#container_btn{
+	text-align:center;
+	margin-top:15px;
+}
+#container_btn_purchase{
+	border-top:solid 2px #7892CF;
+	margin:0 0 0 0;
+	padding:10px 0 0 0;
+	text-align:center;
+}
+#container_title{
+	float:unset;
+	margin:0 auto;
+}
+#container_tblproduct{
+/*min-height:514px;	*/
+	padding:15px 15px 0 15px;
+}
+#span_title{
+	text-align:center;
+}
+#div_newproduct{
+	text-align:left;
+	float: left;
+	margin: 0 0 0 0;
+	padding:0 0 0 15px;
+	font-size: 17px;
+	color: #7892CF;
+	cursor:pointer;
+}
+#container_alert{
+	padding:15px 15px 0 15px;
+}
+#container_filterbutton{
+	text-align:left;
+}
+#container_div_expand_filterbutton{
+	text-align:center;
+	font-size:30px;
+	color:#7892CF;
+	cursor:pointer;
+	padding:15px 0 0 0;
+}
+#container_neworder{
+	padding-bottom: 15px;
+}
+#container_tblorder{
+	padding: 15px;
+}
+#tbl_order, #tbl_order th{
+	text-align: center;
+	cursor: pointer;
+}
+#container_product2buy{
+	padding-top: 75px;
+}
+#tbl_product2buy caption{
+	text-align:center;
+	font-weight:bolder;
+}
+#tbl_product2buy caption{
+	transition:opacity 0.8s linear 0.2s
+}
+#tbl_product2buy, #tbl_product2buy th{
+	text-align: center;
+	cursor: pointer;
+}
+#tbl_product2buy tr td:last-child {
+	vertical-align: middle;
+}
+#container_orderinfo{
+	box-shadow: 0px 0px 10px #080808;
+	float: right;
+	position: fixed;
+	top: 200px;
+	left: 120px;
+	z-index: 1;
+	background-color: #FFF;
+	border: solid 1px #050505;
+	border-radius: 18px;
+	padding: 5px;
+}
+#btn_addprovider{
+	padding: 9px 11px;
+}
+#container_btnaddprovider{
+	padding-top: 25px;
+}
+#div_neworder{
+	text-align:left;
+	float: left;
+	margin: 0 0 0 0;
+	padding:0 0 0 15px;
+	font-size: 17px;
+	color: #7892CF;
+	cursor:pointer;
+}
+.border-top{
+	border-top: solid 2px #7892CF;
+}
+#container_tblfacturaf, #container_tblfacturacompra{
+	padding: 15px 15px 0 15px;
+}
+#tbl_facturaf, #tbl_facturaf th{
+	text-align: center;
+	cursor: pointer;
+}
+#tbl_facturacompra, #tbl_facturacompra th{
+	text-align:center;
+	cursor:pointer;
+}
+#tbl_nc, #tbl_nc th{
+	text-align:center;
+	cursor:pointer;
+}
+#tbl_datofacturaf, #tbl_datofacturaf th{
+	text-align:center;
+	cursor:pointer;
+}
+#tbl_datofacturacompra, #tbl_datofacturacompra th{
+	text-align:center;
+	cursor:pointer;
+}
+#container_btnfilterfacturaf{
+	/* padding-top:24px; */
+}
+#container_tabs{
+	padding-left: 30px;
+}
+.nav-tabs > li > a {
+    font-size: 20px;
+    padding: 0 5px;
+}
+#container_rlimit > label.radio-inline {
+    padding-top: 7px;
+}
+
+#mod_set_savegroup{
+	border: solid 1px #ccc;
+	border-radius: 10px;
+	position: fixed;
+	top: 100px;
+	left: 400px;
+	z-index: 1;
+	background-color: #ffffff;
+	padding: 15px;
+	box-shadow: 0px 2px 300px 85px #aaa4a4;
+}
+#tbl_productgroup>tbody{
+	cursor: pointer;
+}

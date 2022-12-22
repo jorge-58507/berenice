@@ -1,0 +1,89 @@
+@charset "utf-8";
+/* CSS Document */
+
+
+input.DatePicker{
+	display: block;
+	width: 150px;
+	background: #FFFFFF;
+	cursor: pointer;
+}
+input:focus.DatePicker{
+	background: #FFFFFF;
+}
+.dp_container{
+	position: relative;
+	padding: 0;
+	z-index: 500;
+}
+.dp_cal{
+	border:solid 2px #dc4233;
+	border-radius:8px;
+	position: absolute;
+	width: 177px;
+	top: 24px;
+	left: 0;
+	margin: 0px 0px 3px 0px;
+}
+.dp_cal table{
+	width: 100%;
+	border-collapse: collapse;
+	border-spacing: 0;
+    border-radius: 6px;
+	background-image:url(../image/tileable-marble-textures.png);
+}
+.dp_cal select{
+	margin: 2px 3px;
+	font-size: 11px;
+}
+.dp_cal select option{
+	padding: 1px 3px;
+}
+.dp_cal th,
+.dp_cal td{
+	width: 14.2857%;
+	text-align: center;
+	font-size: 11px;
+	padding: 2px 0;
+}
+.dp_cal th{
+	background-image:url(../image/tileable-metal-textures.jpg);
+	border: solid 1px #DC4233;
+	color: #FFFFFF;
+/*	background: #daf2e6;
+*/	font-weight: bolder;
+}
+.dp_cal td{
+	cursor: pointer;
+}
+.dp_cal thead th{
+	background-image:url(../image/tileable-metal-textures.jpg);
+	border:none;
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	color:#000000;
+}
+.dp_cal td.dp_roll{
+	color: #FFFFFF;
+	background-color:#DC4233;
+    border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px;
+}
+/* must have this for the IE6 select box hiding */
+.dp_hide{
+	visibility: hidden;
+}
+.dp_empty{
+	background-image:url(../image/tileable-metal-textures.jpg);
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+}}
+.dp_today{
+	background: #daf2e6;
+}
+.dp_selected{
+	color: #fff;
+	background: #DC4233;
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+}

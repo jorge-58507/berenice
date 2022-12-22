@@ -1,0 +1,25 @@
+@charset "utf-8";
+
+
+#container_btn_scroll{
+  padding: 5px;
+}
+#container_scroll {
+    padding: 3px 0;
+    height: 470px;
+    overflow-y: scroll;
+    border: solid 1px #ccc;
+    border-radius: 5px;
+}
+
+.div_table>#content_dhead>.line_header{
+  text-align: center;
+  font-weight: bolder;
+  font-size: 16px;
+}
+.div_table.table_hovered>#content_dbody>.line_body:hover{
+  background: #e8f3fc;
+}
+.div_table>.caption{
+  color: #ccc;
+}

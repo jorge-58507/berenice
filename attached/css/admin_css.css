@@ -1,0 +1,270 @@
+@charset "utf-8";
+/* CSS Document */
+#container_btn_nuevanc{
+	text-align:center;
+	padding:15px;
+}
+#btn_addclient{
+	margin-top:25px;
+}
+#container_btn{
+	text-align:center;
+	padding:15px;
+}
+
+#tbl_return{
+	text-align:center;
+}
+#tbl_return th{
+	text-align:center;
+}
+#container_tbleditdatoventa{
+	padding:15px;
+}
+#container_cliente{
+	padding:15px;
+}
+#container_btnamount{
+	margin-top:25px;
+}
+#container_paymentinfotitle{
+	text-align:center;
+	font-weight:bolder;
+	font-size:16px;
+	border:solid 5px #337AB7;
+	border-radius:6px;
+	margin-bottom:10px;
+}
+#container_btnpaymentmethod{
+	padding:15px;
+	text-align:center;
+}
+.div_total_total{
+	border:solid 3px #FFFFFF; font-size:26px; border-radius:8px;
+}
+.div_total_entrega{
+	border:solid 3px #FFFFFF; font-size:26px; border-radius:8px; color:#74C274;
+}
+.div_total_cambio{
+	border:solid 3px #FFFFFF; font-size:26px; border-radius:8px; color:#EFA843;
+}
+.div_total_diferencia{
+	border:solid 3px #FFFFFF; font-size:26px; border-radius:8px; color:#f00;
+}
+#tbl_paymentlist tfoot{
+	text-align:center;
+}
+#tbl_paymentlist{
+	text-align:center;
+}
+#tbl_paymentlist th{
+	text-align:center;
+}
+#container_btnprocess{
+	text-align:center;
+}
+#tbl_creditnote{
+	text-align:center;
+}
+#tbl_creditnote th{
+	text-align:center;
+}
+#span_deficit{
+	color: #F00;
+	border: solid 3px #F00;
+}
+#span_deficit{
+	text-align:center;
+	font-size:18px;
+}
+#clear_date_final, #clear_date_initial{
+	font-size:9px;
+}
+#container_tblfacturaf{
+	padding:15px;
+}
+#r_order{
+	margin:0 auto;
+}
+#filter_by_deficit{
+	cursor:pointer;
+	font-size:20px;
+}
+#container_btnsearch{
+	padding-top:23px;
+}
+#container_tblfacturaventa{
+	padding: 15px 15px 0 15px;
+}
+#container_span{
+	padding: 0 0 15px 0;
+}
+#tbl_client, #tbl_client th{
+	text-align:center;
+}
+#container_tblclient{
+	padding:15px;
+}
+#tbl_facturaventa, #tbl_facturaventa th{
+	text-align: center;
+}
+#tbl_editdatoventa, #tbl_editdatoventa th{
+	text-align:center;
+	cursor:pointer;
+}
+#tbl_facturaf, #tbl_facturaf th{
+	text-align:center;
+	cursor:help;
+}
+#container_tbloption{
+	padding-top:15px
+}
+#tbl_option, #tbl_option th{
+	text-align:center;
+	cursor:pointer;
+}
+#span_impuesto{
+	text-align:left;
+}
+#tbl_account, #tbl_account thead th{
+	text-align: center;
+	cursor: pointer;
+}
+#tbl_account tbody tr:hover{
+	background-color: #DFF0D8;
+}
+#container_tblaccount{
+	/*padding-top: 15px;*/
+}
+#div_newuser{
+	text-align:left;
+	float: left;
+	margin: 0 0 0 0;
+	padding:0 0 0 15px;
+	font-size: 17px;
+	color: #7892CF;
+	cursor:pointer;
+}
+#container_paymentmethod{
+	text-align: center;
+}
+#container_payment_data > div {
+    border: solid 2px #FFF;
+    border-radius: 8px;
+    font-size: 26px;
+}
+#payment_paid_out {
+    color: #74C274;
+}
+#payment_to_pay {
+    color: #F00;
+}
+#payment_change {
+    color: #EFA843;
+}
+#container_tblprovider{
+	height: 320px;
+	overflow: auto;
+}
+#tbl_provider{
+	cursor: pointer;
+}
+#txt_direction{
+	height:34px;
+}
+#container_paymentdescription{
+	padding: 5px 15px 5px 15px;
+}
+#container_cppfecha, #container_cppsaldo, #container_cpptotal{
+	font-size: 20px;
+	padding: 15px;
+	text-align: center;
+	box-shadow: inset 0 0 0 1px #CCCCCC;
+	border-radius: 5px;
+}
+#container_tblpayment{
+	padding: 5px 15px 5px 15px;
+}
+#tbl_payment tbody{
+	text-align: center;
+}
+#container_provider_tblcpp{
+	height: 320px;
+	overflow: auto;
+}
+#tbl_cpp th, #tbl_provider th, #tbl_cheque th{
+	text-align: center;
+	text-transform: uppercase;
+}
+#tbl_cpp, #tbl_provider, #tbl_cheque{
+	color:#000000
+}
+ul.nav-tabs > li{
+	font-size: 20px;
+}
+.nav-tabs > li > a{
+	padding: 0 5px 0 10px;
+}
+#container_tblcheque{
+	height: 320px;
+	overflow: auto;
+}
+#container_cpp{
+	color: #000;
+}
+#container_provider{
+	color: #000;
+}
+#container_cheque{
+	color: #000;
+}
+.btn-sm > i{
+	font-size: 19px;
+}
+#container_btn_scroll{
+	padding: 5px;
+}
+#container_scroll{
+	padding: 3px 0;
+	height: 470px;
+	overflow-y: scroll;
+	border: solid 1px #ccc;
+	border-radius: 5px;
+}
+#container_product{
+	padding-top:5px;
+}
+#container_tbl_product{
+	height: 300px;
+	overflow-y: scroll;
+}
+#container_filterfacturaf{
+	padding: 7px 0 0 0;
+}
+#container_rlimit>label.radio-inline{
+	padding-top: 7px;
+}
+#container_nvo_cheque{
+	padding-top: 14px;
+}
+#container_cpp>div, #container_provider>div, #container_cheque>div{
+	margin-top:7px;
+}
+#tbl_cheque>tbody>tr>td{
+	vertical-align: middle;
+	text-align: center;
+}
+#total_comision{
+	width: -moz-fit-content;
+	padding: 10px 5px;
+	border: solid 2px #c63632;
+	border-radius: 3px;
+	margin: 0 auto;
+	font-size: 18px;
+}
+#tbl_facturacompra>thead>tr>th {
+		vertical-align: middle;
+}
+#tbl_facturacompra>tbody>tr>td {
+	text-align: center;
+}
