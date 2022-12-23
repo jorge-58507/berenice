@@ -29,8 +29,13 @@ function ObtenerIP(){
 	return($ip);
 }
 
-function ins_facturaf($cliente, $uid, $fecha_actual, $hora_actual, $numero_ff, $subtotal_ni, $descuento_ni, $subtotal_ci, $impuesto, $descuento_ci, $total_ff, $impresora_id){ //SE INSERTA CON DEUDA TOTAL
+function ins_facturaf($cliente, $uid, $fecha_actual, $hora_actual, $numero_ff, $subtotal_ni, $descuento_ni, $subtotal_ci, $impuesto, $descuento_ci, $total_ff){
 	$link = conexion();
+	$host_ip=ObtenerIP();
+	$host_name=gethostbyaddr($host_ip);
+	$qry_impresora = $link->query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);
+	$rs_impresora=$qry_impresora->fetch_array();
+	$impresora_id = $rs_impresora['AI_impresora_id'];
 	$txt_insert="INSERT INTO bh_facturaf (facturaf_AI_cliente_id, facturaf_AI_user_id, facturaf_AI_impresora_id, TX_facturaf_fecha, TX_facturaf_hora, TX_facturaf_numero, TX_facturaf_subtotalni, TX_facturaf_subtotalci, TX_facturaf_impuesto, TX_facturaf_descuento, TX_facturaf_total, TX_facturaf_deficit, TX_facturaf_descuentoni) VALUES ('$cliente', '{$_COOKIE['coo_iuser']}', '$impresora_id', '$fecha_actual', '$hora_actual', '$numero_ff', '$subtotal_ni', '$subtotal_ci', '$impuesto', '$descuento_ci', '$total_ff', '$total_ff', '$descuento_ni')";
 	$link->query($txt_insert)or die($link->error);
 	$qry_lastid=$link->query("SELECT LAST_INSERT_ID();")or die($link->error);

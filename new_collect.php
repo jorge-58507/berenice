@@ -474,15 +474,15 @@ switch ($_COOKIE['coo_tuser']){
       </tbody>
       <tfoot class="bg-primary">
         <tr>
-      	  <td colspan="5"></td>
-          <td>
-						<span id="span_nettotal"><?php echo $sub_total; ?></span>
-						<strong>Neto: </strong> 	<br />B/ <?php echo number_format($sub_total,2); ?>
-					</td>
-          <td><strong>Desc: </strong> <br />B/ <span id="span_discount"	><?php echo number_format($total_descuento,2); ?></span></td>
-          <td><strong>Imp: </strong> 	<br />B/ <span id="span_itbm"			><?php echo number_format($total_itbm,2); ?></span></td>
-          <td><strong>Total: </strong> <br />B/ <span id="span_total"		><?php echo number_format($total_ff,2); ?></span></td>
-          <td></td>
+			<td colspan="5"></td>
+			<td>
+				<span id="span_nettotal"><?php echo $sub_total; ?></span>
+				<strong>Neto: </strong> 	<br />B/ <?php echo number_format($sub_total,2); ?>
+			</td>
+			<td><strong>Desc: </strong> <br />B/ <span id="span_discount"	><?php echo number_format($total_descuento,2); ?></span></td>
+			<td><strong>Imp: </strong> 	<br />B/ <span id="span_itbm"			><?php echo number_format($total_itbm,2); ?></span></td>
+			<td><strong>Total: </strong> <br />B/ <span id="span_total"		><?php echo number_format($total_ff,2); ?></span></td>
+			<td></td>
         </tr>
       </tfoot>
     </table>

@@ -8,9 +8,9 @@ $value=$r_function->replace_regular_character($_GET['term']);
 $arr_value = (explode(' ',$value));
 $size_value=sizeof($arr_value);
 $txt_client="SELECT * FROM bh_cliente WHERE ";
-foreach ($arr_value as $key => $value) {
-	$txt_client .= ($value === end($arr_value)) ? "TX_cliente_nombre LIKE '%{$value}%' OR " : "TX_cliente_nombre LIKE '%{$value}%' AND ";
-}
+// foreach ($arr_value as $key => $value) {
+// 	$txt_client .= ($value === end($arr_value)) ? "TX_cliente_nombre LIKE '%{$value}%' OR " : "TX_cliente_nombre LIKE '%{$value}%' AND ";
+// }
 foreach ($arr_value as $key => $value) {
 	$txt_client .= ($value === end($arr_value)) ? "TX_cliente_cif LIKE '%{$value}%'" : "TX_cliente_cif LIKE '%{$value}%' AND ";
 }

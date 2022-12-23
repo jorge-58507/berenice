@@ -144,7 +144,8 @@ $(document).ready(function() {
 		}
 	});
 	$("#txt_observation").validCampoFranz('abcdefghijklmnopqrstuvwxyz .0123456789-/');
-	$("#txt_filterclient").validCampoFranz('abcdefghijklmnopqrstuvwxyzñ .0123456789-/&');
+	$("#txt_filterclient_first").validCampoFranz('P0123456789-');
+	$("#txt_filterclient_second").validCampoFranz('P0123456789-');
 	$("#btn_report").click(function(){
 		var str = prompt("Ingrese los datos",$("#txt_filterproduct").val());
 		str = str.replace("#","laremun");
@@ -516,16 +517,14 @@ switch ($_COOKIE['coo_tuser']){
 				            <td><?php echo number_format($impuesto,2); ?></td>
 										<td><?php echo number_format($precio_unitario,2); ?></td>
 				            <td><?php echo number_format($precio_total,2); ?></td>
-				            <td>
-				            <center>
-				            <button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_nuevaventa(<?php echo $key; ?>);"><strong>X</strong></button>
-				            </center>
+				            <td class="text_center">
+											<button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_nuevaventa(<?php echo $key; ?>);"><strong>X</strong></button>
 				            </td>
 									</tr>
 									<?php 							}
 						 			}else{ ?>
 									<tr>
-							            <td colspan="10"> </td>
+										<td colspan="10"> </td>
 									</tr>
 								<?php 						}
 							$total=($sub_total-$total_descuento)+$total_itbm;

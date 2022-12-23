@@ -56,7 +56,7 @@ function upd_descripcion_nuevaventa(key_nuevaventa,descripcion){
 			return false
 		}else{
 			var n_description = prompt("Introduzca la nueva descripcion",descripcion);
-			if (n_description.length > 100) {
+			if (n_description.length > 700) {
 				alert("La descripcion en muy larga");
 				descripcion = replace_regular_character(descripcion);
 				upd_descripcion_nuevaventa(key_nuevaventa,descripcion);
