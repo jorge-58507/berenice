@@ -17,7 +17,7 @@ $name=$r_function->url_replace_special_character($_GET['a']);
 
 $(document).ready(function() {
 	$("#txt_clientname").focus();
-
+			
 	$('#btn_acept').click(function(){
 		$(this).attr("disabled", true);
 		setTimeout(() => {		$(this).attr("disabled", false);	}, 3000);
