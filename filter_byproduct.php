@@ -21,7 +21,7 @@ $fecha_inicial = date('d-m-Y',strtotime($month_year));
 <title>Trilli, S.A. - Todo en Materiales</title>
 
 <?php include 'attached/php/req_required.php'; ?>
-
+<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/stock_css.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="attached/js/newpurchase_funct.js"></script>
 

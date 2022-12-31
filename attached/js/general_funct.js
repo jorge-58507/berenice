@@ -2,7 +2,7 @@
 //################# DETECTA CONTROL Q ##################
 isCtrl=false;
 document.onkeydown = function (e) {
-if(e.which == 17)
+if(e.key == 'Control')
 	isCtrl=true;
 	if(e.which == 123 && isCtrl == true) {
 		popup = window.open("popup_loginadmin.php?z=start_admin.php", "popup_loginadmin", 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=no,width=425,height=420');
@@ -12,9 +12,9 @@ if(e.which == 17)
 	if(e.which == 49 && isCtrl == true) {
 		$("#1").click(); isCtrl=false; return false;
 	}
-	if(e.which == 50 && isCtrl == true) {
-		$("#2").click(); isCtrl=false; return false;
-	}
+	// if(e.which == 50 && isCtrl == true) {
+	// 	$("#2").click(); isCtrl=false; return false;
+	// }
 	if(e.which == 51 && isCtrl == true) {
 		$("#3").click(); isCtrl=false; return false;
 	}

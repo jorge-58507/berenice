@@ -191,7 +191,6 @@ function nn(n){
     if (5<i&&i<9)
       t=t=="uno"?"un millón ":(t.replace("uno","un")+" millones ");
     t+=x;
-    //t=i<3?t:(i<6?((t=="uno"?"mil ":(t+" mil "))+x):((t=="uno"?"un millón ":(t+" millones "))+x));
   }
 	raw_t = t.split(" ");
 	t="";
@@ -199,12 +198,31 @@ function nn(n){
 		t+=raw_t[prop].charAt(0).toUpperCase()+raw_t[prop].slice(1)+" ";
 	}
   t=t+" Balboas con "+p+"/100";
-  /*correcciones*/
   t=t.replace(" Cero","");
 	t=t.replace("  "," ");
-  //t=t.replace("ciento y","cien y");
-  //alert("Numero: "+n+"\nNº Dígitos: "+m.length+"\nDígitos: "+m+"\nDecimales: "+p+"\nt: "+t);
-  //document.getElementById("esc").value=t;
   return t;
 	}
+}
+function render_tableff(data) {
+	var content = '';
+	for (const a in data) {
+		var total = parseFloat(data[a]['TX_facturaf_total']);
+		var btn = (data[a]['TX_facturaf_deficit'] != '0') ? `<button type="button" id="btn_opennewdebit" name="${ data[a]['facturaf_AI_cliente_id'] }" class="btn btn-success btn-sm" onclick="open_newdebit(this.name);">DEBITAR</button>` : ''; 
+		content += `
+			<tr  ondblclick="print_html('print_client_facturaf.php?a=${ data[a]['AI_facturaf_id'] }')" >
+				<td>${ data[a]['TX_facturaf_numero'] }  </td>
+				<td>${ data[a]['TX_cliente_nombre'] } </td>
+				<td>${ date_converter('ymd', 'dmy', data[a]['TX_facturaf_fecha']) }<br/>${data[a]['TX_facturaf_hora'] } </td>
+				<td>${ total.toFixed(2) }</td>
+				<td>${ data[a]['TX_facturaf_deficit'] }</td>
+				<td>${ data[a]['TX_user_seudonimo'] }</td>
+				<td>
+					<button type="button" id="btn_openff" name="${ data[a]['AI_facturaf_id'] }" class="btn btn-info btn-sm" onclick="open_popup_w_scroll('popup_watchfacturaf.php?a='+this.name,'watch_facturaf','950','547');">VER</button>
+					<button type="button" id="btn_makenc" name="${ data[a]['AI_facturaf_id'] }" class="btn btn-warning btn-sm" onclick="make_nc(this.name);">N.C.</button>
+					${ btn }
+				</td>
+			</tr>
+		`;
+	} 
+	$("#tbl_facturaf tbody").html(content);
 }

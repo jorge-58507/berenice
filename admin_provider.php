@@ -22,6 +22,7 @@ $qry_cheque = $link->query("SELECT bh_cheque.AI_cheque_id, bh_cheque.TX_cheque_f
 	<title>Trilli, S.A. - Todo en Materiales</title>
 	<?php include 'attached/php/req_required.php'; ?>
 	<link href="attached/css/admin_css.css" rel="stylesheet" type="text/css" />
+	<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript">
 
 		$(document).ready(function() {

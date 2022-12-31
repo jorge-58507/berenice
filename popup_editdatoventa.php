@@ -1,5 +1,5 @@
 <?php
-require 'bh_con.php';
+require 'bh_conexion.php';
 $link=conexion();
 ?>
 <?php
@@ -14,11 +14,11 @@ FROM ((bh_datoventa
 INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
 INNER JOIN bh_medida ON bh_producto.TX_producto_medida = bh_medida.TX_medida_value)
 WHERE AI_datoventa_id = '$datoventa_id'";
-$qry_datoventa=mysql_query($txt_datoventa,$link);
-$rs_datoventa=mysql_fetch_assoc($qry_datoventa);
+$qry_datoventa=$link->query($txt_datoventa);
+$rs_datoventa=$qry_datoventa->fetch_assoc();
 
-$qry_product=mysql_query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC");
-$rs_product=mysql_fetch_assoc($qry_product);
+$qry_product=$link->query("SELECT * FROM bh_producto ORDER BY TX_producto_value ASC");
+$rs_product=$qry_product->fetch_assoc();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -91,7 +91,7 @@ function set_txtproducto(field){
         <select id="sel_productlist" name="sel_productlist" class="form-control" size="3">
 	<?php	do{ ?>
 			<option value="<?php echo $rs_product['AI_producto_id'] ?>" onclick="set_txtproducto(this);"><?php echo $rs_product['TX_producto_value'] ?></option>
-        <?php }while($rs_product=mysql_fetch_assoc($qry_product)); ?>
+        <?php }while($rs_product=$qry_product->fetch_assoc()); ?>
         </select>
     </div>
     <div id="container_txtcantidad" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -107,11 +107,11 @@ function set_txtproducto(field){
     	<input type="text" id="txt_precio" class="form-control" value="<?php echo $rs_datoventa['TX_datoventa_precio']; ?>" />
     </div>
     <div id="container_txtimpuesto" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    	<label for="txt_impuesto">Impuesto</label>
+    	<label for="txt_impuesto">% Impuesto</label>
     	<input type="text" id="txt_impuesto" class="form-control" value="<?php echo $rs_datoventa['TX_datoventa_impuesto']; ?>" />
     </div>
     <div id="container_txtdescuento" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-    	<label for="txt_descuento">Descuento</label>
+    	<label for="txt_descuento">% Descuento</label>
     	<input type="text" id="txt_descuento" class="form-control" value="<?php echo $rs_datoventa['TX_datoventa_descuento']; ?>" />
     </div>
 </div>

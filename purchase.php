@@ -19,6 +19,7 @@ FROM (bh_facturacompra INNER JOIN bh_proveedor ON bh_proveedor.AI_proveedor_id =
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Trilli, S.A. - Todo en Materiales</title>
 <?php include 'attached/php/req_required.php'; ?>
+<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/newpurchase_css.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="attached/js/newpurchase_funct.js"></script>
 

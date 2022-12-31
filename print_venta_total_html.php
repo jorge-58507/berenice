@@ -1,5 +1,10 @@
 <?php
-set_time_limit(180);
+
+// ARREGLAR ESTE INFORME
+// GENERAR_FACTURAF
+
+set_time_limit(30);
+// set_time_limit(180);
 require 'bh_conexion.php';
 $link=conexion();
 
@@ -18,21 +23,37 @@ if (!empty($date_i) && !empty($date_f)) {
 	$line_date_nc = " TX_notadecredito_fecha >= '$date_i' AND TX_notadecredito_fecha <= '$date_f'";
 }
 
-$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_numero,  bh_facturaf.TX_facturaf_total, bh_cliente.TX_cliente_nombre
-FROM (bh_facturaf
-	INNER JOIN bh_cliente ON bh_cliente.AI_cliente_id = bh_facturaf.facturaf_AI_cliente_id)
-WHERE ".$line_date." ORDER BY TX_facturaf_fecha DESC, AI_facturaf_id DESC";
+$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_total, 
+bh_facturaf.TX_facturaf_cambio, 
+bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_descuentoni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_impuesto,
+bh_datopago.datopago_AI_metododepago_id, bh_datopago.TX_datopago_monto
+FROM bh_facturaf 
+INNER JOIN bh_datopago ON bh_facturaf.AI_facturaf_id = bh_datopago.datopago_AI_facturaf_id
+WHERE ".$line_date." 
+ORDER BY TX_facturaf_fecha DESC, AI_facturaf_id DESC;";
 
 $qry_facturaf=$link->query($txt_facturaf)or die($link->error);
 $nr_facturaf=$qry_facturaf->num_rows;
 
 $txt_nc = "SELECT TX_notadecredito_monto, TX_notadecredito_impuesto FROM bh_notadecredito WHERE ".$line_date_nc;
 $qry_nc = $link->query($txt_nc)or die($link->error);
-$ttl_nc_impuesto = 0; $ttl_nc = 0;
+$ttl_nc_impuesto = 0; $ttl_nc = 0; $ttl_nc_monto = 0;
 while ($rs_nc = $qry_nc->fetch_array()) {
 	$ttl_nc_impuesto += $rs_nc['TX_notadecredito_impuesto'];
+	$ttl_nc_monto += $rs_nc['TX_notadecredito_monto'];
 	$ttl_nc += $rs_nc['TX_notadecredito_monto']+$rs_nc['TX_notadecredito_impuesto'];
 }
+$ttl_nc_impo = $ttl_nc_impuesto/0.07;
+
+$raw_pago=array();
+$raw_metododepago = array();
+$qry_metododepago = $link->query("SELECT AI_metododepago_id, TX_metododepago_value FROM bh_metododepago")or die($link->error);
+while ($rs_metododepago = $qry_metododepago->fetch_array()) {
+	$raw_pago[$rs_metododepago['AI_metododepago_id']] = 0;
+	$raw_metododepago[$rs_metododepago['AI_metododepago_id']] = $rs_metododepago['TX_metododepago_value'];
+}
+
+
 ?>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -69,54 +90,31 @@ while ($rs_nc = $qry_nc->fetch_array()) {
 				<h3>Total de Ventas</h3>
 				<strong>Desde:</strong> <?php echo date('d-m-Y',strtotime($date_i)) ?>&nbsp;
 				<strong>Hasta:</strong> <?php echo date('d-m-Y',strtotime($date_f)) ?>
-
 			</div>
 		</div><?php
-		$qry_datopago = $link->prepare("SELECT bh_datopago.TX_datopago_monto, bh_datopago.datopago_AI_metododepago_id FROM bh_datopago WHERE bh_datopago.datopago_AI_facturaf_id = ?")or die($link->error);
-		$qry_datoventa = $link->prepare("SELECT bh_datoventa.TX_datoventa_precio,
-			bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_facturaf.AI_facturaf_id
-		FROM ((bh_datoventa
-		INNER JOIN bh_facturaventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
-		INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
-		WHERE bh_facturaf.AI_facturaf_id = ?")or die($link->error);
+		$raw_facturaf=[];
+		while($rs_facturaf=$qry_facturaf->fetch_assoc()){
+			$raw_facturaf[] = $rs_facturaf;
+		}
 		$total=0;
 		$total_impuesto=0;
 		$total_base_i=0;
 		$total_base_ni=0;
-		$raw_pago=array();
-		$raw_metododepago = array();
-		$qry_metododepago = $link->query("SELECT AI_metododepago_id, TX_metododepago_value FROM bh_metododepago")or die($link->error);
-		while ($rs_metododepago = $qry_metododepago->fetch_array()) {
-			$raw_pago[$rs_metododepago['AI_metododepago_id']] = 0;
-			$raw_metododepago[$rs_metododepago['AI_metododepago_id']] = $rs_metododepago['TX_metododepago_value'];
-		}
-
-		while($rs_facturaf=$qry_facturaf->fetch_array()){
-			$qry_datoventa->bind_param("i", $rs_facturaf['AI_facturaf_id']);
-			$qry_datoventa->execute()or die($link->error);
-			$result=$qry_datoventa->get_result();
-			$total4facturaf=0;
-			$base_ni4facturaf=0;
-			$base_i4facturaf=0;
-			$impuesto4facturaf=0;
-			while ($rs_datoventa=$result->fetch_array()) {
-				$base4product=$rs_datoventa['TX_datoventa_cantidad']*$rs_datoventa['TX_datoventa_precio'];
-				$descuento=($rs_datoventa['TX_datoventa_descuento']*$base4product)/100;
-				$base_descuento=$base4product-$descuento;
-				$impuesto=($rs_datoventa['TX_datoventa_impuesto']*$base_descuento)/100;
-				$impuesto4facturaf += $impuesto;
-				if ($impuesto == 0) {	$base_ni4facturaf += $base_descuento;	}else{	$base_i4facturaf += $base_descuento;	}
-				$precio4product=$base_descuento+$impuesto;
-				$total4facturaf += $precio4product;
+		foreach ($raw_facturaf as $a => $facturaf) {
+			if ($a === 0){
+				$total += $facturaf['TX_facturaf_total'];
+				$total_impuesto += $facturaf['TX_facturaf_impuesto'];
+				$total_base_i += $facturaf['TX_facturaf_subtotalci'];
+				$total_base_ni += $facturaf['TX_facturaf_subtotalni'];
+			}else{
+				if ($raw_facturaf[$a-1]['AI_facturaf_id'] != $facturaf['AI_facturaf_id']) { //SI NO ES IGUAL AL ANTERIOR
+					$total += $facturaf['TX_facturaf_total'];
+					$total_impuesto += $facturaf['TX_facturaf_impuesto'];
+					$total_base_i += $facturaf['TX_facturaf_subtotalci'];
+					$total_base_ni += $facturaf['TX_facturaf_subtotalni'];
+				}
 			}
-			$total_impuesto+=$impuesto4facturaf;
-			$total_base_i+=$base_i4facturaf;
-			$total_base_ni+=$base_ni4facturaf;
-			$total+=$total4facturaf;
-			$qry_datopago->bind_param("i", $rs_facturaf['AI_facturaf_id']); $qry_datopago->execute(); $result = $qry_datopago->get_result();
-			while ($rs_datopago = $result->fetch_array()) {
-				$raw_pago[$rs_datopago['datopago_AI_metododepago_id']] += $rs_datopago['TX_datopago_monto'];
-			}
+			$raw_pago[$facturaf['datopago_AI_metododepago_id']] += ($facturaf['datopago_AI_metododepago_id'] === "1") ? $facturaf['TX_datopago_monto'] - $facturaf['TX_facturaf_cambio'] : $facturaf['TX_datopago_monto'];
 		}
 
 	?>
@@ -129,10 +127,10 @@ while ($rs_nc = $qry_nc->fetch_array()) {
 					<h4>TOTALES DE VENTA</h4>
 				</div>
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
-					<strong>Base Imponible</strong><br /><strong>B/</strong> <?php echo number_format($total_base_i,2); ?>
+					<strong>Base No Imponible</strong><br /><strong>B/</strong> <?php echo number_format($total_base_ni,2); ?>
 				</div>
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
-					<strong>Base No Imponible</strong><br /><strong>B/</strong> <?php echo number_format($total_base_ni,2); ?>
+					<strong>Base Imponible</strong><br /><strong>B/</strong> <?php echo number_format($total_base_i,2); ?>
 				</div>
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
 					<strong>Impuesto</strong><br /><strong>B/</strong> <?php echo number_format($total_impuesto,2); ?>
@@ -144,17 +142,23 @@ while ($rs_nc = $qry_nc->fetch_array()) {
 					<h4>TOTALES NOTA DE CREDITO</h4>
 				</div>
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
-					<strong>Monto</strong><br /><strong>B/</strong> <?php echo number_format($ttl_nc,2); ?>
+					<strong>Base No Imponible</strong><br /><strong>B/</strong> <?php echo number_format($ttl_nc_monto-$ttl_nc_impo,2); ?>
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
+					<strong>Base Imponible</strong><br /><strong>B/</strong> <?php echo number_format($ttl_nc_impo,2); ?>
 				</div>
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
 					<strong>Devolucion de Impuestos</strong><br /><strong>B/</strong> <?php echo number_format($ttl_nc_impuesto,2); ?>
+				</div>
+				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
+					<strong>Total</strong><br /><strong>B/</strong> <?php echo number_format($ttl_nc,2); ?>
 				</div>
 			</div>
 			<div id="container_print_methods" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 				<?php foreach ($raw_metododepago as $key => $metododepago_value): ?>
 					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 						<strong><?php echo $metododepago_value; ?></strong><br />
-						B/ <?php echo $raw_pago[$key]; ?>
+						B/ <?php echo number_format($raw_pago[$key],2); ?>
 					</div>
 				<?php endforeach; ?>
 			</div>

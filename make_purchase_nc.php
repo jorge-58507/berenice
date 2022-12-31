@@ -244,7 +244,7 @@ switch ($_COOKIE['coo_tuser']){
               echo $disp_quantity = round($rs_facturacompra['TX_datocompra_cantidad']-$ttl_devuelto,3); ?>
             </td>
             <td>
-              <button type="button" class="btn btn-warning btn-xs btn-fa" onclick="make_devolution('<?php echo $rs_facturacompra['AI_datocompra_id'];?>','<?php echo $disp_quantity ?>')"><strong><i class="fa fa-recycle" aria-hidden="true"></i></strong></button>
+              <button type="button" class="btn btn-warning btn-xs btn-fa" onclick="make_devolution('<?php echo $rs_facturacompra['AI_datocompra_id'];?>','<?php echo $disp_quantity ?>')"><strong>X</strong></button>
             </td>
         	</tr>
 <?php   } ?>
@@ -321,7 +321,7 @@ switch ($_COOKIE['coo_tuser']){
             	<td><?php echo substr($rs_compradevolucion['TX_compradevolucion_motivo'],0,80); ?></td>
               <td class="al_center"><strong>B/ </strong><?php echo number_format($rs_compradevolucion['total'],2); ?></td>
               <td class="al_center">
-                <button type="button" onclick="print_html('print_devolution_html.php?a=<?php echo $rs_compradevolucion['AI_compradevolucion_id']; ?>')" name="button" class="btn btn-info btn-sm"><i class="fa fa-print"></i></button>
+                <button type="button" onclick="print_html('print_devolution_html.php?a=<?php echo $rs_compradevolucion['AI_compradevolucion_id']; ?>')" name="button" class="btn btn-info btn-sm">Imprimir</button>
               </td>
             </tr>
   <?php   }?>

@@ -76,17 +76,3 @@ function chk_clientname(field){
 	}
 }
 
-function chk_client_taxpayer(field){
-	if (field.value === "1") { //quitar option 3
-		$('#sel_client_type option').remove();
-		$('#sel_client_type').append($('<option>', { value: 1, text: 'Contribuyente' }));
-		$('#sel_client_type').append($('<option>', { value: 2, text: 'Consumidor Final' }));
-		$('#sel_client_type').append($('<option>', { value: 4, text: 'Extranjero'}));
-	}
-	if (field.value === "2") { //quitar option 2
-		$('#sel_client_type option').remove();
-		$('#sel_client_type').append($('<option>', { value: 1, text: 'Contribuyente' }));
-		$('#sel_client_type').append($('<option>', { value: 3, text: 'Gobierno' }));
-		$('#sel_client_type').append($('<option>', { value: 4, text: 'Extranjero' }));
-	}
-}

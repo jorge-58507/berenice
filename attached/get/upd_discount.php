@@ -1,5 +1,5 @@
 <?php
-require '../../bh_con.php';
+require '../../bh_conexion.php';
 $link = conexion();
 
 $facturaventa_id=$_GET['b'];
@@ -26,10 +26,11 @@ for($it=0;$it<$arr_length;$it++){
 	$txt_facturaventa=$txt_facturaventa." AI_facturaventa_id = '$arr_factid[$it]' OR";
 	}
 }
-$qry_facturaventa=mysql_query($txt_facturaventa, $link);
-$nr_facturaventa=mysql_num_rows($qry_facturaventa);
-$rs_facturaventa=mysql_fetch_assoc($qry_facturaventa);
+$qry_facturaventa=$link->query($txt_facturaventa);
+$nr_facturaventa=$qry_facturaventa->num_rows;
+$rs_facturaventa=$qry_facturaventa->fetch_assoc();
 do{
-	mysql_query("UPDATE bh_datoventa SET TX_datoventa_descuento='$percent' WHERE AI_datoventa_id = '{$rs_facturaventa['AI_datoventa_id']}'");
-}while($rs_facturaventa=mysql_fetch_assoc($qry_facturaventa));
+	$link->query("UPDATE bh_datoventa SET TX_datoventa_descuento='$percent' WHERE AI_datoventa_id = '{$rs_facturaventa['AI_datoventa_id']}'");
+}while($rs_facturaventa=$qry_facturaventa->fetch_assoc());
+echo json_encode(['status'=>'success']);
 ?>

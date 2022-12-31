@@ -21,6 +21,8 @@ $rs_nuevaventa = $qry_nuevaventa->fetch_array();
 $contenido = $rs_nuevaventa['TX_rel_nuevaventa_compuesto'];
 
 $raw_nuevaventa = json_decode($contenido, true);
+$first_sale = (!empty($raw_nuevaventa[$_COOKIE['coo_iuser']]['first_sale'])) ? $raw_nuevaventa[$_COOKIE['coo_iuser']]['first_sale'] : [];
+$second_sale = (!empty($raw_nuevaventa[$_COOKIE['coo_iuser']]['second_sale'])) ? $raw_nuevaventa[$_COOKIE['coo_iuser']]['second_sale'] : [];
 
 $qry_medida=$link->query("SELECT AI_medida_id, TX_medida_value FROM bh_medida")or die($link->error);
 $raw_medida = array();
@@ -154,7 +156,6 @@ $(document).ready(function() {
 		var alert_bootstrap = "<div class='alert alert-info alert-dismissable fade in'><a href='#' class='close' data-dismiss='alert' aria-label='close'>&times;</a><strong>Atenci&oacute;n</strong> "+data+"</div>";
 			$("#container_filterproduct").html($("#container_filterproduct").html()+alert_bootstrap);
 			setTimeout("$('.close').click()", 3000);
-
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 	});
@@ -174,7 +175,7 @@ $(document).ready(function() {
 			if (filter != '') {
 				for (var x in array_selecto) {
 					if(array_selecto[x]['selecto_AI_producto_id'] === filter){
-						html_btn = (array_selecto[x]['TX_selecto_status'] == 1) ? `<button type="button" class="btn btn-danger btn-xs" onclick="set_selecto_status(${x},2)"><i class="fa fa-times"></i></button>` : `<button type="button" class="btn btn-info btn-xs" onclick="set_selecto_status(${x},1)"><i class="fa fa-check"></i></button>`;
+						html_btn = (array_selecto[x]['TX_selecto_status'] == 1) ? `<button type="button" class="btn btn-danger btn-xs" onclick="set_selecto_status(${x},2)">X</button>` : `<button type="button" class="btn btn-info btn-xs" onclick="set_selecto_status(${x},1)">Ver</button>`;
 						content += `<tr>
 													<td>${array_selecto[x]['TX_selecto_value']}</td>
 													<td>${array_selecto[x]['TX_selecto_cantidad']}</td>
@@ -184,7 +185,7 @@ $(document).ready(function() {
 				}
 			} else {
 				for (var x in array_selecto) {
-					html_btn = (array_selecto[x]['TX_selecto_status'] == 1) ? `<button type="button" class="btn btn-danger btn-xs side_btn_xs" onclick="set_selecto_status(${x},2)"><i class="fa fa-times"></i></button>` : `<button type="button" class="btn btn-info btn-xs" onclick="set_selecto_status(${x},1)"><i class="fa fa-check"></i></button>`;
+					html_btn = (array_selecto[x]['TX_selecto_status'] == 1) ? `<button type="button" class="btn btn-danger btn-xs side_btn_xs" onclick="set_selecto_status(${x},2)">X</button>` : `<button type="button" class="btn btn-info btn-xs" onclick="set_selecto_status(${x},1)">Ver</button>`;
 					content += `<tr>
 												<td>${array_selecto[x]['TX_selecto_value']}</td>
 												<td>${array_selecto[x]['TX_selecto_cantidad']}</td>
@@ -198,36 +199,70 @@ $(document).ready(function() {
 		function generate_tbl_nuevaventa(data,activo){
 			var json_medida = '<?php echo json_encode($raw_medida); ?>';
 			var array_medida =	JSON.parse(json_medida);
-			var nuevaventa = data[<?php echo $_COOKIE['coo_iuser']; ?>][activo];
+			// var nuevaventa = {};
+			var nuevaventa = (data[<?php echo $_COOKIE['coo_iuser']; ?>][activo] != undefined) ? data[<?php echo $_COOKIE['coo_iuser']; ?>][activo] : {};
 			var total_itbm=0; var total_descuento=0; var total=0;
+			var raw_tax = {};
+			var sub_noimp = 0;
+			var sub_imp = 0;
+			var total_imp = 0;
+			var total = 0;
+
 			if(Object.keys(nuevaventa).length > 0){
 				var content = '';
 				for (var x in nuevaventa) {
 					var descuento = (nuevaventa[x]['precio']*nuevaventa[x]['descuento'])/100;
+					descuento = descuento.toFixed(2); descuento = parseFloat(descuento);
 					var precio_descuento = nuevaventa[x]['precio']-descuento;
 					var impuesto = (precio_descuento*nuevaventa[x]['impuesto'])/100;
 					var precio_unitario = precio_descuento+impuesto;
 							precio_unitario = Math.round10(precio_unitario, -4);
 					var subtotal = nuevaventa[x]['cantidad']*precio_unitario;
-					total_itbm += impuesto*nuevaventa[x]['cantidad'];
+					// total_itbm += impuesto*nuevaventa[x]['cantidad'];
 					total_descuento += descuento*nuevaventa[x]['cantidad'];
-					total += subtotal;
+					// total += subtotal;
 					style_promotion = (nuevaventa[x]['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
-					fire_promotion = (nuevaventa[x]['promocion'] > 0 ) ? '<i class="fa fa-free-code-camp"> </i> ' : '';
-					content += '<tr '+style_promotion+'><td>'+nuevaventa[x]['codigo']+'</td><td onclick="upd_descripcion_nuevaventa('+x+',\''+replace_regular_character(nuevaventa[x]['descripcion'])+'\')">'+fire_promotion+replace_special_character(nuevaventa[x]['descripcion'])+'</td><td>'+array_medida[nuevaventa[x]['medida']]+'</td><td onclick="upd_unidades_nuevaventa('+x+');">'+nuevaventa[x]['cantidad']+'</td><td  onclick="upd_precio_nuevaventa('+x+');">'+nuevaventa[x]['precio']+'</td><td>'+descuento.toFixed(2)+'</td><td>'+impuesto.toFixed(2)+'</td><td>'+precio_unitario.toFixed(4)+'</td><td>'+subtotal.toFixed(2)+'</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_nuevaventa('+x+');"><strong>X</strong></button></td></tr>';
+					fire_promotion = (nuevaventa[x]['promocion'] > 0 ) ? '' : '';
+					content += '<tr '+style_promotion+'><td>'+nuevaventa[x]['codigo']+'</td><td onclick="upd_descripcion_nuevaventa('+x+',\''+replace_regular_character(nuevaventa[x]['descripcion'])+'\')">'+fire_promotion+replace_special_character(nuevaventa[x]['descripcion'])+'</td><td>'+array_medida[nuevaventa[x]['medida']]+'</td><td onclick="upd_unidades_nuevaventa('+x+');">'+nuevaventa[x]['cantidad']+'</td><td  onclick="upd_precio_nuevaventa('+x+');">'+nuevaventa[x]['precio']+'</td><td>'+descuento.toFixed(3)+'</td><td>'+impuesto.toFixed(3)+'</td><td>'+precio_unitario.toFixed(4)+'</td><td>'+subtotal.toFixed(3)+'</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_nuevaventa('+x+');"><strong>X</strong></button></td></tr>';
+
+
+					raw_tax[nuevaventa[x]['impuesto']] = (raw_tax[nuevaventa[x]['impuesto']]) ? raw_tax[nuevaventa[x]['impuesto']] + (precio_descuento*nuevaventa[x]['cantidad']) : (precio_descuento*nuevaventa[x]['cantidad']); 
 				}
+				for (const a in raw_tax) {
+					if (a > 0) {
+						sub_imp += raw_tax[a];
+						var cal_imp = (a*raw_tax[a])/100;
+						cal_imp = cal_imp.toFixed(2);
+						total_imp += parseFloat(cal_imp);
+						total += raw_tax[a]+total_imp;
+					}else{
+						sub_noimp += raw_tax[a];
+					}
+				}
+				total += sub_noimp;
+
+
 				activo = activo.replace("_sale","");
 				$("#tbl_product2sell_"+activo+" tbody").html(content);
 				$("#span_discount_"+activo).html(total_descuento.toFixed(2));
-				$("#span_itbm_"+activo).html(total_itbm.toFixed(2));
+				// $("#span_itbm_"+activo).html(total_itbm.toFixed(2));
+				// $("#span_total_"+activo).html(total.toFixed(2));
+				$("#span_taxeable_"+activo).html(sub_imp.toFixed(2));
+				$("#span_untaxeable_"+activo).html(sub_noimp.toFixed(2));
+				$("#span_itbm_"+activo).html(total_imp.toFixed(2));
 				$("#span_total_"+activo).html(total.toFixed(2));
 			}else{
 				content=content+'<tr><td colspan="10">&nbsp;</td></tr>';
 				activo = activo.replace("_sale","");
 				$("#tbl_product2sell_"+activo+" tbody").html(content);
 				$("#span_discount_"+activo).html(total_descuento.toFixed(2));
-				$("#span_itbm_"+activo).html(total_itbm.toFixed(2));
+				// $("#span_itbm_"+activo).html(total_itbm.toFixed(2));
+				// $("#span_total_"+activo).html(total.toFixed(2));
+				$("#span_taxeable_"+activo).html(sub_imp.toFixed(2));
+				$("#span_untaxeable_"+activo).html(sub_noimp.toFixed(2));
+				$("#span_itbm_"+activo).html(total_imp.toFixed(2));
 				$("#span_total_"+activo).html(total.toFixed(2));
+
 			}
 		}
 
@@ -338,7 +373,7 @@ switch ($_COOKIE['coo_tuser']){
 			<input type="text" class="form-control" alt="1" id="txt_filterclient_first" placeholder="CONTADO" name="txt_filterclient_first" onkeyup="unset_filterclient(event)" />
     	</div>
 		<div id="container_btnaddclient" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
-			<button type="button" id="btn_addclient_first" onclick="add_client()" class="btn btn-success"><strong><i class="fa fa-wrench" aria-hidden="true"></i></strong></button>
+			<button type="button" id="btn_addclient_first" onclick="add_client()" class="btn btn-success"><strong><span class="glyphicon glyphicon-wrench"></span></strong></button>
 		</div>
 		<div id="container_client_recall_first" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
@@ -350,7 +385,7 @@ switch ($_COOKIE['coo_tuser']){
 			<input type="text" class="form-control" id="txt_observation_first" name="txt_observation_first" />
 		</div>
 		<div id="container_btnrefreshtblproduct2sale_first" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
-			<button type="button" id="btn_refresh_tblproduct2sale" onclick="refresh_tblproduct2sale()" class="btn btn-info" title="Refrescar Tabla"><strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></span></strong></button>
+			<button type="button" id="btn_refresh_tblproduct2sale" onclick="refresh_tblproduct2sale()" class="btn btn-info" title="Refrescar Tabla"><strong><span class="glyphicon glyphicon-refresh"></span></strong></button>
 		</div>
 	</div>
 	<div id="container_product2sell" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -358,79 +393,47 @@ switch ($_COOKIE['coo_tuser']){
         <table id="tbl_product2sell_first" class="table table-bordered table-hover ">
 	        <caption>Lista de Productos para la Venta</caption>
 	        <thead class="bg_green">
-				<tr>
-					<th>Codigo</th>
-					<th>Producto</th>
-					<th>Medida</th>
-					<th>Cantidad</th>
-					<th>Precio</th>
-					<th>Desc</th>
-					<th>Imp.</th>
-					<th>P. Uni.</th>
-					<th>SubTotal</th>
-					<th></th>
-				</tr>
-			</thead>
-					<tbody>
-<?php 			$total_itbm = 0;	$total_descuento = 0;	$sub_total = 0;
-						if(!empty($raw_nuevaventa[$_COOKIE['coo_iuser']]['first_sale'])){
-							$nuevaventa_first=$raw_nuevaventa[$_COOKIE['coo_iuser']]['first_sale'];
-							foreach ($nuevaventa_first as $key => $rs_nuevaventa) {
-								$descuento = (($rs_nuevaventa['descuento']*$rs_nuevaventa['precio'])/100);
-								$precio_descuento = ($rs_nuevaventa['precio']-$descuento);
-								$impuesto = (($rs_nuevaventa['impuesto']*$precio_descuento)/100);
-								$precio_unitario = round($precio_descuento+$impuesto,2);
-								$precio_total = ($rs_nuevaventa['cantidad']*($precio_unitario));
-
-								$total_itbm += $rs_nuevaventa['cantidad']*$impuesto;
-								$total_descuento += $rs_nuevaventa['cantidad']*$descuento;
-								$sub_total += $rs_nuevaventa['cantidad']*$rs_nuevaventa['precio'];
-
-								$style_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
-								$fire_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? '<i class="fa fa-free-code-camp"> </i> ' : '';
-?>
-									<tr <?php echo $style_promotion; ?> >
-				            <td><?php echo $rs_nuevaventa['codigo']; ?></td>
-				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['descripcion']);?>')"><?php echo $fire_promotion.$r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
-				            <td><?php echo $raw_medida[$rs_nuevaventa['medida']]; ?></td>
-				            <td onclick="upd_unidades_nuevaventa(<?php echo $key ?>);"><?php echo $rs_nuevaventa['cantidad']; ?></td>
-				            <td onclick="upd_precio_nuevaventa(<?php echo $key; ?>);"><?php echo number_format($rs_nuevaventa['precio'],2); ?></td>
-							<td><?php echo number_format($descuento,2); ?></td>
-				            <td><?php echo number_format($impuesto,2); ?></td>
-							<td><?php echo number_format($precio_unitario,2); ?></td>
-				            <td><?php echo number_format($precio_total,2); ?></td>
-				            <td class="al_center">
-				            <button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_nuevaventa(<?php echo $key; ?>);"><strong>X</strong></button>
-				            </td>
+						<tr>
+							<th>Codigo</th>
+							<th>Producto</th>
+							<th>Medida</th>
+							<th>Cantidad</th>
+							<th>Precio</th>
+							<th>Desc</th>
+							<th>Imp.</th>
+							<th>P. Uni.</th>
+							<th>SubTotal</th>
+							<th></th>
 						</tr>
-<?php 				}
-						 			}else{ ?>
-										<tr>
-					            <td colspan="10"></td>
-										</tr>
-<?php 						}
-							$total=($sub_total-$total_descuento)+$total_itbm;
-							?>
-		        </tbody>
-		        <tfoot class="bg_green">
-		            <tr>
-		                <td></td>
-		                <td></td>
-		                <td></td>
-		                <td></td>
-		                <td></td>
-										<td class=" al_center">
-		                <strong>T. Desc: </strong> <br /><span id="span_discount_first"><?php echo number_format($total_descuento,2); ?></span>
-		                </td>
-		                <td class=" al_center">
-		                <strong>T. Imp: </strong> <br /><span id="span_itbm_first"><?php echo number_format($total_itbm,2); ?></span>
-		                </td>
-										<td></td>
-		                <td class=" al_center">
-		                <strong>Total: </strong> <br /><span id="span_total_first"><?php echo number_format($total,2); ?></span>
-		                </td>
-	                <td>  </td>
-	            </tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td colspan="10"></td>
+						</tr>
+					</tbody>
+					<tfoot class="bg_green">
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td class=" al_center">
+								<strong>Ttl No Impo: </strong> <br /><span id="span_untaxeable_first"></span>
+							</td>
+							<td class=" al_center">
+								<strong>Ttl Impo: </strong> <br /><span id="span_taxeable_first"></span>
+							</td>
+							<td class=" al_center">
+								<strong>T. Desc: </strong> <br /><span id="span_discount_first"></span>
+							</td>
+							<td class=" al_center">
+								<strong>T. Imp: </strong> <br /><span id="span_itbm_first"></span>
+							</td>
+							<td></td>
+							<td class=" al_center">
+								<strong>Total: </strong> <br /><span id="span_total_first"></span>
+							</td>
+							<td>  </td>
+						</tr>
 		    	</tfoot>
 	    	</table>
 	    </div>
@@ -455,7 +458,7 @@ switch ($_COOKIE['coo_tuser']){
 	    <input type="text" class="form-control" alt="1" id="txt_filterclient_second" placeholder="CONTADO" name="txt_filterclient_second" onkeyup="unset_filterclient(event)" />
     </div>
 		<div id="container_btnaddclientsecond" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
-			<button type="button" id="btn_addclient_second" onclick="add_client()" class="btn btn-success"><strong><i class="fa fa-wrench" aria-hidden="true"></i></strong></button>
+			<button type="button" id="btn_addclient_second" onclick="add_client()" class="btn btn-success"><strong><span class="glyphicon glyphicon-wrench"></span></strong></button>
 		</div>
 		<div id="container_client_recall_second" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 
@@ -467,7 +470,7 @@ switch ($_COOKIE['coo_tuser']){
 			<input type="text" class="form-control" id="txt_observation_second" name="txt_observation_second" />
 		</div>
 		<div id="container_btnrefreshtblproduct2sale_second" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
-			<button type="button" id="btn_refresh_tblproduct2sale_second" onclick="refresh_tblproduct2sale()" class="btn btn-info" title="Refrescar Tabla"><strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></span></strong></button>
+			<button type="button" id="btn_refresh_tblproduct2sale_second" onclick="refresh_tblproduct2sale()" class="btn btn-info" title="Refrescar Tabla"><strong><span class="glyphicon glyphicon-refresh"></span></strong></button>
 		</div>
 	</div>
 
@@ -490,68 +493,33 @@ switch ($_COOKIE['coo_tuser']){
             </tr>
 	        </thead>
 	        <tbody>
-            <?php $total_itbm = 0;	$total_descuento = 0;	$sub_total = 0;
-						if(!empty($raw_nuevaventa[$_COOKIE['coo_iuser']]['second_sale'])){
-							$nuevaventa_second=$raw_nuevaventa[$_COOKIE['coo_iuser']]['second_sale'];
-							foreach ($nuevaventa_second as $key => $rs_nuevaventa) {
-								$descuento = (($rs_nuevaventa['descuento']*$rs_nuevaventa['precio'])/100);
-								$precio_descuento = ($rs_nuevaventa['precio']-$descuento);
-								$impuesto = (($rs_nuevaventa['impuesto']*$precio_descuento)/100);
-								$precio_unitario = round($precio_descuento+$impuesto,2);
-								$precio_total = ($rs_nuevaventa['cantidad']*($precio_unitario));
-
-								$total_itbm += $rs_nuevaventa['cantidad']*$impuesto;
-								$total_descuento += $rs_nuevaventa['cantidad']*$descuento;
-								$sub_total += $rs_nuevaventa['cantidad']*$rs_nuevaventa['precio'];
-
-								$style_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
-								$fire_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? '<i class="fa fa-free-code-camp"> </i> ' : '';
-							?>
-									<tr <?php echo $style_promotion; ?> >
-				            <td><?php echo $rs_nuevaventa['codigo']; ?></td>
-				            <td onclick="upd_descripcion_nuevaventa(<?php echo $key; ?>,'<?php echo $r_function->replace_regular_character($rs_nuevaventa['descripcion']);?>')"><?php echo $fire_promotion.$r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
-				            <td><?php echo $raw_medida[$rs_nuevaventa['medida']]; ?></td>
-				            <td onclick="upd_unidades_nuevaventa(<?php echo $key ?>);"><?php echo $rs_nuevaventa['cantidad']; ?></td>
-				            <td onclick="upd_precio_nuevaventa(<?php echo $key; ?>);"><?php echo number_format($rs_nuevaventa['precio'],2); ?></td>
-										<td><?php echo number_format($descuento,2); ?></td>
-				            <td><?php echo number_format($impuesto,2); ?></td>
-										<td><?php echo number_format($precio_unitario,2); ?></td>
-				            <td><?php echo number_format($precio_total,2); ?></td>
-				            <td class="text_center">
-											<button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_nuevaventa(<?php echo $key; ?>);"><strong>X</strong></button>
-				            </td>
-									</tr>
-									<?php 							}
-						 			}else{ ?>
-									<tr>
-										<td colspan="10"> </td>
-									</tr>
-								<?php 						}
-							$total=($sub_total-$total_descuento)+$total_itbm;
-							?>
-		        </tbody>
-		        <tfoot class="bg_red">
-		            <tr>
-		                <td></td>
-		                <td></td>
-		                <td></td>
-		                <td></td>
-		                <td></td>
-										<td class=" al_center">
-		                <strong>T. Desc: </strong> <br /><span id="span_discount_second"><?php echo number_format($total_descuento,2); ?></span>
-		                </td>
-		                <td class=" al_center">
-		                <strong>T. Imp: </strong> <br /><span id="span_itbm_second"><?php echo number_format($total_itbm,2); ?></span>
-		                </td>
-										<td></td>
-		                <td class=" al_center">
-		                <strong>Total: </strong> <br /><span id="span_total_second"><?php echo number_format($total,2); ?></span>
-		                </td>
-		                <td>  </td>
-		            </tr>
-		        </tfoot>
-		    	</table>
-		    </div>
+					</tbody>
+					<tfoot class="bg_red">
+						<tr>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td class=" al_center">
+								<strong>Ttl No Impo: </strong> <br /><span id="span_untaxeable_second"></span>
+							</td>
+							<td class=" al_center">
+								<strong>Ttl Impo: </strong> <br /><span id="span_taxeable_second"></span>
+							</td>
+							<td class=" al_center">
+								<strong>T. Desc: </strong> <br /><span id="span_discount_second"></span>
+							</td>
+							<td class=" al_center">
+								<strong>T. Imp: </strong> <br /><span id="span_itbm_second"></span>
+							</td>
+							<td></td>
+							<td class=" al_center">
+								<strong>Total: </strong> <br /><span id="span_total_second"></span>
+							</td>
+							<td>  </td>
+						</tr>
+					</tfoot>
+				</table>
+			</div>
 		</div>
 	</div>
 
@@ -596,16 +564,55 @@ switch ($_COOKIE['coo_tuser']){
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding" id="carousel_container">
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding" id="carousel_arrow">
 					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding">
-						<i class="fa fa-arrow-circle-left fa-2x" id="go_left"> </i>
+						<h4 class="" id="go_left"><span class="glyphicon glyphicon-chevron-left"></span></h4>
 					</div>
 					<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding" id="carousel_title">
 														<!-- TITULO -->
 					</div>
 					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding al_right">
-						<i class="fa fa-arrow-circle-right fa-2x" id="go_right"> </i>
+						<h4 class="" id="go_right"><span class="glyphicon glyphicon-chevron-right"></span></h4>
 					</div>
 				</div>
-				<div id="container_promotion" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding carousel active">
+								<!--    CIELO RASO -->
+				<div id="container_ceiling" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding carousel active">
+					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding bg-danger" id="carousel_title">
+						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding">&nbsp;</div>
+						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding al_center">
+							<h4>Cielo raso</h4>
+						</div>
+						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding al_right">&nbsp;</div>
+					</div>
+					<div id="container_tbl_product_favorite" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
+						<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 no_padding">
+							<label class="label label_blue_sky" for="txt_filterproduct">Metraje:</label>
+							<input type="text" class="form-control" id="txt_metraje" name="txt_filterproduct" autocomplete="off" />
+						</div>
+						<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 px_7 py_0">
+							<button type="button" id="btn_ceiling_exe" name="button" class="btn btn-success btn_squared_md mt_14" onclick="calculate_ceiling()">Ver</button>
+						</div>
+						<table id='tbl_ceiling' class="table table-condensed table-hover table-bordered">
+							<thead>
+								<tr>
+									<th>Descripcion</th>
+									<th>2X2</th>
+									<th>2X4</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr><td class="al_center">Laminas</td><td colspan="2"></td></tr>
+								<tr><td class="al_center">T 12</td><td colspan="2"></td></tr>
+								<tr><td class="al_center">T 4</td><td colspan="2"></td></tr>
+								<tr><td class="al_center">Ang.12</td><td colspan="2"></td></tr>
+								<tr><td class="al_center">Clavo</td><td colspan="2"></td></tr>
+							</tbody>
+							<tfoot class="bg-danger">
+								<tr><td colspan="3"></td></tr>
+							</tfoot>
+						</table>
+					</div>
+				</div>
+				<!-- PROMOCIONES -->
+				<div id="container_promotion" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding carousel ">
 					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding bg_green" id="carousel_title">
 						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding">&nbsp;</div>
 						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding al_center">
@@ -616,14 +623,16 @@ switch ($_COOKIE['coo_tuser']){
 					<div id="container_tbl_product_promotion" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
 						<table id='tbl_product_promotion' class="table table-condensed table-hover table-bordered">
 			 				<tbody>
-			<?php 				if(count($raw_promocion) > 0){
+								<?php 
+								if(count($raw_promocion) > 0){
 									foreach ($raw_promocion as $key => $value) {?>
 			 							<tr onclick='insert_multiple_product2sell(<?php echo $value['promo_producto'].",".$value['promo_medida'].",".$value['promo_cantidad'].",".$value['promo_precio'].",".$value['promo_impuesto'].",".$value['promo_descuento'].",".$value['promo_tipo']; ?>)'><td style="font-weight:bolder; cursor:pointer;"><?php echo $value['promo_titulo'];?></td></tr>
 										<tr><td>-<?php echo $value['promo_contenido'];?></td></tr>
-			<?php 					}
+										<?php 					
+									}
 								}else{ ?>
-									<tr><td></td></tr>
-			<?php				} ?>
+									<tr><td></td></tr><?php				
+								} ?>
 			 				</tbody>
 			 				<tfoot class="bg-success">
 			 					<tr><td colspan="2"></td></tr>
@@ -666,11 +675,10 @@ switch ($_COOKIE['coo_tuser']){
 						<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
 							<label class="label label-warning" for="txt_filterproduct">Filtrar:</label>
 							<select class="form-control" name="" onchange="generate_tbl_selecto(this.value)">
-								<option value=''>Seleccione</option>
-<?php 					foreach ($raw_selecto_group as $key => $selecto_group) {
+								<option value=''>Seleccione</option><?php 					
+								foreach ($raw_selecto_group as $key => $selecto_group) {
 									echo "<option value='$key'>{$r_function->replace_special_character($selecto_group)}</option>";
-								}
-?>
+								}	?>
 							</select>
 						</div>
 						<table id='tbl_product_selected' class="table table-condensed table-hover table-bordered">
@@ -681,44 +689,6 @@ switch ($_COOKIE['coo_tuser']){
 								<tr><td colspan="2" rowspan="10"> </td></tr>
 							</tbody>
 							<tfoot class="bg-warning">
-								<tr><td colspan="3"></td></tr>
-							</tfoot>
-						</table>
-					</div>
-				</div>
-				<!--    CIELO RASO -->
-				<div id="container_ceiling" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding carousel">
-					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding bg-danger" id="carousel_title">
-						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding">&nbsp;</div>
-						<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6 no_padding al_center">
-							<h4>Cielo raso</h4>
-						</div>
-						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding al_right">&nbsp;</div>
-					</div>
-					<div id="container_tbl_product_favorite" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
-						<div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 no_padding">
-							<label class="label label_blue_sky" for="txt_filterproduct">Metraje:</label>
-							<input type="text" class="form-control" id="txt_metraje" name="txt_filterproduct" autocomplete="off" />
-						</div>
-						<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 px_7 py_0">
-							<button type="button" id="btn_ceiling_exe" name="button" class="btn btn-success btn_squared_md mt_14" onclick="calculate_ceiling()"><i class="fa fa-magic"></i></button>
-						</div>
-						<table id='tbl_ceiling' class="table table-condensed table-hover table-bordered">
-							<thead>
-								<tr>
-									<th>Descripcion</th>
-									<th>2X2</th>
-									<th>2X4</th>
-								</tr>
-							</thead>
-							<tbody>
-								<tr><td class="al_center">Laminas</td><td colspan="2"></td></tr>
-								<tr><td class="al_center">T 12</td><td colspan="2"></td></tr>
-								<tr><td class="al_center">T 4</td><td colspan="2"></td></tr>
-								<tr><td class="al_center">Ang.12</td><td colspan="2"></td></tr>
-								<tr><td class="al_center">Clavo</td><td colspan="2"></td></tr>
-							</tbody>
-							<tfoot class="bg-danger">
 								<tr><td colspan="3"></td></tr>
 							</tfoot>
 						</table>
@@ -760,8 +730,6 @@ switch ($_COOKIE['coo_tuser']){
 	</div>
 
 	<div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <button type="button" id="btn_facturar" name="FACTURADA" onclick="save_sale('FACTURADA')" class="btn btn-success">Bloquear</button>
-    &nbsp;&nbsp;&nbsp;
     <button type="button" id="btn_guardar" name="ACTIVA" onclick="save_sale('ACTIVA')"class="btn btn-primary">Guardar</button>
     &nbsp;&nbsp;&nbsp;
     <button type="button" id="btn_salir" class="btn btn-warning">Volver</button>
@@ -779,7 +747,11 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <script type="text/javascript">
 	<?php include 'attached/php/req_footer_js.php'; ?>
+	var raw_nuevaventa = <?php echo json_encode($raw_nuevaventa); ?>;
+	generate_tbl_nuevaventa(raw_nuevaventa,'second_sale');
+	generate_tbl_nuevaventa(raw_nuevaventa,'first_sale');
 </script>
 </body>
 </html>
 <?php $link->close(); ?>
+

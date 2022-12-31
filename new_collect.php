@@ -74,7 +74,6 @@ while($rs_porcobrar=$qry_porcobrar->fetch_array(MYSQLI_ASSOC)){
 }
 $json_porcobrar = json_encode($raw_porcobrar);
 
-
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -90,6 +89,7 @@ $json_porcobrar = json_encode($raw_porcobrar);
 				clean_payment();
 				close_popup();
 			});
+			$("#txt_filterclient").validCampoFranz('P0123456789-');
 
 			$("#txt_amount").focus();
 			var posicion = $("#container_client").offset().top;
@@ -131,7 +131,6 @@ $json_porcobrar = json_encode($raw_porcobrar);
 			});
 
 			$("#btn_payment").click(function(){
-
 				// AL HACER CLICK EN COBRAR LLAMAR LA FUNCION
 				if($("#btn_payment").prop("title") == 1){
 					var data = `?a=Errordeprecio&d=Precio&e=notification`;
@@ -196,7 +195,7 @@ $json_porcobrar = json_encode($raw_porcobrar);
 			});
 
 			$("#btn_amount").click(function(){
-				var pendiente = (cls_collect.total <= cls_collect.payed) ? '' : cls_collect.total - cls_collect.payed;
+				var pendiente = (cls_collect.total <= cls_collect.payed) ? 0.00 : cls_collect.total - cls_collect.payed;
 				pendiente = parseFloat(pendiente).toFixed(2);
 				pendiente = val_intw2dec(pendiente);
 				$("#txt_amount").val(pendiente);
@@ -210,7 +209,7 @@ $json_porcobrar = json_encode($raw_porcobrar);
 					if(data['answer'] === 1){
 						if($("#txt_filterclient").prop("alt") == ""){
 							$("#txt_filterclient").focus;
-							alert("Debe Agregar al Cliente Primero");
+							shot_snackbar('Debe seleccionar un cliente');
 							$("#btn_process, #btn_generate").prop("disabled", false);
 							return false;
 						}
@@ -221,10 +220,10 @@ $json_porcobrar = json_encode($raw_porcobrar);
 						}
 						$("#btn_process, #btn_generate").prop("disabled", false);
 					}
-					})
+				})
 				.fail(function( jqXHR, textStatus, errorThrown ) {		});
 			});
-// GENERAR FACTURA
+			// GENERAR FACTURA
 			$("#btn_generate").click(function(){
 				$.ajax({	data: "",type: "GET",dataType: "json",url: "attached/get/get_session_admin.php",	})
 				.done(function( data, textStatus, jqXHR ) { console.log( "GOOD " + textStatus);
@@ -262,7 +261,7 @@ $json_porcobrar = json_encode($raw_porcobrar);
 					if ( console && console.log ) {	 console.log( "La solicitud a fallado: " +  textStatus); }
 				})
 			});
-// FIN DE GENERAR FACTURA
+			// FIN DE GENERAR FACTURA
 			$("#txt_filterproduct").on("keyup",function(e){
 				if(e.which == 13){
 					setTimeout( function(){ $("#tbl_product tbody tr:first").click(); },250);
@@ -274,7 +273,6 @@ $json_porcobrar = json_encode($raw_porcobrar);
 			$("#btn_discount").on("click", function(){
 				$("#tbl_product2sell tbody tr:first").dblclick();
 			})
-
 			$("#1, #2, #3, #4, #7").on("click", function(){
 				plus_payment($(this).prop("id"), '<?php echo $str_factid; ?>');
 			})
@@ -351,7 +349,6 @@ $json_porcobrar = json_encode($raw_porcobrar);
 			$("#btn_refresh_tblproduct2sell").on("click",function(){
 				location.reload();
 			});
-
 			$('#txt_amount').validCampoFranz('0123456789.');
 		});
 // ########################### FUNCIONES JS
@@ -365,7 +362,7 @@ $json_porcobrar = json_encode($raw_porcobrar);
 <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 <div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
   <div id="logo_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-2" >
-    <div id="logo" ></div>
+    <div id="logo" ></div> 
   </div>
 	<div id="navigation_container" class="col-xs-12 col-sm-12 col-md-12 col-lg-10">
   	<div id="container_username" class="col-lg-4 visible-lg">
@@ -402,8 +399,8 @@ switch ($_COOKIE['coo_tuser']){
 <div id="container_client" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
   <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
   	<div id="container_txtfilterclient" class="col-xs-5 col-sm-5 col-md-5 col-lg-5">
-		<label class="label label_blue_sky" for="txt_filterclient">Cliente:</label>
-      	<input type="text" class="form-control" alt="<?php echo $raw_facturaventa[0]['facturaventa_AI_cliente_id']; ?>" id="txt_filterclient" name="txt_filterclient" value="<?php echo $r_function->replace_special_character($raw_facturaventa[0]['TX_cliente_nombre']); ?>" onkeyup="unset_filterclient(event)" />
+			<label class="label label_blue_sky" for="txt_filterclient">Cliente:</label>
+			<input type="text" class="form-control" alt="<?php echo $raw_facturaventa[0]['facturaventa_AI_cliente_id']; ?>" id="txt_filterclient" name="txt_filterclient" value="<?php echo $r_function->replace_special_character($raw_facturaventa[0]['TX_cliente_nombre']); ?>" onkeyup="unset_filterclient(event)" />
     </div>
   	<div id="container_btnaddclient" class="col-xs-1 col-sm-1 col-md-1 col-lg-1 side-btn-md-label">
   		<button type="button" id="btn_addclient" class="btn btn-success"><strong>+</strong></button>
@@ -435,12 +432,22 @@ switch ($_COOKIE['coo_tuser']){
         </tr>
       </thead>
       <tbody>
-				<?php $sub_total= 0; $total_itbm = 0;  $total_descuento = 0; $total_ff = 0;
+				<?php 
+				$sub_imp = 0; 
+				$sub_noimp = 0; 
+				$total_imp = 0;  
+				$total_descuento = 0; 
+				$raw_tax=[];
 				foreach ($raw_facturaventa as $key => $value) {
-					$descuento = ($value['TX_datoventa_descuento']*$value['TX_datoventa_precio'])/100;  //Monto a descontar
+					$descuento 				= ($value['TX_datoventa_descuento']*$value['TX_datoventa_precio'])/100;  //Monto a descontar
+					$descuento				= round($descuento,2);
 					$precio_descuento = ($value['TX_datoventa_precio']-$descuento); //Precio con descuento
-					$impuesto = ($value['TX_datoventa_impuesto']*$precio_descuento)/100; // Monto del impuesto
-					$precio_total = ($value['TX_datoventa_cantidad']*($precio_descuento+$impuesto)); //Percio total de Linea de producto
+					$precio_descuento = round($precio_descuento,2);
+					$impuesto 				= ($value['TX_datoventa_impuesto']*$precio_descuento)/100; // Monto del impuesto
+					$precio_unitario 	= $precio_descuento+$impuesto;
+					$subtotal 				= ($value['TX_datoventa_cantidad']*$precio_unitario); //Percio total de Linea de producto
+					$total_descuento	+= $value['TX_datoventa_cantidad']*$descuento;
+					$raw_tax[$value['TX_datoventa_impuesto']] = (!empty($raw_tax[$value['TX_datoventa_impuesto']])) ? round(($raw_tax[$value['TX_datoventa_impuesto']] + ($precio_descuento*$value['TX_datoventa_cantidad'])),2) : round((0 + $precio_descuento*$value['TX_datoventa_cantidad']),2);
 					?>
 
 					<tr ondblclick="open_popup('popup_loginadmin.php?a=<?php echo $str_factid ?>&b=<?php echo $_GET['b'] ?>&z=admin_datoventa.php','popup_loginadmin','425','420');">
@@ -450,9 +457,9 @@ switch ($_COOKIE['coo_tuser']){
 						<td><?php echo $raw_medida[$value['TX_datoventa_medida']]; ?></td>
 						<td onclick="upd_quantityonnewcollect('<?php echo $value['AI_datoventa_id']; ?>');"><?php echo $value['TX_datoventa_cantidad']; ?></td>
 						<td><?php echo number_format($value['TX_datoventa_precio'],2); ?></td>
-						<td><?php echo number_format($descuento,2).' ('.$value['TX_datoventa_descuento'].'%)'; ?></td>
-						<td><?php echo number_format($impuesto,2).' ('.$value['TX_datoventa_impuesto'].'%)'; ?></td>
-						<td><?php echo number_format($precio_total,2);	?></td>
+						<td><?php echo number_format($descuento,3).' ('.$value['TX_datoventa_descuento'].'%)'; ?></td>
+						<td><?php echo number_format($impuesto,3).' ('.$value['TX_datoventa_impuesto'].'%)'; ?></td>
+						<td><?php echo number_format($subtotal,2);	?></td>
 						<td class="al_center"><?php
 						if($value['datoventa_AI_user_id'] != $_COOKIE['coo_iuser']){
 							if($_COOKIE['coo_tuser'] < 3 && !empty($_SESSION['admin'])){ ?>
@@ -466,21 +473,33 @@ switch ($_COOKIE['coo_tuser']){
 						</td>
 					</tr>
 					<?php 
-					$total_descuento+=$value['TX_datoventa_cantidad']*$descuento;
-					$total_itbm+=$value['TX_datoventa_cantidad']*$impuesto;
-					$sub_total+=$value['TX_datoventa_cantidad']*$value['TX_datoventa_precio'];
-					$total_ff += round($precio_total,2);
-				} ?>
+				} 
+				foreach ($raw_tax as $a => $tax) {
+					if ($a > 0) {
+						$sub_imp += $tax;
+						$cal_imp = ($a*$tax)/100;
+						$cal_imp = round($cal_imp,2);
+						$total_imp += $cal_imp;
+					}else{
+						$sub_noimp += $tax;
+					}
+				}
+				$total_ff = $sub_imp + $sub_noimp + $total_imp;
+				?>
       </tbody>
       <tfoot class="bg-primary">
         <tr>
-			<td colspan="5"></td>
+			<td colspan="4"></td>
 			<td>
-				<span id="span_nettotal"><?php echo $sub_total; ?></span>
-				<strong>Neto: </strong> 	<br />B/ <?php echo number_format($sub_total,2); ?>
+				<span id="span_noimp" class="display_none"><?php echo $sub_noimp; ?></span>
+				<strong>Ttl No Impo: </strong> 	<br />B/ <?php echo number_format($sub_noimp,2); ?>
+			</td>
+			<td>
+				<span id="span_nettotal"><?php echo $sub_imp; ?></span>
+				<strong>Ttl Impo: </strong> 	<br />B/ <?php echo number_format($sub_imp,2); ?>
 			</td>
 			<td><strong>Desc: </strong> <br />B/ <span id="span_discount"	><?php echo number_format($total_descuento,2); ?></span></td>
-			<td><strong>Imp: </strong> 	<br />B/ <span id="span_itbm"			><?php echo number_format($total_itbm,2); ?></span></td>
+			<td><strong>Imp: </strong> 	<br />B/ <span id="span_itbm"			><?php echo number_format($total_imp,2); ?></span></td>
 			<td><strong>Total: </strong> <br />B/ <span id="span_total"		><?php echo number_format($total_ff,2); ?></span></td>
 			<td></td>
         </tr>
@@ -496,7 +515,7 @@ switch ($_COOKIE['coo_tuser']){
 	&nbsp;&nbsp;
 	<button type="button" id="btn_discount" class="btn btn-info btn-lg display_none">Descuento</button>
   &nbsp;&nbsp;
-  <button type="button" id="btn_cancel" class="btn btn-danger btn-lg">Cancelar</button>
+  <button type="button" id="btn_cancel" class="btn btn-danger btn-lg">Salir</button>
 </div>
 <div id="container_paymentinfo" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 ">
 	<div id="container_paymentinfotitle" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
@@ -516,15 +535,15 @@ switch ($_COOKIE['coo_tuser']){
 			</div>
 		</div>
 		<div id="container_paymentmethod" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-			<button type="button" id="1" name="button" class="btn btn-success btn-lg"><i class="fa fa-money" aria-hidden="true"></i> Efectivo</button>&nbsp;
-			<button type="button" id="2" name="button" class="btn btn-primary btn-lg"><i class="fa fa-newspaper-o fa-rotate-180" aria-hidden="true"></i> Cheque</button>&nbsp;
-			<button type="button" id="3" name="button" class="btn btn-default btn-lg"><i class="fa fa-cc-visa" aria-hidden="true"></i> Tarjeta Cr&eacute;dito</button>&nbsp;
-			<button type="button" id="4" name="button" class="btn btn-info btn-lg"><i class="fa fa-credit-card" aria-hidden="true"></i> Tarjeta Clave</button>&nbsp;
-			<button type="button" id="5" name="button" class="btn btn-danger btn-lg"><i class="fa fa-university" aria-hidden="true"></i> Cr&eacute;dito</button>
+			<button type="button" id="1" name="button" class="btn btn-success btn-lg"	>Efectivo</button>&nbsp;
+			<button type="button" id="2" name="button" class="btn btn-primary btn-lg"	>Cheque</button>&nbsp;
+			<button type="button" id="3" name="button" class="btn btn-default btn-lg"	>Tarjeta Cr&eacute;dito</button>&nbsp;
+			<button type="button" id="4" name="button" class="btn btn-info btn-lg"		>Tarjeta Clave</button>&nbsp;
+			<button type="button" id="5" name="button" class="btn btn-danger btn-lg"	>Cr&eacute;dito</button>
 			&nbsp;&nbsp;&nbsp;
 			<button type="button" id="7" name="button" class="btn btn-warning btn-lg">N.C. <span id="client_balance" class="badge"><?php echo number_format($rs_client['TX_cliente_saldo'],2); ?></span></button>
 			<?php     if (!empty($raw_porcobrar[$client_id])) {   ?>
-				<button type="button" id="8" name="button" class="btn btn_yellow btn-lg"><i class="fa fa-money" aria-hidden="true"></i> Por Cobrar</button>
+				<button type="button" id="8" name="button" class="btn btn_yellow btn-lg">Por Cobrar</button>
 			<?php     }   ?>
 		</div>
 	</div>
@@ -538,7 +557,7 @@ switch ($_COOKIE['coo_tuser']){
         <input type="text" id="txt_amount" name="txt_amount" class="form-control"  />
       </div>
       <div id="container_btnamount" class="col-xs-2 col-sm-2 col-md-2 col-lg-1 side-btn-md-label">
-        <button type="button" id="btn_amount" title="Todo" class="btn btn-success"><i class="fa fa-money" aria-hidden="true"></i></button>
+        <button type="button" id="btn_amount" title="Todo" class="btn btn-success"><span class="glyphicon glyphicon-tower"></span></button>
       </div>
     </div>
     <div id="container_tblpaymentlist" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
@@ -587,7 +606,7 @@ switch ($_COOKIE['coo_tuser']){
 			</tfoot>
     </table>
     </div>
-    <div id="container_btn" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+    <div id="container_btn_process" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 al_center pt_15">
 	    <button type="button" id="btn_process" class="btn btn-success">Procesar</button>
 			&nbsp;
 			<button type="button" id="btn_cancelpaymentmethod" class="btn btn-warning">Cancelar</button>
@@ -643,6 +662,8 @@ switch ($_COOKIE['coo_tuser']){
 <script type="text/javascript">
 	<?php include 'attached/php/req_footer_js.php'; ?>
 	const cls_collect = new class_collect(<?php echo $total_ff; ?>,0)
+	var raw_medida = JSON.parse('<?php echo json_encode($raw_medida); ?>');
+	const cls_measure = new class_measure(raw_medida)
 </script>
 </body>
 </html>

@@ -4,7 +4,13 @@ $link=conexion();
 
 require 'attached/php/req_login_admin.php';
 
-$_SESSION['facturaf_id'] = $_GET['a'];
+$raw_answer = [
+	'method'=>'facturaf',
+	'factid'=>$_GET['a']
+];
+$_SESSION['str_generate'] = json_encode($raw_answer);
+
+// $_SESSION['facturaf_id'] = $_GET['a'];
 
 $facturaf_id = $_GET['a'];
 
@@ -69,7 +75,7 @@ $nr_impresora = $qry_impresora->num_rows;
         })
         
         $("#btn_process").click(function(){
-
+          window.opener.location.href = "reprint_f_fiscal.php"
         });
 
       });

@@ -33,6 +33,7 @@ while ($rs_paymentmethod = $qry_paymentmethod->fetch_array()) {
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Trilli, S.A. - Todo en Materiales</title>
 	<?php include 'attached/php/req_required.php'; ?>
+	<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 	<link href="attached/css/popup_css.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="attached/js/admin_funct.js"></script>
 	<script type="text/javascript">

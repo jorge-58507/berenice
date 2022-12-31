@@ -107,7 +107,7 @@ if($qry_facturaventa->num_rows > 0){
         	<button type="button" id="btn_editfacturaventa" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-warning" onclick="javascript:window.location='old_sale.php?a='+this.name">Modificar</button>
 <?php 	} ?>
       </td>
-      <td><button type="button" id="btn_print" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-info" onclick="print_html('print_sale_html.php?a='+this.name+'')"><i class="fa fa-print"><i></button></td>
+      <td><button type="button" id="btn_print" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-info" onclick="print_html('print_sale_html.php?a='+this.name+'')"><span class="glyphicon glyphicon-print"><span></button></td>
     </tr>
 <?php
 	}while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC));	?>

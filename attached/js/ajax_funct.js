@@ -261,7 +261,7 @@ function filter_product_sell(field){
 		var value = url_replace_regular_character(field.value);
 		var limit = ($("input[name=r_limit]:checked").val());
 		$.ajax({	data: {"a" : value, "b" : limit },	type: "GET",	dataType: "text",	url: "attached/get/filter_product_sell.php", })
-		.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+		.done(function( data, textStatus, jqXHR ) { 
 			data = JSON.parse(data);
 			var content_tbody = '';
 			for (var x in data[1]) {
@@ -281,7 +281,7 @@ function filter_product_sell(field){
 		})
 		.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
 		clearInterval(intervalo);
-	}, 500);
+	}, 1000);
 }
 
 function filter_product_collect(field,fact_id){
@@ -300,36 +300,44 @@ function save_sale(status){
 	var activo = $(".tab-pane.active").attr("id");
 	activo = activo.replace("_sale","");
 	if($("#txt_filterclient_"+activo).prop("alt") === ''){
-		$("#txt_filterclient_"+activo).css("border","solid 2px #f50000");
-		$("#txt_filterclient_"+activo).val('');	$("#txt_filterclient_"+activo).focus();
-		return false;
+		var confirm = window.confirm('Se guardará como CONTADO, ¿Continuar?')
+		if (confirm) {
+			$("#txt_filterclient_" + activo).attr("alt", 1);
+			$("#txt_filterclient_" + activo).val("CONTADO");
+		}else{
+			$("#txt_filterclient_" + activo).addClass("input_invalid");
+			$("#txt_filterclient_"+activo).val('');	$("#txt_filterclient_"+activo).focus();
+			shot_snackbar('No hay cliente seleccionado');
+			return false;
+		}
 	}
+	$("#txt_filterclient_" + activo).removeClass("input_invalid");
+
 	if($("#tbl_product2sell_"+activo+" tbody tr td")[0].innerHTML === ""){
+		shot_snackbar('No hay productos seleccionados');
 		return false;
 	}
 
 	$("#btn_guardar").attr("disabled", true);
-	setTimeout(() => {
-		$("#btn_guardar").attr("disabled", false);
-	}, 3000);
-	var	date = $("#txt_date_"+activo).val();
-	client_id = $("#txt_filterclient_"+activo).prop("alt");
-	client = $("#txt_filterclient_"+activo).val();
-	vendor_id = $("#txt_vendedor").prop("alt");
-	observation = $("#txt_observation_"+activo).val();
-	tuser= $.cookie('coo_tuser');
-	$.ajax({	data: {"a" : date, "b" : client_id, "c" : client, "d" : vendor_id, "g" : observation, "h" : status, "i" : activo+'_sale' },	type: "GET",	dataType: "text",	url: "attached/get/save_sale.php", })
-	 .done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
-			if(data === 'failed'){ alert("Consulte al administrador del sistema"); return false; }
-	 		refresh_tblproduct2sale();
-			$("#txt_filterclient_"+activo).prop("alt",'1');
-			$("#txt_filterclient_"+activo).val('');
-		 var ans = confirm("¿Desea Imprimir el documento?");
-		 if (ans) { print_html('print_sale_html.php?a='+data);	}
-		 if(tuser === '4'){	open_popup_w_scroll('popup_newcollect.php?a='+client_id+'&b='+vendor_id, 'popup_newcollect','525','425');	}
+	setTimeout(() => {	$("#btn_guardar").attr("disabled", false);	}, 3000);
 
-		})
-	 .fail(function( jqXHR, textStatus, errorThrown ) {		});
+	var	date = $("#txt_date_"+activo).val();
+	var client_id = $("#txt_filterclient_"+activo).prop("alt");
+	var client = $("#txt_filterclient_"+activo).val();
+	var vendor_id = $("#txt_vendedor").prop("alt");
+	var observation = $("#txt_observation_"+activo).val();
+	var tuser= $.cookie('coo_tuser');
+	$.ajax({	data: {"a" : date, "b" : client_id, "c" : client, "d" : vendor_id, "g" : observation, "h" : status, "i" : activo+'_sale' },	type: "GET",	dataType: "text",	url: "attached/get/save_sale.php", })
+	.done(function( data, textStatus, jqXHR ) {
+		if(data === 'failed'){ alert("Consulte al administrador del sistema"); return false; }
+		refresh_tblproduct2sale();
+		$("#txt_filterclient_"+activo).prop("alt",'1');
+		$("#txt_filterclient_"+activo).val('');
+		var ans = window.confirm("¿Desea Imprimir el documento?");
+		if (ans) { print_html('print_sale_html.php?a='+data);	}
+		if(tuser === '4'){	open_popup_w_scroll('popup_newcollect.php?a='+client_id+'&b='+vendor_id, 'popup_newcollect','525','425');	}
+	})
+	.fail(function( jqXHR, textStatus, errorThrown ) {		});
 }
 
 function save_old_sale(){
@@ -374,31 +382,31 @@ function upd_priceproduct2sell(product_id,price){
 		xmlhttp.open("GET","attached/get/upd_priceproduct2sell.php?a="+product_id+"&b="+price,true);	xmlhttp.send();
 }
 
-function plus_newclient(){
-	var opener_url = window.opener.location;
-	patt = RegExp(/old_sale|new_collect/);
-	activo = (patt.test(opener_url)) ?	'' :	window.opener.$(".tab-pane.active").attr("id");	activo = activo.replace("_sale","");
-	var	name = url_replace_regular_character($("#txt_clientname").val());
-	var cif = ($("#txt_cif").val() === "") ? '0-000-000' : $("#txt_cif").val();
-	var dv = ($("#txt_dv").val() === "") ? '00' : $("#txt_dv").val();
-	var direction = ($("#txt_direction").val() === "" || $("#txt_direction").val().length < 6) ? 'NO INDICA' : $("#txt_direction").val();
-	var telephone = ($("#txt_telephone").val() === "") ? '0000-0000' : $("#txt_telephone").val();
-	var taxpayer = $('#sel_client_taxpayer').val();
-	var type = $('#sel_client_type').val();
-	var email = $('#txt_client_email').val();
+// function plus_newclient(){
+// 	var opener_url = window.opener.location;
+// 	patt = RegExp(/old_sale|new_collect/);
+// 	activo = (patt.test(opener_url)) ?	'' :	window.opener.$(".tab-pane.active").attr("id");	activo = activo.replace("_sale","");
+// 	var	name = url_replace_regular_character($("#txt_clientname").val());
+// 	var cif = $("#txt_cif").val();
+// 	var dv = ($("#txt_dv").val() === "") ? '00' : $("#txt_dv").val();
+// 	var direction = ($("#txt_direction").val() === "" || $("#txt_direction").val().length < 6) ? 'NO INDICA' : $("#txt_direction").val();
+// 	var telephone = (is_empty_var($("#txt_telephone").val()) === 0) ? '0000-0000' : $("#txt_telephone").val();
+// 	var taxpayer = $('#sel_client_taxpayer').val();
+// 	var type = $('#sel_client_type').val();
+// 	var email = $('#txt_client_email').val();
 
 
-	$.ajax({	data: {"a" : name, "b" : cif, "c" : direction, "d" : telephone, "e" : activo, "f" : dv, "g" : taxpayer, "h" : type, "i" : email },	type: "GET",	dataType: "text",	url: "attached/get/plus_newclient.php", })
- 	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
-	 	if (activo != '') {
-			window.opener.$("#container_txtfilterclient_"+activo).html(data);
-		} else {
-			window.opener.$("#container_txtfilterclient").html(data);
-		}
-		setTimeout("self.close()",250);
-	})
- 	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
-}
+// 	$.ajax({	data: {"a" : name, "b" : cif, "c" : direction, "d" : telephone, "e" : activo, "f" : dv, "g" : taxpayer, "h" : type, "i" : email },	type: "GET",	dataType: "text",	url: "attached/get/plus_newclient.php", })
+//  	.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);
+// 	 	if (activo != '') {
+// 			window.opener.$("#container_txtfilterclient_"+activo).html(data);
+// 		} else {
+// 			window.opener.$("#container_txtfilterclient").html(data);
+// 		}
+// 		setTimeout("self.close()",250);
+// 	})
+//  	.fail(function( jqXHR, textStatus, errorThrown ) {	console.log("BAD "+textStatus);	});
+// }
 
 function plus_product2addpaydesk(id,facturaventa_id,arr_factid){
 	var	cantidad = document.getElementById("txt_quantity").value;
@@ -449,8 +457,16 @@ function del_product2addcollect(product_id,facturaventa_id,str_factid){
 }
 
 function plus_facturaf(str_factid){
-	$("#btn_process, #btn_generate").attr("disabled", true);
+	var content = $("#container_btn_process").html();
+	$("#container_btn_process").html('<img src="attached/image/Eclipse-2.1s-200px.gif" alt="" width="100px">');
+	// $("#btn_process, #btn_generate").attr("disabled", true);
+	// setTimeout(() => { $("#btn_process, #btn_generate").attr("disabled", false); }, 10000);
 	var	client_id=$("#txt_filterclient").prop("alt");
+	if (is_empty_var(client_id) === 0) { 
+		$("#container_btn_process").html(content);
+		shot_snackbar('Debe seleccionar un cliente');	
+		return false;	
+	}
 	$.ajax({	data: {"a" : str_factid, "b" : client_id },	type: "GET",	dataType: "text",	url: "attached/get/plus_facturaf.php", })
 	 	.done(function( data, textStatus, jqXHR ) {
 		  if (data){
@@ -473,6 +489,8 @@ function plus_facturaf(str_factid){
 
 function generate_facturaf(str_factid){
 	$("#btn_process, #btn_generate").attr("disabled", true);
+	setTimeout(() => { $("#btn_process, #btn_generate").attr("disabled", false); }, 10000);
+
 	var	client_id=$("#txt_filterclient").prop("alt");
 	$.ajax({	data: {"a" : str_factid, "b" : client_id },	type: "GET",	dataType: "text",	url: "attached/get/generate_facturaf.php", })
 	 .done(function( data, textStatus, jqXHR ) {
@@ -499,7 +517,7 @@ function render_payment(txt_data){
 				<td>${raw_payment[a]['TX_pago_numero']}</td>
 				<td>${val_dec(raw_payment[a]['TX_pago_monto'],2,1,1)}</td>
 				<td>
-					<button type="button" name="${raw_payment[a]['AI_pago_id']}" class="btn btn-danger btn-xs btn-fa" onclick="del_payment(this.name,${raw_data['fact_id']})"><i class="fa fa-times" aria-hidden="true"></i></button>
+					<button type="button" name="${raw_payment[a]['AI_pago_id']}" class="btn btn-danger btn-xs btn-fa" onclick="del_payment(this.name,${raw_data['fact_id']})"><i class="glyphicon glyphicon-remove" aria-hidden="true"></i></button>
 				</td>
 			</tr>
 		`;
@@ -577,11 +595,13 @@ function upd_discount(facturaventa_id,percent){
 		if (window.XMLHttpRequest){
 			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
 			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-			document.getElementById("response").innerHTML=xmlhttp.responseText;
+				var data = JSON.parse(xmlhttp.responseText);
+				if (data['status'] === 'success') {
+					setTimeout("window.location.reload()", 250);
+				}
 			}
 		}
 		xmlhttp.open("GET","attached/get/upd_discount.php?b="+facturaventa_id+"&c="+percent,true);	xmlhttp.send();
-		setTimeout("window.location.reload()",250);
 }
 
 function clean_payment(str_factid, client_id){
@@ -611,12 +631,15 @@ function save_datoventa(datoventa_id){
 		if (window.XMLHttpRequest){
 			xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
 			xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-				document.getElementById("response").innerHTML=xmlhttp.responseText;
+				// document.getElementById("response").innerHTML=xmlhttp.responseText;
+				var data = JSON.parse(xmlhttp.responseText);
+				if (data['status'] === 'success') {
+					setTimeout("window.opener.location.reload()",250);
+					setTimeout("self.close()",300);
 				}
 			}
+		}
 		xmlhttp.open("GET","attached/get/save_datoventa.php?a="+producto_id+"&b="+cantidad+"&c="+precio+"&d="+impuesto+"&e="+descuento+"&f="+datoventa_id,true);	xmlhttp.send();
-		setTimeout("window.opener.location.reload()",250);
-		setTimeout("self.close()",300);
 
 }
 
@@ -644,21 +667,21 @@ function filter_client_newnc(field){
 		xmlhttp.open("GET","attached/get/filter_client_sell.php?a="+value,true);	xmlhttp.send();
 }
 
-function plus_newcreditnote(){
-var fecha = $("#span_fecha").text();
-	numero = $("#span_numero").text();
-	cliente = $("#txt_filterclient").prop("alt");
-	motivo = $("#txt_motivo").val();
-	monto = $("#txt_ncmonto").val();
-	if (window.XMLHttpRequest){
-		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
-		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-		document.getElementById("response").innerHTML=xmlhttp.responseText;
-		}
-	}
-	xmlhttp.open("GET","attached/get/plus_newcreditnote.php?a="+fecha+"&b="+numero+"&c="+cliente+"&d="+motivo+"&e="+monto,true);	xmlhttp.send();
-	setTimeout("window.location='print_creditnote.php'",250);
-}
+// function plus_newcreditnote(){
+// var fecha = $("#span_fecha").text();
+// 	numero = $("#span_numero").text();
+// 	cliente = $("#txt_filterclient").prop("alt");
+// 	motivo = $("#txt_motivo").val();
+// 	monto = $("#txt_ncmonto").val();
+// 	if (window.XMLHttpRequest){
+// 		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
+// 		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
+// 		document.getElementById("response").innerHTML=xmlhttp.responseText;
+// 		}
+// 	}
+// 	xmlhttp.open("GET","attached/get/plus_newcreditnote.php?a="+fecha+"&b="+numero+"&c="+cliente+"&d="+motivo+"&e="+monto,true);	xmlhttp.send();
+// 	setTimeout("window.location='print_creditnote.php'",250);
+// }
 
 function plus_return(datoventa_id,cantidad,medida_id){
 	var debito = window.opener.$("#txt_debito").val();
@@ -837,7 +860,8 @@ var	value = $("#txt_filterfacturaf").val();
 	if (window.XMLHttpRequest){
 		xmlhttp=new XMLHttpRequest();	}else{	xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");	}
 		xmlhttp.onreadystatechange=function()	{	if (xmlhttp.readyState==4 && xmlhttp.status==200)	{
-		document.getElementById("container_tblfacturaf").innerHTML=xmlhttp.responseText;
+			var facturaf = JSON.parse(xmlhttp.responseText);
+			render_tableff(facturaf);
 		}
 	}
 	xmlhttp.open("GET","attached/get/filter_adminfacturaf.php?a="+value+"&b="+date_i+"&c="+str+"&d="+limit+"&e="+date_f+"&f="+payment_method,true);	xmlhttp.send();

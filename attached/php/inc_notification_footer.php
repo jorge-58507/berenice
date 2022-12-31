@@ -4,7 +4,7 @@
  <?php 	$raw_notification = $r_function->method_message('read');
         $unread = 0;
         foreach ($raw_notification as $key => $value) { if ($value['TX_mensaje_activo'] == 1) { $unread++; }		} ?>
- 				<button type="button" name="button" id="btn_footer_notification" class="btn" onclick="toggle_notification();"><i id="i_notification" class="fa fa-user-o fa-2x"></i>
+ 				<button type="button" name="button" id="btn_footer_notification" class="btn" onclick="toggle_notification();" style="font-size: 14px;"><span id="i_notification" class="glyphicon glyphicon-user"></span>
  <?php 		if ($unread > 0) { 	?>
  						<span id="span_notification" class="badge"><?php echo $unread; ?></span>
  <?php			} 									?>

@@ -128,6 +128,7 @@
             <span id="span_deficit" class="form-control bg-disabled"><?php echo number_format($deficit=$rs_facturaf['TX_facturaf_deficit'],2); ?></span>
           </div>
           <div id="container_btn" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 px_7">
+            <button type="button" class="btn btn-info btn-md" onclick="print_html('print_client_delivery.php?a=<?php echo $facturaf_id; ?>')"><i class="fa fa-print"></i> Entrega</button>
             <button type="button" class="btn btn-info btn-md" onclick="print_html('print_report_facturaf.php?a=<?php echo $facturaf_id; ?>')"><i class="fa fa-print"></i> Informe</button>
             <button type="button" class="btn btn-info btn-md" onclick="print_html('print_client_facturaf.php?a=<?php echo $facturaf_id; ?>')"><i class="fa fa-print"></i> Recibo</button>
             <button type="button" class="btn btn-info btn-md" id="btn_regenerate_f_fiscal"><i class="fa fa-print"></i> Factura Fiscal</button>

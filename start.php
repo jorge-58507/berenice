@@ -148,7 +148,6 @@ $nc_total = $ttl_nc+$ttl_nc_impuesto;
 							</div>
 						</div>
 				`;
-				console.log(content)
 			}
 			$('#container_motd').html(content)
 		})

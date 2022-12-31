@@ -7,6 +7,7 @@ $message='';
 $uid=$_COOKIE['coo_iuser'];
 $approved = 1;
 $cambio = 0;
+$approved_payment = 0;
 
 $str_factid=$_GET['a'];
 $arr_factid = explode(",",$str_factid);
@@ -82,6 +83,7 @@ if ($total_pagado > $total_ff) {
 	$approved_payment = $approved = 1;
 }else{
 	$approved = 0;
+	$message = 'Verifique los pagos.';
 }
 
 
@@ -104,30 +106,22 @@ function ObtenerIP(){
 
 $host_ip=ObtenerIP();
 $host_name=gethostbyaddr($host_ip);
-// $host_name='noexiste';
 $qry_impresora = $link->query("SELECT AI_impresora_id, TX_impresora_retorno, TX_impresora_recipiente FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);
 $nr_impresora = $qry_impresora->num_rows;
 if ($nr_impresora < 1) {
-	echo "denied, sin impresora ".$host_name;
-	return false;
+	$message = "Sin impresora asignada".$host_name;
+	$approved = 0;
 }
 
 $rs_impresora=$qry_impresora->fetch_array();
 $impresora_id = $rs_impresora['AI_impresora_id'];
 $recipiente = $rs_impresora['TX_impresora_recipiente'];
-// $recipiente = "//noexiste/P_CAJA/";
-// $recipiente = "//TPV3/docs trillis/";
 
 // ############################# 								VERIFICAR SI HAY ACCESO A LA RED								########################
 $retorno = $rs_impresora['TX_impresora_retorno'];
 if (!file_exists($recipiente)) {
 	$message = "Verificar Conexion de Red";
 	$approved = 0;
-
-    // if(!mkdir($recipiente, 0777, true)){
-			// $message = "Verificar Conexion de Red";
-			// $approved = 0;
-		// };
 }
 
 

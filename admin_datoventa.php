@@ -28,7 +28,6 @@ $rs_datoventa=$qry_datoventa->fetch_array();
 		<script type="text/javascript">
 			$(document).ready(function() {
 				$(window).on('beforeunload', function(){
-					clean_payment();
 					close_popup();
 				});
 				$("#btn_salir").click(function(){

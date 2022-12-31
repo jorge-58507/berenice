@@ -133,9 +133,11 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 				</thead>
 		  	<tbody>
 <?php
-				$total=0; 	$totalitbm=0; 	$totaldescuento=0;
+				// $total=0; 	$totalitbm=0; 	$totaldescuento=0;
 				$index = 1;	$pager = 0;
-	 			do{
+  			$raw_datoventa = [];
+				do{
+					$raw_datoventa[] = ['cantidad' => $rs_facturaventa['TX_datoventa_cantidad'], 'precio' => $rs_facturaventa['TX_datoventa_precio'], 'descuento' => $rs_facturaventa['TX_datoventa_descuento'], 'alicuota' => $rs_facturaventa['TX_datoventa_impuesto']];
 					$pager++;
 					if($index === 1){
 						if($pager === 13){
@@ -201,11 +203,11 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 						}
 					}
 
-					$precio = $rs_facturaventa['TX_datoventa_cantidad'] * $rs_facturaventa['TX_datoventa_precio'];
-					$descuento=($precio*$rs_facturaventa['TX_datoventa_descuento'])/100;
-					$precio_descuento=$precio-$descuento;
-					$itbm=($precio_descuento*$rs_facturaventa['TX_datoventa_impuesto'])/100;
-					$precio_total=$precio_descuento+$itbm;
+					// $precio = $rs_facturaventa['TX_datoventa_cantidad'] * $rs_facturaventa['TX_datoventa_precio'];
+					// $descuento=($precio*$rs_facturaventa['TX_datoventa_descuento'])/100;
+					// $precio_descuento=$precio-$descuento;
+					// $itbm=($precio_descuento*$rs_facturaventa['TX_datoventa_impuesto'])/100;
+					// $precio_total=$precio_descuento+$itbm;
 	 ?>
 		    	<tr  style="height:41px;">
 		        <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_producto_codigo']; 				?></td>
@@ -214,11 +216,12 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 						<td style="vertical-align: middle;" class="al_center"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
 					</tr>
 	<?php
-				$totalitbm += $itbm;
-				$totaldescuento += $descuento;
-				$total += $precio_total;
+				// $totalitbm += $itbm;
+				// $totaldescuento += $descuento;
+				// $total += $precio_total;
 ?>
-	<?php }while($rs_facturaventa=$qry_facturaventa->fetch_array()); ?>
+	<?php }while($rs_facturaventa=$qry_facturaventa->fetch_array()); 
+				$raw_total = $r_function->calcular_factura($raw_datoventa);?>
 	 			</tbody>
 			</table>
 		</td>
@@ -227,11 +230,11 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 		<td colspan="10"><strong>Condiciones: </strong><br />Precios sujetos a cambio sin previo aviso.</td>
 	</tr>
 	<tr style="height:38px; font-size:14px; border:solid; ">
-		<td colspan="2"></td>
-		<td colspan="2"><strong>Subtotal</strong><br /> B/ <?php echo number_format($total-$totalitbm+$totaldescuento,4) ?></td>
-		<td colspan="2"><strong>Impuesto</strong><br />B/ <?php echo number_format($totalitbm,4) ?></td>
-		<td colspan="2"><strong>Descuento</strong><br />B/ <?php echo number_format($totaldescuento,4); ?></td>
-		<td colspan="2"><strong>Total</strong><br />B/ <?php echo number_format($total,2); ?></td>
+		<td colspan="2"><strong>Exento</strong><br /> B/ <?php 		echo number_format($raw_total['base_noimpo'],4) ?></td>
+		<td colspan="2"><strong>Imponible</strong><br /> B/ <?php echo number_format($raw_total['base_impo'],4) ?></td>
+		<td colspan="2"><strong>Impuesto</strong><br />B/ <?php		echo number_format($raw_total['ttl_impuesto'],4) ?></td>
+		<td colspan="2"><strong>Descuento</strong><br />B/ <?php 	echo number_format($raw_total['ttl_descuento'],4); ?></td>
+		<td colspan="2"><strong>Total</strong><br />B/ <?php 			echo number_format($raw_total['total'],2); ?></td>
 	</tr>
 </tbody>
 </table>

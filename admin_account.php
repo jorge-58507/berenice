@@ -5,7 +5,7 @@ date_default_timezone_set('America/Panama');
 require 'attached/php/req_login_admin.php';
 
 $qry_account =	$link->query("SELECT bh_user.AI_user_id, bh_user.TX_user_seudonimo, bh_user.TX_user_type, bh_tuser.TX_tuser_value, bh_user.TX_user_activo FROM (bh_user INNER JOIN bh_tuser ON bh_tuser.AI_tuser_id = bh_user.TX_user_type)")or die($link->error);
-$qry_typeuser = $link->query("SELECT bh_tuser.AI_tuser_id, bh_tuser.TX_tuser_value FROM bh_tuser");
+$qry_typeuser = $link->query("SELECT bh_tuser.AI_tuser_id, bh_tuser.TX_tuser_value FROM bh_tuser WHERE AI_tuser_id != 1");
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -59,13 +59,11 @@ $qry_typeuser = $link->query("SELECT bh_tuser.AI_tuser_id, bh_tuser.TX_tuser_val
 					<div id="container_seltype" class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
 						<label class="label label-info" for="sel_type">Tipo de Usuario</label>
 						<select id="sel_type" class="form-control" name="sel_type">
-<?php 				while ($rs_typeuser = $qry_typeuser->fetch_array()) {
-								if ($rs_account['TX_user_type'] == $rs_typeuser['AI_tuser_id']) {			?>
-									<option value="<?php echo $rs_typeuser['AI_tuser_id']; ?>" selected="selected" ><?php echo $rs_typeuser['TX_tuser_value']; ?></option>
-<?php 					}else{ 		?>
-									<option value="<?php echo $rs_typeuser['AI_tuser_id']; ?>" ><?php echo $rs_typeuser['TX_tuser_value']; ?></option>
-<?php						}
-							} 					?>
+							<?php 
+							while ($rs_typeuser = $qry_typeuser->fetch_array()) {		?>
+								<option value="<?php echo $rs_typeuser['AI_tuser_id']; ?>" ><?php echo $rs_typeuser['TX_tuser_value']; ?></option>
+								<?php 
+							}	?>
 						</select>
 					</div>
 					<div id="container_txtpassword" class="col-xs-2 col-sm-2 col-md-2 col-lg-2">
@@ -82,7 +80,7 @@ $qry_typeuser = $link->query("SELECT bh_tuser.AI_tuser_id, bh_tuser.TX_tuser_val
 				</div>
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 					<div id="container_div_newuser" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-						<i id="div_newuser" class="fa fa-angle-double-down" aria-hidden="true"> Nvo. Usuario</i>
+						<i id="div_newuser"> Nvo. Usuario</i>
 					</div>
 				</div>
 				<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4"></div>
@@ -113,7 +111,7 @@ $qry_typeuser = $link->query("SELECT bh_tuser.AI_tuser_id, bh_tuser.TX_tuser_val
 										<td><?php echo $rs_account['TX_user_seudonimo']; ?></td>
 										<td><?php echo $rs_account['TX_tuser_value']; ?></td>
 										<td>
-											<button type="button" class="btn btn-danger btn_squared_sm" onclick="des_user(<?php echo $rs_account['AI_user_id']; ?>)"><i class="fa fa-times"></i></button>
+											<button type="button" class="btn btn-danger btn_squared_sm" onclick="des_user(<?php echo $rs_account['AI_user_id']; ?>)">X</button>
 										</td>
 									</tr>
 <?php 					}		?>

@@ -84,7 +84,7 @@ $rs_facturaventa=$qry_facturaventa->fetch_array();
 	        &nbsp;&nbsp;
 					<button type="button" id="btn_facturaf" class="btn btn-info"><strong>Factura F.</strong></button>
 					&nbsp;&nbsp;
-					<button type="button" id="btn_refresh" class="btn btn-success btn-md btn_squared_md"><strong><i class="fa fa-refresh fa-spin fa-1x fa-fw"></i><span class="sr-only"></strong></button>
+					<button type="button" id="btn_refresh" class="btn btn-success btn-md btn_squared_md"><strong><span class="glyphicon glyphicon-refresh"></span></strong></button>
 					&nbsp;&nbsp;
 					<button type="button" id="btn_creditnote" class="btn btn-info"><strong>Notas de C.</strong></button>
 	        &nbsp;&nbsp;
@@ -193,31 +193,8 @@ $rs_facturaventa=$qry_facturaventa->fetch_array();
 			})
 			$("#btn_refresh").on("click",function(){
 				filter_paydesk();
-
-				// $.ajax({	data: "",	type: "GET",	dataType: "text",	url: "attached/get/get_paydesk_facturaventa.php", })
-				// .done(function( data, textStatus, jqXHR ) { 
-				// 	$("#tbl_facturaventa tbody").html(data);
-				// })
-				// .fail(function( jqXHR, textStatus, errorThrown ) {	     console.log("BAD " + textStatus);	});
 			})
-			// $("#i_piggy_bank").on("click",function(){
-			// 	$.ajax({	data: "",type: "GET",dataType: "json",url: "attached/get/get_session_admin.php",	})
-			// 	 .done(function( data, textStatus, jqXHR ) { console.log( "GOOD " + textStatus);
-			// 		if(data[0][0] != ""){
-			// 			$.ajax({	data: {},	type: "GET",	dataType: "text",	url: "attached/php/open_cashdrawer.php", })
-			// 				.done(function( data, textStatus, jqXHR ) { console.log("GOOD "+textStatus);				})
-			// 				.fail(function( jqXHR, textStatus, errorThrown ) {		});
-			// 			}else{
-			// 				popup = window.open("popup_loginadmin.php?z=start_admin.php", "popup_loginadmin", 'toolbar=0,scrollbars=0,location=0,statusbar=0,menubar=0,resizable=no,width=425,height=420');
-			// 			}
-			// 		})
-			// 	.fail(function( jqXHR, textStatus, errorThrown ) {
-			// 		if ( console && console.log ) {	 console.log( "La solicitud a fallado: " +  textStatus); }
-			// 	})
-			// })
-
 		});
-
 	</script>
 </body>
 </html>

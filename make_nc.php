@@ -391,17 +391,7 @@ switch ($_COOKIE['coo_tuser']){
 
 
 <div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-    <div id="container_txtcopyright" class="col-xs-10 col-sm-10 col-md-10 col-lg-10">
-      &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
-    </div>
-    <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-    	<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-    </div>
-    <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-      <button type="button" class="btn btn-danger" id="btn_exit">Salir</button>
-    </div>
-  </div>
+  <?php require 'attached/php/req_footer.php'; ?>
 </div>
 
 </div>

@@ -37,6 +37,13 @@ $qry_clientid=$link->query($txt_clientid);
 $row_clientid=$qry_clientid->fetch_array(MYSQLI_ASSOC);
 $client_id=$row_clientid['facturaventa_AI_cliente_id'];
 
+$str_factid = '';
+foreach ($arr_factid as $key => $value) {
+	$str_factid .= $value.",";
+}
+$str_factid = substr($str_factid,0,-1)."";
+
+
 $txt_facturaventa="SELECT
 bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento
 FROM ((((bh_facturaventa
@@ -44,38 +51,44 @@ FROM ((((bh_facturaventa
        INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
        INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
        INNER JOIN bh_user ON bh_facturaventa.facturaventa_AI_user_id = bh_user.AI_user_id)
-WHERE";
-foreach ($arr_factid as $key => $value) {
-	if ($value === end($arr_factid)) {
-		$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' ORDER BY AI_facturaventa_id ASC, AI_datoventa_id ASC ";
-	}else {
-		$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' OR";
-	}
-}
+WHERE bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id IN ($str_factid) ORDER BY AI_facturaventa_id ASC, AI_datoventa_id ASC";
+
+// echo $txt_facturaventa; return false;
+// foreach ($arr_factid as $key => $value) {
+	// if ($value === end($arr_factid)) {
+	// 	$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' ORDER BY AI_facturaventa_id ASC, AI_datoventa_id ASC ";
+	// }else {
+	// 	$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' OR";
+	// }
+// }
 $qry_facturaventa=$link->query($txt_facturaventa);
-$raw_facturaventa=array();
+// $raw_facturaventa=array();
+$raw_datoventa = [];
 while ($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC)) {
-	$raw_facturaventa[]=$rs_facturaventa;
+	$raw_datoventa[] = ['cantidad' => $rs_facturaventa['TX_datoventa_cantidad'], 'precio' => $rs_facturaventa['TX_datoventa_precio'], 'descuento' => $rs_facturaventa['TX_datoventa_descuento'], 'alicuota' => $rs_facturaventa['TX_datoventa_impuesto']];
+	// $raw_facturaventa[]=$rs_facturaventa;
 }
-$total_ff = 0;
-foreach ($raw_facturaventa as $key => $value) {
-	$descuento = (($value['TX_datoventa_descuento']*$value['TX_datoventa_precio'])/100);
-	$precio_descuento = ($value['TX_datoventa_precio']-$descuento);
-	$impuesto = (($value['TX_datoventa_impuesto']*$precio_descuento)/100);
-	$precio_total = ($value['TX_datoventa_cantidad']*($precio_descuento+$impuesto));
+$raw_total = $r_function->calcular_factura($raw_datoventa);
 
-	$total_ff += $precio_total;
-}
-$total_ff = round($total_ff,2);
-$total_ff = floatval($total_ff);
+// $total_ff = 0;
+// foreach ($raw_facturaventa as $key => $value) {
+// 	$descuento = (($value['TX_datoventa_descuento']*$value['TX_datoventa_precio'])/100);
+// 	$precio_descuento = ($value['TX_datoventa_precio']-$descuento);
+// 	$impuesto = (($value['TX_datoventa_impuesto']*$precio_descuento)/100);
+// 	$precio_total = ($value['TX_datoventa_cantidad']*($precio_descuento+$impuesto));
 
+// 	$total_ff += $precio_total;
+// }
+// $total_ff = round($total_ff,2);
+// $total_ff = floatval($total_ff);
+$total_ff = $raw_total['total'];
 $raw_payment=array();
 $total_pagado=0;
 $qry_payment = $link->query("SELECT pago_AI_user_id,pago_AI_metododepago_id,TX_pago_monto,TX_pago_numero FROM bh_pago WHERE pago_AI_user_id = '$uid'");
 while ($rs_payment = $qry_payment->fetch_array(MYSQLI_ASSOC)) {
-	$raw_payment[$rs_payment['pago_AI_metododepago_id']]['monto'] = $rs_payment['TX_pago_monto'];
-	$raw_payment[$rs_payment['pago_AI_metododepago_id']]['numero'] = $rs_payment['TX_pago_numero'];
-	$total_pagado+=$rs_payment['TX_pago_monto'];
+	$raw_payment[$rs_payment['pago_AI_metododepago_id']] = ['monto' => $rs_payment['TX_pago_monto'] , 'numero' => $rs_payment['TX_pago_numero']];
+	// $raw_payment[$rs_payment['pago_AI_metododepago_id']]['numero'] = $rs_payment['TX_pago_numero'];
+	$total_pagado += $rs_payment['TX_pago_monto'];
 }
 $total_pagado=round($total_pagado,2);
 $total_pagado = floatval($total_pagado);
@@ -85,32 +98,31 @@ if(array_key_exists($method, $raw_payment)){
 }
 
 
-if ($total_pagado < $total_ff) {
-	$pagando = $total_pagado+$amount;
+if ($total_pagado < $total_ff) { // SI LO PAGADO HASTA AHORA ES MENOR AL TOTAL DE LA FACTURA
+	$pagando = $total_pagado+$amount;	// SUMAR LO PAGADO HASTA AHORA CON LO AGREGADO
 	$pagando=floatval($pagando);
-	$resta = $pagando-$total_ff;
-	$resta = round($resta,2);
+	$resta = $pagando-$total_ff;	//RESTAR LA SUMA DE LO PAGADO MENOS EL TOTAL DE LA FACTURA
+	$resta = round($resta,2);			
 
-	if($resta <= 0){
-		if($method === 7){
+	if($resta <= 0){	//SI EL TOTAL DE LA FACTURA SIGUE SIENDO MAYOR O IGUAL QUE LO PAGADO
+		if($method === 7){ //SI EL METODO ES NOTA DE CREDITO
 			$qry_cliente = $link->query("SELECT TX_cliente_saldo FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die($link->error());
 			$rs_cliente = $qry_cliente->fetch_array(MYSQLI_ASSOC);
-			if($rs_cliente['TX_cliente_saldo'] >= $amount){
+			if($rs_cliente['TX_cliente_saldo'] >= $amount){ //VERIFICA SI EL SALDO DISPONIBLE ALCANZA
 				insert_payment($method, $amount, $number, $approved);
 			}
 		}else{
 			insert_payment($method, $amount, $number, $approved);
 		}
-	}else{
-		if($method === 1){
+	}else{ //SI LO PAGADO SOBREPASA EL TOTAL DE LA FACTURA
+		if($method === 1){ // SI EL METODO ES EFECTIVO
 			insert_payment($method, $amount, $number, $approved);
-		}elseif($method === 2){
+		}elseif($method === 2){ // EL EL METODO ES CHEQUE
 			if(array_key_exists(1, $raw_payment) && $resta <= round($raw_payment[1]['monto'],2)){
 				insert_payment($method, $amount, $number, $approved);
 			}elseif(!array_key_exists(1, $raw_payment)){
 				insert_payment($method, $amount, $number, $approved);
 			}
-
 		}
 	}
 }

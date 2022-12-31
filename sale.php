@@ -68,6 +68,7 @@ $porcentaje = round(($sumatoria*100)/$rs_user['TX_user_meta']);
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Trilli, S.A. - Todo en Materiales</title>
 	<?php include 'attached/php/req_required.php'; ?>
+	<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 	<link href="attached/css/sell_css.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="attached/js/sell_funct.js"></script>
 	<script type="text/javascript">
@@ -224,7 +225,7 @@ $porcentaje = round(($sumatoria*100)/$rs_user['TX_user_meta']);
 		      </div>
 					<div id="container_txtfilterfacturaventa" class="col-xs-2 col-sm-2 col-md-2 col-lg-2 side-btn-md-label">
 						<button type="button" id="" class="btn btn-danger btn-xs clear_date" onclick="setEmpty('txt_date')"><span class="glyphicon glyphicon-exclamation-sign"></span></button>
-						<button type="button" id="" class="btn btn-warning btn-xs" onclick="clear_sales()" title="Clear Sales"><span class="fa fa-cab"></span></button>
+						<button type="button" id="" class="btn btn-warning btn-xs" onclick="clear_sales()" title="Clear Sales"><span class="glyphicon glyphicon-floppy-remove"></span></button>
 					</div>
 		    </div>
 		    <div id="container_tblfacturaventa" class="col-xs-12 col-sm-12 col-md-9 col-lg-9">
@@ -275,7 +276,7 @@ $porcentaje = round(($sumatoria*100)/$rs_user['TX_user_meta']);
 							        	<button type="button" id="btn_editfacturaventa" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-warning" onclick="javascript:window.location='old_sale.php?a='+this.name">Modificar</button>
 			<?php 					} ?>
 						        </td>
-						        <td><button type="button" id="btn_print" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-info btn-md-fa" onclick="print_html('print_sale_html.php?a='+this.name+'')"><i class="fa fa-print"></i></button></td>
+						        <td><button type="button" id="btn_print" name="<?php echo $rs_facturaventa['AI_facturaventa_id'] ?>" class="btn btn-info btn-md-fa" onclick="print_html('print_sale_html.php?a='+this.name+'')"><span class="glyphicon glyphicon-print"></span></button></td>
 			    				</tr>
 		<?php				}while($rs_facturaventa=$qry_facturaventa->fetch_array());
 		 					}else{ ?>

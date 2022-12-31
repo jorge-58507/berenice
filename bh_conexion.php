@@ -105,6 +105,39 @@ class recurrent_function{
 		}
 		return $raw_option;
 	}
+	public function calcular_factura($raw_factura){	// ['cantidad','precio','descuento','alicuota']
+
+		$base_noimpo = 0;
+		$base_impo = 0;
+		$ttl_impuesto = 0;
+		$ttl_descuento = 0;
+		$raw_base = [];
+
+		foreach ($raw_factura as $key => $value) {
+			$descuento = ($value['descuento']*$value['precio'])/100;
+			$precio_descuento = round($value['precio']-$descuento,2);
+			$subtotal = $precio_descuento*$value['cantidad'];
+			if (!empty($raw_base[$value['alicuota']])) {
+				$raw_base[$value['alicuota']] += $subtotal;
+			}else{
+				$raw_base[$value['alicuota']] = 0 + $subtotal;
+			}
+			$ttl_descuento += $descuento*$value['cantidad'];
+		}
+		foreach ($raw_base as $alicuota => $value) {
+			if ($alicuota === 0 || $alicuota === "0") {
+				$base_noimpo += $value;
+			}else{
+				$base_impo += $value;
+				$impuesto = ($alicuota * $value)/100;
+				$impuesto = round($impuesto,2);
+				$ttl_impuesto += $impuesto;
+			}
+		}
+		$total = $base_impo + $base_noimpo + $ttl_impuesto;
+
+		return ["base_noimpo" => round($base_noimpo,2), "base_impo" => round($base_impo,2), "ttl_impuesto" => round($ttl_impuesto,2), "ttl_descuento" => round($ttl_descuento,2), "total" => round($total,2), "raw_base" => round($raw_base,2)];
+	}
 }
 $r_function = new recurrent_function();
 

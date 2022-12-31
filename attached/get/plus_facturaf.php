@@ -129,15 +129,15 @@ while($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC)){
 	$link->query("UPDATE bh_datoventa SET TX_datoventa_entrega = 1 WHERE datoventa_AI_facturaventa_id = '{$rs_facturaventa['AI_facturaventa_id']}'")or die($link->error);
 
 	$desc=($rs_facturaventa['TX_datoventa_descuento']*$rs_facturaventa['TX_datoventa_precio'])/100;
-	$precio_descuento=$rs_facturaventa['TX_datoventa_precio']-$desc;
+	$precio_descuento=round($rs_facturaventa['TX_datoventa_precio']-$desc,2);
 	$imp=($rs_facturaventa['TX_datoventa_impuesto']*$precio_descuento)/100;
-	if($rs_facturaventa['TX_datoventa_impuesto'] === 0){
+	if($rs_facturaventa['TX_datoventa_impuesto'] === "0"){
 		$subtotal_ni+=$precio_descuento*$rs_facturaventa['TX_datoventa_cantidad'];
 		$descuento_ni+=$desc*$rs_facturaventa['TX_datoventa_cantidad'];
 	}else{
 		$subtotal_ci+=$precio_descuento*$rs_facturaventa['TX_datoventa_cantidad'];
 		$descuento_ci+=$desc;
-		$impuesto+=$imp*$rs_facturaventa['TX_datoventa_cantidad'];
+		$impuesto+=round($imp*$rs_facturaventa['TX_datoventa_cantidad'],2);
 	}
 }
 $total_ff = $subtotal_ni+$subtotal_ci+$impuesto;
@@ -148,6 +148,7 @@ $qry_facturaf_numero=$link->query("SELECT AI_facturaf_id, TX_facturaf_numero FRO
 $rs_facturaf_numero=$qry_facturaf_numero->fetch_array();
 $numero_ff = $rs_facturaf_numero['TX_facturaf_numero']; //Calcular el numero de factura.
 $numero_ff = checkfacturaf($numero_ff);
+
 $last_ff = ins_facturaf($client_id,$uid,$fecha_actual,$hora_actual,$numero_ff,$subtotal_ni,$descuento_ni,$subtotal_ci,$impuesto,$descuento_ci,$total_ff,$impresora_id);
 $_SESSION['facturaf_id']=$last_ff; //DECLARACION DEL SESSION PARA LA IMPRESION
 /* ^ ################# INSERCION DE  LA FACTURA  ################### ^ */
@@ -179,7 +180,7 @@ while ($rs_payment = $qry_payment->fetch_array()) {
 $total_pagado=round($total_pagado,2);
 if ($total_pagado > $total_ff) { //VERIFICAR EL CAMBIO
 	$cambio = $total_pagado - $total_ff;
-	$cambio_ff = $cambio;
+	$cambio_ff = round($cambio,2);
 	$link->query("UPDATE bh_facturaf SET TX_facturaf_cambio = '$cambio_ff' WHERE AI_facturaf_id = '$last_ff'"); //AGREGAR EL CAMBIO A LA FF
 	if ($efectivo['monto'] > 0) { //SI HAY PAGO EN EFECTIVO RESTAR EL CAMBIO Y CAMBIAR EL CAMBIO A 0
 	 	ins_payment($last_ff,$uid,1,$efectivo['monto'],$efectivo['numero'],$fecha_actual);

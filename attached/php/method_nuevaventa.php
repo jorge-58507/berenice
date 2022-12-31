@@ -69,16 +69,6 @@ function plus_nuevaventa(){
 				$indice_vacio=$i;
 			}
 		}
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['producto_id'] = $product_id;
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['cantidad'] = $cantidad;
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['precio'] = $precio;
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['impuesto'] = $itbm;
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descuento'] = $descuento;
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['descripcion'] = $r_function->replace_regular_character($descripcion);
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['codigo'] = $rs_product['TX_producto_codigo'];
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['medida'] = $medida;
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['stock'] = $rs_product['TX_producto_cantidad'];
-		// $raw_decode[$_COOKIE['coo_iuser']][$activo][$indice_vacio]['promocion'] = $promocion;
 		$raw_newproduct = array();
 		$raw_newproduct['producto_id'] = $product_id;
 		$raw_newproduct['cantidad'] = $cantidad;

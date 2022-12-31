@@ -187,41 +187,44 @@ write_viejaventa_rel($contenido_viejaventarel);
 <script type="text/javascript" src="attached/js/ajax_funct.js"></script>
 <script type="text/javascript" src="attached/js/jquery-ui.min_edit.js"></script>
 <script type="text/javascript" src="attached/js/old_sale_funct.js"></script>
+<script type="text/javascript" src="attached/js/validCampoFranz.js"></script>
 
 
 <script type="text/javascript">
 
 $(document).ready(function() {
 
-$(window).on('beforeunload', function(){
-	close_popup();
-});
+	$("#txt_filterclient").validCampoFranz('P0123456789-');
 
-$("#btn_navsale").click(function(){
-	window.location="sale.php";
-});
-$("#btn_navstock").click(function(){
-	window.location="stock.php";
-});
-$("#btn_navpaydesk").click(function(){
-	window.location="paydesk.php";
-})
-$("#btn_navadmin").click(function(){
-	window.location="start_admin.php";
-});
-$("#btn_start").click(function(){
-	window.location="start.php";
-});
-$("#btn_exit").click(function(){
-	location.href="index.php";
-})
+	$(window).on('beforeunload', function(){
+		close_popup();
+	});
 
-$("#btn_sale").click(function(){
-	window.location="sale.php";
-});
-$("#btn_stock").click(function(){
-	window.location="stock.php";
-});
+	// $("#btn_navsale").click(function(){
+	// 	window.location="sale.php";
+	// });
+	// $("#btn_navstock").click(function(){
+	// 	window.location="stock.php";
+	// });
+	// $("#btn_navpaydesk").click(function(){
+	// 	window.location="paydesk.php";
+	// })
+	// $("#btn_navadmin").click(function(){
+	// 	window.location="start_admin.php";
+	// });
+	$("#btn_start").click(function(){
+		window.location="start.php";
+	});
+	$("#btn_exit").click(function(){
+		location.href="index.php";
+	})
+
+	// $("#btn_sale").click(function(){
+	// 	window.location="sale.php";
+	// });
+	// $("#btn_stock").click(function(){
+	// 	window.location="stock.php";
+	// });	
 
 $("#btn_addclient").click(function(){
 	var name = $("#txt_filterclient").val();
@@ -299,11 +302,17 @@ function  unset_filterclient_oldsale(e){
 				var n_val = ui.item.value;
 				raw_n_val = n_val.split(" | Dir:");
 				ui.item.value = raw_n_val[0];
-				$("#txt_filterclient").prop('alt', ui.item.id);
-				$("#txt_filterclient").prop('title', 'Completa las ventas '+ui.item.asiduo+" de las veces");
-				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20)+' <strong>Asiduo.</strong> '+ui.item.asiduo;
+				content = '<strong>Nombre:</strong> '+ui.item.value+' <strong>RUC:</strong> '+ui.item.ruc+' <strong>Tlf.</strong> '+ui.item.telefono+' <strong>Dir.</strong> '+ui.item.direccion.substr(0,20);
 				fire_recall('container_client_recall', content)
-				// generate_tbl_favorito(ui.item.json_favorito);
+
+				var ruc = ui.item.ruc; ruc_replaced = ruc.replace("-","");
+				if (ruc.charAt(0) == 0 && ruc.charAt(1) == '-' || /0{7}/g.test(ruc_replaced) === true) {
+					shot_snackbar('Debe acomodar el RUC.');
+					// shot_snackbar('Debe acomodar la cédula.');
+					open_popup('popup_updclient.php?a=' + ui.item.id, 'popup_updclient', '425', '507')
+				}else{
+					$("#txt_filterclient").prop('alt', ui.item.id);
+				}
 			}
 		});
 	});
@@ -410,24 +419,22 @@ switch ($_COOKIE['coo_tuser']){
 <div class="container-fluid" > <div class="col-xs-12 col-sm-12 col-md-8 col-lg-6 bg_red" id="div_title"><h2>Modificar Cotizaci&oacute;n</h2></div></div>
 <div id="container_complementary" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
 	<div id="container_txtdate" class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
-    	<label class="label label_blue_sky" for="txt_date">Fecha:</label>
-	    <input type="text" class="form-control" id="txt_date" name="txt_date" readonly="readonly" value="<?php echo $date=date('d-m-Y',strtotime($rs_facturaventa['TX_facturaventa_fecha'])); ?>" /></div>
+		<label class="label label_blue_sky" for="txt_date">Fecha:</label>
+		<input type="text" class="form-control" id="txt_date" name="txt_date" readonly="readonly" value="<?php echo $date=date('d-m-Y',strtotime($rs_facturaventa['TX_facturaventa_fecha'])); ?>" /></div>
 	<div id="container_txtnumero" class="col-xs-4 col-sm-4 col-md-2 col-lg-2">
-    	<label class="label label_blue_sky" for="txt_numero">Numero:</label>
-	    <input type="text" class="form-control" id="txt_numero" name="txt_numero" readonly="readonly"
-        value="<?php echo $rs_facturaventa['TX_facturaventa_numero']; ?>" />
-    </div>
+		<label class="label label_blue_sky" for="txt_numero">Numero:</label>
+		<input type="text" class="form-control" id="txt_numero" name="txt_numero" readonly="readonly" value="<?php echo $rs_facturaventa['TX_facturaventa_numero']; ?>" />
+	</div>
 	<div id="container_txtvendedor" class="col-xs-12 col-sm-12 col-md-6 col-lg-6">
     	<label class="label label_blue_sky" for="txt_vendedor">Vendedor:</label>
-        <?php if($_COOKIE['coo_tuser'] > 2){ ?>
-	    <input type="text" class="form-control" alt="<?php echo $rs_vendor['AI_user_id']; ?>" id="txt_vendedor" name="txt_vendedor" readonly="readonly"
-        value="<?php echo $rs_vendor['TX_user_seudonimo']; ?>" />
-        <?php }else{ ?>
+			<?php if($_COOKIE['coo_tuser'] > 2){ ?>
+	    	<input type="text" class="form-control" alt="<?php echo $rs_vendor['AI_user_id']; ?>" id="txt_vendedor" name="txt_vendedor" readonly="readonly" value="<?php echo $rs_vendor['TX_user_seudonimo']; ?>" />
+			<?php }else{ ?>
         <select id="txt_vendedor" class="form-control" onchange="upd_vendor(this.value,'<?php echo $rs_facturaventa['AI_facturaventa_id']; ?>');">
-        <?php
-		$qry_user=$link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user")or die($link->error);
-		$rs_user=$qry_user->fetch_array();
-			do{
+				<?php
+				$qry_user=$link->query("SELECT AI_user_id, TX_user_seudonimo FROM bh_user")or die($link->error);
+				$rs_user=$qry_user->fetch_array();
+				do{
 		 ?>
          <?php
 		 if($rs_user['AI_user_id'] === $rs_vendor['AI_user_id']){
@@ -513,7 +520,8 @@ switch ($_COOKIE['coo_tuser']){
 
 					$style_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
 					$fire_promotion = ($rs_nuevaventa['promocion'] > 0 ) ? '<i class="fa fa-free-code-camp"> </i> ' : '';
-	?> 			<tr <?php echo $style_promotion; ?>>
+					?> 			
+					<tr <?php echo $style_promotion; ?>>
 						<td><span class="badge" onclick="set_position_viejaventa(<?php echo $key; ?>)"><?php echo $key+1 ?></span></td>
 						<td><?php echo $rs_nuevaventa['codigo']; ?></td>
 						<td onclick="upd_descripcion_viejaventa(<?php echo $key.",'".$r_function->replace_regular_character($rs_nuevaventa['descripcion'])?>')"><?php echo $fire_promotion.$r_function->replace_special_character($rs_nuevaventa['descripcion']); ?></td>
@@ -523,22 +531,24 @@ switch ($_COOKIE['coo_tuser']){
 							<span id="stock_quantity"><?php echo $rs_nuevaventa['stock']; ?></span>
 						</td>
 						<td onclick="upd_precio_viejaventa(<?php echo $key; ?>);"><?php echo number_format($rs_nuevaventa['precio'],2); ?></td>
-						<td onclick="upd_descuento_viejaventa(<?php echo $key; ?>);"><?php echo "(".$rs_nuevaventa['descuento']."%) ".number_format($descuento,2); ?></td>
-						<td><?php echo "(".$rs_nuevaventa['impuesto']."%) ".number_format($impuesto,2); ?></td>
+						<td onclick="upd_descuento_viejaventa(<?php echo $key; ?>);"><?php echo "(".$rs_nuevaventa['descuento']."%) ".number_format($descuento,3); ?></td>
+						<td><?php echo "(".$rs_nuevaventa['impuesto']."%) ".number_format($impuesto,3); ?></td>
 						<td><?php echo number_format($precio_unitario,4); ?></td>
 						<td><?php echo number_format($precio_total,4); ?></td>
 						<td class="al_center"><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="javascript: del_viejaventa(<?php echo $key ?>);"><strong>X</strong></button></td>
 					</tr>
-	<?php
+					<?php
 				}
 	 		}else{
 				$total_itbm = 0;
 				$total_descuento = 0;
 				$sub_total = 0;
-?>			<tr>
+				?>			
+				<tr>
 					<td colspan="10"></td>
 				</tr>
-<?php }
+				<?php 
+			}
 			$total=($sub_total-$total_descuento)+$total_itbm;
 ?>
 		</tbody>
@@ -689,24 +699,25 @@ switch ($_COOKIE['coo_tuser']){
     <?php } ?>
 </div>
 </form>
+	<div id="snackbar"></div>
+
 </div>
 
 
-<div id="footer">
-	<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-        <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        </div>
-        <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-    &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
-        </div>
-        <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-                    		<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-        </div>
-        <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-            <button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
-        </div>
+	<div id="footer">
+		<div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
+			<div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></div>
+			<div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+				&copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
+			</div>
+			<div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+				<i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
+			</div>
+			<div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
+				<button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
+			</div>
+		</div>
 	</div>
-</div>
 </div>
 
 </body>

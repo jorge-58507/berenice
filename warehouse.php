@@ -27,6 +27,7 @@ while ($rs_facturaf = $qry_facturaf->fetch_array(MYSQLI_ASSOC)) {
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<title>Trilli, S.A. - Todo en Materiales</title>
 	<?php include 'attached/php/req_required.php'; ?>
+	<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 	<link href="attached/css/warehouse_css.css" rel="stylesheet" type="text/css" />
 	<link href="attached/css/sell_css.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" src="attached/js/warehouse_funct.js"></script>

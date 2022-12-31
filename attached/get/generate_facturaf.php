@@ -12,46 +12,53 @@ $arr_factid = explode(",",$str_factid);
 
 $client_id = $_GET['b'];
 
+$raw_answer = [
+	'method'=>'facturaventa',
+	'factid'=>$str_factid
+];
+$_SESSION['str_generate'] = json_encode($raw_answer);
+echo "acepted";
+return false;
 /* V ########################### FUNCIONES ################### V */
-function ObtenerIP(){
-	if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
-		$ip = getenv("HTTP_CLIENT_IP");
-	else if (getenv("HTTP_X_FORWARDED_FOR") && strcasecmp(getenv("HTTP_X_FORWARDED_FOR"), "unknown"))
-		$ip = getenv("HTTP_X_FORWARDED_FOR");
-	else if (getenv("REMOTE_ADDR") && strcasecmp(getenv("REMOTE_ADDR"), "unknown"))
-		$ip = getenv("REMOTE_ADDR");
-	else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], "unknown"))
-		$ip = $_SERVER['REMOTE_ADDR'];
-	else
-		$ip = "IP desconocida";
-	return($ip);
-}
+// function ObtenerIP(){
+// 	if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
+// 		$ip = getenv("HTTP_CLIENT_IP");
+// 	else if (getenv("HTTP_X_FORWARDED_FOR") && strcasecmp(getenv("HTTP_X_FORWARDED_FOR"), "unknown"))
+// 		$ip = getenv("HTTP_X_FORWARDED_FOR");
+// 	else if (getenv("REMOTE_ADDR") && strcasecmp(getenv("REMOTE_ADDR"), "unknown"))
+// 		$ip = getenv("REMOTE_ADDR");
+// 	else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], "unknown"))
+// 		$ip = $_SERVER['REMOTE_ADDR'];
+// 	else
+// 		$ip = "IP desconocida";
+// 	return($ip);
+// }
 
-function ins_facturaf($cliente, $uid, $fecha_actual, $hora_actual, $numero_ff, $subtotal_ni, $descuento_ni, $subtotal_ci, $impuesto, $descuento_ci, $total_ff){
-	$link = conexion();
-	$host_ip=ObtenerIP();
-	$host_name=gethostbyaddr($host_ip);
-	$qry_impresora = $link->query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);
-	$rs_impresora=$qry_impresora->fetch_array();
-	$impresora_id = $rs_impresora['AI_impresora_id'];
-	$txt_insert="INSERT INTO bh_facturaf (facturaf_AI_cliente_id, facturaf_AI_user_id, facturaf_AI_impresora_id, TX_facturaf_fecha, TX_facturaf_hora, TX_facturaf_numero, TX_facturaf_subtotalni, TX_facturaf_subtotalci, TX_facturaf_impuesto, TX_facturaf_descuento, TX_facturaf_total, TX_facturaf_deficit, TX_facturaf_descuentoni) VALUES ('$cliente', '{$_COOKIE['coo_iuser']}', '$impresora_id', '$fecha_actual', '$hora_actual', '$numero_ff', '$subtotal_ni', '$subtotal_ci', '$impuesto', '$descuento_ci', '$total_ff', '$total_ff', '$descuento_ni')";
-	$link->query($txt_insert)or die($link->error);
-	$qry_lastid=$link->query("SELECT LAST_INSERT_ID();")or die($link->error);
-	$rs_lastid = $qry_lastid->fetch_array();
-	return $last_id = trim($rs_lastid[0]);
-	$link->close();
-}
+// function ins_facturaf($cliente, $uid, $fecha_actual, $hora_actual, $numero_ff, $subtotal_ni, $descuento_ni, $subtotal_ci, $impuesto, $descuento_ci, $total_ff){
+// 	$link = conexion();
+// 	$host_ip=ObtenerIP();
+// 	$host_name=gethostbyaddr($host_ip);
+// 	$qry_impresora = $link->query("SELECT AI_impresora_id FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);
+// 	$rs_impresora=$qry_impresora->fetch_array();
+// 	$impresora_id = $rs_impresora['AI_impresora_id'];
+// 	$txt_insert="INSERT INTO bh_facturaf (facturaf_AI_cliente_id, facturaf_AI_user_id, facturaf_AI_impresora_id, TX_facturaf_fecha, TX_facturaf_hora, TX_facturaf_numero, TX_facturaf_subtotalni, TX_facturaf_subtotalci, TX_facturaf_impuesto, TX_facturaf_descuento, TX_facturaf_total, TX_facturaf_deficit, TX_facturaf_descuentoni) VALUES ('$cliente', '{$_COOKIE['coo_iuser']}', '$impresora_id', '$fecha_actual', '$hora_actual', '$numero_ff', '$subtotal_ni', '$subtotal_ci', '$impuesto', '$descuento_ci', '$total_ff', '$total_ff', '$descuento_ni')";
+// 	$link->query($txt_insert)or die($link->error);
+// 	$qry_lastid=$link->query("SELECT LAST_INSERT_ID();")or die($link->error);
+// 	$rs_lastid = $qry_lastid->fetch_array();
+// 	return $last_id = trim($rs_lastid[0]);
+// 	$link->close();
+// }
 
-function ins_payment($facturaf_id,$uid,$payment_method,$payment_amount,$payment_number,$fecha_actual){
-	$link = conexion();
-	$link->query("INSERT INTO bh_datopago (datopago_AI_facturaf_id, datopago_AI_user_id, datopago_AI_metododepago_id, TX_datopago_monto, TX_datopago_numero,TX_datopago_fecha) VALUES ('$facturaf_id','$uid','$payment_method','$payment_amount','$payment_number','$fecha_actual')")or die ($link->error);
-	$link->close();
-}
-function upd_facturaventa($facturaf_id,$facturaventa_id,$client_id){
-	$link = conexion();
-	$link->query("UPDATE bh_facturaventa SET facturaventa_AI_facturaf_id = '$facturaf_id', TX_facturaventa_status = 'CANCELADA', facturaventa_AI_cliente_id = '$client_id' WHERE AI_facturaventa_id = '$facturaventa_id'")or die ($link->error);
-	$link->close();
-}
+// function ins_payment($facturaf_id,$uid,$payment_method,$payment_amount,$payment_number,$fecha_actual){
+// 	$link = conexion();
+// 	$link->query("INSERT INTO bh_datopago (datopago_AI_facturaf_id, datopago_AI_user_id, datopago_AI_metododepago_id, TX_datopago_monto, TX_datopago_numero,TX_datopago_fecha) VALUES ('$facturaf_id','$uid','$payment_method','$payment_amount','$payment_number','$fecha_actual')")or die ($link->error);
+// 	$link->close();
+// }
+// function upd_facturaventa($facturaf_id,$facturaventa_id,$client_id){
+// 	$link = conexion();
+// 	$link->query("UPDATE bh_facturaventa SET facturaventa_AI_facturaf_id = '$facturaf_id', TX_facturaventa_status = 'CANCELADA', facturaventa_AI_cliente_id = '$client_id' WHERE AI_facturaventa_id = '$facturaventa_id'")or die ($link->error);
+// 	$link->close();
+// }
 function checkfacturaf($numero_ff){
 	$link = conexion();
 	$pre_numero_ff = substr("00000000".$numero_ff, -8);
@@ -69,7 +76,9 @@ function sumarfacturaf($numero_ff){
 		$numero_ff = substr($pre_numero_ff,-8);
 		return checkfacturaf($numero_ff);
 }
-$host_ip=ObtenerIP();
+
+
+// $host_ip=ObtenerIP();
 $host_name=gethostbyaddr($host_ip);
 // $host_name='noexiste';
 $qry_impresora = $link->query("SELECT AI_impresora_id, TX_impresora_retorno, TX_impresora_recipiente FROM bh_impresora WHERE TX_impresora_cliente = '$host_name'")or die($link->error);

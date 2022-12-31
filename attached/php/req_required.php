@@ -5,7 +5,7 @@
 <link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/jquery-ui.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
+
 
 <script type="text/javascript" src="attached/js/jquery.js"></script>
 <script type="text/javascript" src="attached/js/jquery-ui.min_edit.js"></script>

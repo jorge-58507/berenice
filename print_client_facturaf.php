@@ -97,8 +97,8 @@ setTimeout("self.close()", 10000);
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12"><strong>Observaci&oacute;n: </strong><?php echo strtoupper($rs_facturaventa[0]); ?></div>
 			</div>
 		</div>
-	<!-- #####################         BODY          #################   -->
-	<?php
+		<!-- #####################         BODY          #################   -->
+		<?php
 			$txt_datoventa="SELECT bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento, bh_datoventa.TX_datoventa_descripcion,
 			bh_producto.TX_producto_codigo, bh_producto.TX_producto_value, bh_datoventa.AI_datoventa_id
 			FROM (((bh_datoventa
@@ -107,7 +107,7 @@ setTimeout("self.close()", 10000);
 			INNER JOIN bh_facturaf ON bh_facturaf.AI_facturaf_id = bh_facturaventa.facturaventa_AI_facturaf_id)
 			WHERE bh_facturaventa.facturaventa_AI_facturaf_id = '$facturaf_id'";
 			$qry_datoventa=$link->query($txt_datoventa);
-	?>
+		?>
 		<div id="print_body" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding">
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_caption">
 				Producto(s) Relacionados
@@ -121,7 +121,6 @@ setTimeout("self.close()", 10000);
 			</div>
 			<?php
 			$subtotal=0;	$totalitbm=0;	$totaldescuento=0;
-			// $index = 1; // $pager = 0;
 			while($rs_datoventa=$qry_datoventa->fetch_array(MYSQLI_ASSOC)){?>
 				<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_body">
 					<div class="col-xs-2 col-sm-2 col-md-2 col-lg-2"><?php echo $rs_datoventa['TX_producto_codigo']; ?></div>
@@ -144,14 +143,14 @@ setTimeout("self.close()", 10000);
 						$subtotal+=$rs_datoventa['TX_datoventa_cantidad'] * $precio_descuento;
 				?></div>
 				</div>
-<?php	} ?>
+				<?php	
+			} ?>
 			<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding print_line_footer minimal">
-
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo "<strong>Subtotal:</strong> B/ ".number_format($subtotal,2); ?></div>
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo "<strong>Imp:</strong> B/ ".number_format($totalitbm,2); ?></div>
-<?php 	if($totaldescuento > 0){ echo "<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'><strong>Descuento:</strong> B/ ".number_format($totaldescuento,2)."</div>"; } ?>
+				<?php 	
+				if($totaldescuento > 0){ echo "<div class='col-xs-3 col-sm-3 col-md-3 col-lg-3'><strong>Descuento:</strong> B/ ".number_format($totaldescuento,2)."</div>"; } ?>
 				<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php $total=$subtotal+$totalitbm; echo "<strong>Total:</strong> B/ ".number_format($total,2);	?></div>
-
 			</div>
 			<?php			$qry_datopago=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datopago.TX_datopago_monto, bh_datopago.TX_datopago_numero, bh_datopago.TX_datopago_fecha FROM (bh_datopago INNER JOIN bh_metododepago ON bh_metododepago.AI_metododepago_id = bh_datopago.datopago_AI_metododepago_id) WHERE bh_datopago.datopago_AI_facturaf_id = '$facturaf_id'");
 								$qry_datodebito=$link->query("SELECT bh_metododepago.TX_metododepago_value, bh_datodebito.TX_datodebito_monto, bh_datodebito.TX_datodebito_numero, bh_datodebito.TX_datodebito_fecha, bh_notadebito.TX_notadebito_numero, rel_facturaf_notadebito.TX_rel_facturafnotadebito_importe

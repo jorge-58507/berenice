@@ -136,17 +136,18 @@ $raw_facti['c_nombre']=$r_function->replace_special_character_no_html($rs_factur
 $raw_facti['c_ruc']=$rs_facturaf['TX_cliente_cif'];
 $raw_facti['c_direccion']= (strlen($rs_facturaf['TX_cliente_direccion']) > 7) ? substr($vendedor,0,3)."-".substr($rs_facturaf['TX_cliente_direccion'],0,140) : substr($vendedor,0,3)."-".'NO INDICA';
 $raw_facti['total_descuento']=(!empty($rs_facturaf['TX_facturaf_descuento'])) ? round($rs_facturaf['TX_facturaf_descuento'],2) : '0.00'; 
-$raw_facti['total_pagado']=round($total_pagado,2);
+$raw_facti['total_pagado']=round($total_pagado-$cambio,2);
 $raw_facti['total_final']=round($rs_facturaf['TX_facturaf_total'],2);
 $raw_facti['recargo']=0;
 $raw_facti['porcentaje_recargo']=0;
-$raw_facti['p_efectivo']  = (!empty($raw_datopago[1]['monto'])) ? round($raw_datopago[1]['monto']+$cambio,2) : '0.00';
+$raw_facti['p_efectivo']  = (!empty($raw_datopago[1]['monto'])) ? round($raw_datopago[1]['monto'],2) : '0.00';
 $raw_facti['p_cheque']    = (!empty($raw_datopago[2]['monto'])) ? round($raw_datopago[2]['monto'],2) : '0.00';
 $raw_facti['p_tdc']       = (!empty($raw_datopago[3]['monto'])) ? round($raw_datopago[3]['monto'],2) : '0.00';
 $raw_facti['p_tdd']       = (!empty($raw_datopago[4]['monto'])) ? round($raw_datopago[4]['monto'],2) : '0.00';
 $raw_facti['p_nc']        = (!empty($raw_datopago[7]['monto'])) ? round($raw_datopago[7]['monto'],2) : '0.00';
-$raw_facti['p_otro']     += (!empty($raw_datopago[5]['monto'])) ? round($raw_datopago[5]['monto'],2) : $raw_facti['p_otro'];
-$raw_facti['p_otro']     += (!empty($raw_datopago[8]['monto'])) ? round($raw_datopago[8]['monto'],2) : $raw_facti['p_otro'];
+$raw_facti['p_otro']      = (!empty($raw_datopago[5]['monto'])) ? round($raw_datopago[5]['monto'],2) : 0;
+if (!empty($raw_datopago[8]['monto'])) {  if ($raw_facti['p_otro'] > 0) { $raw_facti['p_otro'] += round($raw_datopago[8]['monto'],2); }else{  $raw_facti['p_otro'] = round($raw_datopago[8]['monto'],2);  } }
+
 $raw_facti['dv']=$rs_facturaf['TX_cliente_dv'];
 $raw_facti['c_email']=$rs_facturaf['TX_cliente_correo'];
 $raw_facti['c_contribuyente']=$rs_facturaf['TX_cliente_contribuyente'];
@@ -178,14 +179,15 @@ while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
 
 $flete = "0";
 $file = fopen($recipiente."FACMV".substr($rs_facturaf['TX_facturaf_numero'],-7).".txt", "w");
+$str_facmv = '';
 if ($qry_datoventa->num_rows > 3) {
   do{ 
     if ($rs_datoventa['AI_producto_id'] === "14415") {
       $flete = "1";
     }
     $codigo =       (preg_match("/-/", $rs_datoventa['TX_producto_codigo'])) ? substr(str_replace("-","",$rs_datoventa['TX_producto_codigo']),-8) : substr($rs_datoventa['TX_producto_codigo'],-7);
-    $descripcion =  (preg_match("/-/", $rs_datoventa['TX_producto_codigo']) && $rs_facturaf['TX_cliente_tipo'] != 3) ? substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,25) : substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,25);
-    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).$codigo.chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+    $descripcion =  ($rs_facturaf['TX_cliente_tipo'] != 3) ? substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,25) : $r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']);
+    $str_facmv .= "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).$codigo.chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL;
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }else{
   do{
@@ -193,10 +195,12 @@ if ($qry_datoventa->num_rows > 3) {
       $flete = "1";
     }
     $codigo =       (preg_match("/-/", $rs_datoventa['TX_producto_codigo'])) ? substr(str_replace("-","",$rs_datoventa['TX_producto_codigo']),-8) : substr($rs_datoventa['TX_producto_codigo'],-7);
-    $descripcion =  (preg_match("/-/", $rs_datoventa['TX_producto_codigo']) && $rs_facturaf['TX_cliente_tipo'] != 3) ? substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,59) : substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,61);
-    fwrite($file, "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).$codigo.chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL);
+    $descripcion =  ($rs_facturaf['TX_cliente_tipo'] != 3) ? substr($r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']),0,59) : $r_function->replace_special_character_no_html($rs_datoventa['TX_datoventa_descripcion']);
+    $str_facmv .= "FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).chr(9).$codigo.chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL;
   }while($rs_datoventa=$qry_datoventa->fetch_array());
 }
+fwrite($file, $str_facmv);
+
 if ($flete === "1") {
   $codigo =       "0000001";
   $descripcion =  $rs_facturaf['TX_cliente_direccion'];
@@ -205,7 +209,7 @@ if ($flete === "1") {
 fclose($file);
 
 /* ###################### ENCABEZADO  ######################## */
-$total_pagado=$total_pagado+$cambio;
+// $total_pagado=$total_pagado+$cambio;
 $file = fopen($recipiente."FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).".txt", "w");
 $str_factid="";
 foreach ($raw_facti as $key => $value) {
@@ -223,97 +227,83 @@ fclose($file);
 
 $facti_exist = (!file_exists($recipiente."\FACTI".substr($rs_facturaf['TX_facturaf_numero'],-7).'.txt')) ? 0 : 1;
 $facmv_exist = (!file_exists($recipiente."\FACMV".substr($rs_facturaf['TX_facturaf_numero'],-7).'.txt')) ? 0 : 1;
-
 ?>
-
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<?php
-if ($facti_exist === 1 && $facmv_exist === 1) {
-  echo "<meta http-equiv='Refresh' content='3;url=paydesk.php?a=$facturaf_id' />";
-}
-?>
-<title>Trilli, S.A. - Todo en Materiales</title>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <?php
+    if ($facti_exist === 1 && $facmv_exist === 1) {
+      echo "<meta http-equiv='Refresh' content='3;url=paydesk.php?a=$facturaf_id' />";
+    }
+    ?>
+    <title>Trilli, S.A. - Todo en Materiales</title>
 
-<link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/sell_css.css" rel="stylesheet" type="text/css" />
-<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
+    <link href="attached/css/bootstrap.css" rel="stylesheet" type="text/css" />
+    <link href="attached/css/bootstrap-theme.css" rel="stylesheet" type="text/css" />
+    <link href="attached/css/gi_layout.css" rel="stylesheet" type="text/css" />
+    <link href="attached/css/gi_general.css" rel="stylesheet" type="text/css" />
+    <link href="attached/css/gi_blocks.css" rel="stylesheet" type="text/css" />
+    <link href="attached/css/sell_css.css" rel="stylesheet" type="text/css" />
 
-<script type="text/javascript" src="attached/js/jquery.js"></script>
-<script type="text/javascript" src="attached/js/bootstrap.js"></script>
-<script type="text/javascript" src="attached/js/general_funct.js"></script>
-<script type="text/javascript" src="attached/js/ajax_funct.js"></script>
+    <script type="text/javascript" src="attached/js/jquery.js"></script>
+    <script type="text/javascript" src="attached/js/bootstrap.js"></script>
+    <script type="text/javascript" src="attached/js/general_funct.js"></script>
+    <script type="text/javascript" src="attached/js/ajax_funct.js"></script>
 
-<script type="text/javascript">
+    <script type="text/javascript">
+      $(document).ready(function() {
+        // $("#btn_start").click(function(){
+        //   window.location="start.php";
+        // });
+        // $("#btn_exit").click(function(){
+        //   location.href="index.php";
+        // })
+      });
+    </script>
+  </head>
 
-$(document).ready(function() {
-  $("#btn_start").click(function(){
-    window.location="start.php";
-  });
-  $("#btn_exit").click(function(){
-    location.href="index.php";
-  })
-});
-</script>
-
-</head>
-
-<body>
-
-<div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-  <div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
-      <div id="logo" ></div>
-    </div>
-    <div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
-      <div id="navigation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
-    </div>
-  </div>
-  <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-    <form action="" method="post" name="print_f_fiscal"  id="print_f_fiscal">
-      <div id="container_background" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="height:500px;"></div>
-      <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-        &nbsp;
-      </div>
-      <div id="container_cambio" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 bg-primary">
-        <div id="div_cambio" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
-          <p>Su Cambio: </p>
-          <span id="span_cambio">B/ <?php echo number_format($cambio,2); ?></span>
+  <body>
+    <div id="main" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+      <div id="header" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <div id="logo_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-2" >
+          <div id="logo" ></div>
         </div>
-        <?php
-          if ($facti_exist === 1 && $facmv_exist === 1) {
-            echo "Emisi&oacute;n correcta.";
-          }else{
-            echo "Llame a servicio t&eacute;cnico.";
-          }
-        ?>
+        <div id="navigation_container" class="col-xs-12 col-sm-12 col-md-6 col-lg-10">
+          <div id="navigation" class="col-xs-12 col-sm-12 col-md-12 col-lg-12"></div>
+        </div>
       </div>
-    </form>
-  </div>
-  <div id="footer">
-    <div id="copyright" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" >
-      <div id="container_btnadminicon" class="col-xs-1 col-sm-1 col-md-1 col-lg-1"></div>
-      <div id="container_txtcopyright" class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
-        &copy; Derechos Reservados a: Jorge Salda&nacute;a <?php echo date('Y'); ?>
+      <div id="content-sidebar" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+        <form action="" method="post" name="print_f_fiscal"  id="print_f_fiscal">
+          <div id="container_background" class="col-xs-12 col-sm-12 col-md-12 col-lg-12" style="height:500px;"></div>
+          <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+            &nbsp;
+          </div>
+          <div id="container_cambio" class="col-xs-6 col-sm-6 col-md-6 col-lg-6 bg-primary">
+            <div id="div_cambio" class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+              <p>Su Cambio: </p>
+              <span id="span_cambio">B/ <?php echo number_format($cambio,2); ?></span>
+            </div>
+            <?php
+              if ($facti_exist === 1 && $facmv_exist === 1) {
+                echo "Emisi&oacute;n correcta.";
+              }else{
+                echo "Llame a servicio t&eacute;cnico.";
+              }
+            ?>
+          </div>
+        </form>
       </div>
-      <div id="container_btnstart" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        <i id="btn_start" class="fa fa-home" title="Ir al Inicio"></i>
-      </div>
-      <div id="container_btnexit" class="col-xs-1 col-sm-1 col-md-1 col-lg-1">
-        <button type="button" class="btn btn-danger" id="btn_exit">Salir</button></div>
+      <div id="footer">
+        <?php require 'attached/php/req_footer.php'; ?>
       </div>
     </div>
-  </div>
-</div>
-<?php  
-  unset($_SESSION["facturaf_id"]); 
-?>
-</body>
+    <?php  
+      unset($_SESSION["facturaf_id"]); 
+    ?>
+    <script type="text/javascript">
+      setTimeout(function(){ print_html("print_client_delivery.php?a=<?php echo $facturaf_id; ?>"); },1000);
+    </script>
+  </body>
 </html>

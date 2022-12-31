@@ -15,6 +15,7 @@ $qry_product=$link->query("SELECT bh_producto.AI_producto_id, bh_producto.TX_pro
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Trilli, S.A. - Todo en Materiales</title>
 <?php include 'attached/php/req_required.php'; ?>
+<link href="attached/css/font-awesome.css" rel="stylesheet" type="text/css" />
 <link href="attached/css/stock_css.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="attached/js/stock_funct.js"></script>
 <script type="text/javascript" src="attached/js/jquery.cookie.js"></script>
