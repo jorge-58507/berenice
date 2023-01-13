@@ -65,7 +65,7 @@ $rs_nuevodebito=$qry_nuevodebito->fetch_array();
 
 $(document).ready(function() {
 	$(window).on('beforeunload', function(){
-		clean_payment();
+		// clean_payment();
 	});
 	$("#btn_navsale").click(function(){
 		window.location="sale.php";

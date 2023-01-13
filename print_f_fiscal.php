@@ -151,7 +151,7 @@ if (!empty($raw_datopago[8]['monto'])) {  if ($raw_facti['p_otro'] > 0) { $raw_f
 $raw_facti['dv']=$rs_facturaf['TX_cliente_dv'];
 $raw_facti['c_email']=$rs_facturaf['TX_cliente_correo'];
 $raw_facti['c_contribuyente']=$rs_facturaf['TX_cliente_contribuyente'];
-$raw_facti['c_tipo']=$rs_facturaf['TX_cliente_tipo'];
+$raw_facti['c_tipo']="0".$rs_facturaf['TX_cliente_tipo'];
 $raw_facti['nota']=$rs_facturaf['TX_facturaf_nota'];
 
 $recipiente = $rs_impresora['TX_impresora_recipiente'];

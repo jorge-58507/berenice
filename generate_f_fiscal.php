@@ -45,35 +45,14 @@ if ($raw_generate['method'] === 'facturaventa') {
 
   $qry_datoventa=$link->query($txt_datoventa)or die($link->error);
   $rs_datoventa=$qry_datoventa->fetch_array();
-  // $base_noimpo = 0;
-  // $base_impo = 0;
-  // $ttl_descuento_ni = 0;
-  // $ttl_descuento_ci = 0;
-  // $ttl_impuesto = 0;
   $facmv = '';
   $raw_datoventa = [];
   do {
     $raw_datoventa[] = ['cantidad' => $rs_datoventa['TX_datoventa_cantidad'], 'precio' => $rs_datoventa['TX_datoventa_precio'], 'descuento' => $rs_datoventa['TX_datoventa_descuento'], 'alicuota' => $rs_datoventa['TX_datoventa_impuesto']];
-    // $descuento = ($rs_datoventa['TX_datoventa_precio']*$rs_datoventa['TX_datoventa_descuento'])/100;
-    // $descuento = round($descuento,2);
-    // $precio_descuento = ($rs_datoventa['TX_datoventa_precio']-$descuento) * $rs_datoventa['TX_datoventa_cantidad'];
-
-    // if ($rs_datoventa['TX_datoventa_impuesto'] === "0") {
-    //   $base_noimpo += $precio_descuento;
-    //   $ttl_descuento_ni += $descuento*$rs_datoventa['TX_datoventa_cantidad'];
-    // }else{
-    //   $base_impo += $precio_descuento;
-    //   $ttl_descuento_ci += $descuento*$rs_datoventa['TX_datoventa_cantidad'];
-
-    //   $impuesto = ($precio_descuento*$rs_datoventa['TX_datoventa_impuesto'])/100;
-    //   $ttl_impuesto += round($impuesto,2);
-    // }
     $descripcion=$r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']);
     $facmv .= $documento.chr(9).substr($rs_datoventa['TX_producto_codigo'],-6).chr(9).substr($raw_medida[$rs_datoventa['TX_datoventa_medida']],0,3)." ".trim($descripcion).chr(9).$raw_medida[$rs_datoventa['TX_datoventa_medida']].chr(9).$rs_datoventa['TX_datoventa_cantidad'].chr(9).$rs_datoventa['TX_datoventa_precio'].chr(9).$rs_datoventa['TX_datoventa_impuesto'].chr(9). PHP_EOL;
   } while ($rs_datoventa=$qry_datoventa->fetch_array());
-    $raw_total = $r_function->calcular_factura($raw_datoventa);
-  // $total = $base_impo + $base_noimpo + $ttl_impuesto;
-
+  $raw_total = $r_function->calcular_factura($raw_datoventa);
 }else{
 
   $factid = $raw_generate['factid'];

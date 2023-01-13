@@ -5,7 +5,7 @@ require '../../bh_conexion.php';
 $link = conexion();
 require '../php/req_login_paydesk.php';
 
-if (!empty($_COOKIE['coo_iuser'])) {	$uid=$_COOKIE['coo_iuser'];	}else{ return false;	}
+if (!empty($_COOKIE['coo_iuser'])) {	$uid=$_COOKIE['coo_iuser'];	}else{ echo "no hay usuario"; return false;	}
 $fecha_actual=date('Y-m-d');
 $hora_actual=date('h:i a');
 
@@ -160,7 +160,9 @@ $cheque['monto'] = 0;
 while ($rs_payment = $qry_payment->fetch_array()) {
 	$total_pagado+=$rs_payment['TX_pago_monto'];
 	if ($rs_payment['pago_AI_metododepago_id'] != 1) { //Si el metodo no es en efectivo insertar el pago
+
 	 	ins_payment($last_ff,$uid,$rs_payment['pago_AI_metododepago_id'],$rs_payment['TX_pago_monto'],$rs_payment['TX_pago_numero'],$fecha_actual);
+
 		if ($rs_payment['pago_AI_metododepago_id'] == 7) { //Si fue pagado con saldo hacer la disminucion del saldoo disponible
 			$qry_cliente = $link->query("SELECT TX_cliente_saldo FROM bh_cliente WHERE AI_cliente_id = '$client_id'")or die($link->error);
 			$rs_cliente = $qry_cliente->fetch_array();
@@ -177,7 +179,9 @@ while ($rs_payment = $qry_payment->fetch_array()) {
 		$efectivo['numero'] = $rs_payment['TX_pago_numero'];
 	}
 }
+
 $total_pagado=round($total_pagado,2);
+
 if ($total_pagado > $total_ff) { //VERIFICAR EL CAMBIO
 	$cambio = $total_pagado - $total_ff;
 	$cambio_ff = round($cambio,2);
@@ -191,6 +195,10 @@ if ($total_pagado > $total_ff) { //VERIFICAR EL CAMBIO
 			$motivo= 'CAMBIO CHEQUE '.$cheque['numero'];
 			$link->query("INSERT INTO bh_efectivo (efectivo_AI_user_id, efectivo_AI_impresora_id, TX_efectivo_tipo, TX_efectivo_motivo, TX_efectivo_monto, TX_efectivo_fecha, TX_efectivo_status)	VALUES ('$uid', '$impresora_id','SALIDA','$motivo','$cambio','$fecha_actual','ACTIVA')")or die($link->error);
 		}
+	}
+}else{
+	if ($efectivo['monto'] > 0) {
+	 	ins_payment($last_ff,$uid,1,$efectivo['monto'],$efectivo['numero'],$fecha_actual);
 	}
 }
 foreach ($arr_factid as $key => $value) {

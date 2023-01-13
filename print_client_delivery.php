@@ -103,9 +103,9 @@ setTimeout("self.close()", 20000);
 					<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"><?php echo $rs_datoventa['TX_producto_codigo']; ?></div>
 					<div class="col-xs-7 col-sm-7 col-md-7 col-lg-7"><?php
 						if ($rs_datoventa['AI_producto_id'] === "14415") {
-							$descripcion = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']).", Entregar en: ".$rs_client['TX_cliente_direccion'];
+							$descripcion = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']).' ('.$rs_datoventa['TX_datoventa_precio'].') '.", Entregar en: ".$rs_client['TX_cliente_direccion'];
 						}else{
-							$descripcion = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']);
+							$descripcion = $r_function->replace_special_character($rs_datoventa['TX_datoventa_descripcion']).' ('.$rs_datoventa['TX_datoventa_precio'].') ';
 						}
 						echo $descripcion;?>
 					</div>

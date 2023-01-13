@@ -51,7 +51,7 @@ while ($rs_metododepago = $qry_metododepago->fetch_array()) {
 }
 
 //  #########################    FACTURAS FISCALES    ############################
-$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_datopago.TX_datopago_monto, bh_datopago.datopago_AI_metododepago_id, bh_facturaf.TX_facturaf_descuento as descuento
+$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_datopago.TX_datopago_monto, bh_datopago.datopago_AI_metododepago_id, bh_facturaf.TX_facturaf_descuento as descuento, bh_facturaf.TX_facturaf_cambio
 FROM (bh_facturaf
 INNER JOIN bh_datopago ON bh_facturaf.AI_facturaf_id = bh_datopago.datopago_AI_facturaf_id)
 WHERE bh_facturaf.facturaf_AI_impresora_id = '{$rs_impresoraid['0']}'
@@ -62,14 +62,26 @@ $qry_facturaf=$link->query($txt_facturaf)or die($link->error);
 $raw_ffid=array();
 $ttl_descuento=0; $i=0;
 while($rs_facturaf=$qry_facturaf->fetch_array()){
-	$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto'];
+	if ($rs_facturaf['datopago_AI_metododepago_id'] === "1") {
+		$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto']-$rs_facturaf['TX_facturaf_cambio'];
+	}else{
+		// if ($rs_facturaf['datopago_AI_metododepago_id'] === "2") {
+		// 	$qry_ff = $link->query("SELECT * FROM bh_datopago WHERE datopago_ai_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}' AND datopago_AI_metododepago_id = 1");
+		// 	if ($qry_ff->num_rows < 1) {
+		// 		$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto']-$rs_facturaf['TX_facturaf_cambio'];
+		// 	}else{
+		// 		$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto'];
+		// 	}
+		// }else{
+			$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto'];
+		// }
+	}
 
 	$ttl_descuento += (in_array($rs_facturaf['AI_facturaf_id'],$raw_ffid)) ? $rs_facturaf['descuento'] : 0;
 	if(!in_array($rs_facturaf['AI_facturaf_id'],$raw_ffid)) {
 		$raw_ffid[$i] = $rs_facturaf['AI_facturaf_id'];
 		$i++;
 	}
-
 }
  echo "<br /> PAGOS: ".json_encode($raw_pago);
 
@@ -137,9 +149,11 @@ echo "<br /> ANULADAS: ".json_encode($raw_nc_anulated);
 echo "<br>Descuento: ".$ttl_descuento;
 
 $venta_neta=0;
-foreach($raw_pago as $pago){
+foreach($raw_pago as $key => $pago){
+	$raw_pago[$key] = round($pago,2);
 	$venta_neta += $pago;
 }
+
 $venta_neta=$venta_neta-$devolucion-$anulado;
 $venta_bruta=$venta_neta+$ttl_descuento;
 
@@ -214,6 +228,17 @@ while($rs_cajamenuda=$qry_cajamenuda->fetch_array()){
 $line_pago="";
 $json_datopago = json_encode($raw_pago);
 $json_datodebito = json_encode($raw_debito);
+
+
+
+
+
+
+
+
+
+
+
 
 	$txt_insert	=	"INSERT INTO bh_arqueo	(arqueo_AI_impresora_id, arqueo_AI_user_id, TX_arqueo_fecha, TX_arqueo_hora, TX_arqueo_pago, TX_arqueo_ventabruta, TX_arqueo_ventaneta, TX_arqueo_totalni, TX_arqueo_totalci, TX_arqueo_totalci_nc, TX_arqueo_impuesto, TX_arqueo_impuesto_nc, TX_arqueo_descuento, TX_arqueo_cantidadff, TX_arqueo_entrada, TX_arqueo_salida, TX_arqueo_devolucion, TX_arqueo_debito, TX_arqueo_anulado)	VALUES ('{$rs_impresoraid['AI_impresora_id']}', '{$_COOKIE['coo_iuser']}', '$fecha_actual', '$hora_actual', '$json_datopago', '$venta_bruta', '$venta_neta', '$base_ni', '$base_ci', '$nc_base', '$ttl_impuesto', '$nc_impuesto', '$ttl_descuento', '$cantidad_ff', '$ttl_entrada', '$ttl_salida', '$devolucion', '$json_datodebito', '$json_nc_anulated')";
 	$link->query($txt_insert) or die($link->error);

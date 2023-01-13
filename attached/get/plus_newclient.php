@@ -22,7 +22,6 @@ $taxpayer=$_GET['g'];
 $type=$_GET['h'];
 $email=preg_replace('/^\s+|\s+$/', '', $_GET['i']);
 
-echo $name; return false;
 
 $verify_client = $link->query("SELECT AI_cliente_id FROM bh_cliente WHERE TX_cliente_cif = '$cif' AND TX_cliente_dv = '$dv' AND TX_cliente_nombre = '$name'") or die ($link->error);
 if ($verify_client->num_rows > 0) {

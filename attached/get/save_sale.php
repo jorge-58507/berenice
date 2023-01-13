@@ -75,14 +75,24 @@ if(!is_array($raw_decode)){
 }
 $raw_contenido = $raw_decode[$_COOKIE['coo_iuser']][$activo];
 
-$total=0; $i=0; $raw_nuevaventa=array();
+// $total=0; 
+$i=0; $raw_nuevaventa=array();
+
+// $raw_datoventa = [];
+//   do {
+//     $raw_datoventa[] = ['cantidad' => $rs_datoventa['TX_datoventa_cantidad'], 'precio' => $rs_datoventa['TX_datoventa_precio'], 'descuento' => $rs_datoventa['TX_datoventa_descuento'], 'alicuota' => $rs_datoventa['TX_datoventa_impuesto']];
+//   } while ($rs_datoventa=$qry_datoventa->fetch_array());
+//   $raw_total = $r_function->calcular_factura($raw_datoventa);
+
 foreach ($raw_contenido as $key => $line_nuevaventa) {
-	$precio = $line_nuevaventa['cantidad']*$line_nuevaventa['precio'];
-	$descuento = ($precio*$line_nuevaventa['descuento'])/100;
-	$precio_descuento = $precio-$descuento;
-	$impuesto = ($precio_descuento*$line_nuevaventa['impuesto'])/100;
-	$precio_impuesto = $precio_descuento+$impuesto;
-	$total += $precio_impuesto;
+	// $precio = $line_nuevaventa['cantidad']*$line_nuevaventa['precio'];
+	// $descuento = ($precio*$line_nuevaventa['descuento'])/100;
+	// $precio_descuento = $precio-$descuento;
+	// $impuesto = ($precio_descuento*$line_nuevaventa['impuesto'])/100;
+	// $precio_impuesto = $precio_descuento+$impuesto;
+	// $total += $precio_impuesto;
+	$raw_datoventa[] = ['cantidad' => $line_nuevaventa['cantidad'], 'precio' => $line_nuevaventa['precio'], 'descuento' => $line_nuevaventa['descuento'], 'alicuota' => $line_nuevaventa['impuesto']];
+
 
 	$raw_nuevaventa[$i]['nuevaventa_indice']=$key;
 	$raw_nuevaventa[$i]['producto']=$line_nuevaventa['producto_id'];
@@ -96,7 +106,9 @@ foreach ($raw_contenido as $key => $line_nuevaventa) {
 	$raw_nuevaventa[$i]['promocion']=$line_nuevaventa['promocion'];
 	$i++;
 }
-$total=round($total,2);
+$raw_total = $r_function->calcular_factura($raw_datoventa);
+
+$total=round($raw_total['total'],2);
 
 $link->query("INSERT INTO bh_facturaventa (TX_facturaventa_fecha, facturaventa_AI_cliente_id, facturaventa_AI_user_id, TX_facturaventa_numero, TX_facturaventa_total, TX_facturaventa_status, TX_facturaventa_observacion) VALUES ('$date', '$client_id', '{$_COOKIE['coo_iuser']}', '$number', '$total', '$status', '$observation')")or die($link->error);
 $qry_lastid=$link->query("SELECT LAST_INSERT_ID();");

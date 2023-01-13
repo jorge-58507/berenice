@@ -62,10 +62,10 @@ while($rs_medida = $qry_medida->fetch_array(MYSQLI_ASSOC)){
   $raw_medida[$rs_medida['AI_medida_id']] = $rs_medida['TX_medida_value'];
 }
 
-$txt_pago="SELECT bh_pago.AI_pago_id, bh_pago.TX_pago_fecha, bh_pago.TX_pago_monto, bh_pago.TX_pago_numero, bh_metododepago.TX_metododepago_value FROM (bh_pago INNER JOIN bh_metododepago ON bh_pago.pago_AI_metododepago_id = bh_metododepago.AI_metododepago_id) WHERE pago_AI_user_id = '{$_COOKIE['coo_iuser']}'";
-$qry_pago=$link->query($txt_pago);
-$rs_pago=$qry_pago->fetch_array();
-$ite=0;
+// $txt_pago="SELECT bh_pago.AI_pago_id, bh_pago.TX_pago_fecha, bh_pago.TX_pago_monto, bh_pago.TX_pago_numero, bh_metododepago.TX_metododepago_value FROM (bh_pago INNER JOIN bh_metododepago ON bh_pago.pago_AI_metododepago_id = bh_metododepago.AI_metododepago_id) WHERE pago_AI_user_id = '{$_COOKIE['coo_iuser']}'";
+// $qry_pago=$link->query($txt_pago);
+// $rs_pago=$qry_pago->fetch_array();
+// $ite=0;
 
 $raw_porcobrar = array();
 $qry_porcobrar = $link->query("SELECT AI_cliente_id FROM bh_cliente WHERE TX_cliente_porcobrar = 1")or die($link->error);
@@ -86,7 +86,6 @@ $json_porcobrar = json_encode($raw_porcobrar);
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$(window).on('beforeunload',function(){
-				clean_payment();
 				close_popup();
 			});
 			$("#txt_filterclient").validCampoFranz('P0123456789-');
@@ -432,22 +431,19 @@ switch ($_COOKIE['coo_tuser']){
         </tr>
       </thead>
       <tbody>
-				<?php 
-				$sub_imp = 0; 
-				$sub_noimp = 0; 
-				$total_imp = 0;  
-				$total_descuento = 0; 
-				$raw_tax=[];
+				<?php 		
+				$raw_datoventa = [];
 				foreach ($raw_facturaventa as $key => $value) {
+
+					$raw_datoventa[] = ['cantidad' => $value['TX_datoventa_cantidad'], 'precio' => $value['TX_datoventa_precio'], 'descuento' => $value['TX_datoventa_descuento'], 'alicuota' => $value['TX_datoventa_impuesto']];
+
 					$descuento 				= ($value['TX_datoventa_descuento']*$value['TX_datoventa_precio'])/100;  //Monto a descontar
 					$descuento				= round($descuento,2);
-					$precio_descuento = ($value['TX_datoventa_precio']-$descuento); //Precio con descuento
+					$precio_descuento = round(($value['TX_datoventa_precio']-$descuento),2); //Precio con descuento
 					$precio_descuento = round($precio_descuento,2);
 					$impuesto 				= ($value['TX_datoventa_impuesto']*$precio_descuento)/100; // Monto del impuesto
 					$precio_unitario 	= $precio_descuento+$impuesto;
 					$subtotal 				= ($value['TX_datoventa_cantidad']*$precio_unitario); //Percio total de Linea de producto
-					$total_descuento	+= $value['TX_datoventa_cantidad']*$descuento;
-					$raw_tax[$value['TX_datoventa_impuesto']] = (!empty($raw_tax[$value['TX_datoventa_impuesto']])) ? round(($raw_tax[$value['TX_datoventa_impuesto']] + ($precio_descuento*$value['TX_datoventa_cantidad'])),2) : round((0 + $precio_descuento*$value['TX_datoventa_cantidad']),2);
 					?>
 
 					<tr ondblclick="open_popup('popup_loginadmin.php?a=<?php echo $str_factid ?>&b=<?php echo $_GET['b'] ?>&z=admin_datoventa.php','popup_loginadmin','425','420');">
@@ -473,34 +469,24 @@ switch ($_COOKIE['coo_tuser']){
 						</td>
 					</tr>
 					<?php 
-				} 
-				foreach ($raw_tax as $a => $tax) {
-					if ($a > 0) {
-						$sub_imp += $tax;
-						$cal_imp = ($a*$tax)/100;
-						$cal_imp = round($cal_imp,2);
-						$total_imp += $cal_imp;
-					}else{
-						$sub_noimp += $tax;
-					}
 				}
-				$total_ff = $sub_imp + $sub_noimp + $total_imp;
+				$raw_total = $r_function->calcular_factura($raw_datoventa);
 				?>
       </tbody>
       <tfoot class="bg-primary">
         <tr>
 			<td colspan="4"></td>
 			<td>
-				<span id="span_noimp" class="display_none"><?php echo $sub_noimp; ?></span>
-				<strong>Ttl No Impo: </strong> 	<br />B/ <?php echo number_format($sub_noimp,2); ?>
+				<span id="span_noimp" class="display_none"><?php echo $raw_total['base_noimpo']; ?></span>
+				<strong>Ttl No Impo: </strong> 	<br />B/ <?php echo number_format($raw_total['base_noimpo'],2); ?>
 			</td>
 			<td>
-				<span id="span_nettotal"><?php echo $sub_imp; ?></span>
-				<strong>Ttl Impo: </strong> 	<br />B/ <?php echo number_format($sub_imp,2); ?>
+				<span id="span_nettotal"><?php echo $raw_total['base_impo']; ?></span>
+				<strong>Ttl Impo: </strong> 	<br />B/ <?php echo number_format($raw_total['base_impo'],2); ?>
 			</td>
-			<td><strong>Desc: </strong> <br />B/ <span id="span_discount"	><?php echo number_format($total_descuento,2); ?></span></td>
-			<td><strong>Imp: </strong> 	<br />B/ <span id="span_itbm"			><?php echo number_format($total_imp,2); ?></span></td>
-			<td><strong>Total: </strong> <br />B/ <span id="span_total"		><?php echo number_format($total_ff,2); ?></span></td>
+			<td><strong>Desc: </strong> <br />B/ <span id="span_discount"	><?php echo number_format($raw_total['ttl_descuento'],2); ?></span></td>
+			<td><strong>Imp: </strong> 	<br />B/ <span id="span_itbm"			><?php echo number_format($raw_total['ttl_impuesto'],2); ?></span></td>
+			<td><strong>Total: </strong> <br />B/ <span id="span_total"		><?php echo number_format($raw_total['total'],2); ?></span></td>
 			<td></td>
         </tr>
       </tfoot>
@@ -586,7 +572,7 @@ switch ($_COOKIE['coo_tuser']){
 						<div id="container_payment_data" class="container-fluid">
 							<div id="payment_total" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 								<strong>Total: </strong><br />
-								B/ <span id="span_payment_total"><?php echo number_format($total_ff,2); ?></span>
+								B/ <span id="span_payment_total"><?php echo number_format($raw_total['total'],2); ?></span>
 							</div>
 							<div id="payment_paid_out" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 								<strong>Entrega: </strong><br />
@@ -594,7 +580,7 @@ switch ($_COOKIE['coo_tuser']){
 							</div>
 							<div id="payment_to_pay" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 								<strong>Diferencia</strong><br />
-								B/ <span id="span_pendiente"><?php	echo number_format($total_ff,2);	?> </span>
+								B/ <span id="span_pendiente"><?php	echo number_format($raw_total['total'],2);	?> </span>
 							</div>
 							<div id="payment_change" class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
 								<strong>Cambio: </strong><br />
@@ -661,7 +647,7 @@ switch ($_COOKIE['coo_tuser']){
 </div>
 <script type="text/javascript">
 	<?php include 'attached/php/req_footer_js.php'; ?>
-	const cls_collect = new class_collect(<?php echo $total_ff; ?>,0)
+	const cls_collect = new class_collect(<?php echo $raw_total['total']; ?>,0)
 	var raw_medida = JSON.parse('<?php echo json_encode($raw_medida); ?>');
 	const cls_measure = new class_measure(raw_medida)
 </script>

@@ -202,12 +202,6 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 	<?php
 						}
 					}
-
-					// $precio = $rs_facturaventa['TX_datoventa_cantidad'] * $rs_facturaventa['TX_datoventa_precio'];
-					// $descuento=($precio*$rs_facturaventa['TX_datoventa_descuento'])/100;
-					// $precio_descuento=$precio-$descuento;
-					// $itbm=($precio_descuento*$rs_facturaventa['TX_datoventa_impuesto'])/100;
-					// $precio_total=$precio_descuento+$itbm;
 	 ?>
 		    	<tr  style="height:41px;">
 		        <td style="vertical-align: middle;"><?php echo $rs_facturaventa['TX_producto_codigo']; 				?></td>
@@ -215,11 +209,8 @@ $fecha = $dias[date('N', strtotime($rs_facturaventa['TX_facturaventa_fecha']))+1
 						<td style="vertical-align: middle;" class="al_center"><?php echo $raw_medida[$rs_facturaventa['TX_datoventa_medida']]; ?></td>
 						<td style="vertical-align: middle;" class="al_center"><?php echo $rs_facturaventa['TX_datoventa_cantidad']; 		?></td>
 					</tr>
-	<?php
-				// $totalitbm += $itbm;
-				// $totaldescuento += $descuento;
-				// $total += $precio_total;
-?>
+					<?php
+						?>
 	<?php }while($rs_facturaventa=$qry_facturaventa->fetch_array()); 
 				$raw_total = $r_function->calcular_factura($raw_datoventa);?>
 	 			</tbody>

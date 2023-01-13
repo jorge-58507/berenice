@@ -199,18 +199,19 @@ $(document).ready(function() {
 		function generate_tbl_nuevaventa(data,activo){
 			var json_medida = '<?php echo json_encode($raw_medida); ?>';
 			var array_medida =	JSON.parse(json_medida);
-			// var nuevaventa = {};
 			var nuevaventa = (data[<?php echo $_COOKIE['coo_iuser']; ?>][activo] != undefined) ? data[<?php echo $_COOKIE['coo_iuser']; ?>][activo] : {};
-			var total_itbm=0; var total_descuento=0; var total=0;
-			var raw_tax = {};
-			var sub_noimp = 0;
-			var sub_imp = 0;
-			var total_imp = 0;
-			var total = 0;
-
 			if(Object.keys(nuevaventa).length > 0){
 				var content = '';
+				var raw_datoventa = [];
 				for (var x in nuevaventa) {
+					line = {
+						"cantidad": nuevaventa[x]['cantidad'],
+						"precio": nuevaventa[x]['precio'],
+						"descuento": nuevaventa[x]['descuento'],
+						"alicuota": nuevaventa[x]['impuesto']
+					};
+					raw_datoventa.push(line);
+
 					var descuento = (nuevaventa[x]['precio']*nuevaventa[x]['descuento'])/100;
 					descuento = descuento.toFixed(2); descuento = parseFloat(descuento);
 					var precio_descuento = nuevaventa[x]['precio']-descuento;
@@ -218,51 +219,30 @@ $(document).ready(function() {
 					var precio_unitario = precio_descuento+impuesto;
 							precio_unitario = Math.round10(precio_unitario, -4);
 					var subtotal = nuevaventa[x]['cantidad']*precio_unitario;
-					// total_itbm += impuesto*nuevaventa[x]['cantidad'];
-					total_descuento += descuento*nuevaventa[x]['cantidad'];
-					// total += subtotal;
+
 					style_promotion = (nuevaventa[x]['promocion'] > 0 ) ? 'style="color: #f86e6e; background-color: #f2ffef; text-shadow: 0.5px 0.5px #f37e7e80;"' : '';
 					fire_promotion = (nuevaventa[x]['promocion'] > 0 ) ? '' : '';
 					content += '<tr '+style_promotion+'><td>'+nuevaventa[x]['codigo']+'</td><td onclick="upd_descripcion_nuevaventa('+x+',\''+replace_regular_character(nuevaventa[x]['descripcion'])+'\')">'+fire_promotion+replace_special_character(nuevaventa[x]['descripcion'])+'</td><td>'+array_medida[nuevaventa[x]['medida']]+'</td><td onclick="upd_unidades_nuevaventa('+x+');">'+nuevaventa[x]['cantidad']+'</td><td  onclick="upd_precio_nuevaventa('+x+');">'+nuevaventa[x]['precio']+'</td><td>'+descuento.toFixed(3)+'</td><td>'+impuesto.toFixed(3)+'</td><td>'+precio_unitario.toFixed(4)+'</td><td>'+subtotal.toFixed(3)+'</td><td><button type="button" id="btn_delproduct" class="btn btn-danger btn-sm" onclick="del_nuevaventa('+x+');"><strong>X</strong></button></td></tr>';
-
-
-					raw_tax[nuevaventa[x]['impuesto']] = (raw_tax[nuevaventa[x]['impuesto']]) ? raw_tax[nuevaventa[x]['impuesto']] + (precio_descuento*nuevaventa[x]['cantidad']) : (precio_descuento*nuevaventa[x]['cantidad']); 
 				}
-				for (const a in raw_tax) {
-					if (a > 0) {
-						sub_imp += raw_tax[a];
-						var cal_imp = (a*raw_tax[a])/100;
-						cal_imp = cal_imp.toFixed(2);
-						total_imp += parseFloat(cal_imp);
-						total += raw_tax[a]+total_imp;
-					}else{
-						sub_noimp += raw_tax[a];
-					}
-				}
-				total += sub_noimp;
+  			var raw_total = calcular_factura(raw_datoventa);
 
 
 				activo = activo.replace("_sale","");
 				$("#tbl_product2sell_"+activo+" tbody").html(content);
-				$("#span_discount_"+activo).html(total_descuento.toFixed(2));
-				// $("#span_itbm_"+activo).html(total_itbm.toFixed(2));
-				// $("#span_total_"+activo).html(total.toFixed(2));
-				$("#span_taxeable_"+activo).html(sub_imp.toFixed(2));
-				$("#span_untaxeable_"+activo).html(sub_noimp.toFixed(2));
-				$("#span_itbm_"+activo).html(total_imp.toFixed(2));
-				$("#span_total_"+activo).html(total.toFixed(2));
+				$("#span_discount_"+activo).html(raw_total['ttl_descuento']);
+				$("#span_taxeable_"+activo).html(raw_total['base_impo']);
+				$("#span_untaxeable_"+activo).html(raw_total['base_noimpo']);
+				$("#span_itbm_"+activo).html(raw_total['ttl_impuesto']);
+				$("#span_total_"+activo).html(raw_total['total']);
 			}else{
 				content=content+'<tr><td colspan="10">&nbsp;</td></tr>';
 				activo = activo.replace("_sale","");
 				$("#tbl_product2sell_"+activo+" tbody").html(content);
-				$("#span_discount_"+activo).html(total_descuento.toFixed(2));
-				// $("#span_itbm_"+activo).html(total_itbm.toFixed(2));
-				// $("#span_total_"+activo).html(total.toFixed(2));
-				$("#span_taxeable_"+activo).html(sub_imp.toFixed(2));
-				$("#span_untaxeable_"+activo).html(sub_noimp.toFixed(2));
-				$("#span_itbm_"+activo).html(total_imp.toFixed(2));
-				$("#span_total_"+activo).html(total.toFixed(2));
-
+				$("#span_discount_"+activo).html(0.00);
+				$("#span_taxeable_"+activo).html(0.00);
+				$("#span_untaxeable_"+activo).html(0.00);
+				$("#span_itbm_"+activo).html(0.00);
+				$("#span_total_"+activo).html(0.00);
 			}
 		}
 
@@ -573,7 +553,7 @@ switch ($_COOKIE['coo_tuser']){
 						<h4 class="" id="go_right"><span class="glyphicon glyphicon-chevron-right"></span></h4>
 					</div>
 				</div>
-								<!--    CIELO RASO -->
+				<!--    CIELO RASO -->
 				<div id="container_ceiling" class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding carousel active">
 					<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 no_padding bg-danger" id="carousel_title">
 						<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 no_padding">&nbsp;</div>

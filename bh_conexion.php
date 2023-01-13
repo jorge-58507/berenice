@@ -117,12 +117,12 @@ class recurrent_function{
 			$descuento = ($value['descuento']*$value['precio'])/100;
 			$precio_descuento = round($value['precio']-$descuento,2);
 			$subtotal = $precio_descuento*$value['cantidad'];
+			$ttl_descuento += $descuento*$value['cantidad'];
 			if (!empty($raw_base[$value['alicuota']])) {
 				$raw_base[$value['alicuota']] += $subtotal;
 			}else{
 				$raw_base[$value['alicuota']] = 0 + $subtotal;
 			}
-			$ttl_descuento += $descuento*$value['cantidad'];
 		}
 		foreach ($raw_base as $alicuota => $value) {
 			if ($alicuota === 0 || $alicuota === "0") {
@@ -136,7 +136,7 @@ class recurrent_function{
 		}
 		$total = $base_impo + $base_noimpo + $ttl_impuesto;
 
-		return ["base_noimpo" => round($base_noimpo,2), "base_impo" => round($base_impo,2), "ttl_impuesto" => round($ttl_impuesto,2), "ttl_descuento" => round($ttl_descuento,2), "total" => round($total,2), "raw_base" => round($raw_base,2)];
+		return ["base_noimpo" => round($base_noimpo,2), "base_impo" => round($base_impo,2), "ttl_impuesto" => round($ttl_impuesto,2), "ttl_descuento" => round($ttl_descuento,2), "total" => round($total,2), "raw_base" => $raw_base	];
 	}
 }
 $r_function = new recurrent_function();

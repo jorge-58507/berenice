@@ -29,10 +29,11 @@ $size_value=sizeof($arr_value);
 $txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_facturaf.facturaf_AI_cliente_id, bh_facturaf.facturaf_AI_user_id, bh_facturaf.TX_facturaf_fecha, bh_facturaf.TX_facturaf_hora, bh_facturaf.TX_facturaf_numero, bh_facturaf.TX_facturaf_subtotalni, bh_facturaf.TX_facturaf_subtotalci, bh_facturaf.TX_facturaf_impuesto, bh_facturaf.TX_facturaf_descuento, bh_facturaf.TX_facturaf_total, bh_facturaf.TX_facturaf_deficit, bh_facturaf.TX_facturaf_status,
 bh_cliente.TX_cliente_nombre,
 bh_user.TX_user_seudonimo
-FROM (((bh_facturaf
+FROM ((((bh_facturaf
 	INNER JOIN bh_cliente ON bh_facturaf.facturaf_AI_cliente_id = bh_cliente.AI_cliente_id)
 	INNER JOIN bh_facturaventa ON bh_facturaventa.facturaventa_AI_facturaf_id = bh_facturaf.AI_facturaf_id)
 	INNER JOIN bh_user ON bh_user.AI_user_id = bh_facturaventa.facturaventa_AI_user_id)
+	INNER JOIN bh_datopago ON bh_facturaf.AI_facturaf_id = bh_datopago.datopago_AI_facturaf_id)
 WHERE ";
 
 for($it=0;$it<$size_value;$it++){
@@ -54,6 +55,9 @@ $txt_facturaf=$txt_facturaf.$line_date.$line_metododepago." bh_facturaf.TX_factu
 }
 
 $txt_facturaf=$txt_facturaf." GROUP BY AI_facturaf_id ".$order.$limit;
+
+
+
 $qry_facturaf = $link->query($txt_facturaf)or die($link->error);
 $rs_facturaf = $qry_facturaf->fetch_array();
 $raw_facturaf = [];

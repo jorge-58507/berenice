@@ -24,6 +24,12 @@ $qry_clientid=$link->query($txt_clientid)or die($link->error);
 $row_clientid=$qry_clientid->fetch_array();
 $client_id=$row_clientid['facturaventa_AI_cliente_id'];
 
+$str_factid = '';
+foreach ($arr_factid as $key => $value) {
+	$str_factid .= $value.",";
+}
+$str_factid = substr($str_factid,0,-1)."";
+
 $txt_facturaventa="SELECT
 bh_datoventa.TX_datoventa_cantidad, bh_datoventa.TX_datoventa_precio, bh_datoventa.TX_datoventa_impuesto, bh_datoventa.TX_datoventa_descuento
 FROM ((((bh_facturaventa
@@ -31,29 +37,47 @@ FROM ((((bh_facturaventa
        INNER JOIN bh_datoventa ON bh_facturaventa.AI_facturaventa_id = bh_datoventa.datoventa_AI_facturaventa_id)
        INNER JOIN bh_producto ON bh_datoventa.datoventa_AI_producto_id = bh_producto.AI_producto_id)
        INNER JOIN bh_user ON bh_facturaventa.facturaventa_AI_user_id = bh_user.AI_user_id)
-WHERE";
-foreach ($arr_factid as $key => $value) {
-	if ($value === end($arr_factid)) {
-		$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' ORDER BY AI_facturaventa_id ASC, AI_datoventa_id ASC ";
-	}else {
-		$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' OR";
-	}
-}
-$qry_facturaventa=$link->query($txt_facturaventa)or die($link->error);
-$raw_facturaventa=array();
-while ($rs_facturaventa=$qry_facturaventa->fetch_array()) {
-	$raw_facturaventa[]=$rs_facturaventa;
-}
-$total_ff = 0;
-foreach ($raw_facturaventa as $key => $value) {
-	$descuento = (($value['TX_datoventa_descuento']*$value['TX_datoventa_precio'])/100);
-	$precio_descuento = ($value['TX_datoventa_precio']-$descuento);
-	$impuesto = (($value['TX_datoventa_impuesto']*$precio_descuento)/100);
-	$precio_total = ($value['TX_datoventa_cantidad']*($precio_descuento+$impuesto));
 
-	$total_ff += $precio_total;
+WHERE bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id IN ($str_factid) ORDER BY AI_facturaventa_id ASC, AI_datoventa_id ASC";
+
+
+
+
+
+
+
+// WHERE";
+// foreach ($arr_factid as $key => $value) {
+// 	if ($value === end($arr_factid)) {
+// 		$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' ORDER BY AI_facturaventa_id ASC, AI_datoventa_id ASC ";
+// 	}else {
+// 		$txt_facturaventa=$txt_facturaventa." bh_facturaventa.facturaventa_AI_cliente_id = '$client_id' AND AI_facturaventa_id = '$value' OR";
+// 	}
+// }
+$qry_facturaventa=$link->query($txt_facturaventa)or die($link->error);
+// $raw_facturaventa=array();
+// while ($rs_facturaventa=$qry_facturaventa->fetch_array()) {
+// 	$raw_facturaventa[]=$rs_facturaventa;
+// }
+
+$raw_datoventa = [];
+while ($rs_facturaventa=$qry_facturaventa->fetch_array(MYSQLI_ASSOC)) {
+	$raw_datoventa[] = ['cantidad' => $rs_facturaventa['TX_datoventa_cantidad'], 'precio' => $rs_facturaventa['TX_datoventa_precio'], 'descuento' => $rs_facturaventa['TX_datoventa_descuento'], 'alicuota' => $rs_facturaventa['TX_datoventa_impuesto']];
+	// $raw_facturaventa[]=$rs_facturaventa;
 }
-$total_ff = round($total_ff,2);
+$raw_total = $r_function->calcular_factura($raw_datoventa);
+$total_ff = $raw_total['total'];
+
+// $total_ff = 0;
+// foreach ($raw_facturaventa as $key => $value) {
+// 	$descuento = (($value['TX_datoventa_descuento']*$value['TX_datoventa_precio'])/100);
+// 	$precio_descuento = ($value['TX_datoventa_precio']-$descuento);
+// 	$impuesto = (($value['TX_datoventa_impuesto']*$precio_descuento)/100);
+// 	$precio_total = ($value['TX_datoventa_cantidad']*($precio_descuento+$impuesto));
+
+// 	$total_ff += $precio_total;
+// }
+// $total_ff = round($total_ff,2);
 
 
 
@@ -67,7 +91,7 @@ while($rs_payment = $qry_payment->fetch_assoc()){
 $total_pagado = round($total_pagado,2);
 foreach ($raw_payment as $key => $value) {
 	if($value['pago_AI_metododepago_id'] === '1' || $value['pago_AI_metododepago_id'] === '2'){
-		$cambio = 1;
+		$cambio = 1;			//si es efectivo o cheque puede que exista cambio
 	}
 	if($value['pago_AI_metododepago_id'] === '0'){
 		$approved = 0;

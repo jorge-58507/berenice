@@ -161,7 +161,7 @@ while ($rs_metododepago = $qry_metododepago->fetch_array()) {
   $raw_debito[$rs_metododepago['AI_metododepago_id']] = 0;
   $raw_nc_anulated[$rs_metododepago['AI_metododepago_id']] = 0;
 }
-$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_datopago.TX_datopago_monto, bh_datopago.datopago_AI_metododepago_id, bh_facturaf.TX_facturaf_descuento as descuento
+$txt_facturaf="SELECT bh_facturaf.AI_facturaf_id, bh_datopago.TX_datopago_monto, bh_datopago.datopago_AI_metododepago_id, bh_facturaf.TX_facturaf_descuento as descuento, bh_facturaf.TX_facturaf_cambio
 FROM (bh_facturaf
 INNER JOIN bh_datopago ON bh_facturaf.AI_facturaf_id = bh_datopago.datopago_AI_facturaf_id)
 WHERE bh_facturaf.facturaf_AI_impresora_id = '{$rs_impresoraid['0']}'
@@ -172,7 +172,26 @@ $qry_facturaf=$link->query($txt_facturaf)or die($link->error);
 $ttl_descuento=0; $i=0;
 $raw_ffid = array();
 while($rs_facturaf=$qry_facturaf->fetch_array()){
-	$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto'];
+	if ($rs_facturaf['datopago_AI_metododepago_id'] === "1") {
+		$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto']-$rs_facturaf['TX_facturaf_cambio'];
+	}else{
+		// if ($rs_facturaf['datopago_AI_metododepago_id'] === "2") {
+		// 	$qry_ff = $link->query("SELECT * FROM bh_datopago WHERE datopago_ai_facturaf_id = '{$rs_facturaf['AI_facturaf_id']}' AND datopago_AI_metododepago_id = 1");
+		// 	if ($qry_ff->num_rows < 1) {
+		// 		$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto']-$rs_facturaf['TX_facturaf_cambio'];
+		// 	}else{
+		// 		$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto'];
+		// 	}
+		// }else{
+			$raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto'];
+		// }
+	}
+
+
+	// $raw_pago[$rs_facturaf['datopago_AI_metododepago_id']] += $rs_facturaf['TX_datopago_monto'];
+
+
+
 	$ttl_descuento += (in_array($rs_facturaf['AI_facturaf_id'],$raw_ffid)) ? $rs_facturaf['descuento'] : 0;
 	if(!in_array($rs_facturaf['AI_facturaf_id'],$raw_ffid)) {
 		$raw_ffid[$i] = $rs_facturaf['AI_facturaf_id'];

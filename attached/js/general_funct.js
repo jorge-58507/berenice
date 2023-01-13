@@ -12,9 +12,9 @@ if(e.key == 'Control')
 	if(e.which == 49 && isCtrl == true) {
 		$("#1").click(); isCtrl=false; return false;
 	}
-	// if(e.which == 50 && isCtrl == true) {
-	// 	$("#2").click(); isCtrl=false; return false;
-	// }
+	if(e.which == 50 && isCtrl == true) {
+		$("#2").click(); isCtrl=false; return false;
+	}
 	if(e.which == 51 && isCtrl == true) {
 		$("#3").click(); isCtrl=false; return false;
 	}
@@ -705,7 +705,13 @@ function limitText(limitField, limitNum, toast = 0) {
 }
 
 function close_popup(){
-	popup.close();
+	if (popup) {
+		popup.close();
+	}
+
+
+
+	// popup.close();
 }
 function date_converter(from, to, string) { //Ymd,dmY,fecha
 	var raw_fecha = string.split('-');
@@ -839,3 +845,75 @@ function val_empty (textfield) {
 	var str = document.getElementById(textfield).value;
 	return patt.test(str);
 }
+
+function calcular_factura(raw_factura){
+	var base_noimpo = 0;
+	var base_impo = 0;
+	var ttl_impuesto = 0;
+	var ttl_descuento = 0;
+	var raw_base = {};
+
+	for (const a in raw_factura) {
+		var descuento = (raw_factura[a]['descuento'] * raw_factura[a]['precio'])/100;
+		var precio_descuento = raw_factura[a]['precio'] - descuento; 
+		precio_descuento = precio_descuento.toFixed(2); precio_descuento = parseFloat(precio_descuento); //REDONDEAR
+		var subtotal = precio_descuento * raw_factura[a]['cantidad'];
+		ttl_descuento += descuento * raw_factura[a]['cantidad'];
+		if (raw_base[raw_factura[a]['alicuota']] != undefined) {
+			raw_base[raw_factura[a]['alicuota']] += subtotal;
+		} else {
+			raw_base[raw_factura[a]['alicuota']] = 0+subtotal;
+		}
+	}
+
+	for (const alicuota in raw_base) {
+		if (alicuota === 0 || alicuota === "0") {
+			base_noimpo += raw_base[alicuota];
+		} else {
+			base_impo += raw_base[alicuota];
+			var impuesto = (alicuota * raw_base[alicuota]) / 100;
+			impuesto = impuesto.toFixed(2);
+			ttl_impuesto += parseFloat(impuesto);
+		}
+	}
+	var total = base_impo + base_noimpo + ttl_impuesto;
+	return { "base_noimpo": base_noimpo.toFixed(2), "base_impo": base_impo.toFixed(2), "ttl_impuesto": ttl_impuesto.toFixed(2), "ttl_descuento": ttl_descuento.toFixed(2), "total": total.toFixed(2), "raw_base": raw_base };
+}
+
+
+
+// public function calcular_factura($raw_factura) {	// ['cantidad','precio','descuento','alicuota']
+
+// 	$base_noimpo = 0;
+// 	$base_impo = 0;
+// 	$ttl_impuesto = 0;
+// 	$ttl_descuento = 0;
+// 	$raw_base = [];
+
+// 	foreach($raw_factura as $key => $value) {
+// 		$descuento = ($value['descuento'] * $value['precio']) / 100;
+// 		$precio_descuento = round($value['precio'] - $descuento, 2);
+// 		$subtotal = $precio_descuento * $value['cantidad'];
+// 		$ttl_descuento += $descuento * $value['cantidad'];
+// 		if (!empty($raw_base[$value['alicuota']])) {
+// 			$raw_base[$value['alicuota']] += $subtotal;
+// 		} else {
+// 			$raw_base[$value['alicuota']] = 0 + $subtotal;
+// 		}
+// 	}
+// 	foreach($raw_base as $alicuota => $value) {
+// 		if ($alicuota === 0 || $alicuota === "0") {
+// 			$base_noimpo += $value;
+// 		} else {
+// 			$base_impo += $value;
+// 			$impuesto = ($alicuota * $value) / 100;
+// 			$impuesto = round($impuesto, 2);
+// 			$ttl_impuesto += $impuesto;
+// 		}
+// 	}
+// 	$total = $base_impo + $base_noimpo + $ttl_impuesto;
+
+// 	return ["base_noimpo" => round($base_noimpo, 2), "base_impo" => round($base_impo, 2), "ttl_impuesto" => round($ttl_impuesto, 2), "ttl_descuento" => round($ttl_descuento, 2), "total" => round($total, 2), "raw_base" => $raw_base];
+// }
+
+
